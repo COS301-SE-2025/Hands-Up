@@ -13,6 +13,7 @@ Thus, the system focuses on three core functionalities:
 2. Interactive learning with AI-powered feedback 
 3. Progress tracking for users
 
+ <div align="Center">
 <h2 >Links to SRS Document and SubParts</h2>
 
 | Resource                          | Description                             |
@@ -27,7 +28,7 @@ Thus, the system focuses on three core functionalities:
 | [Constraints](https://docs.google.com/document/d/14V-21fzAjwRsA2nPEop3hE1Vkl4h4Zx2k93k3Eh4bT0/edit?tab=t.0#bookmark=id.spm5feu9n7zs)                | Technical, business, or environmental limitations             |
 | [Service Contracts](https://docs.google.com/document/d/14V-21fzAjwRsA2nPEop3hE1Vkl4h4Zx2k93k3Eh4bT0/edit?tab=t.0#bookmark=id.iixpcq5t2vzu)         | Defined inputs, outputs, and behaviors of services            |
 | [Technology Requirements](https://docs.google.com/document/d/14V-21fzAjwRsA2nPEop3hE1Vkl4h4Zx2k93k3Eh4bT0/edit?tab=t.0#bookmark=id.iixpcq5t2vzu)   | Platforms, tools, and languages required for implementation   |
-
+</div>
  <h2 align="center">Technologies </h2>
  <div align="Center">
 
