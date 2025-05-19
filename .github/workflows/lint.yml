@@ -10,11 +10,10 @@ permissions:
   contents: read
 
 jobs:
-  start:
-    name: Initial Setup
+  pre-start:
     runs-on: ubuntu-latest
     timeout-minutes: 5
-
+    
     steps:
       - name: Start Linting
         run: |

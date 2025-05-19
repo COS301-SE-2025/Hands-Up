@@ -1,5 +1,4 @@
 name: Build Codebase
-# This workflow builds the frontend and backend applications in parallel.
 
 on:
   push:
@@ -15,6 +14,7 @@ jobs:
   pre-start:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+
     steps:
       - name: Start Build
         run: |
