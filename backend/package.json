@@ -1,0 +1,8 @@
+{
+  "name": "placeholder",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "echo 'No app yet...'",
+    "test-coverage": "echo 'No tests yet...'"
+  }
+}

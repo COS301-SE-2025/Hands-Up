@@ -1,0 +1,49 @@
+name: Build Codebase
+# This workflow builds the frontend and backend applications in parallel.
+
+on:
+  push:
+    branches: [main, dev]
+
+  pull_request:
+    branches: [main, dev]
+
+permissions:
+  contents: read
+
+jobs:
+  pre-start:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Start Build
+        run: |
+          echo "Building ${{ github.repository }}"
+
+  build-codebase:
+    name: Build
+    needs: pre-start
+    strategy:
+      matrix:
+        folder: [frontend, backend]
+        
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies ${{ matrix.folder }}
+        working-directory: ${{ matrix.folder }}
+        run: npm install
+
+      - name: Run Lint ${{ matrix.folder }}
+        working-directory: ${{ matrix.folder }}
+        run: npm start 
+      
