@@ -1,49 +1,48 @@
-name: Build Codebase
-# This workflow builds the frontend and backend applications in parallel.
-
+name: Lint Codebase
 on:
   push:
     branches: [main, dev]
 
   pull_request:
     branches: [main, dev]
-
+    
 permissions:
   contents: read
 
 jobs:
-  pre-start:
+  start:
+    name: Initial Setup
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    steps:
-      - name: Start Build
-        run: |
-          echo "Building ${{ github.repository }}"
 
-  build-codebase:
-    name: Build
-    needs: pre-start
+    steps:
+      - name: Start Linting
+        run: |
+          echo "Beginning to lint ${{ github.repository }}"
+
+  lint-codebase:
+    name: Lint ${{ matrix.folder }}
+    runs-on: ubuntu-latest
+    needs: start
+
     strategy:
       matrix:
         folder: [frontend, backend]
-        
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
 
-      - name: Set up Node.js
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 22  
 
       - name: Install dependencies ${{ matrix.folder }}
         working-directory: ${{ matrix.folder }}
         run: npm install
 
-      - name: Run ${{ matrix.folder }}
+      - name: Lint ${{ matrix.folder }}
         working-directory: ${{ matrix.folder }}
-        run: npm start 
-      
+        run: npm run lint
+
