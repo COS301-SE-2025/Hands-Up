@@ -2,7 +2,7 @@
   <img src="diagrams/Screenshot_2025-04-23_212401.png" width="auto" height="auto">
 </p>
   
-<h1 align="center">Hands UP by TKMDT</h1>
+<h1 align="center">Hands UP by TMKDT</h1>
 
 ## Project Description 
 
