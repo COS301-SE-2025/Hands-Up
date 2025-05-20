@@ -6,7 +6,7 @@ import "./App.css";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/userProfile";
-import Recognize from "./pages/Recognizer";
+import Translator from "./pages/Translator";
 import Learn from "./pages/Learn";
 import Home from "./pages/Home";
 import Layout from "./pages/Layout";
@@ -37,11 +37,11 @@ function App() {
           }
         />
         <Route
-          path="/recognizer"
+          path="/translator"
           element={
             isLoggedIn ? (
               <Layout isLoggedIn={isLoggedIn}>
-                <Recognize />
+                <Translator />
               </Layout>
             ) : (
               <Navigate to="/login" />

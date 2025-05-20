@@ -3,12 +3,12 @@ import { Link } from "react-router-dom";
 import "../styles/Layout.css";
 import logo from "../logo.png";
 
-const NAV_ITEMS = ["Home", "Learn", "Recognizer", "Profile"];
+const NAV_ITEMS = ["Home", "Learn", "Translator", "Profile"];
 
 const NAV_PATHS = {
   Home: "/home",
   Learn: "/learn",
-  Recognizer: "/recognizer",
+  Translator: "/translator",
   Profile: "/userProfile",
 };
 
