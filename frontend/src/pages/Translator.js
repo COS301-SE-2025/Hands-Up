@@ -12,7 +12,7 @@ export default function Translator()
   const [speakDisabled, setSpeakDisabled] = useState(true);
   const [audioProgressWidth, setAudioProgressWidth] = useState(0);
 
-  const [capturedImage, set_captured_image] = useState(null);
+  const [capturedImage, setCapturedImage] = useState(null);
 
   
   useEffect(() => {
@@ -39,8 +39,31 @@ export default function Translator()
   }, []);
 
   //i need to add a funciton that will capture the image from the video stram
-  const captureImageFromVideo = () =>{
-    
+   const captureImageFromVideo = () => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+
+      // Set canvas dimensions to match video
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      // Draw the current video frame to canvas
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Convert canvas to blob/base64 for processing
+      canvas.toBlob((blob) => {
+        const imageUrl = URL.createObjectURL(blob);
+        setCapturedImage(imageUrl);
+        
+        // Add to history
+
+
+        // Process the captured image
+        processImage(blob);
+      }, 'image/jpeg', 0.8);
+    }
   };
 
   // i wil need a function to process the image:
@@ -59,20 +82,20 @@ export default function Translator()
     //add mock process for now
     //this one will also need a connect to api(backend)
 
-    const formData = new FormData();
-    formData.append('image', imageBlob, 'capture.jpg');
+    // const formData = new FormData();
+    // formData.append('image', imageBlob, 'capture.jpg');
     
-    try {
-      const response = await fetch('/api/process-sign', {
-        method: 'POST',
-        body: formData
-      });
-      const data = await response.json();
-      setResult(`Detected: '${data.sign}'`);
-      setSpeakDisabled(false);
-    } catch (error) {
-      setResult('Error processing image');
-    }
+    // try {
+    //   const response = await fetch('/api/process-sign', {
+    //     method: 'POST',
+    //     body: formData
+    //   });
+    //   const data = await response.json();
+    //   setResult(`Detected: '${data.sign}'`);
+    //   setSpeakDisabled(false);
+    // } catch (error) {
+    //   setResult('Error processing image');
+    // }
   };
 
   const capture = () => {
@@ -144,6 +167,10 @@ export default function Translator()
                 playsInline 
                 className="recognizer-video"
               ></video>
+              <canvas
+                ref={canvasRef}
+                style={{ display: 'none' }}
+                ></canvas>
               <div className="recognizer-camera-controls">
                 <button className="recognizer-camera-button" title="Switch camera">
                   <i className="fas fa-sync-alt"></i>
@@ -202,6 +229,21 @@ export default function Translator()
               <h3 className="recognizer-results-title">
                 <i className="fas fa-language recognizer-results-icon"></i> Translation Results
               </h3>
+              {capturedImage && (
+                <div className="recognizer-captured-image" style={{ marginBottom: '10px' }}>
+                  <img 
+                    src={capturedImage} 
+                    alt="Captured sign" 
+                    style={{ 
+                      width: '100%', 
+                      maxHeight: '200px', 
+                      objectFit: 'contain',
+                      border: '2px solid #ddd',
+                      borderRadius: '8px'
+                    }}
+                  />
+                </div>
+              )}
               <div className="recognizer-results-display">
                 <p className={`recognizer-results-text ${result !== "Awaiting sign capture..." ? "recognizer-results-detected" : ""}`}>
                   {result}
@@ -236,6 +278,7 @@ export default function Translator()
               <h3 className="recognizer-tips-title">
                 <i className="fas fa-lightbulb recognizer-tips-icon"></i> Tips for Better Recognition
               </h3>
+
               <ul className="recognizer-tips-list">
                 <li className="recognizer-tip-item">
                   <i className="fas fa-sun recognizer-tip-icon"></i>
