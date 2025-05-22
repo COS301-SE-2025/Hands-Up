@@ -1,0 +1,87 @@
+.layout-container 
+{
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #2B3F32 0%, #1f3528 100%);
+  color: #2D4D3A;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.header 
+{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #2D4D3A;
+  color: white;
+  padding: 1rem 2rem;
+  flex-shrink: 0;
+}
+
+.header-left 
+{
+  display: flex;
+  align-items: center;
+}
+
+.logo 
+{
+  width: 48px;
+  height: 48px;
+  margin-right: 1rem;
+}
+
+.site-title 
+{
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.nav-list 
+{
+  display: flex;
+  list-style: none;
+  gap: 2rem;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-link 
+{
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover 
+{
+  color: #AAD576; 
+}
+
+.nav-link-active 
+{
+  color: #FFD700; 
+  font-weight: 700;
+  border-bottom: 2px solid #AAD576; 
+}
+
+.main-content 
+{
+  flex-grow: 1;
+  padding: 2rem;
+  max-width: none;
+  width: 100%;
+  margin: 0 ;
+}
+
+.footer 
+{
+  text-align: center;
+  padding: 1rem 2rem;
+  background-color: #f5f5f5;
+  color: #666;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
