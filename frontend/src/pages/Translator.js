@@ -12,6 +12,8 @@ export default function Translator()
   const [capturedImage, setCapturedImage] = useState(null);
   const [captureHistory, setCaptureHistory] = useState([]);
 
+  const [recordedChunks, setRecordedChunks] = useState([]);
+
   useEffect(() => {
     const enableCamera = async () => {
       try {
@@ -95,6 +97,38 @@ export default function Translator()
       setSpeakDisabled(false);
     } catch (error) {
       setResult('Error processing image');
+    }
+    */
+  };
+
+const processVideo = async (videoBlob) => {
+    setResult("Processing captured video...");
+
+    // Simulate processing
+    setTimeout(() => {
+      setResult("Detected phrase: 'How are you?'");
+      setSpeakDisabled(false);
+      setAudioProgressWidth(0);
+      setTimeout(() => {
+        setAudioProgressWidth(100);
+      }, 100);
+    }, 2000);
+
+    // Example API call for video processing
+    /*
+    const formData = new FormData();
+    formData.append('video', videoBlob, 'sign.webm');
+    
+    try {
+      const response = await fetch('/api/process-video', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await response.json();
+      setResult(`Detected phrase: '${data.phrase}'`);
+      setSpeakDisabled(false);
+    } catch (error) {
+      setResult('Error processing video');
     }
     */
   };
