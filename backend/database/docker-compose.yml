@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: HandsUp_DB
+    restart: always
+    environment:
+      POSTGRES_USER: tmkdt
+      POSTGRES_PASSWORD: handsUpProject1.0
+      POSTGRES_DB: HandsUp
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  flyway:
+    image: flyway/flyway:9
+    container_name: flyway_migration
+    restart: on-failure
+    depends_on:
+      - postgres
+    volumes:
+      - ./sql:/flyway/sql
+    command: -url=jdbc:postgresql://postgres:5432/HandsUp -user=tmkdt -password=handsUpProject1.0 migrate
+
+volumes:
+  pgdata:
