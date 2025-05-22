@@ -2,19 +2,16 @@ import { useState, useRef, useEffect } from 'react';
 import '../styles/Translator.css';
 
 export default function Translator() 
-{ 
-
-
-  const canvasRef = useRef(null);
+{
   const videoRef = useRef(null);
+  const canvasRef = useRef(null);
   const [result, setResult] = useState("Awaiting sign capture...");
   const [recording, setRecording] = useState(false);
   const [speakDisabled, setSpeakDisabled] = useState(true);
   const [audioProgressWidth, setAudioProgressWidth] = useState(0);
-  const [captureHistory, setCaptureHistory] = useState([]);
   const [capturedImage, setCapturedImage] = useState(null);
+  const [captureHistory, setCaptureHistory] = useState([]);
 
-  
   useEffect(() => {
     const enableCamera = async () => {
       try {
@@ -38,8 +35,7 @@ export default function Translator()
     };
   }, []);
 
-  //i need to add a funciton that will capture the image from the video stram
-   const captureImageFromVideo = () => {
+  const captureImageFromVideo = () => {
     if (videoRef.current && canvasRef.current) {
       const video = videoRef.current;
       const canvas = canvasRef.current;
@@ -62,7 +58,7 @@ export default function Translator()
           id: Date.now(),
           url: imageUrl,
           timestamp: new Date().toLocaleTimeString()
-        }, ...prev.slice(0, )]);
+        }, ...prev.slice(0, 4)]); // Keep only last 5 captures
 
         // Process the captured image
         processImage(blob);
@@ -70,11 +66,11 @@ export default function Translator()
     }
   };
 
-  // i wil need a function to process the image:
   const processImage = async (imageBlob) => {
     setResult("Processing captured image...");
 
-    //handle timeout 
+    // Here you can implement your actual image processing logic
+    // For now, we'll simulate processing with a timeout
     setTimeout(() => {
       setResult("Detected: 'Hello'");
       setSpeakDisabled(false);
@@ -83,33 +79,28 @@ export default function Translator()
         setAudioProgressWidth(100);
       }, 100);
     }, 1500);
-    //add mock process for now
-    //this one will also need a connect to api(backend)
 
-    // const formData = new FormData();
-    // formData.append('image', imageBlob, 'capture.jpg');
+    // Example of how you might send the image to a processing API:
+    /*
+    const formData = new FormData();
+    formData.append('image', imageBlob, 'capture.jpg');
     
-    // try {
-    //   const response = await fetch('/api/process-sign', {
-    //     method: 'POST',
-    //     body: formData
-    //   });
-    //   const data = await response.json();
-    //   setResult(`Detected: '${data.sign}'`);
-    //   setSpeakDisabled(false);
-    // } catch (error) {
-    //   setResult('Error processing image');
-    // }
+    try {
+      const response = await fetch('/api/process-sign', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await response.json();
+      setResult(`Detected: '${data.sign}'`);
+      setSpeakDisabled(false);
+    } catch (error) {
+      setResult('Error processing image');
+    }
+    */
   };
 
   const capture = () => {
-    setResult("Detected: 'Hello'");
-    setSpeakDisabled(false);
-
-    setAudioProgressWidth(0);
-    setTimeout(() => {
-      setAudioProgressWidth(100);
-    }, 100);
+    captureImageFromVideo();
   };
 
   const startRecording = () => {
@@ -126,22 +117,24 @@ export default function Translator()
   };
 
   const handleFileUpload = (e) => {
-
-    //this will need to upload properly
     if (e.target.files.length > 0) {
       const file = e.target.files[0];
       setResult(`Processing uploaded ${file.type.includes('image') ? 'image' : 'video'}...`);
 
-      setTimeout(() => {
-        setResult("Detected: 'Thank you'");
-        setSpeakDisabled(false);
-      }, 2000);
+      // Process uploaded file
+      processUploadedFile(file);
     }
   };
 
-  //need something to process the uploaded file
   const processUploadedFile = (file) => {
+    // Create object URL for the uploaded file
+    const fileUrl = URL.createObjectURL(file);
+    setCapturedImage(fileUrl);
 
+    setTimeout(() => {
+      setResult("Detected: 'Thank you'");
+      setSpeakDisabled(false);
+    }, 2000);
   };
 
   const speak = () => {
@@ -171,10 +164,12 @@ export default function Translator()
                 playsInline 
                 className="recognizer-video"
               ></video>
-              <canvas
-                ref={canvasRef}
+              {/* Hidden canvas for capturing video frames */}
+              <canvas 
+                ref={canvasRef} 
                 style={{ display: 'none' }}
-                ></canvas>
+              ></canvas>
+              
               <div className="recognizer-camera-controls">
                 <button className="recognizer-camera-button" title="Switch camera">
                   <i className="fas fa-sync-alt"></i>
@@ -241,6 +236,8 @@ export default function Translator()
               <h3 className="recognizer-results-title">
                 <i className="fas fa-language recognizer-results-icon"></i> Translation Results
               </h3>
+              
+              {/* Display captured image if available */}
               {capturedImage && (
                 <div className="recognizer-captured-image" style={{ marginBottom: '10px' }}>
                   <img 
@@ -256,6 +253,7 @@ export default function Translator()
                   />
                 </div>
               )}
+              
               <div className="recognizer-results-display">
                 <p className={`recognizer-results-text ${result !== "Awaiting sign capture..." ? "recognizer-results-detected" : ""}`}>
                   {result}
@@ -290,7 +288,6 @@ export default function Translator()
               <h3 className="recognizer-tips-title">
                 <i className="fas fa-lightbulb recognizer-tips-icon"></i> Tips for Better Recognition
               </h3>
-
               <ul className="recognizer-tips-list">
                 <li className="recognizer-tip-item">
                   <i className="fas fa-sun recognizer-tip-icon"></i>
