@@ -1,25 +1,25 @@
 -- Create the enum type for current_level
-CREATE TYPE level_type AS ENUM ('gold', 'silver', 'bronze');
+CREATE TYPE "levelType" AS ENUM ('Gold', 'Silver', 'Bronze');
 
 -- Create the users table
 CREATE TABLE public.users (
     "userID" SERIAL PRIMARY KEY,
-    username VARCHAR(100) NOT NULL UNIQUE,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL,
+    surname VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    password VARCHAR(255) NOT NULL
 );
 
 -- Create the learn table
 CREATE TABLE public.learn (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
-    lessons_completed INTEGER DEFAULT 0,
-    signs_learned INTEGER DEFAULT 0,
+    "userID" INTEGER NOT NULL,
+    "lessonsCompleted" INTEGER DEFAULT 0,
+    "signsLearned" INTEGER DEFAULT 0,
     streak INTEGER DEFAULT 0,
-    current_level level_type DEFAULT 'bronze',
+    "currentLevel" "levelType" DEFAULT 'Bronze',
     CONSTRAINT fk_user
-        FOREIGN KEY (user_id)
+        FOREIGN KEY ("userID")
         REFERENCES public.users("userID")
         ON DELETE CASCADE
 );
