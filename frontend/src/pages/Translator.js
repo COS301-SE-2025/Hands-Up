@@ -11,7 +11,7 @@ export default function Translator()
   const [recording, setRecording] = useState(false);
   const [speakDisabled, setSpeakDisabled] = useState(true);
   const [audioProgressWidth, setAudioProgressWidth] = useState(0);
-
+  const [captureHistory, setCaptureHistory] = useState([]);
   const [capturedImage, setCapturedImage] = useState(null);
 
   
@@ -58,7 +58,11 @@ export default function Translator()
         setCapturedImage(imageUrl);
         
         // Add to history
-
+        setCaptureHistory(prev => [{
+          id: Date.now(),
+          url: imageUrl,
+          timestamp: new Date().toLocaleTimeString()
+        }, ...prev.slice(0, )]);
 
         // Process the captured image
         processImage(blob);
@@ -215,11 +219,19 @@ export default function Translator()
                 <i className="fas fa-history recognizer-history-icon"></i> Recent Captures
               </h3>
               <div className="recognizer-history-items">
-                <div className="recognizer-history-item"></div>
-                <div className="recognizer-history-item"></div>
-                <div className="recognizer-history-item"></div>
-                <div className="recognizer-history-item"></div>
-                <div className="recognizer-history-item"></div>
+                {captureHistory.map((capture, index) => (
+                  <div key={capture.id} className="recognizer-history-item">
+                    <img 
+                      src={capture.url} 
+                      alt={`Capture ${index + 1}`}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </div>
+                ))}
+                {/* Fill remaining slots with empty divs */}
+                {Array.from({ length: Math.max(0, 5 - captureHistory.length) }, (_, i) => (
+                  <div key={`empty-${i}`} className="recognizer-history-item"></div>
+                ))}
               </div>
             </div>
           </div>
