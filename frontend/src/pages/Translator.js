@@ -2,13 +2,19 @@ import { useState, useRef, useEffect } from 'react';
 import '../styles/Translator.css';
 
 export default function Translator() 
-{
+{ 
+
+
+  const canvasRef = useRef(null);
   const videoRef = useRef(null);
   const [result, setResult] = useState("Awaiting sign capture...");
   const [recording, setRecording] = useState(false);
   const [speakDisabled, setSpeakDisabled] = useState(true);
   const [audioProgressWidth, setAudioProgressWidth] = useState(0);
 
+  const [capturedImage, set_captured_image] = useState(null);
+
+  
   useEffect(() => {
     const enableCamera = async () => {
       try {
@@ -31,6 +37,28 @@ export default function Translator()
       }
     };
   }, []);
+
+  //i need to add a funciton that will capture the image from the video stram
+  const captureImageFromVideo = () =>{
+    
+  };
+
+  // i wil need a function to process the image:
+  const processImage = async (imageBlob) => {
+    setResult("Processing captured image...");
+
+    //handle timeout 
+    setTimeout(() => {
+      setResult("Detected: 'Hello'");
+      setSpeakDisabled(false);
+      setAudioProgressWidth(0);
+      setTimeout(() => {
+        setAudioProgressWidth(100);
+      }, 100);
+    }, 1500);
+    //add mock process for now
+    //this one will also need a connect to api(backend)
+  };
 
   const capture = () => {
     setResult("Detected: 'Hello'");
@@ -56,6 +84,8 @@ export default function Translator()
   };
 
   const handleFileUpload = (e) => {
+
+    //this will need to upload properly
     if (e.target.files.length > 0) {
       const file = e.target.files[0];
       setResult(`Processing uploaded ${file.type.includes('image') ? 'image' : 'video'}...`);
@@ -65,6 +95,11 @@ export default function Translator()
         setSpeakDisabled(false);
       }, 2000);
     }
+  };
+
+  //need something to process the uploaded file
+  const processUploadedFile = (file) => {
+
   };
 
   const speak = () => {
