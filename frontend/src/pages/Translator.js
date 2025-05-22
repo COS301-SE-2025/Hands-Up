@@ -58,6 +58,21 @@ export default function Translator()
     }, 1500);
     //add mock process for now
     //this one will also need a connect to api(backend)
+
+    const formData = new FormData();
+    formData.append('image', imageBlob, 'capture.jpg');
+    
+    try {
+      const response = await fetch('/api/process-sign', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await response.json();
+      setResult(`Detected: '${data.sign}'`);
+      setSpeakDisabled(false);
+    } catch (error) {
+      setResult('Error processing image');
+    }
   };
 
   const capture = () => {
