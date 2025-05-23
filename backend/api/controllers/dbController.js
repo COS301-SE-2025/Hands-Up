@@ -5,10 +5,13 @@ const router = Router();
 
 export const learningProgress = async (req, res) => {
   try {
-    const userId = req.params.userId;
+    console.log(req.body);
+    const {username} = req.body; // Use body for now until username is figured out - currently undefined
+    console.log('Username:', username);
 
     const result = await pool.query(
-      'SELECT * FROM users',
+        `SELECT * FROM learn JOIN users ON learn."userID"= users."userID" WHERE users.username = $1`,
+        [username]
     );
 
     res.status(200).json({
@@ -19,7 +22,7 @@ export const learningProgress = async (req, res) => {
   } catch (err) {
     console.error('DB error:', err);
     res.status(500).json({
-      success: false,
+      success: error,
       error: 'Internal Server Error',
     });
   }
