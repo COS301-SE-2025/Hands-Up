@@ -35,7 +35,7 @@ function Login() {
     }
   };
 
-  // const handleUpdate = useStatUpdater();
+  const handleUpdate = useStatUpdater();
 
   return (
     <div className="login-page">

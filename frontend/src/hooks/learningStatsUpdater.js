@@ -8,7 +8,7 @@ export function useStatUpdater() {
       lessonsCompleted: type === "lesson" ? stats.lessonsCompleted + 1 : stats.lessonsCompleted,
       signsLearned: type === "sign" ? stats.signsLearned + 1 : stats.signsLearned,
       streak: type === "streak" ? stats.streak + 1 : stats.streak,
-      currentLevel: type === "level"? level : stats.currentLevel,
+      currentLevel: type === "level"? level ? level : stats.currentLevel : stats.currentLevel,
     };
     updateStats(newStats);
   };

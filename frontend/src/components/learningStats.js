@@ -3,49 +3,40 @@ import { useLearningStats } from "../context/learningStatsContext";
 import { useStatUpdater } from "../hooks/learningStatsUpdater";
 
 export function LearningStats() {
-  const { stats } = useLearningStats();
-  const handleUpdate = useStatUpdater();
+    const { stats } = useLearningStats();
+    const handleUpdate = useStatUpdater();
 
-  const {
-    lessonsCompleted = 0,
-    signsLearned = 0,
-    streak: practiseDays = 0,
-    currentLevel = "Bronze",
-  } = stats || {};
+    const {
+        lessonsCompleted = 0,
+        signsLearned = 0,
+        streak: practiseDays = 0,
+        currentLevel = "Bronze",
+    } = stats || {};
 
-  const TOTAL_LESSONS = 30;
+    const TOTAL_LESSONS = 30;
 
-  const calcLessonsCompleted = Math.min(lessonsCompleted, TOTAL_LESSONS);
+    const calcLessonsCompleted = Math.min(lessonsCompleted, TOTAL_LESSONS);
 
-  const detLevel = (calcLessonsCompleted + signsLearned + practiseDays) % 30;
-  let level;
+    const totalProgress = calcLessonsCompleted + signsLearned + (practiseDays%365);
+    let level;
 
-  switch (detLevel) {
-    case 0:
-      level = "Bronze";
-      break;
-    case 1:
-      level = "Silver";
-      break;
-    case 3:
-      level = "Gold";
-      break;
-    case 4:
-      level = "Platinum";
-      break;
-    case 5:
-      level = "Diamond";
-      break;
-    case 6:
-      level = "Ruby";
-      break;
-    default:
-      level = currentLevel;
-  }
+    if (totalProgress < 10) {
+        level = "Bronze";
+    } else if (totalProgress < 25) {
+        level = "Silver";
+    } else if (totalProgress < 50) {
+        level = "Gold";
+    } else if (totalProgress < 75) {
+        level = "Platinum";
+    } else if (totalProgress < 100) {
+        level = "Diamond";
+    } else {
+        level = "Ruby"; 
+    }
 
   useEffect(() => {
     if (stats && level !== currentLevel) {
-      handleUpdate("level");
+      handleUpdate("level", level);
     }
   }, [level, currentLevel, handleUpdate, stats]);
 
