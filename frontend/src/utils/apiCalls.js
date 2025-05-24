@@ -9,4 +9,20 @@ export const getLearningProgress = async (username) => {
   }
 };
 
-//import { Vote, GetVote } from '../../../../../libs/api-client';
+export const updateLearningProgress = async (username, progressData) => {
+   try {
+    const response = await fetch(`http://localhost:2000/handsUPApi/learning/progress/${username}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(progressData)
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error updating progress", error);
+    return null;
+  }
+};
+

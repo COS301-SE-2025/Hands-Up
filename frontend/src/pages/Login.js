@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useStatUpdater } from "../hooks/learningStatsUpdater";
 import '../styles/Login.css';
 import logo from '../logo.png'; 
 
@@ -26,6 +27,8 @@ function Login() {
       navigate('/userProfile');
     }
   };
+
+  const handleUpdate = useStatUpdater();
 
   return (
     <div className="login-page">
@@ -58,7 +61,7 @@ function Login() {
               className="form-input"
             />
           </div>
-          <button type="submit" className="login-button">
+          <button type="submit" className="login-button" onClick={handleUpdate("streak")}>
             Log In
           </button>
         </form>
