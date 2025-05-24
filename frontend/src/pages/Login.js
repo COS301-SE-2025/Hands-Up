@@ -10,22 +10,40 @@ function Login() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  if (!email || !password) {
+    setError('Please enter both email and password.');
+    return;
+  }
+
+  try {
+    const response = await fetch('http://localhost:2000/handsUPApi/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
     
-    if (!email || !password) 
-    {
-      setError('Please enter both email and password.');
-    } 
-    else 
-    {
-      setError('');
-      console.log('Login successful for:', email);
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('userEmail', email);
-      navigate('/userProfile');
+    const data = await response.json();
+    console.log(data);
+    if (!response.ok) {
+      throw new Error(data.error || 'Login failed');
     }
-  };
+
+    // Store user data and redirect
+    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('userData', JSON.stringify(data.user));
+    navigate('/userProfile');
+
+  } catch (error) {
+    console.log(email);
+    setError(error.message);
+    console.error('Login error:', error);
+  }
+};
 
   return (
     <div className="login-page">
