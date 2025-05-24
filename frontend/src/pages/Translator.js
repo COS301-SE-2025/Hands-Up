@@ -388,7 +388,7 @@ export default function Translator()
                   <div 
                     key={capture.id} 
                     className="recognizer-history-item" 
-                    title={`${capture.type} - ${capture.timestamp} (Click to reprocess)`}
+                    title={`${capture.type} - ${capture.timestamp}`}
                     //onClick={() => handleHistoryClick(capture)}
                     style={{ cursor: 'pointer', position: 'relative' }}
                   >
@@ -424,7 +424,7 @@ export default function Translator()
                     }}
                     className="history-hover-overlay"
                     >
-                      Click to Reprocess
+                    
                     </div>
                   </div>
                 ))}
@@ -525,6 +525,13 @@ export default function Translator()
           </div>
         </div>
       </div>
+      
+      {/* Add CSS for hover effect */}
+      <style jsx>{`
+        .recognizer-history-item:hover .history-hover-overlay {
+          opacity: 1 !important;
+        }
+      `}</style>
     </div>
   );
 }
