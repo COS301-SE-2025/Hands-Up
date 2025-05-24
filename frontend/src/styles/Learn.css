@@ -140,3 +140,36 @@
   outline: 3px solid #AAD576;
   outline-offset: 3px;
 }
+
+.lessons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.lesson-card {
+  background: #f9f9f9;
+  padding: 1rem;
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+}
+
+.lesson-card:hover 
+{
+  border-color: #AAD576;
+  box-shadow: 0 0 14px #AAD576cc;
+}
+
+.lesson-title {
+  font-weight: bold;
+  margin-top: 0.5rem;
+}
+
+.lesson-description {
+  font-size: 0.9rem;
+  color: #555;
+}
