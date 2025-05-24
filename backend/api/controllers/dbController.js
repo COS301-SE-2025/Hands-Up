@@ -150,4 +150,31 @@ export const uniqueUsername = async (req, res) => {
   }
 }; 
 
+export const updateUserDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, surname, username, email, password } = req.body;
+
+    // Hash password
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Update user details
+    const query = 
+      `UPDATE users SET name = $1, surname = $2, username = $3, email = $4, password = $5
+       WHERE userid = $6
+       RETURNING userid, username, name, surname, email`;
+    const values = [name, surname, username, email, hashedPassword, id];
+    const result = await pool.query(query, values);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+    res.status(200).json({ message: 'User updated successfully.', user: result.rows[0] });
+  } catch (err) {
+    console.error('Error updating user details:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
 export default router;

@@ -106,7 +106,7 @@ export default function UserProfile() {
 
     //check that username does not already exist 
     try {
-      const response = await fetch(`/auth/unique-username/${encodeURIComponent(username)}`);
+      const response = await fetch(`http://localhost:2000/handsUPApi/auth/unique-username/${encodeURIComponent(username)}`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -118,9 +118,32 @@ export default function UserProfile() {
       }
     } catch (error) {
       console.error('Error checking username:', error);
-      return null; // or handle error differently
+      return null; 
     }
 
+    //save updated user details 
+    try {
+      const response = await fetch(`http://localhost:2000/handsUPApi/user/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({name, surname, username, email, password: newPassword })
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert("User updated successfully!");
+      } 
+      else {
+        console.error("Update failed:", result.error);
+        alert("Failed to update user.");
+      }
+    } catch (err) {
+      console.error("Error during update:", err);
+      alert("An error occurred while updating.");
+    }
   };
 
   if (loading) return <div className="containerP">Loading...</div>;
