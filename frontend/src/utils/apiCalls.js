@@ -24,5 +24,6 @@ export const updateLearningProgress = async (username, progressData) => {
     console.error("Error updating progress", error);
     return null;
   }
+  
 };
 

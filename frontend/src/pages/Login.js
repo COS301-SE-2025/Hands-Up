@@ -28,7 +28,7 @@ function Login() {
     }
   };
 
-  const handleUpdate = useStatUpdater();
+  // const handleUpdate = useStatUpdater();
 
   return (
     <div className="login-page">
@@ -61,7 +61,7 @@ function Login() {
               className="form-input"
             />
           </div>
-          <button type="submit" className="login-button" onClick={handleUpdate("streak")}>
+          <button type="submit" className="login-button">
             Log In
           </button>
         </form>

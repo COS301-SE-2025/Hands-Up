@@ -15,3 +15,4 @@ export function calculateLevelIndex(stats) {
   const score = stats.lessonsCompleted + stats.signsLearned + stats.streak;
   return Math.min(Math.floor(score / 5), levelNames.length - 1); 
 }
+
