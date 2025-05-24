@@ -53,7 +53,74 @@ export default function UserProfile() {
 
   const handleSaveChanges = async (e) => {
     e.preventDefault();
-    // Implement update logic here
+
+    const name = document.getElementById("name").value.trim();
+    const surname = document.getElementById("surname").value.trim();
+    const username = document.getElementById("username").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const newPassword = document.getElementById("newPassword").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+    const errors = {};
+
+    //check if any fields are empty
+    if (!name) errors.name = "Name is required.";
+    if (!surname) errors.surname = "Surname is required.";
+    if (!username) errors.username = "Username is required.";
+    if (!email) errors.email = "Email is required.";
+    if (!newPassword) errors.newPassword = "Password is required.";
+    if (!confirmPassword) errors.confirmPassword = "Confirm password is required.";
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
+    //check if name and surname only contain letters
+    const nameRegex = /^[A-Za-z]+$/;
+    if (name && !nameRegex.test(name)) {
+      errors.name = "Name must contain only letters.";
+    }
+    if (surname && !nameRegex.test(surname)) {
+      errors.surname = "Surname must contain only letters.";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
+    //check if email is in a valid format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (email && !emailRegex.test(email)) {
+      errors.email = "Invalid email format.";
+      setFormErrors(errors);
+      return;
+    }
+
+    //check that password and confirm password match
+    if (newPassword !== confirmPassword) {
+      errors.confirmPassword = "Passwords do not match.";
+      setFormErrors(errors);
+      return;
+    }
+
+    //check that username does not already exist 
+    try {
+      const response = await fetch(`/auth/unique-username/${encodeURIComponent(username)}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      if (data.exists) {
+        errors.username = "Username already taken.";
+        setFormErrors(errors);
+        return;  
+      }
+    } catch (error) {
+      console.error('Error checking username:', error);
+      return null; // or handle error differently
+    }
+
   };
 
   if (loading) return <div className="containerP">Loading...</div>;
@@ -117,6 +184,7 @@ export default function UserProfile() {
                   type="text" 
                   defaultValue={userData?.name || ''} 
                 />
+                {formErrors.name && <div className="error-text">{formErrors.name}</div>}
               </div>
               <div className="form-group">
                 <label htmlFor="surname">Surname</label>
@@ -125,6 +193,7 @@ export default function UserProfile() {
                   type="text" 
                   defaultValue={userData?.surname || ''} 
                 />
+                {formErrors.surname && <div className="error-text">{formErrors.surname}</div>}
               </div>
               <div className="form-group">
                 <label htmlFor="username">Username</label>
@@ -133,6 +202,7 @@ export default function UserProfile() {
                   type="text" 
                   defaultValue={userData?.username || ''} 
                 />
+                {formErrors.username && <div className="error-text">{formErrors.username}</div>}
               </div>
               <div className="form-group">
                 <label htmlFor="email">Email</label>
@@ -141,15 +211,17 @@ export default function UserProfile() {
                   type="email" 
                   defaultValue={userData?.email || ''} 
                 />
+                {formErrors.email && <div className="error-text">{formErrors.email}</div>}
               </div>
-              
               <div className="form-group">
                 <label htmlFor="newPassword">New Password</label>
                 <input id="newPassword" type="password" placeholder="••••••••" />
+                {formErrors.newPassword && <div className="error-text">{formErrors.newPassword}</div>}
               </div>
               <div className="form-group">
                 <label htmlFor="confirmPassword">Confirm Password</label>
                 <input id="confirmPassword" type="password" placeholder="••••••••" />
+                {formErrors.confirmPassword && <div className="error-text">{formErrors.confirmPassword}</div>}
               </div>
             </div>
 

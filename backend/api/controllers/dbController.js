@@ -75,7 +75,6 @@ export const signUpUser = async (req, res) => {
   }
 };
 
-
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -117,7 +116,6 @@ export const loginUser = async (req, res) => {
   }
 };
 
-
 export const getUserData = async (req, res) => {
   try {
     const { id } = req.params;
@@ -136,4 +134,20 @@ export const getUserData = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+export const uniqueUsername = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const result = await pool.query(
+      'SELECT 1 FROM users WHERE username = $1',
+      [username]
+    );
+
+    res.status(200).json({ exists: result.rows.length > 0 });
+  } catch (err) {
+    console.error('Error checking username:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}; 
+
 export default router;
