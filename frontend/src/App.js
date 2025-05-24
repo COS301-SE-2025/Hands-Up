@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, Link } from "react-router-dom";
+import { LearningStatsProvider } from "./context/learningStatsContext";
 import React from "react";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import "./App.css";
@@ -17,6 +18,7 @@ function App() {
   const isLoggedIn = true; 
 
   return (
+    <LearningStatsProvider>
     <Router>
       <Routes>
         {/* Public pages without layout */}
@@ -77,6 +79,7 @@ function App() {
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </Router>
+    </LearningStatsProvider>
   );
 }
 
