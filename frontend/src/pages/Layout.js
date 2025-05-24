@@ -1,23 +1,32 @@
 import React from "react";
-import { Link } from "react-router-dom"; 
+import { Link, useNavigate } from "react-router-dom";
 import "../styles/Layout.css";
 import logo from "../logo.png";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
+import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons'; 
 
 const NAV_ITEMS = ["Home", "Learn", "Translator", "Profile"];
 
 const NAV_PATHS = {
-  Home: "/home",
+  Home: "/home", 
   Learn: "/learn",
   Translator: "/translator",
   Profile: "/userProfile",
 };
 
 function Layout({ children, currentPage }) {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    console.log("User logged out!");
+    navigate("/login");
+  };
+
   return (
     <div className="layout-container">
       <header className="header">
         <div className="header-left">
-          <img src={logo} alt="Logo" className="logo" />
+          <img src={logo} alt="Hands UP Logo" className="logo" />
           <h1 className="site-title">Hands UP</h1>
         </div>
         <nav>
@@ -40,6 +49,12 @@ function Layout({ children, currentPage }) {
                 </Link>
               </li>
             ))}
+
+            <li>
+              <button onClick={handleLogout} className="nav-link logout-button" title="Logout">
+                <FontAwesomeIcon icon={faSignOutAlt} className="logout-icon" />
+              </button>
+            </li>
           </ul>
         </nav>
       </header>
