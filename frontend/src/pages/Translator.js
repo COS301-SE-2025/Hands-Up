@@ -107,7 +107,7 @@ export default function Translator()
   const processVideo = async (videoBlob) => {
     setResult("Processing captured video...");
 
-    // Simulate processing
+    // Simulate faster processing
     setTimeout(() => {
       setResult("Detected phrase: 'How are you?'");
       setSpeakDisabled(false);
@@ -115,9 +115,9 @@ export default function Translator()
       setTimeout(() => {
         setAudioProgressWidth(100);
       }, 100);
-    }, 2000);
+    }, 800); // Reduced from 2000ms to 800ms
 
-    // Example API call for video processing
+    // Example API call for video processing with optimized FormData
     /*
     const formData = new FormData();
     formData.append('video', videoBlob, 'sign.webm');
@@ -125,7 +125,11 @@ export default function Translator()
     try {
       const response = await fetch('/api/process-video', {
         method: 'POST',
-        body: formData
+        body: formData,
+        // Add headers for faster processing
+        headers: {
+          'Accept': 'application/json',
+        }
       });
       const data = await response.json();
       setResult(`Detected phrase: '${data.phrase}'`);
@@ -149,17 +153,32 @@ export default function Translator()
     // Reset chunks for new recording
     setRecordedChunks([]);
     
-    const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+    // Use higher bitrate for better quality and faster processing
+    const options = {
+      mimeType: 'video/webm;codecs=vp8',
+      videoBitsPerSecond: 2500000 // 2.5 Mbps for good quality
+    };
+    
+    // Fallback options if the preferred format isn't supported
+    let recorder;
+    try {
+      recorder = new MediaRecorder(stream, options);
+    } catch (e) {
+      // Fallback to default
+      recorder = new MediaRecorder(stream);
+    }
+
+    const chunks = []; // Local array to collect chunks
 
     recorder.ondataavailable = (e) => {
       if (e.data.size > 0) {
-        setRecordedChunks(prev => [...prev, e.data]);
+        chunks.push(e.data);
       }
     };
 
     recorder.onstop = () => {
-      // Create blob from all recorded chunks
-      const blob = new Blob(recordedChunks, { type: 'video/webm' });
+      // Create blob from collected chunks
+      const blob = new Blob(chunks, { type: 'video/webm' });
       const videoURL = URL.createObjectURL(blob);
       
       setCapturedImage(videoURL);
@@ -178,17 +197,19 @@ export default function Translator()
     };
 
     setMediaRecorder(recorder);
-    recorder.start();
+    
+    // Start recording with timeslice for more frequent data events
+    recorder.start(200); // Request data every 200ms
     setRecording(true);
     setResult("Recording signs...");
 
-    // Auto-stop after 5 seconds
+    // Auto-stop after 3 seconds (reduced from 5)
     setTimeout(() => {
       if (recorder.state === 'recording') {
         recorder.stop();
         setRecording(false);
       }
-    }, 5000);
+    }, 3000);
   };
 
   const handleFileUpload = (e) => {
@@ -234,7 +255,8 @@ export default function Translator()
           src={url} 
           style={{ 
             width: '100%', 
-            maxHeight: '200px', 
+            height: '250px', 
+            objectFit: 'cover',
             border: '2px solid #ddd', 
             borderRadius: '8px' 
           }}
@@ -247,8 +269,8 @@ export default function Translator()
           alt="Captured sign" 
           style={{ 
             width: '100%', 
-            maxHeight: '200px', 
-            objectFit: 'contain', 
+            height: '250px', 
+            objectFit: 'cover', 
             border: '2px solid #ddd', 
             borderRadius: '8px' 
           }}
