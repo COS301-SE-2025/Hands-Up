@@ -2,8 +2,7 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/Layout.css";
 import logo from "../logo.png";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons'; 
+
 
 const NAV_ITEMS = ["Home", "Learn", "Translator", "Profile"];
 
@@ -49,10 +48,11 @@ function Layout({ children, currentPage }) {
                 </Link>
               </li>
             ))}
-
+          
             <li>
               <button onClick={handleLogout} className="nav-link logout-button" title="Logout">
-                <FontAwesomeIcon icon={faSignOutAlt} className="logout-icon" />
+                <i className="fas fa-sign-out-alt logout-icon"></i> 
+                <span className="sr-only">Logout</span> 
               </button>
             </li>
           </ul>
