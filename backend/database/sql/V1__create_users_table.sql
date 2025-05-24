@@ -1,5 +1,5 @@
 -- Create the enum type for current_level
-CREATE TYPE "levelType" AS ENUM ('Gold', 'Silver', 'Bronze');
+CREATE TYPE "levelType" AS ENUM ('Gold', 'Silver', 'Bronze','Platinum', 'Diamond','Ruby');
 
 -- Create the users table
 CREATE TABLE public.users (
