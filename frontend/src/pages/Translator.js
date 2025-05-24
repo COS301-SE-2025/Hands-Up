@@ -10,8 +10,10 @@ export default function Translator()
   const [speakDisabled, setSpeakDisabled] = useState(true);
   const [audioProgressWidth, setAudioProgressWidth] = useState(0);
   const [capturedImage, setCapturedImage] = useState(null);
+  const [capturedType, setCapturedType] = useState(null); // 'image' or 'video'
   const [captureHistory, setCaptureHistory] = useState([]);
 
+  const [mediaRecorder, setMediaRecorder] = useState(null);
   const [recordedChunks, setRecordedChunks] = useState([]);
 
   useEffect(() => {
@@ -38,12 +40,12 @@ export default function Translator()
   }, []);
 
   const captureImageFromVideo = () => {
-    if (videoRef.current && canvasRef.current) {
+    if(videoRef.current && canvasRef.current) {
       const video = videoRef.current;
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d');
 
-      // Set canvas dimensions to match video
+      // Set canvas dimensions to video dimensions
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
 
@@ -54,13 +56,15 @@ export default function Translator()
       canvas.toBlob((blob) => {
         const imageUrl = URL.createObjectURL(blob);
         setCapturedImage(imageUrl);
-        
+        setCapturedType('image');
+
         // Add to history
         setCaptureHistory(prev => [{
           id: Date.now(),
           url: imageUrl,
+          type: 'image',
           timestamp: new Date().toLocaleTimeString()
-        }, ...prev.slice(0, 4)]); // Keep only last 5 captures
+        }, ...prev.slice(0, 4)]);
 
         // Process the captured image
         processImage(blob);
@@ -71,8 +75,7 @@ export default function Translator()
   const processImage = async (imageBlob) => {
     setResult("Processing captured image...");
 
-    // Here you can implement your actual image processing logic
-    // For now, we'll simulate processing with a timeout
+    // Simulate processing
     setTimeout(() => {
       setResult("Detected: 'Hello'");
       setSpeakDisabled(false);
@@ -82,7 +85,7 @@ export default function Translator()
       }, 100);
     }, 1500);
 
-    // Example of how you might send the image to a processing API:
+    // Example API call for image processing
     /*
     const formData = new FormData();
     formData.append('image', imageBlob, 'capture.jpg');
@@ -101,7 +104,7 @@ export default function Translator()
     */
   };
 
-const processVideo = async (videoBlob) => {
+  const processVideo = async (videoBlob) => {
     setResult("Processing captured video...");
 
     // Simulate processing
@@ -138,43 +141,140 @@ const processVideo = async (videoBlob) => {
   };
 
   const startRecording = () => {
-    if (!recording) {
-      setRecording(true);
-      setResult("Recording signs...");
+    if (recording) return; // Prevent multiple recordings
 
-      setTimeout(() => {
+    const stream = videoRef.current?.srcObject;
+    if (!stream) return;
+
+    // Reset chunks for new recording
+    setRecordedChunks([]);
+    
+    const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) {
+        setRecordedChunks(prev => [...prev, e.data]);
+      }
+    };
+
+    recorder.onstop = () => {
+      // Create blob from all recorded chunks
+      const blob = new Blob(recordedChunks, { type: 'video/webm' });
+      const videoURL = URL.createObjectURL(blob);
+      
+      setCapturedImage(videoURL);
+      setCapturedType('video');
+      
+      // Add to history
+      setCaptureHistory(prev => [{
+        id: Date.now(),
+        url: videoURL,
+        type: 'video',
+        timestamp: new Date().toLocaleTimeString()
+      }, ...prev.slice(0, 4)]);
+
+      // Process the video
+      processVideo(blob);
+    };
+
+    setMediaRecorder(recorder);
+    recorder.start();
+    setRecording(true);
+    setResult("Recording signs...");
+
+    // Auto-stop after 5 seconds
+    setTimeout(() => {
+      if (recorder.state === 'recording') {
+        recorder.stop();
         setRecording(false);
-        setResult("Detected phrase: 'How are you?'");
-        setSpeakDisabled(false);
-      }, 5000);
-    }
+      }
+    }, 5000);
   };
 
   const handleFileUpload = (e) => {
     if (e.target.files.length > 0) {
       const file = e.target.files[0];
-      setResult(`Processing uploaded ${file.type.includes('image') ? 'image' : 'video'}...`);
+      const isVideo = file.type.includes('video');
+      const isImage = file.type.includes('image');
+      
+      setResult(`Processing uploaded ${isVideo ? 'video' : 'image'}...`);
+      
+      const fileUrl = URL.createObjectURL(file);
+      setCapturedImage(fileUrl);
+      setCapturedType(isVideo ? 'video' : 'image');
 
-      // Process uploaded file
-      processUploadedFile(file);
+      // Add to history
+      setCaptureHistory(prev => [{
+        id: Date.now(),
+        url: fileUrl,
+        type: isVideo ? 'video' : 'image',
+        timestamp: new Date().toLocaleTimeString()
+      }, ...prev.slice(0, 4)]);
+
+      // Process the uploaded file
+      if (isVideo) {
+        processVideo(file);
+      } else {
+        processImage(file);
+      }
     }
-  };
-
-  const processUploadedFile = (file) => {
-    // Create object URL for the uploaded file
-    const fileUrl = URL.createObjectURL(file);
-    setCapturedImage(fileUrl);
-
-    setTimeout(() => {
-      setResult("Detected: 'Thank you'");
-      setSpeakDisabled(false);
-    }, 2000);
   };
 
   const speak = () => {
     const text = result.replace('Detected: ', '').replace('Detected phrase: ', '');
     const utterance = new SpeechSynthesisUtterance(text);
     window.speechSynthesis.speak(utterance);
+  };
+
+  const renderMediaPreview = (url, type) => {
+    if (type === 'video') {
+      return (
+        <video 
+          controls 
+          src={url} 
+          style={{ 
+            width: '100%', 
+            maxHeight: '200px', 
+            border: '2px solid #ddd', 
+            borderRadius: '8px' 
+          }}
+        />
+      );
+    } else {
+      return (
+        <img 
+          src={url} 
+          alt="Captured sign" 
+          style={{ 
+            width: '100%', 
+            maxHeight: '200px', 
+            objectFit: 'contain', 
+            border: '2px solid #ddd', 
+            borderRadius: '8px' 
+          }}
+        />
+      );
+    }
+  };
+
+  const renderHistoryItem = (capture) => {
+    if (capture.type === 'video') {
+      return (
+        <video 
+          src={capture.url} 
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          muted
+        />
+      );
+    } else {
+      return (
+        <img 
+          src={capture.url} 
+          alt={`Capture`}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+      );
+    }
   };
 
   return (
@@ -229,8 +329,12 @@ const processVideo = async (videoBlob) => {
               <button onClick={capture} className="recognizer-control-button recognizer-capture-button">
                 <i className="fas fa-camera"></i> Capture Sign
               </button>
-              <button onClick={startRecording} className="recognizer-control-button recognizer-record-button">
-                <i className="fas fa-video"></i> Record Sequence
+              <button 
+                onClick={startRecording} 
+                className="recognizer-control-button recognizer-record-button"
+                disabled={recording}
+              >
+                <i className="fas fa-video"></i> {recording ? 'Recording...' : 'Record Sequence'}
               </button>
               <label className="recognizer-control-button recognizer-upload-button">
                 <i className="fas fa-upload"></i> Upload Sign
@@ -249,12 +353,20 @@ const processVideo = async (videoBlob) => {
               </h3>
               <div className="recognizer-history-items">
                 {captureHistory.map((capture, index) => (
-                  <div key={capture.id} className="recognizer-history-item">
-                    <img 
-                      src={capture.url} 
-                      alt={`Capture ${index + 1}`}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
+                  <div key={capture.id} className="recognizer-history-item" title={`${capture.type} - ${capture.timestamp}`}>
+                    {renderHistoryItem(capture)}
+                    <div style={{ 
+                      position: 'absolute', 
+                      top: '2px', 
+                      right: '2px', 
+                      background: 'rgba(0,0,0,0.7)', 
+                      color: 'white', 
+                      padding: '2px 4px', 
+                      borderRadius: '3px', 
+                      fontSize: '10px' 
+                    }}>
+                      {capture.type === 'video' ? '🎥' : '📷'}
+                    </div>
                   </div>
                 ))}
                 {/* Fill remaining slots with empty divs */}
@@ -271,20 +383,10 @@ const processVideo = async (videoBlob) => {
                 <i className="fas fa-language recognizer-results-icon"></i> Translation Results
               </h3>
               
-              {/* Display captured image if available */}
+              {/* Display captured image/video if available */}
               {capturedImage && (
                 <div className="recognizer-captured-image" style={{ marginBottom: '10px' }}>
-                  <img 
-                    src={capturedImage} 
-                    alt="Captured sign" 
-                    style={{ 
-                      width: '100%', 
-                      maxHeight: '200px', 
-                      objectFit: 'contain',
-                      border: '2px solid #ddd',
-                      borderRadius: '8px'
-                    }}
-                  />
+                  {renderMediaPreview(capturedImage, capturedType)}
                 </div>
               )}
               
