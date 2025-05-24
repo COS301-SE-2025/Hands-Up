@@ -6,7 +6,6 @@ export function LearningStats() {
   const { stats } = useLearningStats();
   const handleUpdate = useStatUpdater();
 
-  // Provide default/fallback stats if not loaded yet
   const {
     lessonsCompleted = 0,
     signsLearned = 0,
@@ -16,11 +15,9 @@ export function LearningStats() {
 
   const TOTAL_LESSONS = 30;
 
-  // Clamp lesson count
-  const safeLessonsCompleted = Math.min(lessonsCompleted, TOTAL_LESSONS);
+  const calcLessonsCompleted = Math.min(lessonsCompleted, TOTAL_LESSONS);
 
-  // Determine level
-  const detLevel = (safeLessonsCompleted + signsLearned + practiseDays) % 30;
+  const detLevel = (calcLessonsCompleted + signsLearned + practiseDays) % 30;
   let level;
 
   switch (detLevel) {
@@ -46,17 +43,14 @@ export function LearningStats() {
       level = currentLevel;
   }
 
-  // Update level if changed
   useEffect(() => {
     if (stats && level !== currentLevel) {
       handleUpdate("level");
     }
   }, [level, currentLevel, handleUpdate, stats]);
 
-  // Early return for loading state (now safe)
-  if (!stats) return <p>Loading...</p>;
 
-  const progressPercent = Math.min(100, Math.round((safeLessonsCompleted / TOTAL_LESSONS) * 100));
+  const progressPercent = Math.min(100, Math.round((calcLessonsCompleted / TOTAL_LESSONS) * 100));
 
   return (
     <section className="learning-progress">
@@ -81,7 +75,7 @@ export function LearningStats() {
       <div className="progress-stats">
         <div className="stat-card">
           <p className="stat-value">
-            {safeLessonsCompleted}/{TOTAL_LESSONS}
+            {calcLessonsCompleted}/{TOTAL_LESSONS}
           </p>
           <p className="stat-label">Lessons Completed</p>
         </div>

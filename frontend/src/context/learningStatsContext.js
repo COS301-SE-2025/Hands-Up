@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { getLearningProgress, updateLearningProgress } from "../utils/apiCalls";
 
 const LearningStatsContext = createContext();
-
+ 
 export function LearningStatsProvider({ children }) {
   const [stats, setStats] = useState(null);
   const username = localStorage.getItem("username") || "tester1";
