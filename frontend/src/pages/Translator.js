@@ -145,7 +145,11 @@ export default function Translator()
   };
 
   const startRecording = () => {
-    if (recording) return; // Prevent multiple recordings
+    if (recording) {
+      // Stop recording if already recording
+      stopRecording();
+      return;
+    }
 
     const stream = videoRef.current?.srcObject;
     if (!stream) return;
@@ -194,6 +198,7 @@ export default function Translator()
 
       // Process the video
       processVideo(blob);
+      setRecording(false);
     };
 
     setMediaRecorder(recorder);
@@ -201,15 +206,13 @@ export default function Translator()
     // Start recording with timeslice for more frequent data events
     recorder.start(200); // Request data every 200ms
     setRecording(true);
-    setResult("Recording signs...");
+    setResult("Recording signs... Click again to stop");
+  };
 
-    // Auto-stop after 3 seconds (reduced from 5)
-    setTimeout(() => {
-      if (recorder.state === 'recording') {
-        recorder.stop();
-        setRecording(false);
-      }
-    }, 3000);
+  const stopRecording = () => {
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+      mediaRecorder.stop();
+    }
   };
 
   const handleFileUpload = (e) => {
@@ -353,10 +356,10 @@ export default function Translator()
               </button>
               <button 
                 onClick={startRecording} 
-                className="recognizer-control-button recognizer-record-button"
-                disabled={recording}
+                className={`recognizer-control-button ${recording ? 'recognizer-stop-button' : 'recognizer-record-button'}`}
               >
-                <i className="fas fa-video"></i> {recording ? 'Recording...' : 'Record Sequence'}
+                <i className={`fas ${recording ? 'fa-stop' : 'fa-video'}`}></i> 
+                {recording ? 'Stop Recording' : 'Record Sequence'}
               </button>
               <label className="recognizer-control-button recognizer-upload-button">
                 <i className="fas fa-upload"></i> Upload Sign
