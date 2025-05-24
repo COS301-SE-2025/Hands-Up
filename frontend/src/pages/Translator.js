@@ -12,6 +12,7 @@ export default function Translator()
   const [capturedImage, setCapturedImage] = useState(null);
   const [capturedType, setCapturedType] = useState(null); // 'image' or 'video'
   const [captureHistory, setCaptureHistory] = useState([]);
+  const [capturedBlob, setCapturedBlob] = useState(null); // Store the actual blob for API processing
 
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [recordedChunks, setRecordedChunks] = useState([]);
@@ -57,12 +58,14 @@ export default function Translator()
         const imageUrl = URL.createObjectURL(blob);
         setCapturedImage(imageUrl);
         setCapturedType('image');
+        setCapturedBlob(blob); // Store blob for API processing
 
-        // Add to history
+        // Add to history with blob
         setCaptureHistory(prev => [{
           id: Date.now(),
           url: imageUrl,
           type: 'image',
+          blob: blob, // Store blob in history for later API calls
           timestamp: new Date().toLocaleTimeString()
         }, ...prev.slice(0, 4)]);
 
@@ -187,12 +190,14 @@ export default function Translator()
       
       setCapturedImage(videoURL);
       setCapturedType('video');
+      setCapturedBlob(blob); // Store blob for API processing
       
-      // Add to history
+      // Add to history with blob
       setCaptureHistory(prev => [{
         id: Date.now(),
         url: videoURL,
         type: 'video',
+        blob: blob, // Store blob in history for later API calls
         timestamp: new Date().toLocaleTimeString()
       }, ...prev.slice(0, 4)]);
 
@@ -226,12 +231,14 @@ export default function Translator()
       const fileUrl = URL.createObjectURL(file);
       setCapturedImage(fileUrl);
       setCapturedType(isVideo ? 'video' : 'image');
+      setCapturedBlob(file); // Store file blob for API processing
 
-      // Add to history
+      // Add to history with blob
       setCaptureHistory(prev => [{
         id: Date.now(),
         url: fileUrl,
         type: isVideo ? 'video' : 'image',
+        blob: file, // Store file blob in history
         timestamp: new Date().toLocaleTimeString()
       }, ...prev.slice(0, 4)]);
 
@@ -245,7 +252,7 @@ export default function Translator()
   };
 
   const speak = () => {
-    const text = result.replace('Detected: ', '').replace('Detected phrase: ', '');
+    const text = result.replace('Detected: ', '').replace('Detected phrase: ', '').replace('API Result: ', '');
     const utterance = new SpeechSynthesisUtterance(text);
     window.speechSynthesis.speak(utterance);
   };
@@ -378,7 +385,13 @@ export default function Translator()
               </h3>
               <div className="recognizer-history-items">
                 {captureHistory.map((capture, index) => (
-                  <div key={capture.id} className="recognizer-history-item" title={`${capture.type} - ${capture.timestamp}`}>
+                  <div 
+                    key={capture.id} 
+                    className="recognizer-history-item" 
+                    title={`${capture.type} - ${capture.timestamp} (Click to reprocess)`}
+                    //onClick={() => handleHistoryClick(capture)}
+                    style={{ cursor: 'pointer', position: 'relative' }}
+                  >
                     {renderHistoryItem(capture)}
                     <div style={{ 
                       position: 'absolute', 
@@ -391,6 +404,27 @@ export default function Translator()
                       fontSize: '10px' 
                     }}>
                       {capture.type === 'video' ? '🎥' : '📷'}
+                    </div>
+                    {/* Hover overlay */}
+                    <div style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      background: 'rgba(0,0,0,0.3)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      opacity: 0,
+                      transition: 'opacity 0.2s',
+                      color: 'white',
+                      fontSize: '12px',
+                      fontWeight: 'bold'
+                    }}
+                    className="history-hover-overlay"
+                    >
+                      Click to Reprocess
                     </div>
                   </div>
                 ))}
@@ -428,6 +462,15 @@ export default function Translator()
                   disabled={speakDisabled}
                 >
                   <i className="fas fa-volume-up"></i>
+                </button>
+                <button 
+                  //onClick={sendToAPI} 
+                  className="recognizer-speak-button" 
+                  disabled={!capturedBlob}
+                  title="Send to API for processing"
+                  style={{ marginLeft: '10px' }}
+                >
+                  <i className="fas fa-cloud-upload-alt"></i>
                 </button>
                 <div className="recognizer-audio-progress-container">
                   <div 
