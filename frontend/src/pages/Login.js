@@ -22,13 +22,14 @@ function Login() {
     {
       setError('');
       console.log('Login successful for:', email);
+      handleUpdate("streak");
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('userEmail', email);
       navigate('/userProfile');
     }
   };
 
-  // const handleUpdate = useStatUpdater();
+  const handleUpdate = useStatUpdater();
 
   return (
     <div className="login-page">
