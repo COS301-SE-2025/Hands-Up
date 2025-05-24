@@ -1,52 +1,21 @@
-import React from "react";
+import {LearningStats} from "../components/learningStats.js";
 import "../styles/userProfile.css";
 
-export default function UserProfile() 
-{
+function UserProfile() {
+
   return (
     <div className="containerP">
         <main className="content">
           <section className="profile-header">
             <div className="avatar" aria-label="User initials">TT</div>
             <div className="profile-info">
-              <h2 className="name">TMKDT Team</h2>
+              <h2 className="name">{localStorage.getItem("username")}</h2>
               <p className="email">TMKDT@gmail.com</p>
               <p className="member-since">Member since: May 2025</p>
             </div>
           </section>
 
-          <section className="learning-progress">
-            <h3>Learning Progress</h3>
-
-            <div className="progress-bar-wrapper" aria-label="Learning progress bar">
-              <div className="progress-header">
-                <span className="progress-status">In Progress</span>
-                <span className="progress-percent">50%</span>
-              </div>
-              <div className="progress-bar" role="progressbar" aria-valuenow={50} aria-valuemin={0} aria-valuemax={100}>
-                <div className="progress-fill" style={{ width: "50%" }}></div>
-              </div>
-            </div>
-
-            <div className="progress-stats">
-              <div className="stat-card">
-                <p className="stat-value">10/20</p>
-                <p className="stat-label">Lessons Completed</p>
-              </div>
-              <div className="stat-card">
-                <p className="stat-value">35</p>
-                <p className="stat-label">Signs Learned</p>
-              </div>
-              <div className="stat-card">
-                <p className="stat-value">8</p>
-                <p className="stat-label">Practice Days</p>
-              </div>
-              <div className="stat-card">
-                <p className="stat-value">Silver</p>
-                <p className="stat-label">Current Level</p>
-              </div>
-            </div>
-          </section>
+          <LearningStats />
 
           <section className="profile-settings">
             <h3>Profile Settings</h3>
@@ -90,6 +59,7 @@ export default function UserProfile()
           </section>
         </main>
       </div>
-   
   );
 }
+
+export default UserProfile;

@@ -5,25 +5,31 @@ const router = Router();
 
 export const learningProgress = async (req, res) => {
   try {
-    console.log(req.body);
-    const {username} = req.body; // Use body for now until username is figured out - currently undefined
-    console.log('Username:', username);
+    const username = req.params.username; 
+
+    if (!username) {
+      return res.status(400).json({
+        status: "error",
+        message: 'Username is required',
+      });
+    }
 
     const result = await pool.query(
-        `SELECT * FROM learn JOIN users ON learn."userID"= users."userID" WHERE users.username = $1`,
+        `SELECT "lessonsCompleted", "signsLearned", streak, "currentLevel" FROM learn JOIN users ON learn."userID"= users."userID" WHERE users.username = $1`,
         [username]
     );
 
     res.status(200).json({
-      success: true,
+      status: "success",
+      message: 'Learning progress retrieved successfully',
       data: result.rows,
     });
 
   } catch (err) {
     console.error('DB error:', err);
     res.status(500).json({
-      success: error,
-      error: 'Internal Server Error',
+      status: "error",
+      message: 'Internal Server Error',
     });
   }
 };
