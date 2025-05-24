@@ -76,3 +76,43 @@ export const signUpUser = async (req, res) => {
 };
 
 
+export const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // 1. Find user by email
+    const userResult = await pool.query(
+      'SELECT * FROM users WHERE email = $1', 
+      [email]
+    );
+    
+    if (userResult.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+    
+    const user = userResult.rows[0];
+    
+    // 2. Compare passwords (plaintext for now - we'll add hashing later)
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    
+    // 3. Successful login
+    res.status(200).json({
+      success: true,
+      user: {
+        id: user.userid,
+        email: user.email,
+        name: user.name
+      }
+    });
+    
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
