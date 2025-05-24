@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { learningProgress,signUpUser } from './controllers/dbController.js';
 import { loginUser } from './controllers/dbController.js';
+import { getUserData } from './controllers/dbController.js';
 
 const router = Router();
 
@@ -8,5 +9,6 @@ const router = Router();
 router.post("/learning/progress", learningProgress);
 router.post("/auth/signup", signUpUser);  // Add this new route
 router.post("/auth/login", loginUser);
+router.get("/user/:id", getUserData);
 
 export default router;
