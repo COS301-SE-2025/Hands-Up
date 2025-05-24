@@ -1,0 +1,31 @@
+{
+  "name": "hands-up",
+  "version": "1.0.0",
+  "description": "<p align=\"center\">   <img src=\"diagrams/Screenshot_2025-04-23_212401.png\" width=\"auto\" height=\"auto\"> </p>",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/COS301-SE-2025/Hands-Up.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/COS301-SE-2025/Hands-Up/issues"
+  },
+  "homepage": "https://github.com/COS301-SE-2025/Hands-Up#readme",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "pg": "^8.16.0"
+  }
+}

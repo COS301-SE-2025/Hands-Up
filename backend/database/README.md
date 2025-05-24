@@ -3,6 +3,7 @@ There might be mistakes, please do do some research, this is what I found to wor
 
 ### Prerequisites
 1. Download DBeaver and install to view and manage the database
+    1.1. Keep configurations to the default
 2. Run docker desktop
 3. In VS code run:
 
@@ -13,11 +14,16 @@ There might be mistakes, please do do some research, this is what I found to wor
 (can just use docker-compose up in future if there are no   changes or "docker-compose down -v" to remove the container and saved volumes then build again)
 
 ### In DBeaver
-1. Create new connection
-2. Set database name to HandsUp
+1. Create new database connection (top left plug icon)
+
+2. Set Database to HandsUp
+
 3. Port: 5432
 4. Username: tmkdt
 5. Password: handsUpProject1.0
+6. Ensure Local Client is PostgreSQL Binaries
+7. Bottom Left corner click Test Connection (a prompt to download drivers will appear, download them)
+8. If everything is fine it should succeed then you can click "Finish". The database will appear on the left, just click the drop down until you get to tables
 
 ### How to create migrations
 1. Use DBeaver’s “Generate SQL” feature to copy the SQL statements of your schema changes (avoid copying those that were already in earlier migrations)
