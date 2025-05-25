@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/userProfile.css";
+import {getUserData} from'../utils/apiCalls.js';
 
 export default function UserProfile() {
   const [userData, setUserData] = useState(null);
@@ -18,12 +19,16 @@ export default function UserProfile() {
       return;
     }
 
-    try {
+   try {
       const user = JSON.parse(storedUser);
       setUserData(user);
       
-      // Optional: Fetch fresh data from backend
-      fetchUserData(user.id);
+      // Use the imported API function
+      getUserData(user.id)
+        .then(data => setUserData(data))
+        .catch(err => {
+          console.error("Error fetching user data:", err);
+        });
       
     } catch (err) {
       setError("Failed to load user data");
@@ -33,17 +38,7 @@ export default function UserProfile() {
     }
   }, [navigate]);
 
-  const fetchUserData = async (userId) => {
-    try {
-      const response = await fetch(`http://localhost:2000/handsUPApi/user/${userId}`);
-      if (!response.ok) throw new Error('Failed to fetch user data');
-      
-      const data = await response.json();
-      setUserData(data.user);
-    } catch (err) {
-      console.error("Error fetching user data:", err);
-    }
-  };
+ 
 
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');

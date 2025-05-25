@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import '../styles/Signup.css';
 import logo from '../logo.png';
+import {signup} from'../utils/apiCalls.js';
 
 const SignupPage = () => {
   const [formData, setFormData] = useState({
@@ -40,34 +41,14 @@ const SignupPage = () => {
     }
 
     try {
-    const response = await fetch('http://localhost:2000/handsUPApi/auth/signup', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name,
-        surname,
-        username,
-        email,
-        password
-      }),
-    });
-    console.log("entered3");
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.log ("entered");
-      throw new Error(data.error || 'Signup failed');
+      // Use the service instead of direct fetch
+      const data = await signup({ name, surname, username, email, password });
+      alert(`Signup successful! Welcome ${data.user.username}`);
+      // Redirect or clear form
+    } catch (error) {
+      alert(error.message);
     }
-
-    alert(`Signup successful! Welcome ${data.user.username}`);
-    // Redirect or clear form
-  } catch (error) {
-    console.log ("entered2");
-    console.error('Signup error:', error);
-    alert(error.message);
-  }
+  
 
     
   };
