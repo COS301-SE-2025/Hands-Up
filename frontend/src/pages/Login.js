@@ -7,6 +7,7 @@ import logo from '../logo.png';
 import {login} from'../utils/apiCalls.js'; 
 
 function Login() {
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -34,8 +35,6 @@ function Login() {
       console.error('Login error:', error);
     }
   };
-
-  const handleUpdate = useStatUpdater();
 
   return (
     <div className="login-page">
