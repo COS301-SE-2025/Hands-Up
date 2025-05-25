@@ -26,7 +26,6 @@ export default function UserProfile() {
       setUserData(user);
       
       // Optional: Fetch fresh data from backend
-      console.log('user:', user);
       fetchUserData(user.id);
       
     } catch (err) {
