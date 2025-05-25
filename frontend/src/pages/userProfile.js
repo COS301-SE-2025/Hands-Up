@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/userProfile.css";
+import {uniqueUsername, uniqueEmail, updateUserDetails, updateUserPassword} from'../utils/apiCalls.js'; 
 
 export default function UserProfile() {
   const [userData, setUserData] = useState(null);
@@ -98,12 +99,8 @@ export default function UserProfile() {
     //check that username does not already exist 
     if (username !== userData.username) {
       try {
-        const response = await fetch(`http://localhost:2000/handsUPApi/auth/unique-username/${encodeURIComponent(username)}`);
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        if (data.exists) {
+        const data = await uniqueUsername(username);
+        if (data) {
           errors.username = "Username already taken.";
           setFormErrors(errors);
           return;  
@@ -123,12 +120,8 @@ export default function UserProfile() {
     }
     if (email !== userData.email) {
       try {
-        const response = await fetch(`http://localhost:2000/handsUPApi/auth/unique-email/${encodeURIComponent(email)}`);
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        if (data.exists) {
+        const data = await uniqueEmail(email);
+        if (data) {
           errors.email = "Email already in use.";
           setFormErrors(errors);
           return;  
@@ -142,25 +135,9 @@ export default function UserProfile() {
     if (!newPassword && !confirmPassword) {
       //save updated user details (without password)
       try {
-        const response = await fetch(`http://localhost:2000/handsUPApi/user/${userData.id}/details`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({name, surname, username, email})
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-          alert("User updated successfully!");
-        } 
-        else {
-          console.error("Update failed:", result.error);
-          alert("Failed to update user.");
-        }
+        const result = await updateUserDetails(userData.userID, name, surname, username, email);
+        alert("User updated successfully!");
       } catch (err) {
-        console.error("Error during update:", err);
         alert("An error occurred while updating.");
       }
     }
@@ -182,25 +159,9 @@ export default function UserProfile() {
 
       //save updated user details (with password)
       try {
-        const response = await fetch(`http://localhost:2000/handsUPApi/user/${userData.id}/password`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({name, surname, username, email, password: newPassword })
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-          alert("User updated successfully!");
-        } 
-        else {
-          console.error("Update failed:", result.error);
-          alert("Failed to update user.");
-        }
+        const result = await updateUserPassword( userData.userID, name, surname, username, email, newPassword );
+        alert("User updated successfully!");
       } catch (err) {
-        console.error("Error during update:", err);
         alert("An error occurred while updating.");
       }
     }
