@@ -168,7 +168,7 @@ export const loginUser = async (req, res) => {
       user: {
         id: user.userID,
         email: user.email,
-        name: user.name
+        username: user.username
       }
     });
     
@@ -224,8 +224,8 @@ export const updateUserDetails = async (req, res) => {
     // Update user details
     const query = 
       `UPDATE users SET name = $1, surname = $2, username = $3, email = $4, password = $5
-       WHERE userid = $6
-       RETURNING userid, username, name, surname, email`;
+       WHERE "userID" = $6
+       RETURNING "userID", username, name, surname, email`;
     const values = [name, surname, username, email, hashedPassword, id];
     const result = await pool.query(query, values);
 
