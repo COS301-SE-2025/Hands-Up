@@ -24,7 +24,6 @@ export default function UserProfile() {
       setUserData(user);
       
       // Optional: Fetch fresh data from backend
-      console.log('user:', user);
       fetchUserData(user.id);
       
     } catch (err) {
@@ -64,13 +63,18 @@ export default function UserProfile() {
     const confirmPassword = document.getElementById("confirmPassword").value;
     const errors = {};
 
+    //check if details actually changed 
+    if (name === userData.name && surname === userData.surname && username === userData.username && email === userData.email && !newPassword && !confirmPassword) {
+      errors.general = "No changes detected to save"; 
+      setFormErrors(errors);
+      return;
+    }
+
     //check if any fields are empty
     if (!name) errors.name = "Name is required.";
     if (!surname) errors.surname = "Surname is required.";
     if (!username) errors.username = "Username is required.";
     if (!email) errors.email = "Email is required.";
-    if (!newPassword) errors.newPassword = "Password is required.";
-    if (!confirmPassword) errors.confirmPassword = "Confirm password is required.";
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -91,61 +95,116 @@ export default function UserProfile() {
       return;
     }
 
-    //check if email is in a valid format
+    //check that username does not already exist 
+    if (username !== userData.username) {
+      try {
+        const response = await fetch(`http://localhost:2000/handsUPApi/auth/unique-username/${encodeURIComponent(username)}`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        if (data.exists) {
+          errors.username = "Username already taken.";
+          setFormErrors(errors);
+          return;  
+        }
+      } catch (error) {
+        console.error('Error checking username:', error);
+        return null; 
+      }
+    }
+
+    //check if email is in a valid format and does not already exist 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (email && !emailRegex.test(email)) {
       errors.email = "Invalid email format.";
       setFormErrors(errors);
       return;
     }
-
-    //check that password and confirm password match
-    if (newPassword !== confirmPassword) {
-      errors.confirmPassword = "Passwords do not match.";
-      setFormErrors(errors);
-      return;
+    if (email !== userData.email) {
+      try {
+        const response = await fetch(`http://localhost:2000/handsUPApi/auth/unique-email/${encodeURIComponent(email)}`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        if (data.exists) {
+          errors.email = "Email already in use.";
+          setFormErrors(errors);
+          return;  
+        }
+      } catch (error) {
+        console.error('Error checking email:', error);
+        return null; 
+      }
     }
 
-    //check that username does not already exist 
-    try {
-      const response = await fetch(`http://localhost:2000/handsUPApi/auth/unique-username/${encodeURIComponent(username)}`);
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+    if (!newPassword && !confirmPassword) {
+      //save updated user details (without password)
+      try {
+        const response = await fetch(`http://localhost:2000/handsUPApi/user/${userData.id}/details`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({name, surname, username, email})
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          alert("User updated successfully!");
+        } 
+        else {
+          console.error("Update failed:", result.error);
+          alert("Failed to update user.");
+        }
+      } catch (err) {
+        console.error("Error during update:", err);
+        alert("An error occurred while updating.");
       }
-      const data = await response.json();
-      if (data.exists) {
-        errors.username = "Username already taken.";
+    }
+    else {
+      //check that both fields are not empty 
+      if (!newPassword) errors.newPassword = "Password is required.";
+      if (!confirmPassword) errors.confirmPassword = "Confirm password is required.";
+      if (Object.keys(errors).length > 0) {
         setFormErrors(errors);
-        return;  
+        return;
       }
-    } catch (error) {
-      console.error('Error checking username:', error);
-      return null; 
+
+      //check that password and confirm password match
+      if (newPassword !== confirmPassword) {
+        errors.confirmPassword = "Passwords do not match.";
+        setFormErrors(errors);
+        return;
+      }
+
+      //save updated user details (with password)
+      try {
+        const response = await fetch(`http://localhost:2000/handsUPApi/user/${userData.id}/password`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({name, surname, username, email, password: newPassword })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          alert("User updated successfully!");
+        } 
+        else {
+          console.error("Update failed:", result.error);
+          alert("Failed to update user.");
+        }
+      } catch (err) {
+        console.error("Error during update:", err);
+        alert("An error occurred while updating.");
+      }
     }
 
-    //save updated user details 
-    try {
-      const response = await fetch(`http://localhost:2000/handsUPApi/user/${userData.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({name, surname, username, email, password: newPassword })
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        alert("User updated successfully!");
-      } 
-      else {
-        console.error("Update failed:", result.error);
-        alert("Failed to update user.");
-      }
-    } catch (err) {
-      console.error("Error during update:", err);
-      alert("An error occurred while updating.");
-    }
   };
 
   if (loading) return <div className="containerP">Loading...</div>;
@@ -252,6 +311,7 @@ export default function UserProfile() {
 
             <div className="form-actions">
               <button type="submit" className="btn-primary">Save Changes</button>
+              {formErrors.general && <div style={{ color: 'red' }}>{formErrors.general}</div>}
               <div className="btn-group">
                 <button type="button" className="btn-secondary">Reset Progress</button>
                 <button type="button" className="btn-danger">Delete Account</button>

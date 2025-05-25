@@ -3,7 +3,9 @@ import { learningProgress,signUpUser } from './controllers/dbController.js';
 import { loginUser } from './controllers/dbController.js';
 import { getUserData } from './controllers/dbController.js';
 import { uniqueUsername } from './controllers/dbController.js';
+import { uniqueEmail } from './controllers/dbController.js';
 import { updateUserDetails } from './controllers/dbController.js';
+import { updateUserPassword } from './controllers/dbController.js';
 
 const router = Router();
 
@@ -13,6 +15,8 @@ router.post("/auth/signup", signUpUser);  // Add this new route
 router.post("/auth/login", loginUser);
 router.get("/user/:id", getUserData);
 router.get("/auth/unique-username/:username", uniqueUsername);
-router.put('/user/:id', updateUserDetails);
+router.get("/auth/unique-email/:email", uniqueEmail);
+router.put('/user/:id/details', updateUserDetails);
+router.put('/user/:id/password', updateUserPassword);
 
 export default router;

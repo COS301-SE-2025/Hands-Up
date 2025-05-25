@@ -150,7 +150,48 @@ export const uniqueUsername = async (req, res) => {
   }
 }; 
 
+export const uniqueEmail = async (req, res) => {
+  try {
+    const { email } = req.params;
+    const result = await pool.query(
+      'SELECT 1 FROM users WHERE email = $1',
+      [email]
+    );
+
+    res.status(200).json({ exists: result.rows.length > 0 });
+  } catch (err) {
+    console.error('Error checking email:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}; 
+
 export const updateUserDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, surname, username, email } = req.body;
+
+    // Update user details (excluding password)
+    const query = 
+      `UPDATE users 
+       SET name = $1, surname = $2, username = $3, email = $4
+       WHERE "userID" = $5
+       RETURNING "userID", username, name, surname, email`;
+
+    const values = [name, surname, username, email, id];
+    const result = await pool.query(query, values);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    res.status(200).json({ message: 'User updated successfully.', user: result.rows[0] });
+  } catch (err) {
+    console.error('Error updating user details:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
+export const updateUserPassword = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, surname, username, email, password } = req.body;
