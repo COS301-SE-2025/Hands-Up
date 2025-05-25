@@ -1,0 +1,23 @@
+{
+  "name": "handsUP Application",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "database": "cd backend/database && docker-compose up -d --build && docker-compose run flyway migrate",
+    "api": "cd backend/api && node handsUP",
+    "ui": "cd frontend && npm start",
+    "start": "concurrently \"npm run database\" \"npm run api\" \"npm run ui\"",
+    "test-coverage": "cd tests/unit &&jest --coverage",
+    "lint": "npm run lint"
+  },
+  "main": "index.js",
+  "devDependencies": {
+    "@babel/preset-env": "^7.27.2",
+    "babel-jest": "^29.7.0",
+    "concurrently": "^9.1.2",
+    "jest": "^29.7.0"
+  },
+  "dependencies": {
+    "eslint": "^9.27.0"
+  }
+}
