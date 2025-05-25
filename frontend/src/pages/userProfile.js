@@ -6,6 +6,7 @@ export default function UserProfile() {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [formErrors, setFormErrors] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,6 +24,7 @@ export default function UserProfile() {
       setUserData(user);
       
       // Optional: Fetch fresh data from backend
+      console.log('user:', user);
       fetchUserData(user.id);
       
     } catch (err) {
@@ -33,9 +35,9 @@ export default function UserProfile() {
     }
   }, [navigate]);
 
-  const fetchUserData = async (userId) => {
+  const fetchUserData = async (userID) => {
     try {
-      const response = await fetch(`http://localhost:2000/handsUPApi/user/${userId}`);
+      const response = await fetch(`http://localhost:2000/handsUPApi/user/${userID}`);
       if (!response.ok) throw new Error('Failed to fetch user data');
       
       const data = await response.json();
@@ -123,7 +125,7 @@ export default function UserProfile() {
 
     //save updated user details 
     try {
-      const response = await fetch(`http://localhost:2000/handsUPApi/user/${userId}`, {
+      const response = await fetch(`http://localhost:2000/handsUPApi/user/${userData.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -207,7 +209,7 @@ export default function UserProfile() {
                   type="text" 
                   defaultValue={userData?.name || ''} 
                 />
-                {formErrors.name && <div className="error-text">{formErrors.name}</div>}
+                {formErrors.name && <div style={{ color: 'red' }}>{formErrors.name}</div>}
               </div>
               <div className="form-group">
                 <label htmlFor="surname">Surname</label>
@@ -216,7 +218,7 @@ export default function UserProfile() {
                   type="text" 
                   defaultValue={userData?.surname || ''} 
                 />
-                {formErrors.surname && <div className="error-text">{formErrors.surname}</div>}
+                {formErrors.surname && <div style={{ color: 'red' }}>{formErrors.surname}</div>}
               </div>
               <div className="form-group">
                 <label htmlFor="username">Username</label>
@@ -225,7 +227,7 @@ export default function UserProfile() {
                   type="text" 
                   defaultValue={userData?.username || ''} 
                 />
-                {formErrors.username && <div className="error-text">{formErrors.username}</div>}
+                {formErrors.username && <div style={{ color: 'red' }}>{formErrors.username}</div>}
               </div>
               <div className="form-group">
                 <label htmlFor="email">Email</label>
@@ -234,17 +236,17 @@ export default function UserProfile() {
                   type="email" 
                   defaultValue={userData?.email || ''} 
                 />
-                {formErrors.email && <div className="error-text">{formErrors.email}</div>}
+                {formErrors.email && <div style={{ color: 'red' }}>{formErrors.email}</div>}
               </div>
               <div className="form-group">
                 <label htmlFor="newPassword">New Password</label>
                 <input id="newPassword" type="password" placeholder="••••••••" />
-                {formErrors.newPassword && <div className="error-text">{formErrors.newPassword}</div>}
+                {formErrors.newPassword && <div style={{ color: 'red' }}>{formErrors.newPassword}</div>}
               </div>
               <div className="form-group">
                 <label htmlFor="confirmPassword">Confirm Password</label>
                 <input id="confirmPassword" type="password" placeholder="••••••••" />
-                {formErrors.confirmPassword && <div className="error-text">{formErrors.confirmPassword}</div>}
+                {formErrors.confirmPassword && <div style={{ color: 'red' }}>{formErrors.confirmPassword}</div>}
               </div>
             </div>
 

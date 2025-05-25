@@ -47,7 +47,7 @@ export const signUpUser = async (req, res) => {
     const result = await pool.query(
       `INSERT INTO users (username, name, surname, email, password) 
        VALUES ($1, $2, $3, $4, $5) 
-       RETURNING userid, username, email`,
+       RETURNING "userID", username, email`,
       [username, name, surname, email, hashedPassword]
     );
 
@@ -104,9 +104,9 @@ export const loginUser = async (req, res) => {
     res.status(200).json({
       success: true,
       user: {
-        id: user.userid,
+        id: user.userID,
         email: user.email,
-        name: user.name
+        username: user.username
       }
     });
     
@@ -120,7 +120,7 @@ export const getUserData = async (req, res) => {
   try {
     const { id } = req.params;
     const result = await pool.query(
-      'SELECT userid, username, name, surname, email FROM users WHERE userid = $1',
+      'SELECT "userID", username, name, surname, email FROM users WHERE "userID" = $1',
       [id]
     );
     
@@ -162,8 +162,8 @@ export const updateUserDetails = async (req, res) => {
     // Update user details
     const query = 
       `UPDATE users SET name = $1, surname = $2, username = $3, email = $4, password = $5
-       WHERE userid = $6
-       RETURNING userid, username, name, surname, email`;
+       WHERE "userID" = $6
+       RETURNING "userID", username, name, surname, email`;
     const values = [name, surname, username, email, hashedPassword, id];
     const result = await pool.query(query, values);
 
