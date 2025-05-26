@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useLearningStats } from "../context/learningStatsContext";
 import { useStatUpdater } from "../hooks/learningStatsUpdater";
 

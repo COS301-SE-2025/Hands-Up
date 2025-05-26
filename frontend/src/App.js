@@ -1,6 +1,6 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, Link } from "react-router-dom";
-import { LearningStatsProvider } from "./context/learningStatsContext";
 import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
+import { LearningStatsProvider } from "./context/learningStatsContext";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import "./App.css";
 

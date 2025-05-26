@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom"; 
+import PropTypes from "prop-types";
 import "../styles/Layout.css";
 import logo from "../logo.png";
 
@@ -52,5 +53,10 @@ function Layout({ children, currentPage }) {
     </div>
   );
 }
+
+Layout.propTypes = {
+  children: PropTypes.node.isRequired,
+  currentPage: PropTypes.node.isRequired,
+};
 
 export default Layout;

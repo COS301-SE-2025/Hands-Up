@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(cors());
 app.use('/handsUPApi', apiRoutes);
 
-const server = app.listen(PORT, () => {
+app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
     console.log(`Type "shutdown" to stop the server.`);
 });
