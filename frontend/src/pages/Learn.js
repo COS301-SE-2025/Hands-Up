@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useStatUpdater } from "../hooks/learningStatsUpdater";
+
 import "../styles/Learn.css";
 const IconAlphabet = () => 
     (
@@ -48,9 +50,44 @@ const alphabets = [
   { letter: 'Z', sign: '✍️' }, 
 ];
 
-export default function Learn() 
+const lessons = [
+  { title: "Introduce Yourself", sign: "🙋‍♀️", description: "Say your name and greet others." },
+  { title: "Common Greetings", sign: "👋", description: "Say hello, goodbye, and good morning." },
+  { title: "Thank You & Please", sign: "🙏", description: "Learn polite expressions." },
+  { title: "Basic Questions", sign: "❓", description: "Ask who, what, where, when, why." },
+  { title: "Yes & No", sign: "👍", description: "Simple affirmatives and negatives." },
+  { title: "Days of the Week", sign: "📅", description: "Sign Monday to Sunday." },
+  { title: "Numbers 1–10", sign: "🔢", description: "Learn basic numbers." },
+  { title: "Numbers 11–20", sign: "🔟", description: "Expand number knowledge." },
+  { title: "Colors", sign: "🎨", description: "Sign red, blue, green and more." },
+  { title: "Emotions", sign: "😊", description: "Express happiness, anger, sadness." },
+  { title: "Family Members", sign: "👨‍👩‍👧", description: "Sign mom, dad, siblings." },
+  { title: "Food & Drink", sign: "🍎", description: "Common foods and eating signs." },
+  { title: "Clothing", sign: "👕", description: "Learn how to sign shirt, pants, etc." },
+  { title: "Animals", sign: "🐶", description: "Dog, cat, bird, and others." },
+  { title: "School Words", sign: "🏫", description: "Sign classroom, teacher, book." },
+  { title: "Transportation", sign: "🚗", description: "Car, bus, walk, airplane." },
+  { title: "Weather", sign: "☀️", description: "Sunny, rainy, cloudy, and more." },
+  { title: "Time & Clock", sign: "⏰", description: "Sign time of day and asking time." },
+  { title: "Occupations", sign: "💼", description: "Doctor, teacher, engineer, etc." },
+  { title: "Hobbies", sign: "🎸", description: "Sign play, music, reading, sports." },
+  { title: "Around the House", sign: "🏠", description: "Chair, table, kitchen, bed." },
+  { title: "Places in Town", sign: "🏙️", description: "Bank, store, park, library." },
+  { title: "Directions", sign: "🧭", description: "Left, right, straight, behind." },
+  { title: "Body Parts", sign: "🧠", description: "Learn to sign head, arms, feet." },
+  { title: "Action Words", sign: "🏃‍♂️", description: "Run, walk, jump, sleep." },
+  { title: "Feelings", sign: "😢", description: "Lonely, excited, bored, tired." },
+  { title: "Technology", sign: "💻", description: "Phone, computer, TV, text." },
+  { title: "Holidays", sign: "🎄", description: "Learn signs for major holidays." },
+  { title: "Emergency Signs", sign: "🚨", description: "Help, danger, stop, call." },
+  { title: "Review & Practice", sign: "🔁", description: "Test your knowledge!" },
+];
+
+
+export default function Learn()
 {
   const [selectedOption, setSelectedOption] = useState(null);
+  const handleUpdate = useStatUpdater();
 
   return (
     <div className="learn-container">
@@ -101,7 +138,7 @@ export default function Learn()
             <h2>Sign Language Alphabets</h2>
             <div className="alphabets-grid">
               {alphabets.map(({ letter, sign }) => (
-                <div key={letter} className="alphabet-card">
+                <div key={letter} className="alphabet-card" onClick={() => handleUpdate("sign")}>
                   <div className="sign">{sign}</div>
                   <div className="letter">{letter}</div>
                 </div>
@@ -111,10 +148,22 @@ export default function Learn()
         )}
 
         {selectedOption === 'sentences' && (
-          <div className="placeholder-message">
-            <h2>Sentences Module</h2>
-            <p>Coming soon! You'll learn common phrases and sentences in sign language.</p>
-          </div>
+          <>
+            <h2>Common Sign Language Lessons</h2>
+            <div className="lessons-grid">
+              {lessons.map(({ title, sign, description }) => (
+                <div
+                  key={title}
+                  className="lesson-card"
+                  onClick={() => handleUpdate("lesson")}
+                >
+                  <div className="sign">{sign}</div>
+                  <div className="lesson-title">{title}</div>
+                  <div className="lesson-description">{description}</div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
 
         {selectedOption === 'curriculum' && (

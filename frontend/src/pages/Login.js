@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useStatUpdater } from "../hooks/learningStatsUpdater";
 import '../styles/Login.css';
 import logo from '../logo.png'; 
 
@@ -11,39 +12,43 @@ function Login() {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  
-  if (!email || !password) {
-    setError('Please enter both email and password.');
-    return;
-  }
-
-  try {
-    const response = await fetch('http://localhost:2000/handsUPApi/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
+    e.preventDefault();
     
-    const data = await response.json();
-    console.log(data);
-    if (!response.ok) {
-      throw new Error(data.error || 'Login failed');
+    if (!email || !password) 
+    {
+      setError('Please enter both email and password.');
+      return;
+    } 
+    
+    try {
+      const response = await fetch('http://localhost:2000/handsUPApi/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      
+      const data = await response.json();
+      console.log(data);
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+
+      // Store user data and redirect
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('userData', JSON.stringify(data.user));
+      navigate('/userProfile');
+      handleUpdate("streak");
+
+    } catch (error) {
+      console.log(email);
+      setError(error.message);
+      console.error('Login error:', error);
     }
+  };
 
-    // Store user data and redirect
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('userData', JSON.stringify(data.user));
-    navigate('/userProfile');
-
-  } catch (error) {
-    console.log(email);
-    setError(error.message);
-    console.error('Login error:', error);
-  }
-};
+  const handleUpdate = useStatUpdater();
 
   return (
     <div className="login-page">

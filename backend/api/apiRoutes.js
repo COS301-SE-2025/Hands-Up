@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { learningProgress,signUpUser } from './controllers/dbController.js';
-import { loginUser } from './controllers/dbController.js';
+import { learningProgress } from './controllers/dbController.js';
+import { loginUser, signUpUser } from './controllers/dbController.js';
 import { getUserData } from './controllers/dbController.js';
 import { uniqueUsername } from './controllers/dbController.js';
 import { uniqueEmail } from './controllers/dbController.js';
@@ -10,7 +10,8 @@ import { updateUserPassword } from './controllers/dbController.js';
 const router = Router();
 
 //These are out api routes
-router.post("/learning/progress", learningProgress);
+router.get("/learning/progress/:username", learningProgress);
+router.put("/learning/progress/:username", learningProgress);
 router.post("/auth/signup", signUpUser);  // Add this new route
 router.post("/auth/login", loginUser);
 router.get("/user/:id", getUserData);

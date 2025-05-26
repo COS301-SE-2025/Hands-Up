@@ -1,31 +1,23 @@
 {
-  "name": "hands-up",
+  "name": "handsUP Application",
   "version": "1.0.0",
-  "description": "<p align=\"center\">   <img src=\"diagrams/Screenshot_2025-04-23_212401.png\" width=\"auto\" height=\"auto\"> </p>",
-  "main": "index.js",
-  "directories": {
-    "doc": "docs",
-    "test": "tests"
-  },
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "database": "cd backend/database && docker-compose up -d --build && docker-compose run flyway migrate",
+    "api": "cd backend/api && node handsUP",
+    "ui": "cd frontend && npm start",
+    "start": "concurrently \"npm run database\" \"npm run api\" \"npm run ui\"",
+    "test-coverage": "cd tests/unit &&jest --coverage",
+    "lint": "npm run lint"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/COS301-SE-2025/Hands-Up.git"
+  "main": "index.js",
+  "devDependencies": {
+    "@babel/preset-env": "^7.27.2",
+    "babel-jest": "^29.7.0",
+    "concurrently": "^9.1.2",
+    "jest": "^29.7.0"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/COS301-SE-2025/Hands-Up/issues"
-  },
-  "homepage": "https://github.com/COS301-SE-2025/Hands-Up#readme",
   "dependencies": {
-    "bcrypt": "^6.0.0",
-    "body-parser": "^2.2.0",
-    "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "pg": "^8.16.0"
+    "eslint": "^9.27.0"
   }
 }

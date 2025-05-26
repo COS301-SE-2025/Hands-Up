@@ -11,6 +11,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Middleware
+app.use(express.json());
+app.use(cors());
 app.use('/handsUPApi', apiRoutes);
 
 const server = app.listen(PORT, () => {
