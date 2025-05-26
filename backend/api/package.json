@@ -1,0 +1,22 @@
+{
+  "name": "handsUp-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "echo 'No app yet...'",
+    "test-coverage": "echo 'No tests yet...'",
+    "lint": "echo 'Linting not setup yet...'"
+  },
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  }
+  
+}

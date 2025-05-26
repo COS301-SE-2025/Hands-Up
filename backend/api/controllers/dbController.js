@@ -1,0 +1,283 @@
+import { Router } from 'express';
+import { pool } from '../utils.js';
+import bcrypt from 'bcrypt';
+
+const router = Router();
+
+export const learningProgress = async (req, res) => {
+
+  if (req.method == 'GET') {
+    try {
+      const username = req.params.username; 
+
+      if (!username) {
+        return res.status(400).json({
+          status: "error",
+          message: 'Username is required',
+        });
+      }
+
+      const result = await pool.query(
+          `SELECT "lessonsCompleted", "signsLearned", streak, "currentLevel" FROM learn JOIN users ON learn."userID"= users."userID" WHERE users.username = $1`,
+          [username]
+      );
+
+      if (result.rowCount === 0) {
+        return res.status(404).json({
+          status: "error",
+          message: 'User not found',
+        });
+      }
+
+      res.status(200).json({
+        status: "success",
+        message: 'Learning progress retrieved successfully',
+        data: result.rows,
+      });
+
+    } catch (err) {
+      console.error('DB error:', err);
+      res.status(500).json({
+        status: "error",
+        message: 'Internal Server Error',
+      });
+    }
+  }
+  else if (req.method == 'PUT') {
+      try {
+        const username = req.params.username;
+        const progressData = req.body;
+
+        if (!username || !progressData) {
+          return res.status(400).json({
+            status: "error",
+            message: 'Username and progress data are required',
+          });
+        }
+
+        const result = await pool.query(
+          `UPDATE learn SET "lessonsCompleted" = $1, "signsLearned" = $2, streak = $3
+           FROM users WHERE learn."userID" = users."userID" AND users.username = $4`,
+          [
+            progressData.lessonsCompleted,
+            progressData.signsLearned,
+            progressData.streak,
+            username
+          ]
+        );
+
+        if (result.rowCount === 0) {
+          return res.status(404).json({
+            status: "error",
+            message: 'User not found or no progress updated',
+          });
+        }
+
+        res.status(200).json({
+          status: "success",
+          message: 'Learning progress updated successfully',
+        });
+
+      } catch (err) {
+        console.error('DB error:', err);
+        res.status(500).json({
+          status: "error",
+          message: 'Internal Server Error',
+        });
+      }
+    }
+};
+
+// New signup function
+export const signUpUser = async (req, res) => {
+  try {
+    const { name, surname, username, email, password } = req.body;
+
+    // Validate input
+    if (!name || !surname || !username || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        error: 'All fields are required'
+      });
+    }
+
+    // Hash password
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Insert user into database
+    const result = await pool.query(
+      `INSERT INTO users (username, name, surname, email, password) 
+       VALUES ($1, $2, $3, $4, $5) 
+       RETURNING "userID", username, email`,
+      [username, name, surname, email, hashedPassword]
+    );
+
+    res.status(201).json({
+      success: true,
+      user: result.rows[0]
+    });
+
+  } catch (err) {
+    console.error('Signup error:', err);
+    
+    // Handle unique constraint violations
+    if (err.code === '23505') {
+      const field = err.constraint.includes('username') ? 'username' : 'email';
+      return res.status(400).json({
+        success: false,
+        error: `${field} already exists`
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      error: 'Internal Server Error'
+    });
+  }
+};
+
+export const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // 1. Find user by email
+    const userResult = await pool.query(
+      'SELECT * FROM users WHERE email = $1', 
+      [email]
+    );
+    
+    if (userResult.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+    
+    const user = userResult.rows[0];
+    
+    // 2. Compare passwords (plaintext for now - we'll add hashing later)
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    
+    // 3. Successful login
+    res.status(200).json({
+      success: true,
+      user: {
+        id: user.userID,
+        email: user.email,
+        username: user.username
+      }
+    });
+    
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getUserData = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      'SELECT "userID", username, name, surname, email FROM users WHERE "userID" = $1',
+      [id]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    res.status(200).json({ user: result.rows[0] });
+  } catch (err) {
+    console.error('Error fetching user data:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const uniqueUsername = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const result = await pool.query(
+      'SELECT 1 FROM users WHERE username = $1',
+      [username]
+    );
+
+    res.status(200).json({ exists: result.rows.length > 0 });
+  } catch (err) {
+    console.error('Error checking username:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}; 
+
+export const uniqueEmail = async (req, res) => {
+  try {
+    const { email } = req.params;
+    const result = await pool.query(
+      'SELECT 1 FROM users WHERE email = $1',
+      [email]
+    );
+
+    res.status(200).json({ exists: result.rows.length > 0 });
+  } catch (err) {
+    console.error('Error checking email:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}; 
+
+export const updateUserDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, surname, username, email } = req.body;
+
+    // Update user details (excluding password)
+    const query = 
+      `UPDATE users 
+       SET name = $1, surname = $2, username = $3, email = $4
+       WHERE "userID" = $5
+       RETURNING "userID", username, name, surname, email`;
+
+    const values = [name, surname, username, email, id];
+    const result = await pool.query(query, values);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    res.status(200).json({ message: 'User updated successfully.', user: result.rows[0] });
+  } catch (err) {
+    console.error('Error updating user details:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
+export const updateUserPassword = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, surname, username, email, password } = req.body;
+
+    // Hash password
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Update user details
+    const query = 
+      `UPDATE users SET name = $1, surname = $2, username = $3, email = $4, password = $5
+       WHERE "userID" = $6
+       RETURNING "userID", username, name, surname, email`;
+    const values = [name, surname, username, email, hashedPassword, id];
+    const result = await pool.query(query, values);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+    res.status(200).json({ message: 'User updated successfully.', user: result.rows[0] });
+  } catch (err) {
+    console.error('Error updating user details:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
+export default router;
