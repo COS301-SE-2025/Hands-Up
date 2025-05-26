@@ -7,7 +7,7 @@
     "api": "cd backend/api && node handsUP",
     "ui": "cd frontend && npm start",
     "start": "concurrently \"npm run database\" \"npm run api\" \"npm run ui\"",
-    "test-coverage": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
+    "test-coverage": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --coverage",
     "lint": "eslint . --ext .js"
   },
   "main": "index.js",
@@ -16,7 +16,6 @@
     "@babel/preset-env": "^7.27.2",
     "@babel/preset-react": "^7.27.1",
     "@eslint/js": "^9.27.0",
-    "babel-jest": "^29.7.0",
     "concurrently": "^9.1.2",
     "eslint": "^9.27.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
