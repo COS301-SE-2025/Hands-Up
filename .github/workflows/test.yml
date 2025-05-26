@@ -1,9 +1,9 @@
 name: Test Code
 on:
   push:
-    branches: [main, dev]
+    branches: [main, dev, ui/learning_progress]
   pull_request:
-    branches: [main, dev]
+    branches: [main, dev, ui/learning_progress]
     
 permissions:
   contents: read
