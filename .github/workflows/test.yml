@@ -19,7 +19,7 @@ jobs:
           echo "Beginning to test ${{ github.repository }}"
 
   test-codebase:
-    name: Test ${{ matrix.folder }}
+    name: Test Codebase
     runs-on: ubuntu-latest
     needs: pre-start
 

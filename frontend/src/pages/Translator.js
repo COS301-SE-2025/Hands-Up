@@ -24,10 +24,11 @@ export default function Translator()
     };
 
     enableCamera();
+    const currentVideo = videoRef.current; //Added by Karabo - linting
 
     return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
-        const tracks = videoRef.current.srcObject.getTracks();
+      if (currentVideo && currentVideo.srcObject) {
+        const tracks = currentVideo.srcObject.getTracks();
         tracks.forEach(track => track.stop());
       }
     };
@@ -214,7 +215,7 @@ export default function Translator()
 
             <div className="recognizer-support">
               <p className="recognizer-support-text">
-                Need help? <a href="#" className="recognizer-support-link">Contact Support</a>
+                Need help? <button className="recognizer-support-link">Contact Support</button> {/*Added by Karabo - invalid link - linting*/}
               </p>
             </div>
           </div>
