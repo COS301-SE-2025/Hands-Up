@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { getLearningProgress, updateLearningProgress } from "../utils/apiCalls";
+import PropTypes from "prop-types";
 
 const LearningStatsContext = createContext();
  
@@ -37,5 +38,9 @@ export function LearningStatsProvider({ children }) {
     </LearningStatsContext.Provider>
   );
 }
+
+LearningStatsProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 
 export const useLearningStats = () => useContext(LearningStatsContext);
