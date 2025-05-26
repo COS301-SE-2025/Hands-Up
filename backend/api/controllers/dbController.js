@@ -141,7 +141,7 @@ export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // const hashedPassword = await bcrypt.hash(password, 10);
     
     // 1. Find user by email
     const userResult = await pool.query(
