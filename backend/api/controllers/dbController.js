@@ -93,7 +93,6 @@ export const signUpUser = async (req, res) => {
   try {
     const { name, surname, username, email, password } = req.body;
 
-    // Validate input
     if (!name || !surname || !username || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -101,27 +100,42 @@ export const signUpUser = async (req, res) => {
       });
     }
 
-    // Hash password
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Insert user into database
-    const result = await pool.query(
+    // Start transaction
+    await pool.query('BEGIN');
+
+    // Step 1: Insert into users table
+    const userResult = await pool.query(
       `INSERT INTO users (username, name, surname, email, password) 
        VALUES ($1, $2, $3, $4, $5) 
        RETURNING "userID", username, email`,
       [username, name, surname, email, hashedPassword]
     );
 
+    const userID = userResult.rows[0].userID;
+
+    // Step 2: Insert into learn table with default values
+    await pool.query(
+      `INSERT INTO learn ("userID", "lessonsCompleted", "signsLearned", "streak", "currentLevel") 
+      VALUES ($1, $2, $3, $4, $5)`,
+      [userID, 0, 0, 0, 'Bronze'] // Set 'Bronze' as default level
+    );
+
+
+    // Commit transaction
+    await pool.query('COMMIT');
+
     res.status(201).json({
       success: true,
-      user: result.rows[0]
+      user: userResult.rows[0]
     });
 
   } catch (err) {
     console.error('Signup error:', err);
-    
-    // Handle unique constraint violations
+    await pool.query('ROLLBACK');
+
     if (err.code === '23505') {
       const field = err.constraint.includes('username') ? 'username' : 'email';
       return res.status(400).json({
@@ -136,6 +150,7 @@ export const signUpUser = async (req, res) => {
     });
   }
 };
+
 
 export const loginUser = async (req, res) => {
   try {
