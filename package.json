@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "database": "cd backend/database && docker-compose up -d --build && docker-compose run flyway migrate",
-    "api": "cd backend/api && node handsUP",
-    "ui": "cd frontend && npm start",
+    "api": "cd backend/api && npm i && node handsUP",
+    "ui": "cd frontend && npm i && npm start",
     "start": "concurrently \"npm run database\" \"npm run api\" \"npm run ui\"",
     "test-coverage": "node --no-warnings --experimental-vm-modules --experimental-require-module ./node_modules/jest/bin/jest.js --passWithNoTests --coverage",
     "lint": "eslint . --ext .js --fix"
