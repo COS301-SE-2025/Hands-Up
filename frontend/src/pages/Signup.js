@@ -19,7 +19,7 @@ const SignupPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit =async (e) => {
     e.preventDefault();
     const { name, surname, username, email, password, confirmPassword } = formData;
     const specialCharRegex = /[^A-Za-z0-9]/;
@@ -39,7 +39,37 @@ const SignupPage = () => {
       return;
     }
 
-    alert('Signup successful!');
+    try {
+    const response = await fetch('http://localhost:2000/handsUPApi/auth/signup', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name,
+        surname,
+        username,
+        email,
+        password
+      }),
+    });
+    console.log("entered3");
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.log ("entered");
+      throw new Error(data.error || 'Signup failed');
+    }
+
+    alert(`Signup successful! Welcome ${data.user.username}`);
+    // Redirect or clear form
+  } catch (error) {
+    console.log ("entered2");
+    console.error('Signup error:', error);
+    alert(error.message);
+  }
+
+    
   };
 
   return (
