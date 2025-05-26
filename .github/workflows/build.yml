@@ -23,9 +23,6 @@ jobs:
   build-codebase:
     name: Build
     needs: pre-start
-    strategy:
-      matrix:
-        folder: [frontend, backend]
         
     runs-on: ubuntu-latest
     steps:
@@ -39,11 +36,11 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install dependencies ${{ matrix.folder }}
-        working-directory: ${{ matrix.folder }}
-        run: npm install
+      - name: Install dependencies in frontend
+        working-directory: frontend
+        run: npm ci
 
-      - name: Run ${{ matrix.folder }}
-        working-directory: ${{ matrix.folder }}
-        run: npm start 
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
       
