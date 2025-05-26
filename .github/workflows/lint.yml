@@ -2,7 +2,6 @@ name: Lint Codebase
 on:
   push:
     branches: [main, dev]
-
   pull_request:
     branches: [main, dev]
     
@@ -38,10 +37,9 @@ jobs:
           node-version: 22  
 
       - name: Install dependencies ${{ matrix.folder }}
-        working-directory: ${{ matrix.folder }}
-        run: npm install
+        run: npm ci
 
       - name: Lint ${{ matrix.folder }}
         working-directory: ${{ matrix.folder }}
-        run: npm run lint
+        run: npx eslint . --ext .js,.jsx,.ts,.tsx --fix
 

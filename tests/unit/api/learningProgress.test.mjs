@@ -1,11 +1,13 @@
-import { learningProgress } from './../backend/api/controllers/dbController'; 
-import { pool } from '../../backend/api/utils';
+import { jest, expect, it, describe, beforeEach} from '@jest/globals';
 
-jest.mock('../utils', () => ({
+jest.unstable_mockModule('../../../backend/api/utils.js', () => ({
   pool: {
     query: jest.fn(),
   },
 }));
+
+const { pool } = await import('../../../backend/api/utils.js');
+const { learningProgress } = await import('../../../backend/api/controllers/dbController.js');
 
 describe('learningProgress controller', () => {
   let req, res;
