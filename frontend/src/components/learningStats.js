@@ -3,7 +3,8 @@ import { useLearningStats } from "../context/learningStatsContext";
 import { useStatUpdater } from "../hooks/learningStatsUpdater";
 
 export function LearningStats() {
-    const { stats } = useLearningStats();
+    const statsContext = useLearningStats() || {};
+    const { stats } = statsContext;
     const handleUpdate = useStatUpdater();
 
     const {
