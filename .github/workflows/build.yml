@@ -2,10 +2,9 @@ name: Build Codebase
 
 on:
   push:
-    branches: [main, dev, ui/learning_progress]
-
+    branches: [main, dev]
   pull_request:
-    branches: [main, dev, ui/learning_progress]
+    branches: [main, dev]
 
 permissions:
   contents: read
