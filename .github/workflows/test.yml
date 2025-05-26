@@ -36,32 +36,19 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install dependencies for tests
+      - name: Install dependencies for test
         working-directory: ./
+        run: npm ci
+
+      - name: Install dependencies for backend
+        working-directory: backend
+        run: npm ci
+
+      - name: Install dependencies for frontend
+        working-directory: frontend
         run: npm ci
 
       - name: Run Tests
         working-directory: ./
         run: npm run test-coverage
-
-      # Will use later for coverage report
-          
-      # - name: Create coverage folder if none exists
-      #   run: mkdir -p ${{ matrix.folder }}/coverage
-
-      # - name: List files in coverage directory
-      #   run: ls -R ${{ matrix.folder }}/coverage
-
-      # - name: Jest Code Coverage
-      #   id: coverageComment
-      #   uses: MishaKav/jest-coverage-comment@main
-      #   with:
-      #     hide-comment: true
-      #     coverage-summary-path: ${{ matrix.folder }}/coverage/coverage-summary.json
-
-      # - name: Check the output coverage
-      #   run: |
-      #     echo "Coverage Percentage - ${{ steps.coverageComment.outputs.coverage }}"
-      #     echo "Coverage Color - ${{ steps.coverageComment.outputs.color }}"
-      #     echo "Summary HTML - ${{ steps.coverageComment.outputs.summaryHtml }}"
     
