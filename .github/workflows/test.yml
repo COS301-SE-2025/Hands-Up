@@ -1,7 +1,7 @@
 name: Test Code
 on:
   push:
-    branches: [main, dev, ui/learning_progress]
+    branches: [main, dev]
   pull_request:
     branches: [main, dev]
     
