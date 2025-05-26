@@ -22,12 +22,7 @@ services:
       - postgres
     volumes:
       - ./sql:/flyway/sql
-    command: >
-  -url=jdbc:postgresql://postgres:5432/HandsUp
-  -user=tmkdt
-  -password=handsUpProject1.0
-  -connectRetries=10
-  migrate
+    command: -url=jdbc:postgresql://postgres:5432/HandsUp -user=tmkdt -password=handsUpProject1.0 -connectRetries=10 migrate
 
 volumes:
   pgdata:
