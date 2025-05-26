@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import '../styles/Signup.css';
 import logo from '../logo.png';
 import {signup} from'../utils/apiCalls.js';
+import { Link, useNavigate } from 'react-router-dom';
 
 const SignupPage = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     surname: '',
@@ -44,6 +46,7 @@ const SignupPage = () => {
       // Use the service instead of direct fetch
       const data = await signup({ name, surname, username, email, password });
       alert(`Signup successful! Welcome ${data.user.username}`);
+      navigate('/login');
       // Redirect or clear form
     } catch (error) {
       alert(error.message);
@@ -143,7 +146,7 @@ const SignupPage = () => {
 
         <p className="signup-footer">
           Already have an account?
-          <a href="/login" className="login-link">Log in</a>
+          <Link to="/login" className="login-link">Log in</Link>
         </p>
       </div>
     </div>

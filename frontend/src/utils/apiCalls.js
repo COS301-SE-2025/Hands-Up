@@ -50,8 +50,8 @@ export const login = async (credentials) => {
   }
 };
 
-export const getUserData = async (userId) => {
-  const response = await fetch(`${API_BASE_URL}/user/${userId}`);
+export const getUserData = async (userID) => {
+  const response = await fetch(`${API_BASE_URL}/user/${userID}`);
   if (!response.ok) throw new Error('Failed to fetch user data');
   const data = await response.json();
   return data.user;

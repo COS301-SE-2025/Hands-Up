@@ -6,7 +6,7 @@ const router = Router();
 
 export const learningProgress = async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const userID = req.params.userID;
 
     const result = await pool.query(
       'SELECT * FROM users',
@@ -47,7 +47,7 @@ export const signUpUser = async (req, res) => {
     const result = await pool.query(
       `INSERT INTO users (username, name, surname, email, password) 
        VALUES ($1, $2, $3, $4, $5) 
-       RETURNING userid, username, email`,
+       RETURNING "userID", username, email`,
       [username, name, surname, email, hashedPassword]
     );
 
@@ -105,7 +105,7 @@ export const loginUser = async (req, res) => {
     res.status(200).json({
       success: true,
       user: {
-        id: user.userid,
+        id: user.userID,
         email: user.email,
         name: user.name
       }
@@ -122,7 +122,7 @@ export const getUserData = async (req, res) => {
   try {
     const { id } = req.params;
     const result = await pool.query(
-      'SELECT userid, username, name, surname, email FROM users WHERE userid = $1',
+      'SELECT userID, username, name, surname, email FROM users WHERE userID = $1',
       [id]
     );
     
