@@ -1,5 +1,6 @@
 import { learningProgress } from './../backend/api/controllers/dbController'; 
 import { pool } from '../../backend/api/utils';
+import { jest, describe, it, beforeEach, expect } from '@jest/globals'
 
 jest.mock('../utils', () => ({
   pool: {

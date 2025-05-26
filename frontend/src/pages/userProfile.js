@@ -1,3 +1,4 @@
+import React from "react";
 import {LearningStats} from "../components/learningStats.js";
 import "../styles/userProfile.css";
 

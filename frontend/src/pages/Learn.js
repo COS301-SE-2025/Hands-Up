@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState} from 'react';
 import { useStatUpdater } from "../hooks/learningStatsUpdater";
 
 import "../styles/Learn.css";
@@ -92,7 +92,7 @@ export default function Learn()
   return (
     <div className="learn-container">
       <h1 className="learn-title">Learn Sign Language</h1>
-      <p className="learn-subtitle">Choose what you'd like to learn:</p>
+      <p className="learn-subtitle">Choose what you&apos;d like to learn:</p>
 
       <div className="options-row">
         <div

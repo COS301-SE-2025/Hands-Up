@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import '../styles/Translator.css';
 
 export default function Translator() 
@@ -18,6 +18,7 @@ export default function Translator()
         }
       } catch (err) 
       {
+        console.log(err);
         setResult('Camera access denied.');
       }
     };
