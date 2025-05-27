@@ -103,7 +103,7 @@ Thus, the system focuses on three core functionalities:
       </a>
     </td>
     <td style="vertical-align: top; width: 30%; border: 0; padding: 15px; text-align: center;">
-      <img src="diagrams/Karabo.jpg" width="1500" height="300" style="display: inline-block: 10px;">
+      <img src="diagrams/Thendo.jpg" width="1500" height="300" style="display: inline-block: 10px;">
     </td>
   </tr>
 </table>
@@ -145,7 +145,7 @@ Thus, the system focuses on three core functionalities:
       </a>
     </td>
     <td style="vertical-align: top; width: 30%; border: 0; padding: 15px; text-align: center;">
-      <img src="diagrams/Karabo.jpg" width="1500" height="300" style="display: inline-block: 10px;">
+      <img src="diagrams/Driya.jpg" width="1500" height="300" style="display: inline-block: 10px;">
     </td>
   </tr>
 </table>
@@ -165,7 +165,7 @@ Thus, the system focuses on three core functionalities:
       </a>
     </td>
     <td style="vertical-align: top; width: 30%; border: 0; padding: 15px; text-align: center;">
-      <img src="diagrams/Karabo.jpg" width="1500" height="300" style="display: inline-block: 10px;">
+      <img src="diagrams/MT.jpg" width="1500" height="300" style="display: inline-block: 10px;">
     </td>
   </tr>
 </table>
