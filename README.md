@@ -1,5 +1,6 @@
 <p align="center">
   <img src="diagrams/Screenshot_2025-04-23_212401.png" width="auto" height="auto">
+   <img src="diagrams/HandsUP.png" width="auto" height="auto">
 </p>
   
 <h1 align="center">Hands UP by TMKDT</h1>
