@@ -1,12 +1,11 @@
-
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useStatUpdater } from "../hooks/learningStatsUpdater";
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 
 import '../styles/Login.css';
-import heroImage from "../sign33.png"
-import logo from "../logo2.png"
+import heroImage from "../sign33.png";
+import logo from "../logo2.png";
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -16,7 +15,8 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+  const handleUpdate = useStatUpdater();
 
   useEffect(() => {
     setMounted(true);
@@ -30,85 +30,63 @@ function Login() {
       setError('Please enter both email and password.');
       setIsLoading(false);
       return;
+    }
 
-    } 
-    
     try {
       const response = await fetch('http://localhost:2000/handsUPApi/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-      
+
       const data = await response.json();
-      console.log(data);
       if (!response.ok) {
         throw new Error(data.error || 'Login failed');
       }
 
-      // Store user data and redirect
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('userData', JSON.stringify(data.user));
       navigate('/userProfile');
       handleUpdate("streak");
 
     } catch (error) {
-      console.log(email);
       setError(error.message);
-      console.error('Login error:', error);
-
-
     }
 
     await new Promise(resolve => setTimeout(resolve, 1000));
-
     setError('');
-    console.log('Login attempt for:', email);
     setIsLoading(false);
-
     navigate('/home');
   };
-
-  const handleUpdate = useStatUpdater();
 
   return (
     <div className="login-page">
       <div className="bg-animation-container">
-        <div className="bg-animation-circle-1" style={{backgroundColor: '#b3d077', '--initial-opacity': 0.05, '--pulse-opacity': 0.08}}></div>
-        <div className="bg-animation-circle-2" style={{backgroundColor: '#ffc61a', '--initial-opacity': 0.07, '--pulse-opacity': 0.1}}></div>
+        <div className="bg-animation-circle-1" style={{ backgroundColor: '#b3d077', '--initial-opacity': 0.05, '--pulse-opacity': 0.08 }}></div>
+        <div className="bg-animation-circle-2" style={{ backgroundColor: '#ffc61a', '--initial-opacity': 0.07, '--pulse-opacity': 0.1 }}></div>
       </div>
 
       <div className={`login-content-wrapper ${mounted ? 'mounted' : ''}`}>
         <div className="login-grid">
 
           <div className="form-section">
-
             <div className="form-content">
               <div className="header-section">
                 <div className="logo-group">
-                  <div className="logo-icon-wrapper" style={{background: `linear-gradient(135deg, #ffc61a, #b3d077)`}}>
+                  <div className="logo-icon-wrapper" style={{ background: `linear-gradient(135deg, #ffc61a, #b3d077)` }}>
                     <img src={logo} alt="Logo" className="logo-image" />
                   </div>
-                  <h1 className="welcome-title">
-                    Welcome Back!
-                  </h1>
+                  <h1 className="welcome-title">Welcome Back!</h1>
                 </div>
                 <p className="subtitle">Unlock your signing journey.</p>
               </div>
 
               <div className="form-fields-container">
-                {error && (
-                  <div className="error-message">
-                    {error}
-                  </div>
-                )}
+                {error && <div className="error-message">{error}</div>}
 
                 <div className="input-group">
                   <label htmlFor="email" className="input-label">
-                    <Mail className="mail-icon" />
-                    Email Address
+                    <Mail className="mail-icon" /> Email Address
                   </label>
                   <div className="input-wrapper">
                     <input
@@ -124,8 +102,7 @@ function Login() {
 
                 <div className="input-group">
                   <label htmlFor="password" className="input-label">
-                    <Lock className="lock-icon" />
-                    Password
+                    <Lock className="lock-icon" /> Password
                   </label>
                   <div className="input-wrapper">
                     <input
@@ -166,58 +143,39 @@ function Login() {
                   </div>
                 </button>
               </div>
-
-            
             </div>
+              <div className="signup-section">
+                <div className="signup-card">
+                  <p className="signup-text">Don&apos;t have an account?</p>
+                  <button
+                    onClick={() => navigate('/signup')}
+                    className="signup-button"
+                  >
+                    Sign up
+                    <ArrowRight className="signup-arrow-icon" />
+                  </button>
+                </div>
+              </div>
           </div>
+
+         
 
           <div className="hero-section">
-            <div
-              className="hero-background-image"
-              style={{ backgroundImage: `url(${heroImage})` }}
-            >
-            </div>
-
-            <div className="hero-overlay" style={{background: `linear-gradient(135deg, rgba(78, 122, 81, 0.6), rgba(179, 208, 119, 0.55), rgba(255, 198, 26, 0.5))`}}></div>
+            <div className="hero-background-image" style={{ backgroundImage: `url(${heroImage})` }}></div>
+            <div className="hero-overlay" style={{ background: `linear-gradient(135deg, rgba(78, 122, 81, 0.6), rgba(179, 208, 119, 0.55), rgba(255, 198, 26, 0.5))` }}></div>
             <div className="hero-content">
-              <div className="hand-signs-wrapper">
-              </div>
-
-
+              <div className="hand-signs-wrapper"></div>
               <div className="hero-text-content">
-                <h2 className="hero-title">
-                  Hands UP
-                </h2>
-
-
+                <h2 className="hero-title">Hands UP</h2>
               </div>
-
-              <div className="hero-decor-circle-1" style={{backgroundColor: '#ffc61a', opacity: 0.1}}></div>
-              <div className="hero-decor-circle-2" style={{backgroundColor: '#b3d077', opacity: 0.08}}></div>
+              <div className="hero-decor-circle-1" style={{ backgroundColor: '#ffc61a', opacity: 0.1 }}></div>
+              <div className="hero-decor-circle-2" style={{ backgroundColor: '#b3d077', opacity: 0.08 }}></div>
             </div>
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="form-input"
-            />
-          </div>
-          <button type="submit" className="login-button">
-            Log In
-          </button>
         </div>
-     <div>
-        <p className="signup-prompt">
-          Don&apos;t have an account?
-          <Link to="/Signup" className="signup-link">Sign up</Link>
-        </p>
-         
-        </div>
+
+        
       </div>
     </div>
   );
