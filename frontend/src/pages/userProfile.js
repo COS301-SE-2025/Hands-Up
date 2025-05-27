@@ -136,10 +136,10 @@ export default function UserProfile() {
     if (!newPassword && !confirmPassword) {
       //save updated user details (without password)
       try {
-        const result = await updateUserDetails(userData.userID, name, surname, username, email);
+        await updateUserDetails(userData.userID, name, surname, username, email);
         alert("User updated successfully!");
       } catch (err) {
-        alert("An error occurred while updating.");
+        alert("An error occurred while updating: ", err);
       }
     }
     else {
@@ -160,10 +160,10 @@ export default function UserProfile() {
 
       //save updated user details (with password)
       try {
-        const result = await updateUserPassword( userData.userID, name, surname, username, email, newPassword );
+        await updateUserPassword( userData.userID, name, surname, username, email, newPassword );
         alert("User updated successfully!");
       } catch (err) {
-        alert("An error occurred while updating.");
+        alert("An error occurred while updating: ", err);
       }
     }
 
