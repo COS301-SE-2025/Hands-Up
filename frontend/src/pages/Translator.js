@@ -15,7 +15,7 @@ export default function Translator()
   const [capturedBlob, setCapturedBlob] = useState(null); // Store the actual blob for API processing
 
   const [mediaRecorder, setMediaRecorder] = useState(null);
-  const [recordedChunks, setRecordedChunks] = useState([]);
+  //const [recordedChunks, setRecordedChunks] = useState([]);
 
   useEffect(() => {
     const enableCamera = async () => {
@@ -77,7 +77,7 @@ export default function Translator()
     }
   };
 
-  const processImage = async (imageBlob) => {
+  const processImage = async () => {
     setResult("Processing captured image...");
 
     // Simulate processing
@@ -109,7 +109,7 @@ export default function Translator()
     */
   };
 
-  const processVideo = async (videoBlob) => {
+  const processVideo = async () => {
     setResult("Processing captured video...");
 
     // Simulate faster processing
@@ -160,7 +160,7 @@ export default function Translator()
     if (!stream) return;
 
     // Reset chunks for new recording
-    setRecordedChunks([]);
+    //setRecordedChunks([]);
     
     // Use higher bitrate for better quality and faster processing
     const options = {
@@ -174,6 +174,7 @@ export default function Translator()
       recorder = new MediaRecorder(stream, options);
     } catch (e) {
       // Fallback to default
+      console.log(e);
       recorder = new MediaRecorder(stream);
     }
 
@@ -226,7 +227,7 @@ export default function Translator()
     if (e.target.files.length > 0) {
       const file = e.target.files[0];
       const isVideo = file.type.includes('video');
-      const isImage = file.type.includes('image');
+      //const isImage = file.type.includes('image');
       
       setResult(`Processing uploaded ${isVideo ? 'video' : 'image'}...`);
       
@@ -386,7 +387,7 @@ export default function Translator()
                 <i className="fas fa-history recognizer-history-icon"></i> Recent Captures
               </h3>
               <div className="recognizer-history-items">
-                {captureHistory.map((capture, index) => (
+                {captureHistory.map((capture) => (
                   <div 
                     key={capture.id} 
                     className="recognizer-history-item" 
@@ -528,12 +529,7 @@ export default function Translator()
         </div>
       </div>
       
-      {/* Add CSS for hover effect */}
-      <style jsx>{`
-        .recognizer-history-item:hover .history-hover-overlay {
-          opacity: 1 !important;
-        }
-      `}</style>
+      
     </div>
   );
 }
