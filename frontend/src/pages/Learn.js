@@ -149,7 +149,7 @@ export default function Learn()
 
         {selectedOption === 'sentences' && (
           <>
-            <h2>Common Sign Language Lessons</h2>
+            <h2>Lessons Available</h2>
             <div className="lessons-grid">
               {lessons.map(({ title, sign, description }) => (
                 <div

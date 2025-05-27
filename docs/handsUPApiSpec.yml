@@ -122,7 +122,7 @@ paths:
           $ref: '#/components/responses/internalServerError'
 
 
-  /learn/{username}:
+  /learning/progress/{username}:
     get:
       tags:
         - learning
@@ -141,6 +141,51 @@ paths:
           $ref: '#/components/responses/successStatsResponse'
         '400':
           $ref: '#/components/responses/notFoundResponse'
+        '404':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+
+  /learning/lessons/{username}:
+    put:
+      tags:
+        - learning
+      summary: Update learning progress
+      description: Update the user's learning progress with completed lessons, streak, etc
+      operationId: updateLearningProgress
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: The username of the user to update progress for
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                lessonsCompleted:
+                  type: integer
+                  example: 10
+                streak:
+                  type: integer
+                  example: 2
+                signsLearned:
+                  type: integer
+                  example: 5
+                currentLevel:
+                  type: string
+                  example: "Bronze"
+      responses:
+        '200':
+          $ref: '#/components/responses/successPostResponse'
+        '400':
+          $ref: '#/components/responses/notFoundResponse'
+        '404':
+          $ref: '#/components/responses/badRequestResponse'
         '500':
           $ref: '#/components/responses/internalServerError'
 
@@ -248,3 +293,17 @@ components:
                   - id: 2
                     name: "Jane Smith"
                     email: "jane.smith@example.com"
+
+    badRequestResponse:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                example: "error"
+              message:
+                type: string
+                example: "Bad request"
