@@ -1,0 +1,175 @@
+.learn-container 
+{
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1rem 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #2B3F32; 
+  background-color: #f3f4f6;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(43, 63, 50, 0.1);
+}
+
+.learn-title 
+{
+  font-size: 2.8rem;
+  font-weight: 700;
+  text-align: center;
+  color: #2D4D3A; 
+  margin-bottom: 0.3rem;
+}
+
+.learn-subtitle 
+{
+  font-size: 1.3rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #3d6b50;
+}
+
+.options-row 
+{
+  display: flex;
+  justify-content: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  margin-bottom: 3rem;
+}
+
+.option-card 
+{
+  background-color: white;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 1.6rem 1.8rem;
+  width: 220px;
+  cursor: pointer;
+  box-shadow: 0 1px 6px rgb(43 63 50 / 0.1);
+  text-align: center;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
+}
+
+.option-card:hover 
+{
+  border-color: #F9C74F;
+  box-shadow: 0 0 10px #F9C74Faa;
+}
+
+.option-card.selected 
+{
+  border-color: #AAD576;
+  box-shadow: 0 0 14px #AAD576cc;
+}
+
+.option-card h3 
+{
+  margin: 0.6rem 0 0.4rem;
+  font-size: 1.25rem;
+  color: #1f3528; 
+}
+
+.option-card p 
+{
+  font-size: 0.9rem;
+  color: #2B3F32; 
+}
+
+.content-area 
+{
+  padding: 0 1rem;
+}
+
+.alphabets-grid 
+{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+  gap: 1.4rem;
+  justify-items: center;
+}
+
+.alphabet-card
+{
+  background-color: #AAD576; 
+  border-radius: 10px;
+  width: 70px;
+  height: 90px;
+  box-shadow: 0 2px 8px rgb(43 77 58 / 0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  transition: background-color 0.3s ease;
+}
+
+.alphabet-card:hover 
+{
+  background-color: #2D4D3A; 
+  color: #f3f4f6; 
+}
+
+.alphabet-card .sign 
+{
+  font-size: 2.8rem;
+  margin-bottom: 0.3rem;
+}
+
+.alphabet-card .letter 
+{
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: #1f3528;
+}
+
+.alphabet-card:hover .letter 
+{
+  color: #F9C74F; 
+}
+
+.placeholder-message 
+{
+  text-align: center;
+  font-size: 1.15rem;
+  color: #2B3F32; 
+  margin-top: 2rem;
+}
+
+.option-card:focus 
+{
+  outline: 3px solid #AAD576;
+  outline-offset: 3px;
+}
+
+.lessons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.lesson-card {
+  background: #f9f9f9;
+  padding: 1rem;
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+}
+
+.lesson-card:hover 
+{
+  border-color: #AAD576;
+  box-shadow: 0 0 14px #AAD576cc;
+}
+
+.lesson-title {
+  font-weight: bold;
+  margin-top: 0.5rem;
+}
+
+.lesson-description {
+  font-size: 0.9rem;
+  color: #555;
+}
