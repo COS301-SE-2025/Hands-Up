@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Eye, EyeOff, Mail, Lock, ArrowRight, User } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/Signup.css';
-import logo from '../logo.png';
+import heroImage from "../sign33.png" 
+import logo from "../logo2.png"  
 
-const SignupPage = () => {
+function SignupPage() {
   const [formData, setFormData] = useState({
     name: '',
     surname: '',
@@ -11,132 +14,300 @@ const SignupPage = () => {
     password: '',
     confirmPassword: '',
   });
+  const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false); 
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleChange = (e) => {
+    setError('');
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setIsLoading(true); 
+
     const { name, surname, username, email, password, confirmPassword } = formData;
     const specialCharRegex = /[^A-Za-z0-9]/;
 
     if (!name || !surname || !username || !email || !password || !confirmPassword) {
-      alert('Please fill in all fields.');
-      return;
+      setError('Please fill in all fields.');
+      setIsLoading(false); 
+      return; 
     }
 
     if (password.length < 8 || !specialCharRegex.test(password)) {
-      alert('Password must be at least 8 characters long and contain at least one special character.');
-      return;
+      setError('Password must be at least 8 characters long and contain at least one special character.');
+      setIsLoading(false);
+      return; 
     }
 
     if (password !== confirmPassword) {
-      alert('Passwords do not match.');
-      return;
+      setError('Passwords do not match.');
+      setIsLoading(false);
+      return; 
     }
 
-    alert('Signup successful!');
+    if (!termsAccepted) {
+        setError('You must accept the terms and conditions to sign up.');
+        setIsLoading(false);
+        return; 
+    }
+
+    console.log('Attempting signup with data:', formData); 
+
+    try {
+  
+      await new Promise(resolve => setTimeout(resolve, 1500)); 
+
+      console.log('Signup successful!');
+      setIsLoading(false); 
+      navigate('/login');
+    } catch (apiError) {
+      console.error('Signup API error:', apiError);
+      setError('Signup failed. Please try again later.');
+      setIsLoading(false); 
+    }
   };
 
   return (
-    <div className="signup-container">
-      <div className="signup-card">
-        <div className="logo-header">
-          <img src={logo} alt="Logo" className="logo-image" />
-          <h1 className="signup-title">Create Account</h1>
+    <div className="signup-page">
+      <div className="bg-animation-container">
+        <div className="bg-animation-circle-1" style={{backgroundColor: '#b3d077', '--initial-opacity': 0.05, '--pulse-opacity': 0.08}}></div>
+        <div className="bg-animation-circle-2" style={{backgroundColor: '#ffc61a', '--initial-opacity': 0.07, '--pulse-opacity': 0.1}}></div>
+      </div>
+
+      <div className={`signup-content-wrapper ${mounted ? 'mounted' : ''}`}>
+        <div className="signup-grid">
+
+          <div className="hero-section">
+            <div
+              className="hero-background-image"
+              style={{ backgroundImage: `url(${heroImage})` }}
+            >
+            </div>
+            <div className="hero-overlay" style={{background: `linear-gradient(135deg, rgba(78, 122, 81, 0.6), rgba(179, 208, 119, 0.55), rgba(255, 198, 26, 0.5))`}}></div>
+            <div className="hero-content">
+              <div className="hand-signs-wrapper">
+              </div>
+              <div className="hero-text-content">
+                <h2 className="hero-title">
+                  Join Us!
+                </h2>
+                <p className="hero-description">
+                  Create your account to start your journey with Hands UP.
+                </p>
+              </div>
+              <div className="hero-decor-circle-1" style={{backgroundColor: '#ffc61a', opacity: 0.1}}></div>
+              <div className="hero-decor-circle-2" style={{backgroundColor: '#b3d077', opacity: 0.08}}></div>
+            </div>
+          </div>
+
+          <div className="form-section">
+            <div className="form-content">
+              <div className="header-section">
+                <div className="logo-group">
+                  <div className="logo-icon-wrapper" style={{background: `linear-gradient(135deg, #ffc61a, #b3d077)`}}>
+                    <img src={logo} alt="Logo" className="logo-image" />
+                  </div>
+                  <h1 className="welcome-title">
+                    Create Account
+                  </h1>
+                </div>
+                <p className="subtitle">Join the Hands UP community!</p>
+              </div>
+
+              <div className="form-fields-container">
+                {error && (
+                  <div className="error-message">
+                    {error}
+                  </div>
+                )}
+
+                <div className="form-row">
+                  <div className="input-group">
+                    <label htmlFor="name" className="input-label">
+                      <User className="mail-icon" /> First Name
+                    </label>
+                    <div className="input-wrapper">
+                      <input
+                        type="text"
+                        name="name"
+                        id="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        placeholder="Your First Name"
+                        className="text-input"
+                      />
+                    </div>
+                  </div>
+                  <div className="input-group">
+                    <label htmlFor="surname" className="input-label">
+                      <User className="mail-icon" /> Surname
+                    </label>
+                    <div className="input-wrapper">
+                      <input
+                        type="text"
+                        name="surname"
+                        id="surname"
+                        value={formData.surname}
+                        onChange={handleChange}
+                        placeholder="Your Surname"
+                        className="text-input"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="input-group">
+                    <label htmlFor="username" className="input-label">
+                      <User className="mail-icon" /> Username
+                    </label>
+                    <div className="input-wrapper">
+                      <input
+                        type="text"
+                        name="username"
+                        id="username"
+                        value={formData.username}
+                        onChange={handleChange}
+                        placeholder="Choose a Username"
+                        className="text-input"
+                      />
+                    </div>
+                  </div>
+                  <div className="input-group">
+                    <label htmlFor="email" className="input-label">
+                      <Mail className="mail-icon" /> Email Address
+                    </label>
+                    <div className="input-wrapper">
+                      <input
+                        type="email"
+                        name="email"
+                        id="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="you@example.com"
+                        className="text-input"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="input-group">
+                    <label htmlFor="password" className="input-label">
+                      <Lock className="lock-icon" /> Password
+                    </label>
+                    <div className="input-wrapper">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        name="password"
+                        id="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        placeholder="••••••••"
+                        className="text-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="password-toggle-button"
+                      >
+                        {showPassword ? <EyeOff className="password-icon" /> : <Eye className="password-icon" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="input-group">
+                    <label htmlFor="confirmPassword" className="input-label">
+                      <Lock className="lock-icon" /> Confirm Password
+                    </label>
+                    <div className="input-wrapper">
+                      <input
+                        type={showConfirmPassword ? "text" : "password"}
+                        name="confirmPassword"
+                        id="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        placeholder="••••••••"
+                        className="text-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="password-toggle-button"
+                      >
+                        {showConfirmPassword ? <EyeOff className="password-icon" /> : <Eye className="password-icon" />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="terms-checkbox-group">
+                    <input
+                        type="checkbox"
+                        id="termsAccepted"
+                        checked={termsAccepted}
+                        onChange={(e) => setTermsAccepted(e.target.checked)}
+                        className="checkbox-input"
+                    />
+                    <label htmlFor="termsAccepted" className="checkbox-label">
+                        I agree to the <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer" className="terms-link">Terms and Conditions</a>
+                    </label>
+                </div>
+
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="submit-button"
+                >
+                  <div className="submit-button-overlay-1"></div>
+                  <div className="submit-button-overlay-2"></div>
+                  <div className="submit-button-content">
+                    {isLoading ? (
+                      <div className="spinner"></div>
+                    ) : (
+                      <>
+                        <span className="button-text">Sign Up</span>
+                        <ArrowRight className="arrow-right-icon" />
+                      </>
+                    )}
+                  </div>
+                </button>
+              </div>
+
+              <div className="login-section">
+                <div className="login-card">
+                  <p className="signup-text">Already have an account?</p>
+                  <button
+                    onClick={() => navigate('/login')}
+                    className="login-button"
+                  >
+                    Log in
+                    <ArrowRight className="signup-arrow-icon" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <p className="signup-subtitle">Join the Hands UP community!</p>
-
-        <form onSubmit={handleSubmit} className="signup-form">
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="name" className="form-label">First Name</label>
-              <input
-                type="text"
-                name="name"
-                id="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="surname" className="form-label">Surname</label>
-              <input
-                type="text"
-                name="surname"
-                id="surname"
-                value={formData.surname}
-                onChange={handleChange}
-                className="form-input"
-              />
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="username" className="form-label">Username</label>
-              <input
-                type="text"
-                name="username"
-                id="username"
-                value={formData.username}
-                onChange={handleChange}
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="email" className="form-label">Email</label>
-              <input
-                type="email"
-                name="email"
-                id="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="form-input"
-              />
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="password" className="form-label">Password</label>
-              <input
-                type="password"
-                name="password"
-                id="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
-              <input
-                type="password"
-                name="confirmPassword"
-                id="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className="form-input"
-              />
-            </div>
-          </div>
-
-          <button type="submit" className="signup-button">Sign Up</button>
-        </form>
-
-        <p className="signup-footer">
-          Already have an account?
-          <a href="/login" className="login-link">Log in</a>
-        </p>
       </div>
     </div>
   );
-};
+}
 
 export default SignupPage;
