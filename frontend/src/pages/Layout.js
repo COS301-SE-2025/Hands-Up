@@ -2,7 +2,7 @@
 import React from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom"; // Import useLocation
 import "../styles/Layout.css";
-import logo from "../logo.png";
+import logo from "../logo2.png";
 
 
 const NAV_ITEMS = ["Home", "Learn", "Translator", "Profile"];

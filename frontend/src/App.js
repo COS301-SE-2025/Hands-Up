@@ -10,26 +10,20 @@ import Profile from "./pages/userProfile"; // Renamed from Profile to userProfil
 import Translator from "./pages/Translator";
 import Learn from "./pages/Learn";
 import Home from "./pages/Home";
-import Layout from "./pages/Layout"; // Path correct now
+import Layout from "./pages/Layout"; 
 console.log('Layout:', Layout);
 
 
 function App() {
-  const isLoggedIn = true; // Still hardcoded, remember to replace with actual auth logic
+  const isLoggedIn = true;
 
   return (
     <Router>
       <Routes>
-        {/* Public pages without layout */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
-        {/* Protected pages wrapped in layout */}
-        {/*
-          Each Route now implicitly passes its content (Profile, Translator, etc.)
-          as 'children' to the Layout component.
-          The Layout component now uses useLocation to figure out the active page.
-        */}
+       
         <Route
           path="/userProfile"
           element={

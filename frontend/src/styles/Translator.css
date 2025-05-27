@@ -1,17 +1,17 @@
 .recognizer-container 
 {
   min-height: 100vh;
-  background: linear-gradient(to bottom right, #2B3F32, #1f3528);
   padding: 1rem;
 }
 
-.recognizer-content 
-{
+.recognizer-content {
   background-color: white;
   border-radius: 1rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  /* Updated box-shadow for an even, light bluish glow */
+  box-shadow: 0 0 20px rgba(173, 216, 230, 0.7); /* Light blue, spread 20px, 70% opacity */
+  /* You can add a second, subtler shadow for more depth if desired, similar to your original */
+  /* box-shadow: 0 0 20px rgba(173, 216, 230, 0.7), 0 5px 15px rgba(0, 0, 0, 0.1); */
   width: 100%;
-  margin: 0 auto;
   overflow: hidden;
   padding: 2rem;
 }

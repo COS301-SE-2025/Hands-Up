@@ -1,14 +1,15 @@
 .login-page {
-  font-size: 1.45rem;
-  min-height: 100vh;
-  background-color: #f0f2f5; 
+  font-size: 1.45rem; /* Base font size that might be scaled by browser zoom */
+  min-height: 100vh; /* Keep this if you want the *page container* to always fill the screen and center the form */
+  background-color: #f0f2f5;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: center; /* Centers content vertically within the 100vh page */
+  justify-content: center; /* Centers content horizontally */
   padding: 1rem;
   position: relative;
   overflow: hidden;
 }
+
 
 .bg-animation-container {
   position: absolute;
@@ -45,11 +46,18 @@
   position: relative;
   z-index: 10;
   width: 100%;
-  max-width: 72rem; 
+  height: auto; /* Let content determine height */
+  max-width: 72rem; /* Good for width constraint */
+  /* Add a maximum height here if you want it to truly be "small" and potentially scroll content if needed */
+  /* max-height: 80vh; /* Example: Max 80% of viewport height */
+  max-height: 50rem; /* Example: Max fixed height in rem, will scale with browser zoom */
+  /* Consider overflow-y: auto; if content might exceed max-height */
+
   transition: all 1000ms ease-in-out;
   opacity: 0;
   transform: scale(0.95);
 }
+
 
 .login-content-wrapper.mounted {
   opacity: 1;
@@ -58,16 +66,16 @@
 
 .login-grid {
   display: grid;
-  grid-template-columns: 1fr; 
+  grid-template-columns: 1fr;
   gap: 0;
   background-color: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(8px); 
+  backdrop-filter: blur(8px);
   border-radius: 1.5rem;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(229, 231, 235, 0.5); 
-  overflow: hidden; 
+  border: 1px solid rgba(229, 231, 235, 0.5);
+  overflow: hidden; /* Important for containing content if max-height is hit */
   transition: all 500ms ease-in-out;
-  min-height: 40rem; 
+  min-height: auto; 
 }
 
 .login-grid:hover {
