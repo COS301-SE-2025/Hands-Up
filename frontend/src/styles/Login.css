@@ -1,168 +1,268 @@
-.login-page 
-{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: #344e3d; 
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+:root {
+    --color-primary-blue: #2C528B;
+    --color-dark-blue: #1C3B63;
+    --color-accent-gold: #FDC029;
+    --color-accent-gold-dark: #E6AA1E;
+    --color-white: #FFFFFF;
+    --color-soft-gray-bg: #F4F7FA;
+    --color-text-dark: #2D3748;
+    --color-text-muted: #718096;
+    --color-error-red: #DC2626;
 }
 
-.login-container 
-{
-  max-width: 480px;
-  width: 90%;
-  padding: 2rem;
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--color-soft-gray-bg);
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    color: var(--color-text-dark);
+    padding: 20px;
+    box-sizing: border-box;
 }
 
-.logo-header 
-{
-  display: flex;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  justify-content: center;
+.login-container {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-white);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+    max-width: 1000px;
+    width: 100%;
+    min-height: 580px;
+    transition: transform 0.3s ease-out;
 }
 
-.logo-image 
-{
-  height: 50px;
-  width: auto;
-  margin-right: 0.75rem;
+.login-form-section {
+    flex: 1.2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 50px;
+    background-color: var(--color-white);
+    position: relative;
+    z-index: 1;
 }
 
-.logo-text 
-{
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #2D4D3A; 
-  margin-bottom: 0.2;
+.form-header {
+    text-align: center;
+    margin-bottom: 2.8rem;
 }
 
-.welcome-text 
-{
-  text-align: center;
-  margin-bottom: 6;
-  color: #A4C66F;
-  font: medium;
- 
+.form-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--color-text-dark);
+    margin-bottom: 0.8rem;
+    line-height: 1.2;
 }
 
-.login-form 
-{
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  margin-bottom: 1.5rem;
+.form-welcome-text {
+    font-size: 1.1rem;
+    color: var(--color-text-muted);
 }
 
-.error-message 
-{
-  color: #dc2626;
-  font-size: 0.875rem;
-  padding: 0.5rem;
-  background-color: rgba(254, 226, 226, 0.5);
-  border-radius: 6px;
-  margin-bottom: 0.5rem;
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.8rem;
 }
 
-.form-group 
-{
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+.error-message {
+    color: var(--color-error-red);
+    font-size: 0.95rem;
+    padding: 1rem 1.2rem;
+    background-color: rgba(220, 38, 38, 0.08);
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    text-align: center;
+    border: 1px solid rgba(220, 38, 38, 0.3);
 }
 
-.form-label 
-{
-  display: block;
-  text-align: left;
-  color: #4c7a45;
-  font-weight: 500;
-  font-size: 0.95rem;
-  
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
 }
 
-.form-input 
-{
-  padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
+.form-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-text-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-left: 2px;
 }
 
-.form-input:focus 
-{
-  outline: none;
-  border-color: #a5d45e;
-  box-shadow: 0 0 0 2px rgba(165, 212, 94, 0.3);
+.form-input {
+    padding: 1.2rem 1.4rem;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    color: var(--color-text-dark);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box;
+    -webkit-appearance: none;
 }
 
-.login-button 
-{
-  width: 100%;
-  background-color: #F2C94C; 
-  color: #050705;
-  font-size: 1rem;
-  font-weight: 600;
-  padding: 0.75rem 1rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  margin-top: 0.5rem;
+.form-input:focus {
+    outline: none;
+    border-color: var(--color-primary-blue);
+    box-shadow: 0 0 0 5px rgba(44, 82, 139, 0.25);
 }
 
-.login-button:hover 
-{
-  background-color: #f5d05a;
+.login-button {
+    width: 100%;
+    background-color: var(--color-accent-gold);
+    color: var(--color-white);
+    font-size: 1.3rem;
+    font-weight: 700;
+    padding: 1.3rem 1.5rem;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.15s ease, box-shadow 0.3s ease;
+    margin-top: 2rem;
+    letter-spacing: 0.03em;
+    box-shadow: 0 8px 20px rgba(253, 192, 41, 0.25);
 }
 
-.login-button:active 
-{
-  background-color: #eab308;
-  transform: translateY(1px);
+.login-button:hover {
+    background-color: var(--color-accent-gold-dark);
+    box-shadow: 0 12px 25px rgba(253, 192, 41, 0.35);
+    transform: translateY(-2px);
 }
 
-.signup-prompt 
-{
-  margin-top: 1rem;
-  text-align: center;
-  font-size: 0.875rem;
-  color: #4c7a45;
+.login-button:active {
+    background-color: #CF950B;
+    transform: translateY(1px);
+    box-shadow: 0 5px 10px rgba(253, 192, 41, 0.2);
 }
 
-.signup-link 
-{
-  color: #a5d45e;
-  font-weight: 600;
-  text-decoration: none;
-  margin-left: 0.25rem;
+.signup-prompt {
+    text-align: center;
+    margin-top: 2.5rem;
+    font-size: 1rem;
+    color: var(--color-text-muted);
 }
 
-.signup-link:hover 
-{
-  text-decoration: underline;
+.signup-link {
+    color: var(--color-primary-blue);
+    font-weight: 700;
+    text-decoration: none;
+    margin-left: 0.4rem;
+    transition: text-decoration 0.2s ease, color 0.2s ease;
 }
 
-@media (max-width: 640px) 
-{
-  .login-container 
-  {
-    width: 95%;
-    padding: 1.5rem;
-  }
-  
-  .logo-image 
-  {
-    height: 40px;
-  }
-  
-  .logo-text 
-  {
-    font-size: 1.5rem;
-  }
+.signup-link:hover {
+    text-decoration: underline;
+    color: var(--color-dark-blue);
+}
+
+.login-hero-section {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: var(--color-white);
+    text-align: center;
+    min-height: 250px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.login-hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(160deg, rgba(44, 82, 139, 0.9) 0%, rgba(28, 59, 99, 0.95) 100%);
+    z-index: 1;
+}
+
+.login-hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 20px;
+    box-sizing: border-box;
+    max-width: 90%;
+}
+
+.hero-logo {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 1.8rem;
+    filter: drop-shadow(0 6px 12px rgba(0,0,0,0.3));
+}
+
+.hero-title {
+    font-size: 3.2rem;
+    font-weight: 900;
+    margin-bottom: 0.8rem;
+    line-height: 1.1;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+}
+
+.hero-tagline {
+    font-size: 1.3rem;
+    opacity: 0.95;
+    line-height: 1.5;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+
+@media (min-width: 768px) {
+    .login-container {
+        flex-direction: row;
+        height: 650px;
+    }
+    .login-form-section {
+        order: 1;
+    }
+    .login-hero-section {
+        order: 2;
+        min-height: auto;
+    }
+}
+
+@media (max-width: 600px) {
+    .login-page {
+        padding: 15px;
+    }
+    .login-container {
+        border-radius: 12px;
+    }
+    .login-form-section {
+        padding: 30px 25px;
+    }
+    .form-title {
+        font-size: 2rem;
+    }
+    .form-welcome-text {
+        font-size: 0.95rem;
+    }
+    .login-button {
+        font-size: 1.15rem;
+        padding: 1.1rem 1.2rem;
+    }
+    .login-hero-section {
+        padding: 30px;
+        min-height: 200px;
+    }
+    .hero-logo {
+        width: 80px;
+        height: 80px;
+    }
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    .hero-tagline {
+        font-size: 1.1rem;
+    }
 }
