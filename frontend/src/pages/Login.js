@@ -27,7 +27,7 @@ function Login() {
       // Store user data and redirect
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('userData', JSON.stringify(data.user));
-      navigate('/userProfile');
+      navigate('/Home');
 
     } catch (error) {
       setError(error.message);

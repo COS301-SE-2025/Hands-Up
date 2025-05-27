@@ -46,7 +46,7 @@ const SignupPage = () => {
       // Use the service instead of direct fetch
       const data = await signup({ name, surname, username, email, password });
       alert(`Signup successful! Welcome ${data.user.username}`);
-      navigate('/login');
+      navigate('/Home');
       // Redirect or clear form
     } catch (error) {
       alert(error.message);
