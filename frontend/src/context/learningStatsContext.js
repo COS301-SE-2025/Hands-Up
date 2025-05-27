@@ -6,7 +6,17 @@ const LearningStatsContext = createContext();
  
 export function LearningStatsProvider({ children }) {
   const [stats, setStats] = useState(null);
-  const username = localStorage.getItem("username") || "tester1";
+  const storedUser = localStorage.getItem('userData');
+  console.log(storedUser); 
+  let username = ""; 
+  if (storedUser) {
+    const parsedUser = JSON.parse(storedUser);
+    username = parsedUser.username;
+    console.log(username); 
+  }
+  else {
+    console.log("error retrieving username for learning stats"); 
+  }
 
   useEffect(() => {
     const loadStats = async () => {

@@ -9,6 +9,7 @@ export default function UserProfile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [formErrors, setFormErrors] = useState({});
+  const [formSuccess, setFormSuccess] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,8 +25,6 @@ export default function UserProfile() {
     try {
       const user = JSON.parse(storedUser);
       setUserData(user);
-      
-      // Optional: Fetch fresh data from backend
       fetchUserData(user.id);
       
     } catch (err) {
@@ -35,6 +34,16 @@ export default function UserProfile() {
       setLoading(false);
     }
   }, [navigate]);
+
+  useEffect(() => {
+    if (formSuccess) {
+      const timer = setTimeout(() => {
+        setFormSuccess("");
+      }, 2000); 
+      return () => clearTimeout(timer);
+    }
+  }, [formSuccess]);
+
 
   const fetchUserData = async (userID) => {
     try {
@@ -137,9 +146,18 @@ export default function UserProfile() {
       //save updated user details (without password)
       try {
         await updateUserDetails(userData.userID, name, surname, username, email);
-        alert("User updated successfully!");
+        const updatedUser = {
+          id: userData.userID,        
+          email: email,
+          username: username
+        };
+        localStorage.setItem("userData", JSON.stringify(updatedUser));
+        setUserData(updatedUser);
+        setFormSuccess("User updated successfully!");
       } catch (err) {
-        alert("An error occurred while updating: ", err);
+        errors.general = "An error occurred while updating: " + err.message;
+        setFormErrors(errors);
+        return;
       }
     }
     else {
@@ -161,9 +179,18 @@ export default function UserProfile() {
       //save updated user details (with password)
       try {
         await updateUserPassword( userData.userID, name, surname, username, email, newPassword );
-        alert("User updated successfully!");
+        const updatedUser = {
+          id: userData.userID,        
+          email: email,
+          username: username
+        };
+        localStorage.setItem("userData", JSON.stringify(updatedUser));
+        setUserData(updatedUser);
+        setFormSuccess("User updated successfully!");
       } catch (err) {
-        alert("An error occurred while updating: ", err);
+        errors.general = "An error occurred while updating: " + err.message;
+        setFormErrors(errors);
+        return;
       }
     }
 
@@ -181,9 +208,8 @@ export default function UserProfile() {
           </div>
           <div className="profile-info">
             <h2 className="name">{userData?.name} {userData?.surname}</h2>
-            <p className="email">{userData?.email}</p>
+            <p className="email">{userData?.username}</p>
             <p className="member-since">Member since: {new Date().toLocaleDateString()}</p>
-            <button onClick={handleLogout} className="logout-btn">Logout</button>
           </div>
         </section>
 
@@ -244,6 +270,7 @@ export default function UserProfile() {
             <div className="form-actions">
               <button type="submit" className="btn-primary">Save Changes</button>
               {formErrors.general && <div style={{ color: 'red' }}>{formErrors.general}</div>}
+              {formSuccess && <div style={{ color: 'green' }}>{formSuccess}</div>}
               <div className="btn-group">
                 <button type="button" className="btn-secondary">Reset Progress</button>
                 <button type="button" className="btn-danger">Delete Account</button>
