@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Mail, Lock, ArrowRight, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import {signup} from'../utils/apiCalls.js';
 import '../styles/Signup.css';
 import heroImage from "../sign33.png";
 import logo from "../logo2.png";
@@ -71,27 +72,12 @@ function SignupPage() {
     }
 
     try {
-      const response = await fetch('http://localhost:2000/handsUPApi/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name,
-          surname,
-          username,
-          email,
-          password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-       throw new Error(data.error || 'Signup failed');
-      }
-
-      setSuccessMessage(`Signup successful! Welcome ${data.user.username}. Redirecting to login...`);
+      const data = await signup({ name, surname, username, email, password });
+      console.log(data);
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('userData', JSON.stringify(data.user));
+      setSuccessMessage(`Signup successful! Welcome ${data.user.username}. Redirecting to Home...`);
+     
       setFormData({
         name: '',
         surname: '',
@@ -102,16 +88,18 @@ function SignupPage() {
       });
       
       setTimeout(() => {
-        navigate('/login');
-      }, 2000); 
-      
+        navigate('/Home');
+      }, 2000);
     } catch (error) {
       console.error('Signup error:', error);
       setError(error.message);
     } finally {
       setIsLoading(false);
     }
+
   };
+
+   
 
   return (
     <div className="signup-page">
