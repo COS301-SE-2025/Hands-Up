@@ -98,3 +98,52 @@ export const updateUserPassword = async ( userID, name, surname, username, email
     throw err;  
   }
 };
+
+const API_BASE_URL = 'http://localhost:2000/handsUPApi/auth';
+
+export const signup = async ({ name, surname, username, email, password }) => {
+  const response = await fetch('http://localhost:2000/handsUPApi/auth/signup', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      name,
+      surname,
+      username,
+      email,
+      password,
+    }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || 'Signup failed');
+  }
+
+  return data;
+};
+
+export const login = async (credentials) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(credentials),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Login failed');
+    }
+
+    return data; // Returns user data on success
+  } catch (error) {
+    console.error('Login error:', error);
+    throw error; // Re-throw to handle in the component
+  }
+};
