@@ -15,6 +15,7 @@ function SignupPage() {
     confirmPassword: '',
   });
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState(''); // New state for success messages
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -29,6 +30,7 @@ function SignupPage() {
 
   const handleChange = (e) => {
     setError('');
+    setSuccessMessage('');
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
@@ -37,7 +39,8 @@ function SignupPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError(''); 
+    setSuccessMessage(''); 
     setIsLoading(true);
 
     const { name, surname, username, email, password, confirmPassword } = formData;
@@ -85,14 +88,26 @@ function SignupPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Signup failed');
+       throw new Error(data.error || 'Signup failed');
       }
 
-      alert(`Signup successful! Welcome ${data.user.username}`);
-      navigate('/login');
+      setSuccessMessage(`Signup successful! Welcome ${data.user.username}. Redirecting to login...`);
+      setFormData({
+        name: '',
+        surname: '',
+        username: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+      });
+      
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000); 
+      
     } catch (error) {
       console.error('Signup error:', error);
-      alert(error.message);
+      setError(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -134,6 +149,8 @@ function SignupPage() {
 
               <div className="form-fields-container">
                 {error && <div className="error-message">{error}</div>}
+                {successMessage && <div className="success-message">{successMessage}</div>}
+
 
                 <div className="form-row">
                   <div className="input-group">
