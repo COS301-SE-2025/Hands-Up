@@ -1,6 +1,6 @@
 <p align="center">
-  <img src="diagrams/Hands UP.png" width="500" height="200" style="display: inline-block;">
-  <img src="diagrams/TMKDT.png" width="500" height="200" style="display: inline-block; margin-right: 20px;">
+  <img src="diagrams/Hands UP.png" width="300" height="200" style="display: inline-block;">
+  <img src="diagrams/TMKDT.png" width="300" height="200" style="display: inline-block; margin-right: 20px;">
 </p>
   
 <h1 align="center">Hands UP by TMKDT</h1>
