@@ -153,6 +153,7 @@ export default function UserProfile() {
         };
         localStorage.setItem("userData", JSON.stringify(updatedUser));
         setUserData(updatedUser);
+        fetchUserData(userData.userID);
         setFormSuccess("User updated successfully!");
       } catch (err) {
         errors.general = "An error occurred while updating: " + err.message;
@@ -186,6 +187,7 @@ export default function UserProfile() {
         };
         localStorage.setItem("userData", JSON.stringify(updatedUser));
         setUserData(updatedUser);
+        fetchUserData(userData.userID);
         setFormSuccess("User updated successfully!");
       } catch (err) {
         errors.general = "An error occurred while updating: " + err.message;
