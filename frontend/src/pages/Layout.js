@@ -85,6 +85,7 @@ function Layout({ children, isLoggedIn }) {
 Layout.propTypes = {
   children: PropTypes.node.isRequired,
   currentPage: PropTypes.node.isRequired,
+  isLoggedIn: PropTypes.bool.isRequired, 
 };
 
 export default Layout;

@@ -167,18 +167,7 @@ function Login() {
                 </button>
               </div>
 
-              <div className="signup-section">
-                <div className="signup-card">
-                  <p className="signup-text">Don't have an account?</p>
-                  <button
-                    onClick={() => navigate('/signup')}
-                    className="signup-button"
-                  >
-                    Sign up
-                    <ArrowRight className="signup-arrow-icon" />
-                  </button>
-                </div>
-              </div>
+            
             </div>
           </div>
 
