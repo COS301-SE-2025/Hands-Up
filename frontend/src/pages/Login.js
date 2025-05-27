@@ -130,13 +130,10 @@ function Login() {
           <button type="submit" className="login-button">
             Log In
           </button>
-        </form>
-
-        <p className="signup-prompt">
-          Don&apos;t have an account?
-          <Link to="/Signup" className="signup-link">Sign up</Link>
-        </p>
-
+        </div>
+     <div>
+        
+         
         </div>
       </div>
     </div>
