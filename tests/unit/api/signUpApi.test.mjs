@@ -1,6 +1,7 @@
+import { jest, expect, test, afterEach, describe, beforeEach } from '@jest/globals';
+import { signup } from '../../../frontend/src/utils/apiCalls'; // Import the signup function
 
-import { jest, expect, test,afterEach, describe, beforeEach,global,require} from '@jest/globals';
-global.fetch = jest.fn();
+globalThis.fetch = jest.fn();
 
 describe('Signup API', () => {
   beforeEach(() => {
@@ -35,7 +36,6 @@ describe('Signup API', () => {
       json: jest.fn().mockResolvedValueOnce(mockResponse),
     });
 
-    const { signup } = require('../../../frontend/src/utils/apiCalls');
     const result = await signup(mockUserData);
 
     expect(fetch).toHaveBeenCalledWith(
@@ -70,7 +70,6 @@ describe('Signup API', () => {
       }),
     });
 
-    const { signup } = require('../../../frontend/src/utils/apiCalls');
     await expect(signup(mockUserData)).rejects.toThrow('email already exists');
 
     expect(fetch).toHaveBeenCalledWith(
@@ -100,7 +99,6 @@ describe('Signup API', () => {
       }),
     });
 
-    const { signup } = require('../../../frontend/src/utils/apiCalls');
     await expect(signup(mockUserData)).rejects.toThrow('username already exists');
 
     expect(fetch).toHaveBeenCalledWith(
@@ -130,7 +128,6 @@ describe('Signup API', () => {
       }),
     });
 
-    const { signup } = require('../../../frontend/src/utils/apiCalls');
     await expect(signup(mockUserData)).rejects.toThrow('All fields are required');
 
     expect(fetch).toHaveBeenCalledWith(
@@ -160,7 +157,6 @@ describe('Signup API', () => {
       }),
     });
 
-    const { signup } = require('../../../frontend/src/utils/apiCalls');
     await expect(signup(mockUserData)).rejects.toThrow('All fields are required');
 
     expect(fetch).toHaveBeenCalledWith(
@@ -189,7 +185,6 @@ describe('Signup API', () => {
       }),
     });
 
-    const { signup } = require('../../../frontend/src/utils/apiCalls');
     await expect(signup(mockUserData)).rejects.toThrow('All fields are required');
 
     expect(fetch).toHaveBeenCalledWith(
@@ -218,7 +213,6 @@ describe('Signup API', () => {
       }),
     });
 
-    const { signup } = require('../../../frontend/src/utils/apiCalls');
     await expect(signup(mockUserData)).rejects.toThrow('All fields are required');
 
     expect(fetch).toHaveBeenCalledWith(
@@ -247,7 +241,6 @@ describe('Signup API', () => {
       }),
     });
 
-    const { signup } = require('../../../frontend/src/utils/apiCalls');
     await expect(signup(mockUserData)).rejects.toThrow('All fields are required');
 
     expect(fetch).toHaveBeenCalledWith(
@@ -271,7 +264,6 @@ describe('Signup API', () => {
 
     fetch.mockRejectedValueOnce(new Error('Network error'));
 
-    const { signup } = require('../../../frontend/src/utils/apiCalls');
     await expect(signup(mockUserData)).rejects.toThrow('Network error');
 
     expect(fetch).toHaveBeenCalledWith(
@@ -301,7 +293,6 @@ describe('Signup API', () => {
       }),
     });
 
-    const { signup } = require('../../../frontend/src/utils/apiCalls');
     await expect(signup(mockUserData)).rejects.toThrow('All fields are required');
 
     expect(fetch).toHaveBeenCalledWith(
@@ -337,7 +328,6 @@ describe('Signup API', () => {
       json: jest.fn().mockResolvedValueOnce(mockResponse),
     });
 
-    const { signup } = require('../../../frontend/src/utils/apiCalls');
     const result = await signup(mockUserData);
 
     expect(fetch).toHaveBeenCalledWith(
@@ -365,7 +355,6 @@ describe('Signup API', () => {
       json: jest.fn().mockRejectedValueOnce(new SyntaxError('Invalid JSON')),
     });
 
-    const { signup } = require('../../../frontend/src/utils/apiCalls');
     await expect(signup(mockUserData)).rejects.toThrow('Invalid JSON');
 
     expect(fetch).toHaveBeenCalledWith(
@@ -395,7 +384,6 @@ describe('Signup API', () => {
       }),
     });
 
-    const { signup } = require('../../../frontend/src/utils/apiCalls');
     await expect(signup(mockUserData)).rejects.toThrow('Service Unavailable');
 
     expect(fetch).toHaveBeenCalledWith(
@@ -431,7 +419,6 @@ describe('Signup API', () => {
       json: jest.fn().mockResolvedValueOnce(mockResponse),
     });
 
-    const { signup } = require('../../../frontend/src/utils/apiCalls');
     const result = await signup(mockUserData);
 
     expect(fetch).toHaveBeenCalledWith(
@@ -468,7 +455,6 @@ describe('Signup API', () => {
       json: jest.fn().mockResolvedValueOnce(mockResponse),
     });
 
-    const { signup } = require('../../../frontend/src/utils/apiCalls');
     const result = await signup(mockUserData);
 
     expect(fetch).toHaveBeenCalledWith(
@@ -505,7 +491,6 @@ describe('Signup API', () => {
       json: jest.fn().mockResolvedValueOnce(mockResponse),
     });
 
-    const { signup } = require('../../../frontend/src/utils/apiCalls');
     const result = await signup(mockUserData);
 
     expect(fetch).toHaveBeenCalledWith(
@@ -542,7 +527,6 @@ describe('Signup API', () => {
       json: jest.fn().mockResolvedValueOnce(mockResponse),
     });
 
-    const { signup } = require('../../../frontend/src/utils/apiCalls');
     const result = await signup(mockUserData);
 
     expect(fetch).toHaveBeenCalledWith(
@@ -580,7 +564,6 @@ describe('Signup API', () => {
       json: jest.fn().mockResolvedValueOnce(mockResponse),
     });
 
-    const { signup } = require('../../../frontend/src/utils/apiCalls');
     const result = await signup(mockUserData);
 
     expect(fetch).toHaveBeenCalledWith(
@@ -611,7 +594,6 @@ describe('Signup API', () => {
       }),
     });
 
-    const { signup } = require('../../../frontend/src/utils/apiCalls');
     await expect(signup(mockUserData)).rejects.toThrow('Too Many Requests');
 
     expect(fetch).toHaveBeenCalledWith(
@@ -624,7 +606,7 @@ describe('Signup API', () => {
     );
   });
 
- 
+
 
   test('should handle signup with empty strings for all fields', async () => {
     const mockUserData = {
@@ -643,7 +625,6 @@ describe('Signup API', () => {
       }),
     });
 
-    const { signup } = require('../../../frontend/src/utils/apiCalls');
     await expect(signup(mockUserData)).rejects.toThrow('All fields are required');
 
     expect(fetch).toHaveBeenCalledWith(
@@ -670,7 +651,6 @@ describe('Signup API', () => {
       json: jest.fn().mockResolvedValueOnce({}),
     });
 
-    const { signup } = require('../../../frontend/src/utils/apiCalls');
     await expect(signup(mockUserData)).rejects.toThrow('Signup failed');
 
     expect(fetch).toHaveBeenCalledWith(

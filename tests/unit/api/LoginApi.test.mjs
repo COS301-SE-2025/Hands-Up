@@ -1,5 +1,7 @@
-import { jest, expect, test,afterEach, describe, beforeEach,global,require} from '@jest/globals';
-global.fetch = jest.fn();
+import { jest, expect, test, afterEach, describe, beforeEach } from '@jest/globals';
+import { login } from '../../../frontend/src/utils/apiCalls'; // Import the login function
+
+globalThis.fetch = jest.fn();
 
 describe('Login API', () => {
   beforeEach(() => {
@@ -31,7 +33,6 @@ describe('Login API', () => {
       json: () => Promise.resolve(mockResponse),
     });
 
-    const { login } = require('../../../frontend/src/utils/apiCalls');
     const result = await login(mockCredentials);
 
     expect(fetch).toHaveBeenCalledWith(
@@ -62,7 +63,6 @@ describe('Login API', () => {
       }),
     });
 
-    const { login } = require('../../../frontend/src/utils/apiCalls');
     await expect(login(mockCredentials)).rejects.toThrow('Invalid credentials');
 
     expect(fetch).toHaveBeenCalledWith(
@@ -87,7 +87,6 @@ describe('Login API', () => {
       }),
     });
 
-    const { login } = require('../../../frontend/src/utils/apiCalls');
     await expect(login(mockCredentials)).rejects.toThrow('Invalid email or password');
 
     expect(fetch).toHaveBeenCalledWith(
@@ -112,7 +111,6 @@ describe('Login API', () => {
       }),
     });
 
-    const { login } = require('../../../frontend/src/utils/apiCalls');
     await expect(login(mockCredentials)).rejects.toThrow('Invalid email or password');
 
     expect(fetch).toHaveBeenCalledWith(
@@ -138,7 +136,6 @@ describe('Login API', () => {
       }),
     });
 
-    const { login } = require('../../../frontend/src/utils/apiCalls');
     await expect(login(mockCredentials)).rejects.toThrow('Invalid email or password');
 
     expect(fetch).toHaveBeenCalledWith(
@@ -161,7 +158,6 @@ describe('Login API', () => {
       }),
     });
 
-    const { login } = require('../../../frontend/src/utils/apiCalls');
     await expect(login(mockCredentials)).rejects.toThrow('Invalid email or password');
 
     expect(fetch).toHaveBeenCalledWith(
@@ -187,7 +183,6 @@ describe('Login API', () => {
       }),
     });
 
-    const { login } = require('../../../frontend/src/utils/apiCalls');
     await expect(login(mockCredentials)).rejects.toThrow('Internal server error');
 
     expect(fetch).toHaveBeenCalledWith(
@@ -220,7 +215,6 @@ describe('Login API', () => {
       json: () => Promise.resolve(mockResponse),
     });
 
-    const { login } = require('../../../frontend/src/utils/apiCalls');
     const result = await login(mockCredentials);
 
     expect(fetch).toHaveBeenCalledWith(
@@ -245,7 +239,6 @@ describe('Login API', () => {
       json: () => Promise.reject(new SyntaxError('Invalid JSON')),
     });
 
-    const { login } = require('../../../frontend/src/utils/apiCalls');
     await expect(login(mockCredentials)).rejects.toThrow('Invalid JSON');
 
     expect(fetch).toHaveBeenCalledWith(
@@ -278,7 +271,6 @@ describe('Login API', () => {
       json: () => Promise.resolve(mockResponse),
     });
 
-    const { login } = require('../../../frontend/src/utils/apiCalls');
     const result = await login(mockCredentials);
 
     expect(fetch).toHaveBeenCalledWith(
@@ -306,7 +298,6 @@ describe('Login API', () => {
       }),
     });
 
-    const { login } = require('../../../frontend/src/utils/apiCalls');
     await expect(login(mockCredentials)).rejects.toThrow('Too Many Requests');
 
     expect(fetch).toHaveBeenCalledWith(
@@ -318,7 +309,6 @@ describe('Login API', () => {
       }
     );
   });
-
 
   test('should handle login with empty strings for all fields', async () => {
     const mockCredentials = {
@@ -333,7 +323,6 @@ describe('Login API', () => {
       }),
     });
 
-    const { login } = require('../../../frontend/src/utils/apiCalls');
     await expect(login(mockCredentials)).rejects.toThrow('Invalid email or password');
 
     expect(fetch).toHaveBeenCalledWith(
@@ -357,7 +346,6 @@ describe('Login API', () => {
       json: () => Promise.resolve({}),
     });
 
-    const { login } = require('../../../frontend/src/utils/apiCalls');
     await expect(login(mockCredentials)).rejects.toThrow('Login failed');
 
     expect(fetch).toHaveBeenCalledWith(

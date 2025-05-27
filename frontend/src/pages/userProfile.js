@@ -57,11 +57,11 @@ export default function UserProfile() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userData');
-    navigate('/login');
-  };
+  // const handleLogout = () => {
+  //   localStorage.removeItem('isLoggedIn');
+  //   localStorage.removeItem('userData');
+  //   navigate('/login');
+  // };
 
   const handleSaveChanges = async (e) => {
     e.preventDefault();
