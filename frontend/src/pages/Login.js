@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useStatUpdater } from "../hooks/learningStatsUpdater";
+import {login} from'../utils/apiCalls.js';
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 
@@ -33,30 +34,21 @@ function Login() {
     }
 
     try {
-      const response = await fetch('http://localhost:2000/handsUPApi/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
-      }
-
+      const data = await login({ email, password });
+      
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('userData', JSON.stringify(data.user));
-      navigate('/userProfile');
+      navigate('/Home');
       handleUpdate("streak");
-
+      
     } catch (error) {
       setError(error.message);
+      console.error('Login error:', error);
+    } finally {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setError('');
+      setIsLoading(false);
     }
-
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setError('');
-    setIsLoading(false);
-    navigate('/home');
   };
 
   return (
