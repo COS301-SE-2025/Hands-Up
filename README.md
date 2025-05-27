@@ -31,6 +31,19 @@ Thus, the system focuses on three core functionalities:
 | [Technology Requirements](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS#technology-requirements)   | Platforms, tools, and languages required for implementation   |
 </div>
 
+<h2 align="center">Badges </h2>
+ <div align="Center">
+
+
+
+
+<!-- 🐛 Issues -->
+![GitHub issues](https://img.shields.io/github/issues/COS301-SE-2025/Hands-Up)
+
+![GitHub pull requests](https://img.shields.io/github/issues-pr/COS301-SE-2025/Hands-Up)
+
+[![Coverage](https://img.shields.io/codecov/c/github/COS301-SE-2025/Hands-Up?logo=codecov)](https://codecov.io/gh/COS301-SE-2025/Hands-Up)
+
  <h2 align="center">Technologies </h2>
  <div align="Center">
 
