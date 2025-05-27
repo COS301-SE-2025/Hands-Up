@@ -1,48 +1,21 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useLearningStats } from "../context/learningStatsContext";
-import { useStatUpdater } from "../hooks/learningStatsUpdater";
 
 export function LearningStats() {
     const statsContext = useLearningStats() || {};
     const { stats } = statsContext;
-    const handleUpdate = useStatUpdater();
+    // const handleUpdate = useStatUpdater();
 
     const {
-        lessonsCompleted = 0,
-        signsLearned = 0,
-        streak: practiseDays = 0,
-        currentLevel = "Bronze",
+      lessonsCompleted = 0,
+      signsLearned = 0,
+      streak: practiseDays = 0,
+      currentLevel = "Bronze",
     } = stats || {};
 
     const TOTAL_LESSONS = 30;
-
     const calcLessonsCompleted = Math.min(lessonsCompleted, TOTAL_LESSONS);
-
-    const totalProgress = calcLessonsCompleted + signsLearned + (practiseDays%365);
-    let level;
-
-    if (totalProgress < 10) {
-        level = "Bronze";
-    } else if (totalProgress < 25) {
-        level = "Silver";
-    } else if (totalProgress < 50) {
-        level = "Gold";
-    } else if (totalProgress < 75) {
-        level = "Platinum";
-    } else if (totalProgress < 100) {
-        level = "Diamond";
-    } else {
-        level = "Ruby"; 
-    }
-
-  useEffect(() => {
-    if (stats && level !== currentLevel) {
-      handleUpdate("level", level);
-    }
-  }, [level, currentLevel, handleUpdate, stats]);
-
-
-  const progressPercent = Math.min(100, Math.round((calcLessonsCompleted / TOTAL_LESSONS) * 100));
+    const progressPercent = Math.min(100, Math.round((calcLessonsCompleted / TOTAL_LESSONS) * 100));
 
   return (
     <section className="learning-progress">

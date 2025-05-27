@@ -76,7 +76,7 @@ function SignupPage() {
       console.log(data);
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('userData', JSON.stringify(data.user));
-      setSuccessMessage(`Signup successful! Welcome ${data.user.username}. Redirecting to Home...`);
+      setSuccessMessage(`Signup successful! Welcome ${data.user.username}`);
      
       setFormData({
         name: '',
