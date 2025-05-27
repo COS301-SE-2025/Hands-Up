@@ -173,17 +173,45 @@ Thus, the system focuses on three core functionalities:
 <h1 align="center">Contributions</h1>
 
 <h2>Karabo Serothoane</h2>
-<p> </p>
+<p>
+  <ul style="margin-left: 0;">
+    <li>Set up database on Docker</li>
+    <li>Set up GitHub Actions</li>
+    <li>Set up testing environment</li>
+    <li>Implemented learning progress use case and testing</li>
+  </ul>
+</p>
 
 <h2>Thendo Mbedzi</h2>
 <p>
+  <ul style="margin-left: 0;">
+    <li>Designed and implemented all pages for UI</li>
+    <li>Created and applied the app theme</li>
+    <li>Created wireframes and mockups for documentation</li>
+  </ul>
 </p>
 
 <h2>Tambi Chirima</h2>
-<p></p>
+<p>
+  <ul style="margin-left: 0;">
+    <li>Set up GitHub organisation and management</li>
+    <li>Initialised GitHub structure (mono-repo)</li>
+    <li>Implemented visual input use case and testing</li>
+  </ul>
+</p>
 
 <h2>Driya Govender</h2>
-<p></p>
+<p>
+  <ul style="margin-left: 0;">
+    <li>Set up GitHub Wiki</li>
+    <li>Implemented update user details use case and testing</li>
+  </ul>
+</p>
 
 <h2>Mutarisi Chibaya</h2>
-<p></p>
+<p>
+  <ul style="margin-left: 0;">
+    <li>Designed the architecture of the system</li>
+    <li>Developed and tested backend endpoints for login and sign up</li>
+  </ul>
+</p>
