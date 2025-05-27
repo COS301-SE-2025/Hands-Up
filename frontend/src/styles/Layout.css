@@ -1,45 +1,56 @@
-.layout-container 
-{
+/*
+ * Welcome to the style party! 
+ * We've given your Hands UP system a fabulous makeover.
+ * Say goodbye to "too much green" and hello to a fresh, vibrant look that's
+ * easy on the eyes and a joy to use.
+ * Get ready for some serious visual pizzazz! ✨
+ */
+
+.layout-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: linear-gradient(135deg, #2B3F32 0%, #1f3528 100%);
-  color: #2D4D3A;
+  /* Swapped out the deep greens for a lighter, more inviting blend! */
+  background: linear-gradient(135deg, #b3d077 0%, #4e7a51 100%); 
+  color: #4e7a51; /* A friendly, earthy green for text, not overpowering! */
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.header 
-{
+.header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #2D4D3A;
-  color: white;
+  background-color: #4e7a51; /* Our primary, sophisticated green */
+  color: white; /* Bright, clean white for maximum readability! */
   padding: 1rem 2rem;
   flex-shrink: 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* A subtle shadow for depth! */
 }
 
-.header-left 
-{
+.header-left {
   display: flex;
   align-items: center;
 }
 
-.logo 
-{
+.logo {
   width: 48px;
   height: 48px;
   margin-right: 1rem;
+  /* Maybe a little playful rotation on hover? Just a thought! */
+  transition: transform 0.3s ease; 
 }
 
-.site-title 
-{
+.logo:hover {
+  transform: rotate(10deg);
+}
+
+.site-title {
   font-size: 1.8rem;
   font-weight: 700;
+  letter-spacing: 0.05rem; /* A little breathing room for the title! */
 }
 
-.nav-list 
-{
+.nav-list {
   display: flex;
   list-style: none;
   gap: 2rem;
@@ -47,69 +58,72 @@
   padding: 0;
 }
 
-.nav-link 
-{
+.nav-link {
   color: white;
   text-decoration: none;
   font-weight: 600;
-  transition: color 0.3s ease;
+  transition: color 0.3s ease, transform 0.2s ease; /* Smooth transitions for a delightful feel! */
+  position: relative; /* For the cool underline effect! */
 }
 
-.nav-link:hover 
-{
-  color: #AAD576; 
+.nav-link:hover {
+  color: #ffc61a; /* A pop of happy yellow on hover! */
+  transform: translateY(-2px); /* A subtle lift to show it's clickable! */
 }
 
-.nav-link-active 
-{
-  color: #FFD700; 
-  font-weight: 700;
-  border-bottom: 2px solid #AAD576; 
+/* Let's make the active link *really* stand out! */
+.nav-link-active {
+  color: #ffc61a; /* Our sunny yellow for the current page! */
+  font-weight: 800; /* Extra bold! */
+  border-bottom: 3px solid #ffc61a; /* A bold yellow underline! */
+  padding-bottom: 5px; /* A little space so the underline doesn't hug too tight! */
 }
 
-.main-content 
-{
+.main-content {
   flex-grow: 1;
   padding: 2rem;
   max-width: none;
   width: 100%;
-  margin: 0 ;
+  margin: 0;
+  background-color: white; /* Let's give the main content a crisp white canvas! */
+  border-radius: 8px; /* Slightly rounded corners for a softer look. */
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.05); /* A very gentle shadow. */
 }
 
-.footer 
-{
+.footer {
   text-align: center;
   padding: 1rem 2rem;
-  background-color: #f5f5f5;
+  background-color: #f5f5f5; /* A light grey for the footer, keeping it subtle. */
   color: #666;
   font-size: 0.9rem;
   flex-shrink: 0;
+  border-top: 1px solid #eee; 
 }
 
 .nav-list li {
-  display: flex; 
+  display: flex;
   align-items: center;
 }
 
 .logout-button {
   background: none;
   border: none;
-  color: white; 
+  color: white;
   cursor: pointer;
-  padding: 8px; 
+  padding: 8px;
   border-radius: 4px;
   transition: color 0.3s ease, background-color 0.3s ease;
-  display: flex; 
+  display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem; 
+  font-size: 1.2rem;
 }
 
 .logout-button:hover {
-  color: #AAD576;
+  color: #ffc61a;
   background-color: rgba(255, 255, 255, 0.1);
 }
 
 .logout-button span {
-    display: none;
+  display: none; 
 }

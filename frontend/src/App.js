@@ -1,31 +1,32 @@
+
+// src/App.js
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, Link } from "react-router-dom";
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
 import { LearningStatsProvider } from "./context/learningStatsContext";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import "./App.css";
 
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import Profile from "./pages/userProfile";
+import Profile from "./pages/userProfile"; // Renamed from Profile to userProfile as per NAV_PATHS
 import Translator from "./pages/Translator";
 import Learn from "./pages/Learn";
 import Home from "./pages/Home";
-import Layout from "./pages/Layout";
+import Layout from "./pages/Layout"; 
 console.log('Layout:', Layout);
 
 
 function App() {
-  const isLoggedIn = true; 
+  const isLoggedIn = true;
 
   return (
     <LearningStatsProvider>
     <Router>
       <Routes>
-        {/* Public pages without layout */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
-        {/* Protected pages wrapped in layout */}
+       
         <Route
           path="/userProfile"
           element={
@@ -50,7 +51,7 @@ function App() {
             )
           }
         />
-         <Route
+        <Route
           path="/learn"
           element={
             isLoggedIn ? (
@@ -62,7 +63,7 @@ function App() {
             )
           }
         />
-         <Route
+        <Route
           path="/home"
           element={
             isLoggedIn ? (

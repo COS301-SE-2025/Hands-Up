@@ -50,7 +50,7 @@ const HomePage = () => {
 
       <section className="cta-section">
         <h2>Ready to Communicate?</h2>
-        <p>Join thousands of users who are bridging communication gaps with SignFlow.</p>
+        <p>Join thousands of users who are bridging communication gaps with Hands UP.</p>
         <Link to="" className="btn-primary large">Get Started for Free</Link>
       </section>
     </div>

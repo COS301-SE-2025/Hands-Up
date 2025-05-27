@@ -1,24 +1,39 @@
+// src/pages/Layout.js (Assuming your Layout component is in the 'pages' directory)
 import React from "react";
 import PropTypes from "prop-types";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom"; // Import useLocation
 import "../styles/Layout.css";
-import logo from "../logo.png";
+import logo from "../logo2.png";
 
 
 const NAV_ITEMS = ["Home", "Learn", "Translator", "Profile"];
 
 const NAV_PATHS = {
-  Home: "/home", 
+  Home: "/home",
   Learn: "/learn",
   Translator: "/translator",
-  Profile: "/userProfile",
+  Profile: "/userProfile", // Make sure this matches your Route path for Profile
 };
 
-function Layout({ children, currentPage }) {
+// No longer need 'currentPage' prop, but keeping 'isLoggedIn' if you use it in Layout for something else.
+function Layout({ children, isLoggedIn }) {
   const navigate = useNavigate();
+  const location = useLocation(); // Get the current location object
+
+  // Determine the current page for highlighting
+  const currentPath = location.pathname;
+  let currentPage = '';
+  // Loop through NAV_PATHS to find a match for the current URL path
+  for (const itemKey in NAV_PATHS) {
+    if (NAV_PATHS[itemKey] === currentPath) {
+      currentPage = itemKey; // Set currentPage to "Home", "Learn", etc.
+      break;
+    }
+  }
 
   const handleLogout = () => {
     console.log("User logged out!");
+    // You might want to clear local storage/cookies here for actual logout
     navigate("/login");
   };
 
@@ -35,27 +50,25 @@ function Layout({ children, currentPage }) {
               <li key={item}>
                 <Link
                   to={NAV_PATHS[item]}
+                  // The class is now determined dynamically based on useLocation
                   className={`nav-link ${
                     currentPage === item ? "nav-link-active" : ""
                   }`}
-                  style={{
-                    backgroundColor: currentPage === item ? "yellow" : "transparent",
-                    fontWeight: currentPage === item ? "bold" : "normal",
-                    padding: "8px 12px",
-                    borderRadius: "4px"
-                  }}
+                  // Ensure no inline styles are overriding here
                 >
                   {item}
                 </Link>
               </li>
             ))}
-          
-            <li>
-              <button onClick={handleLogout} className="nav-link logout-button" title="Logout">
-                <i className="fas fa-sign-out-alt logout-icon"></i> 
-                <span className="sr-only">Logout</span> 
-              </button>
-            </li>
+
+            {isLoggedIn && ( // Only show logout if logged in (optional, based on your logic)
+              <li>
+                <button onClick={handleLogout} className="nav-link logout-button" title="Logout">
+                  <i className="fas fa-sign-out-alt logout-icon"></i>
+                  <span className="sr-only">Logout</span>
+                </button>
+              </li>
+            )}
           </ul>
         </nav>
       </header>
