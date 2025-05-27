@@ -215,3 +215,4 @@ Thus, the system focuses on three core functionalities:
     <li>Developed and tested backend endpoints for login and sign up</li>
   </ul>
 </p>
+<h2>All team members contributed towards documentation</h2>
