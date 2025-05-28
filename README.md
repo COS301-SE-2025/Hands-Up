@@ -16,9 +16,14 @@ Thus, the system focuses on three core functionalities:
 
  <div align="Center">
 <h2 >Demo Videos</h2>
+
 | Demo # | Video Link                                                                 |
 |--------|----------------------------------------------------------------------------|
-| 1      | [Video](https://drive.google.com/file/d/1mFRqv6zRN1a6LuKWWXX5wu1XCvTVVWZ7/view) |
+| 1      | [Demo 1 Video](https://drive.google.com/file/d/1mFRqv6zRN1a6LuKWWXX5wu1XCvTVVWZ7/view) |
+| 2      | [Demo 2 Video] |
+| 3      | [Demo 3 Video] |
+| 4      | [Demo 4 Video] |
+
 </div>
 
  <div align="Center">
