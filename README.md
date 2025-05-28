@@ -15,6 +15,13 @@ Thus, the system focuses on three core functionalities:
 3. Progress tracking for users
 
  <div align="Center">
+<h2 >Demo Videos</h2>
+| Demo # | Video Link                                                                 |
+|--------|----------------------------------------------------------------------------|
+| 1      | [Video](https://drive.google.com/file/d/1mFRqv6zRN1a6LuKWWXX5wu1XCvTVVWZ7/view) |
+</div>
+
+ <div align="Center">
 <h2 >Links to SRS Document and SubParts</h2>
 
 | Resource                          | Description                             |
