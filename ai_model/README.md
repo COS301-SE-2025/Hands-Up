@@ -1,5 +1,9 @@
 # Running the AI model
 
-## Istallations
-1. sudo apt install python3-pip
-2. pip install opencv-python
+## Istallations in Windows
+1. pip3 install opencv-python
+2. opencv-python-headless
+3. python3 -m pip install opencv-python
+
+## To run
+python3 translateModel.py
