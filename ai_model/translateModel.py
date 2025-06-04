@@ -1,72 +1,49 @@
-import os
 import pickle
 
-import mediapipe as mp
-import cv2
-import matplotlib.pyplot as plt
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+import numpy as np
 
-mpHands = mp.solutions.hands
-mpDrawing = mp.solutions.drawing_utils
-mpDrawingStyles = mp.solutions.drawing_styles
+dataDictTrain = pickle.load(open('./train.data.pickle', 'rb'))
 
-hands = mpHands.Hands(static_image_mode=True, min_detection_confidence=0.3)
+cleaned_data = []
+cleaned_labels = []
+for i, item in enumerate(dataDictTrain['data']):
+    if isinstance(item, (np.ndarray, list)) and len(item) == 42:
+        cleaned_data.append(np.array(item, dtype=np.float32))
+        cleaned_labels.append(dataDictTrain['labels'][i])  
 
-DATADIR = './data/asl_alphabet_train/asl_alphabet_train'
+dataTrain = np.stack(cleaned_data)
+labelsTrain = np.stack(cleaned_labels)
 
-data = []
-labels = []
-for dir in os.listdir(DATADIR):
-    if dir.strip().upper() == 'C': #Starting with A because dataset too big
-        for imgName in os.listdir(os.path.join(DATADIR, dir)):
-            dataAux = []
+print(dataTrain.shape)    
+print(labelsTrain.shape)
 
-            x_ = []
-            y_ = []
+# xTrain, yTrain = train_test_split(data, labels, test_size=0.2, shuffle=True, stratify=labels)
+xTrain = dataTrain
+yTrain = labelsTrain
 
-            imgPath = os.path.join(DATADIR, dir, imgName)
-            print("Reading:", imgPath)
+dataDictTest = pickle.load(open('./test.data.pickle', 'rb'))
 
-            img = cv2.imread(imgPath)
-            if img is None:
-                print("Failed to load:", imgPath)
-                continue  
+dataTest = np.asarray(dataDictTest['data'])
+labelsTest = np.asarray(dataDictTest['labels'])
 
-            img = cv2.imread(imgPath)
-            imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+xTest = dataTest
+yTest = labelsTest
 
-            results = hands.process(imgRGB)
-            if results.multi_hand_landmarks:
-                for handLandmarks in results.multi_hand_landmarks:
-                    mpDrawing.draw_landmarks(
-                        img,  
-                        handLandmarks,
-                        mpHands.HAND_CONNECTIONS,
-                        mpDrawingStyles.get_default_hand_landmarks_style(),
-                        mpDrawingStyles.get_default_hand_connections_style()
-                    )
+model = RandomForestClassifier()
 
-                    for i in range(len(handLandmarks.landmark)):
-                        x = handLandmarks.landmark[i].x
-                        y = handLandmarks.landmark[i].y
+model.fit(dataTrain, labelsTrain)
 
-                        x_.append(x)
-                        y_.append(y)
+print(dataTest.shape)    
 
-                    for i in range(len(handLandmarks.landmark)):
-                        x = handLandmarks.landmark[i].x
-                        y = handLandmarks.landmark[i].y
-                        dataAux.append(x - min(x_))
-                        dataAux.append(y - min(y_))
+yPredict = model.predict(xTest)
 
-                data.append(dataAux)
-                labels.append(dir)
+score = accuracy_score(yPredict, yTest)
 
-                cv2.imshow("Hand Landmarks", img)
-                cv2.waitKey(0)
-                # cv2.destroyAllWindows() #gonna move this
-        break
+print('{}% of samples were classified correctly!'.format(score * 100))
 
-# f = open('data.pickle', 'wb')
-# pickle.dump({'data': data, 'labels': labels}, f)
-# f.close()
-
+f = open('model.p', 'wb')
+pickle.dump({'model': model}, f)
+f.close()
