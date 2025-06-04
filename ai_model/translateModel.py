@@ -1,21 +1,72 @@
 import os
+import pickle
+
+import mediapipe as mp
 import cv2
-DATA_DIR = './data'
-if not os.path.exists(DATA_DIR):
-    os.makedirs(DATA_DIR)
+import matplotlib.pyplot as plt
 
-number_of_classes = 3
-dataset_size = 100
+mpHands = mp.solutions.hands
+mpDrawing = mp.solutions.drawing_utils
+mpDrawingStyles = mp.solutions.drawing_styles
 
-cap = cv2.VideoCapture(0)
-ret, frame = cap.read()
-cv2.putText(frame, 'Ready? Press "Q" ! :)', (100, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.3, (0, 255, 0), 3, cv2.LINE_AA)
-cv2.imshow('frame', frame)
-if cv2.waitKey(25) == ord('q'):
-    ret, frame = cap.read()
-    cv2.imshow('frame', frame)
-    cv2.waitKey(25)
-    cv2.imwrite(os.path.join(DATA_DIR, str(j), '{}.jpg'.format(counter)), frame)
+hands = mpHands.Hands(static_image_mode=True, min_detection_confidence=0.3)
 
-cap.release()
-cv2.destroyAllWindows()
+DATADIR = './data/asl_alphabet_train/asl_alphabet_train'
+
+data = []
+labels = []
+for dir in os.listdir(DATADIR):
+    if dir.strip().upper() == 'C': #Starting with A because dataset too big
+        for imgName in os.listdir(os.path.join(DATADIR, dir)):
+            dataAux = []
+
+            x_ = []
+            y_ = []
+
+            imgPath = os.path.join(DATADIR, dir, imgName)
+            print("Reading:", imgPath)
+
+            img = cv2.imread(imgPath)
+            if img is None:
+                print("Failed to load:", imgPath)
+                continue  
+
+            img = cv2.imread(imgPath)
+            imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+            results = hands.process(imgRGB)
+            if results.multi_hand_landmarks:
+                for handLandmarks in results.multi_hand_landmarks:
+                    mpDrawing.draw_landmarks(
+                        img,  
+                        handLandmarks,
+                        mpHands.HAND_CONNECTIONS,
+                        mpDrawingStyles.get_default_hand_landmarks_style(),
+                        mpDrawingStyles.get_default_hand_connections_style()
+                    )
+
+                    for i in range(len(handLandmarks.landmark)):
+                        x = handLandmarks.landmark[i].x
+                        y = handLandmarks.landmark[i].y
+
+                        x_.append(x)
+                        y_.append(y)
+
+                    for i in range(len(handLandmarks.landmark)):
+                        x = handLandmarks.landmark[i].x
+                        y = handLandmarks.landmark[i].y
+                        dataAux.append(x - min(x_))
+                        dataAux.append(y - min(y_))
+
+                data.append(dataAux)
+                labels.append(dir)
+
+                cv2.imshow("Hand Landmarks", img)
+                cv2.waitKey(0)
+                # cv2.destroyAllWindows() #gonna move this
+        break
+
+# f = open('data.pickle', 'wb')
+# pickle.dump({'data': data, 'labels': labels}, f)
+# f.close()
+
