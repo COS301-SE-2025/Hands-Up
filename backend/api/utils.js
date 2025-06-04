@@ -1,11 +1,18 @@
 import pkg from 'pg';
+import 'dotenv/config';
 const { Pool } = pkg;
 
 // Create a new pool instance to manage connections to the PostgreSQL database
+console.log({
+  user: process.env.DB_USER,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASS,
+});
+
 export const pool = new Pool({
-  user: 'tmkdt',
+  user: process.env.DB_USER,
   host: 'localhost',
-  database: 'HandsUp',
-  password: 'handsUpProject1.0',
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASS,
   port: 5432,
 });
