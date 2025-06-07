@@ -1,4 +1,3 @@
-
 // src/App.js
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import React from "react";
