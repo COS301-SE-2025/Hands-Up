@@ -304,6 +304,56 @@ body {
   font-weight: 500;
 }
 
+/* How-to section */
+.howto-section {
+  margin: 2rem 0;
+  padding: 1.5rem 0.5rem;
+  background: #f4fff7;
+  border-radius: 1.5rem;
+  box-shadow: 0 2px 12px rgba(76, 175, 80, 0.04);
+}
+
+.howto-section h2 {
+  font-size: 1.7rem;
+  margin-bottom: 1.2rem;
+  color: #2d4d3a;
+  font-weight: 700;
+}
+
+.howto-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.2rem;
+}
+
+@media (min-width: 700px) {
+  .howto-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.howto-card {
+  background: #fff;
+  border-radius: 1.2rem;
+  border: 2px solid #b2e5c2;
+  box-shadow: 0 1px 6px rgba(167, 209, 41, 0.07);
+  padding: 1.2rem 1.2rem 1rem 1.2rem;
+}
+
+.howto-card h3 {
+  font-size: 1.1rem;
+  color: #4e7a51;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.howto-card ol {
+  margin: 0 0 0 1.2rem;
+  padding: 0;
+  color: #2d4d3a;
+  font-size: 1rem;
+}
+
 @media (max-width: 700px) {
   .help-section {
     flex-direction: column;
