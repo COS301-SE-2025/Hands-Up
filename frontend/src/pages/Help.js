@@ -1,23 +1,23 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/Help.css'; 
-import homeImage from '../Picture1.png';
+import helpImage from '../Picture1.png';
 
 const HelpPage = () => {
   return (
-    <div className="home-container">
-      <section className="home-section">
-        <div className="home-content">
+    <div className="help-container">
+      <section className="help-section">
+        <div className="help-content">
           <h1>Welcome to Hands UP!</h1>
-          <p className="home-tagline">Your journey to mastering sign language starts here. Connect, learn, and translate with ease.</p>
-          <div className="home-buttons">
+          <p className="help-tagline">Your journey to mastering sign language starts here. Connect, learn, and translate with ease.</p>
+          <div className="help-buttons">
             <Link to="/translator" className="btn-primary">Start Translating</Link>
             <Link to="/learn" className="btn-secondary">Begin Learning</Link>
           </div>
         </div>
-        <div className="home-image">
-                <img src={homeImage} alt="Sign Language Hero" /> 
-            </div>
+        <div className="help-image">
+          <img src={helpImage} alt="Sign Language Hero" /> 
+        </div>
       </section>
 
       <hr className="divider" /> 
@@ -27,7 +27,7 @@ const HelpPage = () => {
         <div className="feature-grid">
           <Link to="/Translator" className="feature-card">
             <i className="fas fa-hand-paper feature-icon"></i> 
-             <h3>Translator</h3>
+            <h3>Translator</h3>
             <p>Instantly translate sign language into words or phrases.</p>
           </Link>
 
@@ -42,7 +42,6 @@ const HelpPage = () => {
             <h3>Your Profile</h3>
             <p>Track your learning progress and manage your account settings.</p>
           </Link>
-          
         </div>
       </section>
 
