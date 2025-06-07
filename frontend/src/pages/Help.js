@@ -5,34 +5,66 @@ import helpImage from '../Picture1.png';
 
 const faqs = [
   {
-    question: "How do I register for an account?",
+    question: "How do I create and customize my account?",
     answer: (
       <>
-        Go to the <Link to="/signup">Sign Up</Link> page and fill in your name, username, email, and password. All fields are required. Your password must be at least 8 characters, and your email must be valid. Duplicate usernames or emails are not allowed. Once registered, you'll be logged in and redirected to the learning homepage.
+        Go to the <Link to="/signup">Sign Up</Link> page to create your account. All fields (name, username, email, password) are required. Your password must be at least 8 characters, and your email must be valid and unique. After registering, you can set learning goals and preferences in your profile settings.
       </>
     )
   },
   {
-    question: "How do I log in?",
+    question: "How do I log into my account?",
     answer: (
       <>
-        Visit the <Link to="/login">Login</Link> page and enter your email and password. Both fields are required. If your credentials are correct, you'll be logged in and taken to your learning homepage. If not, an error message will appear.
+        Visit the <Link to="/login">Login</Link> page and enter your email and password. If your credentials are correct, you’ll be logged in and redirected to your learning dashboard.
       </>
     )
   },
   {
-    question: "What if I forget my password?",
+    question: "How do I reset my password if I forget it?",
     answer: (
       <>
-        On the <Link to="/login">Login</Link> page, click "Forgot Password?" Enter your email address. If it exists, you'll receive a reset link. Follow the link to set a new password. After confirmation, you can log in with your new password.
+        On the <Link to="/login">Login</Link> page, click "Forgot Password?" Enter your email address. If it exists, you’ll receive a secure reset link. Follow the link to set a new password and log in again.
       </>
     )
   },
   {
-    question: "How do I update my profile?",
+    question: "How can I update my profile and learning preferences?",
     answer: (
       <>
-        Go to your <Link to="/userProfile">Profile</Link> page. You can edit your name, username, email, and password. All changes require valid input and confirmation before saving. Your updated details will be shown immediately.
+        Go to your <Link to="/userProfile">Profile</Link> page to edit your name, username, email, password, learning goals, and preferred sign language dialect. All changes require confirmation and are securely saved.
+      </>
+    )
+  },
+  {
+    question: "How do I input signs for translation?",
+    answer: (
+      <>
+        On the <Link to="/translator">Translator</Link> page, you can use your device’s camera for real-time sign input, or upload images/videos. The system supports multiple sign language dialects and adapts translations accordingly.
+      </>
+    )
+  },
+  {
+    question: "What kind of translation output is provided?",
+    answer: (
+      <>
+        The application provides both text and audio output for all translations. You can see the translated text instantly and listen to the spoken result.
+      </>
+    )
+  },
+  {
+    question: "How does the learning curriculum work?",
+    answer: (
+      <>
+        The <Link to="/learn">Learn</Link> section offers a structured curriculum, starting from basics and progressing to advanced topics. Each lesson includes objectives, interactive content, and practice exercises. You can view the full course overview and track your progress.
+      </>
+    )
+  },
+  {
+    question: "Will I get feedback if I make a mistake?",
+    answer: (
+      <>
+        Yes! The system provides real-time feedback and correction. If a sign is incorrect, you’ll receive immediate suggestions for the correct gesture or movement.
       </>
     )
   },
@@ -40,31 +72,47 @@ const faqs = [
     question: "How can I track my learning progress?",
     answer: (
       <>
-        On your <Link to="/userProfile">Profile</Link> page, you can view your achievements, day streak, and total XP. This data updates automatically as you complete learning tasks.
+        On your <Link to="/userProfile">Profile</Link> page, you can view your daily streak, total XP, achievements, and a graphical analysis of your progress. All data updates automatically as you learn and play games.
       </>
     )
   },
   {
-    question: "How do I translate sign language using my camera?",
+    question: "Can I change the sign language dialect?",
     answer: (
       <>
-        Go to the <Link to="/translator">Translator</Link> page and allow camera access. Show your sign to the camera; the system will detect and translate it in real time to text and speech.
+        Yes. In your profile settings, you can select your preferred sign language dialect. All content, translation, and feedback will adapt to your choice.
       </>
     )
   },
   {
-    question: "Can I upload images or videos for translation?",
+    question: "Is there a game to test my sign language knowledge?",
     answer: (
       <>
-        Yes! On the <Link to="/translator">Translator</Link> page, use the upload option to select an image or video. Supported formats will be processed and translated to text and speech.
+        Yes! The built-in game offers challenges and quizzes. Your scores contribute to your overall progress, and you can replay the game anytime to improve.
       </>
     )
   },
   {
-    question: "Can I translate individual letters, phrases, or sentences?",
+    question: "Is my data secure and private?",
     answer: (
       <>
-        Yes. The system recognizes individual letters, common phrases, and full sentences from your camera or uploads. Translations appear instantly as text and audio, and letters are shown in the correct order.
+        Absolutely. All data is securely stored and transmitted using industry best practices (e.g., HTTPS, secure authentication). The app complies with privacy regulations and never shares your information without consent.
+      </>
+    )
+  },
+  {
+    question: "Can I use the app offline?",
+    answer: (
+      <>
+        As a Progressive Web App (PWA), Hands UP offers limited offline support. You can access cached lessons and recent translations even without an internet connection.
+      </>
+    )
+  },
+  {
+    question: "What devices and browsers are supported?",
+    answer: (
+      <>
+        Hands UP works on any modern web browser and device. No manual setup is required—just visit the site and start learning!
       </>
     )
   }
@@ -72,12 +120,12 @@ const faqs = [
 
 const howToSteps = [
   {
-    title: "Registering an Account",
+    title: "Creating and Customizing Your Account",
     steps: [
       "Go to the Sign Up page.",
       "Fill in your name, username, email, and password (minimum 8 characters).",
-      "Make sure your email is valid and not already used.",
-      "Click 'Sign Up'. You’ll be logged in and redirected to the learning homepage."
+      "Set your learning goals and preferred sign language dialect.",
+      "Click 'Sign Up'. You’ll be logged in and redirected to your dashboard."
     ]
   },
   {
@@ -85,7 +133,7 @@ const howToSteps = [
     steps: [
       "Go to the Login page.",
       "Enter your registered email and password.",
-      "Click 'Login'. If your credentials are correct, you’ll be redirected to your learning homepage."
+      "Click 'Login'. If your credentials are correct, you’ll be redirected to your dashboard."
     ]
   },
   {
@@ -93,28 +141,20 @@ const howToSteps = [
     steps: [
       "On the Login page, click 'Forgot Password?'.",
       "Enter your email address and submit.",
-      "Check your email for a reset link.",
+      "Check your email for a secure reset link.",
       "Follow the link to set a new password and confirm."
     ]
   },
   {
-    title: "Updating Your Profile",
+    title: "Updating Your Profile and Preferences",
     steps: [
       "Go to your Profile page.",
-      "Edit your name, username, email, or password as needed.",
+      "Edit your name, username, email, password, learning goals, or preferred dialect.",
       "Save your changes. You’ll see a confirmation and your updated info."
     ]
   },
   {
-    title: "Tracking Your Progress",
-    steps: [
-      "Visit your Profile page.",
-      "View your achievements, day streak, and total XP.",
-      "Progress updates automatically as you learn."
-    ]
-  },
-  {
-    title: "Translating with Camera",
+    title: "Inputting Signs with Camera",
     steps: [
       "Go to the Translator page.",
       "Allow camera access if prompted.",
@@ -130,11 +170,59 @@ const howToSteps = [
     ]
   },
   {
-    title: "Translating Letters, Phrases, and Sentences",
+    title: "Getting Text and Audio Output",
     steps: [
-      "Use the camera or upload feature on the Translator page.",
-      "Sign individual letters, phrases, or sentences.",
-      "Translations will appear instantly as text and audio."
+      "After translating a sign, view the text output on screen.",
+      "Click the speaker icon to listen to the audio output."
+    ]
+  },
+  {
+    title: "Exploring the Learning Curriculum",
+    steps: [
+      "Go to the Learn section.",
+      "Browse the course overview and select a lesson.",
+      "Complete interactive content and practice exercises.",
+      "Progress from basic to advanced topics at your own pace."
+    ]
+  },
+  {
+    title: "Receiving Real-Time Feedback",
+    steps: [
+      "During translation or practice, watch for instant feedback.",
+      "If a sign is incorrect, review the suggested correction and try again."
+    ]
+  },
+  {
+    title: "Tracking Your Progress",
+    steps: [
+      "Visit your Profile page.",
+      "View your daily streak, total XP, achievements, and progress charts.",
+      "Play the built-in game to earn more XP and achievements."
+    ]
+  },
+  {
+    title: "Changing Sign Language Dialect",
+    steps: [
+      "Go to your Profile settings.",
+      "Select your preferred sign language dialect.",
+      "All content and translations will update to match your choice."
+    ]
+  },
+  {
+    title: "Using the Built-In Game",
+    steps: [
+      "Go to the Game section from the main menu.",
+      "Start a challenge or quiz.",
+      "Earn scores that contribute to your overall progress.",
+      "Replay the game anytime to improve your skills."
+    ]
+  },
+  {
+    title: "Using Hands UP Offline",
+    steps: [
+      "Add Hands UP to your home screen (as a PWA).",
+      "Access cached lessons and recent translations even without internet.",
+      "Full features require an internet connection."
     ]
   }
 ];
