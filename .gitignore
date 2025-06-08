@@ -6,6 +6,9 @@
 /frontend/node_modules
 /ai_model/notebook/data
 /ai_model/notebook/Logs
+/ai_model/notebook/__pycache__
+/ai_model/notebook/action.h5
+
 /.pnp
 .pnp.js
 
