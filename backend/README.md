@@ -1,6 +1,6 @@
 ### Loading DB Connection details
 
-1. Create an env file in the database directory with 
+1. Create a .env file in the database directory with 
     DB_NAME=
     DB_USER=
     DB_PASS=
