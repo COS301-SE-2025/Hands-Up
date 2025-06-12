@@ -24,7 +24,7 @@ const faqs = [
     question: "How do I reset my password if I forget it?",
     answer: (
       <>
-        On the <Link to="/login">Login</Link> page, click "Forgot Password?" Enter your email address. If it exists, you’ll receive a secure reset link. Follow the link to set a new password and log in again.
+        On the <Link to="/login">Login</Link> asdf
       </>
     )
   },
