@@ -2,7 +2,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Link, useNavigate, useLocation } from "react-router-dom"; // Import useLocation
-import "../styles/Layout.css";
+import "../styles/layout.css";
 import logo from "../logo2.png";
 
 

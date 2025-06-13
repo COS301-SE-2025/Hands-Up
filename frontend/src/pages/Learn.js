@@ -1,7 +1,7 @@
 import React, { useState} from 'react';
 import { useStatUpdater } from "../hooks/learningStatsUpdater";
 
-import "../styles/Learn.css";
+import "../styles/learn.css";
 const IconAlphabet = () => 
     (
   <span role="img" aria-label="alphabet" style={{ fontSize: '1.8rem' }}>
