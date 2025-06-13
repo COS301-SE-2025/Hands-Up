@@ -1,229 +1,19 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/Help.css';
-import helpImage from '../Picture1.png';
 
 const faqs = [
   {
-    question: "How do I create and customize my account?",
-    answer: (
-      <>
-        Go to the <Link to="/signup">Sign Up</Link> page to create your account. All fields (name, username, email, password) are required. Your password must be at least 8 characters, and your email must be valid and unique. After registering, you can set learning goals and preferences in your profile settings.
-      </>
-    )
-  },
-  {
-    question: "How do I log into my account?",
-    answer: (
-      <>
-        Visit the <Link to="/login">Login</Link> page and enter your email and password. If your credentials are correct, you’ll be logged in and redirected to your learning dashboard.
-      </>
-    )
-  },
-  {
-    question: "How do I reset my password if I forget it?",
-    answer: (
-      <>
-        On the <Link to="/login">Login</Link> asdf
-      </>
-    )
-  },
-  {
-    question: "How can I update my profile and learning preferences?",
-    answer: (
-      <>
-        Go to your <Link to="/userProfile">Profile</Link> page to edit your name, username, email, password, learning goals, and preferred sign language dialect. All changes require confirmation and are securely saved.
-      </>
-    )
-  },
-  {
-    question: "How do I input signs for translation?",
-    answer: (
-      <>
-        On the <Link to="/translator">Translator</Link> page, you can use your device’s camera for real-time sign input, or upload images/videos. The system supports multiple sign language dialects and adapts translations accordingly.
-      </>
-    )
-  },
-  {
-    question: "What kind of translation output is provided?",
-    answer: (
-      <>
-        The application provides both text and audio output for all translations. You can see the translated text instantly and listen to the spoken result.
-      </>
-    )
-  },
-  {
-    question: "How does the learning curriculum work?",
-    answer: (
-      <>
-        The <Link to="/learn">Learn</Link> section offers a structured curriculum, starting from basics and progressing to advanced topics. Each lesson includes objectives, interactive content, and practice exercises. You can view the full course overview and track your progress.
-      </>
-    )
-  },
-  {
-    question: "Will I get feedback if I make a mistake?",
-    answer: (
-      <>
-        Yes! The system provides real-time feedback and correction. If a sign is incorrect, you’ll receive immediate suggestions for the correct gesture or movement.
-      </>
-    )
+    question: "How do I use the Translator?",
+    answer: "Go to the Translator page and use your webcam or upload an image to translate sign language into text."
   },
   {
     question: "How can I track my learning progress?",
-    answer: (
-      <>
-        On your <Link to="/userProfile">Profile</Link> page, you can view your daily streak, total XP, achievements, and a graphical analysis of your progress. All data updates automatically as you learn and play games.
-      </>
-    )
+    answer: "Visit your Profile page to see your stats, achievements, and progress history."
   },
   {
-    question: "Can I change the sign language dialect?",
-    answer: (
-      <>
-        Yes. In your profile settings, you can select your preferred sign language dialect. All content, translation, and feedback will adapt to your choice.
-      </>
-    )
-  },
-  {
-    question: "Is there a game to test my sign language knowledge?",
-    answer: (
-      <>
-        Yes! The built-in game offers challenges and quizzes. Your scores contribute to your overall progress, and you can replay the game anytime to improve.
-      </>
-    )
-  },
-  {
-    question: "Is my data secure and private?",
-    answer: (
-      <>
-        Absolutely. All data is securely stored and transmitted using industry best practices (e.g., HTTPS, secure authentication). The app complies with privacy regulations and never shares your information without consent.
-      </>
-    )
-  },
-  {
-    question: "Can I use the app offline?",
-    answer: (
-      <>
-        As a Progressive Web App (PWA), Hands UP offers limited offline support. You can access cached lessons and recent translations even without an internet connection.
-      </>
-    )
-  },
-  {
-    question: "What devices and browsers are supported?",
-    answer: (
-      <>
-        Hands UP works on any modern web browser and device. No manual setup is required—just visit the site and start learning!
-      </>
-    )
-  }
-];
-
-const howToSteps = [
-  {
-    title: "Creating and Customizing Your Account",
-    steps: [
-      "Go to the Sign Up page.",
-      "Fill in your name, username, email, and password (minimum 8 characters).",
-      "Set your learning goals and preferred sign language dialect.",
-      "Click 'Sign Up'. You’ll be logged in and redirected to your dashboard."
-    ]
-  },
-  {
-    title: "Logging In",
-    steps: [
-      "Go to the Login page.",
-      "Enter your registered email and password.",
-      "Click 'Login'. If your credentials are correct, you’ll be redirected to your dashboard."
-    ]
-  },
-  {
-    title: "Resetting Your Password",
-    steps: [
-      "On the Login page, click 'Forgot Password?'.",
-      "Enter your email address and submit.",
-      "Check your email for a secure reset link.",
-      "Follow the link to set a new password and confirm."
-    ]
-  },
-  {
-    title: "Updating Your Profile and Preferences",
-    steps: [
-      "Go to your Profile page.",
-      "Edit your name, username, email, password, learning goals, or preferred dialect.",
-      "Save your changes. You’ll see a confirmation and your updated info."
-    ]
-  },
-  {
-    title: "Inputting Signs with Camera",
-    steps: [
-      "Go to the Translator page.",
-      "Allow camera access if prompted.",
-      "Show your sign to the camera. The system will detect and translate it in real time."
-    ]
-  },
-  {
-    title: "Uploading Images or Videos",
-    steps: [
-      "On the Translator page, click the upload button.",
-      "Select an image or video file (supported formats only).",
-      "The system will process and translate your upload."
-    ]
-  },
-  {
-    title: "Getting Text and Audio Output",
-    steps: [
-      "After translating a sign, view the text output on screen.",
-      "Click the speaker icon to listen to the audio output."
-    ]
-  },
-  {
-    title: "Exploring the Learning Curriculum",
-    steps: [
-      "Go to the Learn section.",
-      "Browse the course overview and select a lesson.",
-      "Complete interactive content and practice exercises.",
-      "Progress from basic to advanced topics at your own pace."
-    ]
-  },
-  {
-    title: "Receiving Real-Time Feedback",
-    steps: [
-      "During translation or practice, watch for instant feedback.",
-      "If a sign is incorrect, review the suggested correction and try again."
-    ]
-  },
-  {
-    title: "Tracking Your Progress",
-    steps: [
-      "Visit your Profile page.",
-      "View your daily streak, total XP, achievements, and progress charts.",
-      "Play the built-in game to earn more XP and achievements."
-    ]
-  },
-  {
-    title: "Changing Sign Language Dialect",
-    steps: [
-      "Go to your Profile settings.",
-      "Select your preferred sign language dialect.",
-      "All content and translations will update to match your choice."
-    ]
-  },
-  {
-    title: "Using the Built-In Game",
-    steps: [
-      "Go to the Game section from the main menu.",
-      "Start a challenge or quiz.",
-      "Earn scores that contribute to your overall progress.",
-      "Replay the game anytime to improve your skills."
-    ]
-  },
-  {
-    title: "Using Hands UP Offline",
-    steps: [
-      "Add Hands UP to your home screen (as a PWA).",
-      "Access cached lessons and recent translations even without internet.",
-      "Full features require an internet connection."
-    ]
+    question: "Who can I contact for support?",
+    answer: "Scroll to the bottom of this page for support contact details."
   }
 ];
 
@@ -231,26 +21,21 @@ const HelpPage = () => {
   const [search, setSearch] = useState('');
   const filteredFaqs = faqs.filter(faq =>
     faq.question.toLowerCase().includes(search.toLowerCase()) ||
-    (typeof faq.answer === 'string'
-      ? faq.answer.toLowerCase().includes(search.toLowerCase())
-      : false)
+    faq.answer.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div className="help-container">
       <section className="help-section" aria-labelledby="help-main-title">
         <div className="help-content">
-          <h1 id="help-main-title">Welcome to Hands UP Help Center</h1>
+          <h1 id="help-main-title">Hands UP Help Center</h1>
           <p className="help-tagline">
             Your journey to mastering sign language starts here. Connect, learn, and translate with ease.
           </p>
           <div className="help-buttons">
-            <Link to="/translator" className="btn-primary" aria-label="Start Translating">Start Translating</Link>
-            <Link to="/learn" className="btn-secondary" aria-label="Begin Learning">Begin Learning</Link>
+            <Link to="/translator" className="help-btn-primary" aria-label="Start Translating">Start Translating</Link>
+            <Link to="/learn" className="help-btn-secondary" aria-label="Begin Learning">Begin Learning</Link>
           </div>
-        </div>
-        <div className="help-image">
-          <img src={helpImage} alt="Sign Language illustration" />
         </div>
       </section>
 
@@ -267,42 +52,101 @@ const HelpPage = () => {
         />
       </section>
 
-      <section className="features-section" aria-label="Feature Highlights">
-        <h2>Explore Our Features</h2>
-        <div className="feature-grid">
-          <Link to="/translator" className="feature-card" aria-label="Translator feature">
-            <i className="fas fa-hand-paper feature-icon" aria-hidden="true"></i>
-            <h3>Translator</h3>
-            <p>Instantly translate sign language into words, phrases, or sentences using your camera or uploads.</p>
-          </Link>
-          <Link to="/learn" className="feature-card" aria-label="Learn & Practice feature">
-            <i className="fas fa-book-open feature-icon" aria-hidden="true"></i>
-            <h3>Learn & Practice</h3>
-            <p>Interactive lessons, quizzes, and practice exercises to help you master sign language.</p>
-          </Link>
-          <Link to="/userProfile" className="feature-card" aria-label="Your Profile feature">
-            <i className="fas fa-user-circle feature-icon" aria-hidden="true"></i>
-            <h3>Your Profile</h3>
-            <p>Track your learning progress, achievements, and manage your account settings.</p>
-          </Link>
+      {/* Getting Better Results Section */}
+      <section className="help-tips-section">
+        <div className="help-tip-card">
+          <div className="tip-header">
+            <i className="fas fa-target tip-icon"></i>
+            <h2>Getting Better Translation Results</h2>
+          </div>
+          <div className="tip-content">
+            <p>Improve your translation accuracy with these essential tips for optimal camera setup and signing technique.</p>
+            <div className="tip-grid">
+              <div className="tip-item">
+                <h4>Lighting & Environment</h4>
+                <p>Use bright, even lighting and avoid shadows on your hands. Position yourself against a plain background.</p>
+              </div>
+              <div className="tip-item">
+                <h4>Hand Positioning</h4>
+                <p>Keep your hands clearly visible within the camera frame. Sign at a moderate pace for best recognition.</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
       <hr className="divider" />
 
-      <section className="howto-section" aria-label="Common Questions and How-To">
-        <h2>Common Questions & How-To</h2>
-        <div className="howto-list">
-          {howToSteps.map((item, idx) => (
-            <div className="howto-card" key={idx}>
-              <h3>{item.title}</h3>
-              <ol>
-                {item.steps.map((step, i) => (
-                  <li key={i}>{step}</li>
-                ))}
-              </ol>
+      {/* Effective Learning Section */}
+      <section className="help-tips-section">
+        <div className="help-tip-card">
+          <div className="tip-header">
+            <i className="fas fa-brain tip-icon"></i>
+            <h2>Learning More Effectively</h2>
+          </div>
+          <div className="tip-content">
+            <p>Maximize your learning potential with proven study techniques and practice strategies.</p>
+            <div className="tip-grid">
+              <div className="tip-item">
+                <h4>Daily Practice</h4>
+                <p>Consistency beats intensity. Practice 15-20 minutes daily rather than long irregular sessions.</p>
+              </div>
+              <div className="tip-item">
+                <h4>Progressive Learning</h4>
+                <p>Master basics first. Learn the alphabet and numbers before moving to complex phrases and sentences.</p>
+              </div>
             </div>
-          ))}
+          </div>
+        </div>
+      </section>
+
+      <hr className="divider" />
+
+      {/* Common Mistakes Section */}
+      <section className="help-tips-section">
+        <div className="help-tip-card">
+          <div className="tip-header">
+            <i className="fas fa-exclamation-triangle tip-icon"></i>
+            <h2>Common Mistakes to Avoid</h2>
+          </div>
+          <div className="tip-content">
+            <p>Learn from others' experiences and avoid these frequent pitfalls in sign language learning.</p>
+            <div className="tip-grid">
+              <div className="tip-item">
+                <h4>Finger Spelling Rush</h4>
+                <p>Don't rush through finger spelling. Take time to form each letter clearly and distinctly.</p>
+              </div>
+              <div className="tip-item">
+                <h4>Facial Expression</h4>
+                <p>Remember that facial expressions are crucial in sign language. Don't focus only on hand movements.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <hr className="divider" />
+
+      {/* Progress Tracking Section */}
+      <section className="help-tips-section">
+        <div className="help-tip-card">
+          <div className="tip-header">
+            <i className="fas fa-chart-line tip-icon"></i>
+            <h2>Tracking Your Progress</h2>
+          </div>
+          <div className="tip-content">
+            <p>Stay motivated and measure your improvement with smart tracking and goal-setting strategies.</p>
+            <div className="tip-grid">
+              <div className="tip-item">
+                <h4>Set Realistic Goals</h4>
+                <p>Break down your learning into achievable milestones. Celebrate small wins along your journey.</p>
+              </div>
+              <div className="tip-item">
+                <h4>Regular Assessment</h4>
+                <p>Use our built-in progress tracker to identify strengths and areas that need more practice.</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -323,18 +167,9 @@ const HelpPage = () => {
 
       <hr className="divider" />
 
-      <section className="cta-section" aria-label="Get Started">
-        <h2>Ready to Communicate?</h2>
-        <p>Join thousands of users who are bridging communication gaps with Hands UP.</p>
-        <Link to="/signup" className="btn-primary large" aria-label="Get Started for Free">Get Started for Free</Link>
-      </section>
-
       <footer className="help-footer" aria-label="Support and Contact">
         <p>
-          Need more help? Email us at <a href="mailto:support@handsup.com">support@handsup.com</a>
-        </p>
-        <p>
-          &copy; {new Date().getFullYear()} Hands UP. All rights reserved.
+          Need more help? Email us at <a href="mailto:tkmdt.cos301@gmail.com">tkmdt.cos301@gmail.com</a>
         </p>
       </footer>
     </div>
