@@ -6,13 +6,13 @@ import { LearningStatsProvider } from "./context/learningStatsContext";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import "./App.css";
 
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
+import Login from "./pages/login";
+import Signup from "./pages/signup";
 import Profile from "./pages/userProfile"; // Renamed from Profile to userProfile as per NAV_PATHS
-import Translator from "./pages/Translator";
-import Learn from "./pages/Learn";
-import Home from "./pages/Home";
-import Layout from "./pages/Layout"; 
+import Translator from "./pages/translator";
+import Learn from "./pages/learn";
+import Home from "./pages/home";
+import Layout from "./pages/layout"; 
 console.log('Layout:', Layout);
 
 

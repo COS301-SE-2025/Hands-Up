@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import '../styles/Translator.css';
+import { processVideo } from '../utils/apiCalls';
+import '../styles/translator.css';
 
 export default function Translator() 
 {
@@ -122,27 +123,7 @@ export default function Translator()
       }, 100);
     }, 800); // Reduced from 2000ms to 800ms
 
-    // Example API call for video processing with optimized FormData
-    /*
-    const formData = new FormData();
-    formData.append('video', videoBlob, 'sign.webm');
-    
-    try {
-      const response = await fetch('/api/process-video', {
-        method: 'POST',
-        body: formData,
-        // Add headers for faster processing
-        headers: {
-          'Accept': 'application/json',
-        }
-      });
-      const data = await response.json();
-      setResult(`Detected phrase: '${data.phrase}'`);
-      setSpeakDisabled(false);
-    } catch (error) {
-      setResult('Error processing video');
-    }
-    */
+    processVideo(capturedBlob); // Use the captured blob for processin
   };
 
   const capture = () => {

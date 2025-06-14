@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom';
-import { useStatUpdater } from "../hooks/learningStatsUpdater";
+import { useStatUpdater } from "../hooks/learningStatsUpdater.js";
 import {login} from'../utils/apiCalls.js';
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 
-import '../styles/Login.css';
+import '../styles/login.css';
 import heroImage from "../sign33.png";
 import logo from "../logo2.png";
 
