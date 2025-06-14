@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useStatUpdater } from "../hooks/learningStatsUpdater.js";
+// import { useStatUpdater } from "../hooks/learningStatsUpdater.js"; // This hook is not used here anymore
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/authContext.js'; 
@@ -16,10 +16,8 @@ function Login() {
   const [mounted, setMounted] = useState(false);
 
   const navigate = useNavigate();
-  const handleUpdate = useStatUpdater(); 
 
   const { login } = useAuth(); 
-
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -36,14 +34,12 @@ function Login() {
     }
 
     try {
-     await login({ email, password }); 
-      handleUpdate("streak"); 
-      
-    } catch (err) {
+      await login({ email, password }); 
+     
+    } catch (err) { 
       setError(err.message);
       console.error('Login error:', err);
     } finally {
-
       await new Promise(resolve => setTimeout(resolve, 1000));
       setError(''); 
       setIsLoading(false);

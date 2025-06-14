@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Mail, Lock, ArrowRight, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import {signup} from'../utils/apiCalls.js';
+import { signup } from '../utils/apiCalls.js';
+import { useAuth } from '../context/authContext.js';
 import '../styles/Signup.css';
 import heroImage from "../sign33.png";
 import logo from "../logo2.png";
@@ -16,7 +17,7 @@ function SignupPage() {
     confirmPassword: '',
   });
   const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState(''); // New state for success messages
+  const [successMessage, setSuccessMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -24,6 +25,7 @@ function SignupPage() {
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   const navigate = useNavigate();
+  const { login } = useAuth(); 
 
   useEffect(() => {
     setMounted(true);
@@ -72,13 +74,13 @@ function SignupPage() {
     }
 
     try {
-      const data = await signup({ name, surname, username, email, password });
-      console.log(data);
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('userData', JSON.stringify(data.user));
+     const data = await signup({ name, surname, username, email, password });
+      console.log('Signup successful, backend response:', data);
+  await login({ email, password }); 
+
       setSuccessMessage(`Signup successful! Welcome ${data.user.username}`);
-     
-      setFormData({
+      
+      setFormData({ 
         name: '',
         surname: '',
         username: '',
@@ -87,19 +89,14 @@ function SignupPage() {
         confirmPassword: '',
       });
       
-      setTimeout(() => {
-        navigate('/Home');
-      }, 2000);
+      
     } catch (error) {
       console.error('Signup error:', error);
-      setError(error.message);
+      setError(error.message || 'An unexpected error occurred during signup.');
     } finally {
       setIsLoading(false);
     }
-
   };
-
-   
 
   return (
     <div className="signup-page">
