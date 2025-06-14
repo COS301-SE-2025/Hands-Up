@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/Landing.css';
 import video1 from "../media/landing_video1.mp4";
 import logo from "../media/logo.png";
-import background1 from "../media/background.png";
+import devices from "../media/devices.png";
 import angie from "../media/angie.png";
 import phil from "../media/phil.png";
 
@@ -17,6 +17,16 @@ const NAV_PATHS = {
 };
 
 const LandingPage = () => {
+
+  const [error, setError] = useState('');
+
+  const handleClick = () => {
+    setError('Coming soon!');
+    setTimeout(() => {
+      setError('');
+    }, 3000); 
+  };
+
   return (
     <div className="landing-container">
 
@@ -39,8 +49,6 @@ const LandingPage = () => {
       </header>
 
       <div className="hero-container">
-        {/* <img src={background1} alt="Alphabet Background" className="background1"/> */}
-
         <div className="hero-div">
           <img src={phil} alt="Phil" className="side-image left-image" />
           <h1 className="hero-div-h1">Welcome to Hands Up</h1>
@@ -69,7 +77,7 @@ const LandingPage = () => {
 
       <div className="landing-features-section">
         <h2 className="landing-features-heading">Explore Our Features</h2>
-        <div className="features-container">
+        <div className="landing-features-container">
           <div className="feature-card">
             <div className="card-inner">
               <div className="card-front">
@@ -104,7 +112,37 @@ const LandingPage = () => {
           </div>
         </div>
       </div>
-      
+
+      <div className="help-section">
+        <h2 className="help-heading">Need a Hand?</h2> {/* Playful title */}
+        
+        <div className="help-container">
+          <div className="download-info">
+            <h3>How to Download</h3>
+            <p>Download info coming soon...</p>
+            <img src={devices} alt="Devices" className="device-image"/>
+            {/* <a href="https://play.google.com" target="_blank" rel="noopener noreferrer" className="download-button">Download Now</a> */}
+            <button className="download-button" onClick={handleClick}>Download Now</button>
+            {error && <p className="error-message">{error}</p>}
+          </div>
+
+          <div className="tutorial-video">
+            <h3>Watch the Tutorial</h3>
+            <p>See how Hands UP works and how to get started with signing and learning.</p>
+            <iframe width="560" height="315" 
+              src={video1}
+              title="Hands UP Tutorial Video"
+              frameBorder="0"
+              allowFullScreen>
+            </iframe>
+          </div>
+        </div>
+      </div>
+
+      <footer className="landing-footer">
+        <p>© 2025 Hands UP - A project by EPI-USE Africa in collaboration with TMKDT</p>
+      </footer>
+
     </div>
   );
 };
