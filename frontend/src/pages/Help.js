@@ -17,6 +17,7 @@ import {
   ExternalLink,
   X
 } from 'lucide-react';
+import '../styles/Help.css';
 
 const HelpMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,7 +32,7 @@ const HelpMenu = () => {
     {
       id: 'getting-started',
       title: 'Getting Started',
-      icon: <PlayCircle className="w-5 h-5" />,
+      icon: <PlayCircle className="help-icon" />,
       items: [
         'Creating your first account',
         'Understanding the interface',
@@ -42,7 +43,7 @@ const HelpMenu = () => {
     {
       id: 'learning',
       title: 'Learning Mode',
-      icon: <GraduationCap className="w-5 h-5" />,
+      icon: <GraduationCap className="help-icon" />,
       items: [
         'Accessing the curriculum',
         'Tracking your progress',
@@ -54,7 +55,7 @@ const HelpMenu = () => {
     {
       id: 'translation',
       title: 'Video Translation',
-      icon: <Camera className="w-5 h-5" />,
+      icon: <Camera className="help-icon" />,
       items: [
         'Using camera input',
         'Uploading videos/images',
@@ -66,7 +67,7 @@ const HelpMenu = () => {
     {
       id: 'profile',
       title: 'Profile & Settings',
-      icon: <User className="w-5 h-5" />,
+      icon: <User className="help-icon" />,
       items: [
         'Updating personal details',
         'Managing account settings',
@@ -99,93 +100,93 @@ const HelpMenu = () => {
   const HelpButton = () => (
     <button
       onClick={() => setIsOpen(true)}
-      className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110 z-50"
+      className="help-button"
       aria-label="Open help menu"
     >
-      <HelpCircle className="w-6 h-6" />
+      <HelpCircle className="help-button-icon" />
     </button>
   );
 
   const HelpModal = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl">
+    <div className="help-modal-overlay">
+      <div className="help-modal">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="bg-white/20 p-2 rounded-lg">
-                <HelpCircle className="w-6 h-6" />
+        <div className="help-modal-header">
+          <div className="help-modal-header-content">
+            <div className="help-modal-header-left">
+              <div className="help-modal-header-icon">
+                <HelpCircle className="help-modal-icon" />
               </div>
-              <div>
-                <h2 className="text-2xl font-bold">Hands UP Help Center</h2>
-                <p className="text-blue-100">Get help with sign language learning</p>
+              <div className="help-modal-header-text">
+                <h2 className="help-modal-title">Hands UP Help Center</h2>
+                <p className="help-modal-subtitle">Get help with sign language learning</p>
               </div>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="text-white/80 hover:text-white p-1"
+              className="help-modal-close"
             >
-              <X className="w-6 h-6" />
+              <X className="help-modal-close-icon" />
             </button>
           </div>
         </div>
 
-        <div className="flex h-[600px]">
+        <div className="help-modal-body">
           {/* Sidebar */}
-          <div className="w-1/3 bg-gray-50 border-r border-gray-200 overflow-y-auto">
-            <div className="p-4">
+          <div className="help-sidebar">
+            <div className="help-sidebar-content">
               {/* Search Bar */}
-              <div className="relative mb-6">
-                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <div className="help-search-container">
+                <Search className="help-search-icon" />
                 <input
                   type="text"
                   placeholder="Search help topics..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="help-search-input"
                 />
               </div>
 
               {/* Quick Actions */}
-              <div className="space-y-2 mb-6">
-                <button className="w-full flex items-center space-x-3 p-3 text-left hover:bg-white rounded-lg transition-colors">
-                  <MessageCircle className="w-5 h-5 text-green-600" />
-                  <span className="font-medium">Live Chat Support</span>
+              <div className="help-quick-actions">
+                <button className="help-quick-action">
+                  <MessageCircle className="help-quick-action-icon green" />
+                  <span className="help-quick-action-text">Live Chat Support</span>
                 </button>
-                <button className="w-full flex items-center space-x-3 p-3 text-left hover:bg-white rounded-lg transition-colors">
-                  <Phone className="w-5 h-5 text-blue-600" />
-                  <span className="font-medium">Contact Support</span>
+                <button className="help-quick-action">
+                  <Phone className="help-quick-action-icon blue" />
+                  <span className="help-quick-action-text">Contact Support</span>
                 </button>
-                <button className="w-full flex items-center space-x-3 p-3 text-left hover:bg-white rounded-lg transition-colors">
-                  <Video className="w-5 h-5 text-purple-600" />
-                  <span className="font-medium">Video Tutorials</span>
+                <button className="help-quick-action">
+                  <Video className="help-quick-action-icon purple" />
+                  <span className="help-quick-action-text">Video Tutorials</span>
                 </button>
               </div>
 
               {/* Help Sections */}
-              <div className="space-y-1">
-                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Help Topics</h3>
+              <div className="help-sections">
+                <h3 className="help-sections-title">Help Topics</h3>
                 {helpSections.map((section) => (
-                  <div key={section.id}>
+                  <div key={section.id} className="help-section">
                     <button
                       onClick={() => toggleSection(section.id)}
-                      className="w-full flex items-center justify-between p-3 text-left hover:bg-white rounded-lg transition-colors"
+                      className="help-section-button"
                     >
-                      <div className="flex items-center space-x-3">
+                      <div className="help-section-left">
                         {section.icon}
-                        <span className="font-medium">{section.title}</span>
+                        <span className="help-section-title">{section.title}</span>
                       </div>
                       {expandedSection === section.id ? 
-                        <ChevronDown className="w-4 h-4" /> : 
-                        <ChevronRight className="w-4 h-4" />
+                        <ChevronDown className="help-chevron" /> : 
+                        <ChevronRight className="help-chevron" />
                       }
                     </button>
                     {expandedSection === section.id && (
-                      <div className="ml-8 space-y-1">
+                      <div className="help-section-items">
                         {section.items.map((item, index) => (
                           <button
                             key={index}
-                            className="block w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded"
+                            className="help-section-item"
                           >
                             {item}
                           </button>
@@ -199,67 +200,67 @@ const HelpMenu = () => {
           </div>
 
           {/* Main Content */}
-          <div className="flex-1 overflow-y-auto">
-            <div className="p-6">
+          <div className="help-main-content">
+            <div className="help-content-inner">
               {/* Welcome Section */}
-              <div className="mb-8">
-                <h3 className="text-2xl font-bold text-gray-800 mb-4">Welcome to Hands UP!</h3>
-                <p className="text-gray-600 mb-6">
+              <div className="help-welcome">
+                <h3 className="help-welcome-title">Welcome to Hands UP!</h3>
+                <p className="help-welcome-text">
                   Learn sign language with AI-powered translation and interactive lessons. 
                   Get started with our quick tutorials or browse help topics on the left.
                 </p>
                 
                 {/* Quick Start Cards */}
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                    <Home className="w-8 h-8 text-blue-600 mb-2" />
-                    <h4 className="font-semibold text-blue-800">Home Dashboard</h4>
-                    <p className="text-sm text-blue-600">View your progress and access all features</p>
+                <div className="help-quick-start-grid">
+                  <div className="help-quick-start-card blue">
+                    <Home className="help-quick-start-icon" />
+                    <h4 className="help-quick-start-title">Home Dashboard</h4>
+                    <p className="help-quick-start-text">View your progress and access all features</p>
                   </div>
-                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                    <Book className="w-8 h-8 text-green-600 mb-2" />
-                    <h4 className="font-semibold text-green-800">Learning Mode</h4>
-                    <p className="text-sm text-green-600">Structured lessons with real-time feedback</p>
+                  <div className="help-quick-start-card green">
+                    <Book className="help-quick-start-icon" />
+                    <h4 className="help-quick-start-title">Learning Mode</h4>
+                    <p className="help-quick-start-text">Structured lessons with real-time feedback</p>
                   </div>
-                  <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                    <Camera className="w-8 h-8 text-purple-600 mb-2" />
-                    <h4 className="font-semibold text-purple-800">Video Translation</h4>
-                    <p className="text-sm text-purple-600">Real-time sign language translation</p>
+                  <div className="help-quick-start-card purple">
+                    <Camera className="help-quick-start-icon" />
+                    <h4 className="help-quick-start-title">Video Translation</h4>
+                    <p className="help-quick-start-text">Real-time sign language translation</p>
                   </div>
-                  <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-                    <User className="w-8 h-8 text-orange-600 mb-2" />
-                    <h4 className="font-semibold text-orange-800">Profile Settings</h4>
-                    <p className="text-sm text-orange-600">Manage your account and preferences</p>
+                  <div className="help-quick-start-card orange">
+                    <User className="help-quick-start-icon" />
+                    <h4 className="help-quick-start-title">Profile Settings</h4>
+                    <p className="help-quick-start-text">Manage your account and preferences</p>
                   </div>
                 </div>
               </div>
 
               {/* FAQs Section */}
-              <div className="mb-8">
-                <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                  <FileText className="w-5 h-5 mr-2" />
+              <div className="help-faqs">
+                <h3 className="help-faqs-title">
+                  <FileText className="help-faqs-icon" />
                   Frequently Asked Questions
                 </h3>
-                <div className="space-y-4">
+                <div className="help-faqs-list">
                   {faqs.map((faq, index) => (
-                    <div key={index} className="border border-gray-200 rounded-lg p-4">
-                      <h4 className="font-semibold text-gray-800 mb-2">{faq.question}</h4>
-                      <p className="text-gray-600">{faq.answer}</p>
+                    <div key={index} className="help-faq-item">
+                      <h4 className="help-faq-question">{faq.question}</h4>
+                      <p className="help-faq-answer">{faq.answer}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Support Section */}
-              <div className="bg-gray-50 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Still need help?</h3>
-                <div className="flex space-x-4">
-                  <button className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
-                    <MessageCircle className="w-4 h-4" />
+              <div className="help-support">
+                <h3 className="help-support-title">Still need help?</h3>
+                <div className="help-support-buttons">
+                  <button className="help-support-button green">
+                    <MessageCircle className="help-support-icon" />
                     <span>Start Live Chat</span>
                   </button>
-                  <button className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                    <ExternalLink className="w-4 h-4" />
+                  <button className="help-support-button blue">
+                    <ExternalLink className="help-support-icon" />
                     <span>Help Center</span>
                   </button>
                 </div>
