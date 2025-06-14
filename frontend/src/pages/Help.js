@@ -1,557 +1,282 @@
 import React, { useState } from 'react';
+import { 
+  HelpCircle, 
+  Search, 
+  Book, 
+  Video, 
+  MessageCircle, 
+  Phone, 
+  FileText, 
+  PlayCircle,
+  Camera,
+  User,
+  Home,
+  GraduationCap,
+  ChevronDown,
+  ChevronRight,
+  ExternalLink,
+  X
+} from 'lucide-react';
 
-const faqs = [
-  {
-    question: "How do I use the Translator?",
-    answer: "Go to the Translator page and use your webcam or upload an image to translate sign language into text."
-  },
-  {
-    question: "How can I track my learning progress?",
-    answer: "Visit your Profile page to see your stats, achievements, and progress history."
-  },
-  {
-    question: "Who can I contact for support?",
-    answer: "Scroll to the bottom of this page for support contact details."
-  }
-];
+const HelpMenu = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [expandedSection, setExpandedSection] = useState(null);
 
-const HelpPage = () => {
-  const [search, setSearch] = useState('');
-  const filteredFaqs = faqs.filter(faq =>
-    faq.question.toLowerCase().includes(search.toLowerCase()) ||
-    faq.answer.toLowerCase().includes(search.toLowerCase())
+  const toggleSection = (section) => {
+    setExpandedSection(expandedSection === section ? null : section);
+  };
+
+  const helpSections = [
+    {
+      id: 'getting-started',
+      title: 'Getting Started',
+      icon: <PlayCircle className="w-5 h-5" />,
+      items: [
+        'Creating your first account',
+        'Understanding the interface',
+        'Setting up your camera',
+        'Your first sign translation'
+      ]
+    },
+    {
+      id: 'learning',
+      title: 'Learning Mode',
+      icon: <GraduationCap className="w-5 h-5" />,
+      items: [
+        'Accessing the curriculum',
+        'Tracking your progress',
+        'Understanding XP and streaks',
+        'Lesson structure and feedback',
+        'Practice exercises'
+      ]
+    },
+    {
+      id: 'translation',
+      title: 'Video Translation',
+      icon: <Camera className="w-5 h-5" />,
+      items: [
+        'Using camera input',
+        'Uploading videos/images',
+        'Real-time translation tips',
+        'Improving accuracy',
+        'Supported sign languages'
+      ]
+    },
+    {
+      id: 'profile',
+      title: 'Profile & Settings',
+      icon: <User className="w-5 h-5" />,
+      items: [
+        'Updating personal details',
+        'Managing account settings',
+        'Changing preferences',
+        'Password reset',
+        'Privacy settings'
+      ]
+    }
+  ];
+
+  const faqs = [
+    {
+      question: "How accurate is the sign language translation?",
+      answer: "Our AI model achieves high accuracy for common signs and phrases. For best results, ensure good lighting and clear hand visibility."
+    },
+    {
+      question: "Can I use the app offline?",
+      answer: "Yes! As a PWA, you can access cached lessons and recent translations offline. Real-time translation requires an internet connection."
+    },
+    {
+      question: "Which sign languages are supported?",
+      answer: "We currently support American Sign Language (ASL) with plans to add more dialects. You can change your preferred dialect in settings."
+    },
+    {
+      question: "How do I improve my signing accuracy?",
+      answer: "Follow the feedback provided after each practice session, ensure good lighting, and keep your hands clearly visible to the camera."
+    }
+  ];
+
+  const HelpButton = () => (
+    <button
+      onClick={() => setIsOpen(true)}
+      className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110 z-50"
+      aria-label="Open help menu"
+    >
+      <HelpCircle className="w-6 h-6" />
+    </button>
+  );
+
+  const HelpModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="bg-white/20 p-2 rounded-lg">
+                <HelpCircle className="w-6 h-6" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold">Hands UP Help Center</h2>
+                <p className="text-blue-100">Get help with sign language learning</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="text-white/80 hover:text-white p-1"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+
+        <div className="flex h-[600px]">
+          {/* Sidebar */}
+          <div className="w-1/3 bg-gray-50 border-r border-gray-200 overflow-y-auto">
+            <div className="p-4">
+              {/* Search Bar */}
+              <div className="relative mb-6">
+                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search help topics..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              {/* Quick Actions */}
+              <div className="space-y-2 mb-6">
+                <button className="w-full flex items-center space-x-3 p-3 text-left hover:bg-white rounded-lg transition-colors">
+                  <MessageCircle className="w-5 h-5 text-green-600" />
+                  <span className="font-medium">Live Chat Support</span>
+                </button>
+                <button className="w-full flex items-center space-x-3 p-3 text-left hover:bg-white rounded-lg transition-colors">
+                  <Phone className="w-5 h-5 text-blue-600" />
+                  <span className="font-medium">Contact Support</span>
+                </button>
+                <button className="w-full flex items-center space-x-3 p-3 text-left hover:bg-white rounded-lg transition-colors">
+                  <Video className="w-5 h-5 text-purple-600" />
+                  <span className="font-medium">Video Tutorials</span>
+                </button>
+              </div>
+
+              {/* Help Sections */}
+              <div className="space-y-1">
+                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Help Topics</h3>
+                {helpSections.map((section) => (
+                  <div key={section.id}>
+                    <button
+                      onClick={() => toggleSection(section.id)}
+                      className="w-full flex items-center justify-between p-3 text-left hover:bg-white rounded-lg transition-colors"
+                    >
+                      <div className="flex items-center space-x-3">
+                        {section.icon}
+                        <span className="font-medium">{section.title}</span>
+                      </div>
+                      {expandedSection === section.id ? 
+                        <ChevronDown className="w-4 h-4" /> : 
+                        <ChevronRight className="w-4 h-4" />
+                      }
+                    </button>
+                    {expandedSection === section.id && (
+                      <div className="ml-8 space-y-1">
+                        {section.items.map((item, index) => (
+                          <button
+                            key={index}
+                            className="block w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded"
+                          >
+                            {item}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Main Content */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-6">
+              {/* Welcome Section */}
+              <div className="mb-8">
+                <h3 className="text-2xl font-bold text-gray-800 mb-4">Welcome to Hands UP!</h3>
+                <p className="text-gray-600 mb-6">
+                  Learn sign language with AI-powered translation and interactive lessons. 
+                  Get started with our quick tutorials or browse help topics on the left.
+                </p>
+                
+                {/* Quick Start Cards */}
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <Home className="w-8 h-8 text-blue-600 mb-2" />
+                    <h4 className="font-semibold text-blue-800">Home Dashboard</h4>
+                    <p className="text-sm text-blue-600">View your progress and access all features</p>
+                  </div>
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                    <Book className="w-8 h-8 text-green-600 mb-2" />
+                    <h4 className="font-semibold text-green-800">Learning Mode</h4>
+                    <p className="text-sm text-green-600">Structured lessons with real-time feedback</p>
+                  </div>
+                  <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                    <Camera className="w-8 h-8 text-purple-600 mb-2" />
+                    <h4 className="font-semibold text-purple-800">Video Translation</h4>
+                    <p className="text-sm text-purple-600">Real-time sign language translation</p>
+                  </div>
+                  <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                    <User className="w-8 h-8 text-orange-600 mb-2" />
+                    <h4 className="font-semibold text-orange-800">Profile Settings</h4>
+                    <p className="text-sm text-orange-600">Manage your account and preferences</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* FAQs Section */}
+              <div className="mb-8">
+                <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                  <FileText className="w-5 h-5 mr-2" />
+                  Frequently Asked Questions
+                </h3>
+                <div className="space-y-4">
+                  {faqs.map((faq, index) => (
+                    <div key={index} className="border border-gray-200 rounded-lg p-4">
+                      <h4 className="font-semibold text-gray-800 mb-2">{faq.question}</h4>
+                      <p className="text-gray-600">{faq.answer}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Support Section */}
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Still need help?</h3>
+                <div className="flex space-x-4">
+                  <button className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                    <MessageCircle className="w-4 h-4" />
+                    <span>Start Live Chat</span>
+                  </button>
+                  <button className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                    <ExternalLink className="w-4 h-4" />
+                    <span>Help Center</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 
   return (
-    <div style={{
-      fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-      color: '#234d20',
-      width: '100%',
-      maxWidth: '900px',
-      margin: '2.5rem auto 2rem auto',
-      padding: '2rem 1.5rem 1.5rem 1.5rem',
-      background: 'linear-gradient(135deg, #eafbe6 0%, #f6fff2 100%)',
-      borderRadius: '2rem',
-      boxShadow: '0 8px 32px rgba(46, 125, 50, 0.10)',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '2.5rem'
-    }}>
-      <section style={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: '2.5rem',
-        padding: '2rem 0 1rem 0',
-        background: 'none',
-        color: '#234d20',
-        borderRadius: '1.5rem',
-        textAlign: 'left',
-        boxShadow: 'none'
-      }} aria-labelledby="help-main-title">
-        <div style={{ flex: 2 }}>
-          <h1 id="help-main-title" style={{
-            fontSize: '2.7rem',
-            marginBottom: '0.7rem',
-            fontWeight: '700',
-            color: '#234d20',
-            letterSpacing: '-1px'
-          }}>Hands UP Help Center</h1>
-          <p style={{
-            fontSize: '1.15rem',
-            marginBottom: '1.5rem',
-            color: '#4e7a51',
-            opacity: '0.85'
-          }}>
-            Your journey to mastering sign language starts here. Connect, learn, and translate with ease.
-          </p>
-          <div style={{ display: 'flex', gap: '1.2rem' }}>
-            <a href="/translator" style={{
-              padding: '0.7rem 1.7rem',
-              borderRadius: '2rem',
-              fontSize: '1.1rem',
-              fontWeight: '600',
-              border: 'none',
-              cursor: 'pointer',
-              transition: 'background 0.2s, color 0.2s, box-shadow 0.2s',
-              boxShadow: '0 2px 8px rgba(167, 209, 41, 0.08)',
-              textDecoration: 'none',
-              outline: 'none',
-              background: 'linear-gradient(90deg, #a7d129 60%, #4e7a51 100%)',
-              color: '#fff'
-            }} aria-label="Start Translating">Start Translating</a>
-            <a href="/learn" style={{
-              padding: '0.7rem 1.7rem',
-              borderRadius: '2rem',
-              fontSize: '1.1rem',
-              fontWeight: '600',
-              border: '2px solid #a7d129',
-              cursor: 'pointer',
-              transition: 'background 0.2s, color 0.2s, box-shadow 0.2s',
-              boxShadow: '0 2px 8px rgba(167, 209, 41, 0.08)',
-              textDecoration: 'none',
-              outline: 'none',
-              background: '#fff',
-              color: '#4e7a51'
-            }} aria-label="Begin Learning">Begin Learning</a>
-          </div>
-        </div>
-      </section>
-
-      <hr style={{
-        border: 'none',
-        borderTop: '2px dashed #a7d12944',
-        margin: '0.5rem 0 1.5rem 0'
-      }} />
-
-      {/* Getting Better Results Section */}
-      <section style={{
-        padding: '1.5rem 0.5rem 2rem 0.5rem',
-        background: 'linear-gradient(90deg, #eafbe6 60%, #f6fff2 100%)',
-        borderRadius: '1.5rem',
-        marginBottom: '1.5rem',
-        boxShadow: '0 2px 12px rgba(46, 125, 50, 0.04)'
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.8rem',
-          marginBottom: '1.2rem'
-        }}>
-          <i className="fas fa-target" style={{
-            fontSize: '1.8rem',
-            color: '#a7d129'
-          }}></i>
-          <h2 style={{
-            fontSize: '1.7rem',
-            margin: '0',
-            color: '#4e7a51',
-            fontWeight: '600'
-          }}>Getting Better Translation Results</h2>
-        </div>
-        <p style={{
-          fontSize: '1rem',
-          color: '#234d20',
-          opacity: '0.85',
-          marginBottom: '1.5rem'
-        }}>Improve your translation accuracy with these essential tips for optimal camera setup and signing technique.</p>
-        
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div style={{
-            background: '#fff',
-            borderRadius: '1rem',
-            boxShadow: '0 1px 6px rgba(167, 209, 41, 0.07)',
-            padding: '1.1rem 1.2rem',
-            borderLeft: '5px solid #a7d129',
-            transition: 'box-shadow 0.2s'
-          }}>
-            <strong style={{
-              display: 'block',
-              fontSize: '1.08rem',
-              color: '#4e7a51',
-              marginBottom: '0.3rem',
-              fontWeight: '600'
-            }}>Lighting & Environment</strong>
-            <p style={{
-              margin: '0',
-              color: '#234d20',
-              fontSize: '1rem',
-              opacity: '0.92'
-            }}>Use bright, even lighting and avoid shadows on your hands. Position yourself against a plain background.</p>
-          </div>
-          
-          <div style={{
-            background: '#fff',
-            borderRadius: '1rem',
-            boxShadow: '0 1px 6px rgba(167, 209, 41, 0.07)',
-            padding: '1.1rem 1.2rem',
-            borderLeft: '5px solid #a7d129',
-            transition: 'box-shadow 0.2s'
-          }}>
-            <strong style={{
-              display: 'block',
-              fontSize: '1.08rem',
-              color: '#4e7a51',
-              marginBottom: '0.3rem',
-              fontWeight: '600'
-            }}>Hand Positioning</strong>
-            <p style={{
-              margin: '0',
-              color: '#234d20',
-              fontSize: '1rem',
-              opacity: '0.92'
-            }}>Keep your hands clearly visible within the camera frame. Sign at a moderate pace for best recognition.</p>
-          </div>
-        </div>
-      </section>
-
-      <hr style={{
-        border: 'none',
-        borderTop: '2px dashed #a7d12944',
-        margin: '0.5rem 0 1.5rem 0'
-      }} />
-
-      {/* Effective Learning Section */}
-      <section style={{
-        padding: '1.5rem 0.5rem 2rem 0.5rem',
-        background: 'linear-gradient(90deg, #eafbe6 60%, #f6fff2 100%)',
-        borderRadius: '1.5rem',
-        marginBottom: '1.5rem',
-        boxShadow: '0 2px 12px rgba(46, 125, 50, 0.04)'
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.8rem',
-          marginBottom: '1.2rem'
-        }}>
-          <i className="fas fa-brain" style={{
-            fontSize: '1.8rem',
-            color: '#a7d129'
-          }}></i>
-          <h2 style={{
-            fontSize: '1.7rem',
-            margin: '0',
-            color: '#4e7a51',
-            fontWeight: '600'
-          }}>Learning More Effectively</h2>
-        </div>
-        <p style={{
-          fontSize: '1rem',
-          color: '#234d20',
-          opacity: '0.85',
-          marginBottom: '1.5rem'
-        }}>Maximize your learning potential with proven study techniques and practice strategies.</p>
-        
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div style={{
-            background: '#fff',
-            borderRadius: '1rem',
-            boxShadow: '0 1px 6px rgba(167, 209, 41, 0.07)',
-            padding: '1.1rem 1.2rem',
-            borderLeft: '5px solid #a7d129',
-            transition: 'box-shadow 0.2s'
-          }}>
-            <strong style={{
-              display: 'block',
-              fontSize: '1.08rem',
-              color: '#4e7a51',
-              marginBottom: '0.3rem',
-              fontWeight: '600'
-            }}>Daily Practice</strong>
-            <p style={{
-              margin: '0',
-              color: '#234d20',
-              fontSize: '1rem',
-              opacity: '0.92'
-            }}>Consistency beats intensity. Practice 15-20 minutes daily rather than long irregular sessions.</p>
-          </div>
-          
-          <div style={{
-            background: '#fff',
-            borderRadius: '1rem',
-            boxShadow: '0 1px 6px rgba(167, 209, 41, 0.07)',
-            padding: '1.1rem 1.2rem',
-            borderLeft: '5px solid #a7d129',
-            transition: 'box-shadow 0.2s'
-          }}>
-            <strong style={{
-              display: 'block',
-              fontSize: '1.08rem',
-              color: '#4e7a51',
-              marginBottom: '0.3rem',
-              fontWeight: '600'
-            }}>Progressive Learning</strong>
-            <p style={{
-              margin: '0',
-              color: '#234d20',
-              fontSize: '1rem',
-              opacity: '0.92'
-            }}>Master basics first. Learn the alphabet and numbers before moving to complex phrases and sentences.</p>
-          </div>
-        </div>
-      </section>
-
-      <hr style={{
-        border: 'none',
-        borderTop: '2px dashed #a7d12944',
-        margin: '0.5rem 0 1.5rem 0'
-      }} />
-
-      {/* Common Mistakes Section */}
-      <section style={{
-        padding: '1.5rem 0.5rem 2rem 0.5rem',
-        background: 'linear-gradient(90deg, #eafbe6 60%, #f6fff2 100%)',
-        borderRadius: '1.5rem',
-        marginBottom: '1.5rem',
-        boxShadow: '0 2px 12px rgba(46, 125, 50, 0.04)'
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.8rem',
-          marginBottom: '1.2rem'
-        }}>
-          <i className="fas fa-exclamation-triangle" style={{
-            fontSize: '1.8rem',
-            color: '#a7d129'
-          }}></i>
-          <h2 style={{
-            fontSize: '1.7rem',
-            margin: '0',
-            color: '#4e7a51',
-            fontWeight: '600'
-          }}>Common Mistakes to Avoid</h2>
-        </div>
-        <p style={{
-          fontSize: '1rem',
-          color: '#234d20',
-          opacity: '0.85',
-          marginBottom: '1.5rem'
-        }}>Learn from others experiences and avoid these frequent pitfalls in sign language learning.</p>
-        
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div style={{
-            background: '#fff',
-            borderRadius: '1rem',
-            boxShadow: '0 1px 6px rgba(167, 209, 41, 0.07)',
-            padding: '1.1rem 1.2rem',
-            borderLeft: '5px solid #a7d129',
-            transition: 'box-shadow 0.2s'
-          }}>
-            <strong style={{
-              display: 'block',
-              fontSize: '1.08rem',
-              color: '#4e7a51',
-              marginBottom: '0.3rem',
-              fontWeight: '600'
-            }}>Finger Spelling Rush</strong>
-            <p style={{
-              margin: '0',
-              color: '#234d20',
-              fontSize: '1rem',
-              opacity: '0.92'
-            }}>Do not rush through finger spelling. Take time to form each letter clearly and distinctly.</p>
-          </div>
-          
-          <div style={{
-            background: '#fff',
-            borderRadius: '1rem',
-            boxShadow: '0 1px 6px rgba(167, 209, 41, 0.07)',
-            padding: '1.1rem 1.2rem',
-            borderLeft: '5px solid #a7d129',
-            transition: 'box-shadow 0.2s'
-          }}>
-            <strong style={{
-              display: 'block',
-              fontSize: '1.08rem',
-              color: '#4e7a51',
-              marginBottom: '0.3rem',
-              fontWeight: '600'
-            }}>Facial Expression</strong>
-            <p style={{
-              margin: '0',
-              color: '#234d20',
-              fontSize: '1rem',
-              opacity: '0.92'
-            }}>Remember that facial expressions are crucial in sign language. Do not focus only on hand movements.</p>
-          </div>
-        </div>
-      </section>
-
-      <hr style={{
-        border: 'none',
-        borderTop: '2px dashed #a7d12944',
-        margin: '0.5rem 0 1.5rem 0'
-      }} />
-
-      {/* Progress Tracking Section */}
-      <section style={{
-        padding: '1.5rem 0.5rem 2rem 0.5rem',
-        background: 'linear-gradient(90deg, #eafbe6 60%, #f6fff2 100%)',
-        borderRadius: '1.5rem',
-        marginBottom: '1.5rem',
-        boxShadow: '0 2px 12px rgba(46, 125, 50, 0.04)'
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.8rem',
-          marginBottom: '1.2rem'
-        }}>
-          <i className="fas fa-chart-line" style={{
-            fontSize: '1.8rem',
-            color: '#a7d129'
-          }}></i>
-          <h2 style={{
-            fontSize: '1.7rem',
-            margin: '0',
-            color: '#4e7a51',
-            fontWeight: '600'
-          }}>Tracking Your Progress</h2>
-        </div>
-        <p style={{
-          fontSize: '1rem',
-          color: '#234d20',
-          opacity: '0.85',
-          marginBottom: '1.5rem'
-        }}>Stay motivated and measure your improvement with smart tracking and goal-setting strategies.</p>
-        
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div style={{
-            background: '#fff',
-            borderRadius: '1rem',
-            boxShadow: '0 1px 6px rgba(167, 209, 41, 0.07)',
-            padding: '1.1rem 1.2rem',
-            borderLeft: '5px solid #a7d129',
-            transition: 'box-shadow 0.2s'
-          }}>
-            <strong style={{
-              display: 'block',
-              fontSize: '1.08rem',
-              color: '#4e7a51',
-              marginBottom: '0.3rem',
-              fontWeight: '600'
-            }}>Set Realistic Goals</strong>
-            <p style={{
-              margin: '0',
-              color: '#234d20',
-              fontSize: '1rem',
-              opacity: '0.92'
-            }}>Break down your learning into achievable milestones. Celebrate small wins along your journey.</p>
-          </div>
-          
-          <div style={{
-            background: '#fff',
-            borderRadius: '1rem',
-            boxShadow: '0 1px 6px rgba(167, 209, 41, 0.07)',
-            padding: '1.1rem 1.2rem',
-            borderLeft: '5px solid #a7d129',
-            transition: 'box-shadow 0.2s'
-          }}>
-            <strong style={{
-              display: 'block',
-              fontSize: '1.08rem',
-              color: '#4e7a51',
-              marginBottom: '0.3rem',
-              fontWeight: '600'
-            }}>Regular Assessment</strong>
-            <p style={{
-              margin: '0',
-              color: '#234d20',
-              fontSize: '1rem',
-              opacity: '0.92'
-            }}>Use our built-in progress tracker to identify strengths and areas that need more practice.</p>
-          </div>
-        </div>
-      </section>
-
-      <hr style={{
-        border: 'none',
-        borderTop: '2px dashed #a7d12944',
-        margin: '0.5rem 0 1.5rem 0'
-      }} />
-
-      <section style={{
-        padding: '1.5rem 0.5rem 2rem 0.5rem',
-        background: 'linear-gradient(90deg, #eafbe6 60%, #f6fff2 100%)',
-        borderRadius: '1.5rem',
-        marginBottom: '1.5rem',
-        boxShadow: '0 2px 12px rgba(46, 125, 50, 0.04)'
-      }} aria-label="Frequently Asked Questions">
-        <h2 style={{
-          fontSize: '1.7rem',
-          marginBottom: '1.2rem',
-          color: '#4e7a51',
-          fontWeight: '600'
-        }}>Frequently Asked Questions</h2>
-        
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          marginBottom: '1.5rem'
-        }}>
-          <input
-            type="text"
-            style={{
-              width: '100%',
-              maxWidth: '350px',
-              padding: '0.8rem 1.2rem',
-              border: '2px solid #a7d129',
-              borderRadius: '2rem',
-              fontSize: '1.05rem',
-              background: '#f6fff2',
-              color: '#234d20',
-              outline: 'none',
-              transition: 'border 0.2s'
-            }}
-            placeholder="Search help topics or FAQs..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            aria-label="Search help topics"
-            onFocus={(e) => e.target.style.borderColor = '#4e7a51'}
-            onBlur={(e) => e.target.style.borderColor = '#a7d129'}
-          />
-        </div>
-        
-        <ul style={{
-          listStyle: 'none',
-          padding: '0',
-          margin: '0'
-        }}>
-          {filteredFaqs.length === 0 && <li>No results found.</li>}
-          {filteredFaqs.map((faq, idx) => (
-            <li key={idx} style={{
-              marginBottom: '1.2rem',
-              background: '#fff',
-              borderRadius: '1rem',
-              boxShadow: '0 1px 6px rgba(167, 209, 41, 0.07)',
-              padding: '1.1rem 1.2rem',
-              borderLeft: '5px solid #a7d129',
-              transition: 'box-shadow 0.2s'
-            }}>
-              <strong style={{
-                display: 'block',
-                fontSize: '1.08rem',
-                color: '#4e7a51',
-                marginBottom: '0.3rem',
-                fontWeight: '600'
-              }}>{faq.question}</strong>
-              <p style={{
-                margin: '0',
-                color: '#234d20',
-                fontSize: '1rem',
-                opacity: '0.92'
-              }}>{faq.answer}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <hr style={{
-        border: 'none',
-        borderTop: '2px dashed #a7d12944',
-        margin: '0.5rem 0 1.5rem 0'
-      }} />
-
-      <footer style={{
-        textAlign: 'center',
-        fontSize: '1rem',
-        color: '#4e7a51',
-        marginTop: '1.5rem',
-        paddingBottom: '0.5rem',
-        background: 'none'
-      }} aria-label="Support and Contact">
-        <p>
-          Need more help? Email us at <a href="mailto:tkmdt.cos301@gmail.com" style={{
-            color: '#234d20',
-            textDecoration: 'underline',
-            fontWeight: '500'
-          }}>tkmdt.cos301@gmail.com</a>
-        </p>
-      </footer>
+    <div>
+      <HelpButton />
+      {isOpen && <HelpModal />}
     </div>
   );
 };
 
-export default HelpPage;
+export default HelpMenu;
