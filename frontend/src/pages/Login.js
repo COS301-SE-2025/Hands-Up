@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import { useStatUpdater } from "../hooks/learningStatsUpdater.js";
-import {login} from'../utils/apiCalls.js';
+//import {login} from'../utils/apiCalls.js';
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
-
+import { useAuth } from '../context/authContext.js'; 
 import '../styles/Login.css';
 import heroImage from "../sign33.png";
 import logo from "../logo2.png";
@@ -19,12 +19,15 @@ function Login() {
   const navigate = useNavigate();
   const handleUpdate = useStatUpdater();
 
+  const { login } = useAuth();
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     setIsLoading(true);
 
     if (!email || !password) {
@@ -34,11 +37,11 @@ function Login() {
     }
 
     try {
-      const data = await login({ email, password });
+      await login({ email, password });
       
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('userData', JSON.stringify(data.user));
-      navigate('/Home');
+      // localStorage.setItem('isLoggedIn', 'true');
+      // localStorage.setItem('userData', JSON.stringify(data.user));
+      // navigate('/Home');
       handleUpdate("streak");
       
     } catch (error) {

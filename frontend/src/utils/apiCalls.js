@@ -157,3 +157,40 @@ export const login = async (credentials) => {
     throw error; // Re-throw to handle in the component
   }
 };
+
+export const logout = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/logout`, { 
+      method: 'POST', 
+      credentials: 'include', 
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Logout failed on server');
+    }
+    return { success: true, message: 'Logged out successfully' }; 
+  } catch (error) {
+    console.error('API Logout error:', error);
+    throw error;
+  }
+};
+
+
+export const getLoggedInUserDetails = async () => { 
+    try {
+    const response = await fetch(`http://localhost:2000/handsUPApi/user/me`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Not authenticated');
+    }
+    return response.json();
+  } catch (error) {
+    console.error('Error fetching logged-in user details:', error);
+    throw error;
+  }
+};

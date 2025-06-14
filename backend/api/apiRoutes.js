@@ -17,6 +17,7 @@ const router = Router();
 // router.put("/learning/progress/:username", learningProgress);
 router.post("/auth/signup", signUpUser);  // Add this new route
 router.post("/auth/login", loginUser);
+router.post("/auth/logout", logoutUser);
 //router.get("/user/:id", getUserData);
 router.get("/auth/unique-username/:username", uniqueUsername);
 router.get("/auth/unique-email/:email", uniqueEmail);
@@ -33,4 +34,5 @@ router.get("/user/:id", authenticateUser, getUserData); // <--- PROTECTED
 router.put('/user/:id/details', authenticateUser, updateUserDetails); // <--- PROTECTED
 router.put('/user/:id/password', authenticateUser, updateUserPassword); 
 
+router.get('/user/me', authenticateUser, getAuthenticatedUser); 
 export default router;
