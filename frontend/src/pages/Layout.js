@@ -6,13 +6,14 @@ import "../styles/layout.css";
 import logo from "../logo2.png";
 
 
-const NAV_ITEMS = ["Home", "Learn", "Translator", "Profile"];
+const NAV_ITEMS = ["Home", "Learn", "Translator", "Profile", "Help"];
 
 const NAV_PATHS = {
   Home: "/home",
   Learn: "/learn",
   Translator: "/translator",
   Profile: "/userProfile", 
+  Help: "/help",
 };
 
 function Layout({ children, isLoggedIn }) {

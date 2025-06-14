@@ -1,4 +1,3 @@
-
 // src/App.js
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import React from "react";
@@ -69,6 +68,18 @@ function App() {
             isLoggedIn ? (
               <Layout isLoggedIn={isLoggedIn}>
                 <Home />
+              </Layout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/help"
+          element={
+            isLoggedIn ? (
+              <Layout isLoggedIn={isLoggedIn}>
+                <Help />
               </Layout>
             ) : (
               <Navigate to="/login" />
