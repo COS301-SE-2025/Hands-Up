@@ -1,11 +1,8 @@
-
-// src/App.js
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import React from "react";
 import { LearningStatsProvider } from "./context/learningStatsContext";
-
-import { AuthProvider, useAuth } from './context/authContext'; // <--- NEW IMPORT
-
+import { AuthProvider } from "./context/authContext"; 
+import ProtectedRoute from "./components/ProtectedRoute"; 
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import "./App.css";
 
@@ -18,34 +15,23 @@ import Home from "./pages/Home";
 import Layout from "./pages/Layout"; 
 console.log('Layout:', Layout);
 
-function ProtectedRoute({ children }) {
-  const { isLoggedIn, loadingAuth } = useAuth();
-
-  if (loadingAuth) {return <div>Loading authentication...</div>; 
-  }
-
-  if (!isLoggedIn) {
-    return <Navigate to="/login" replace />;
-  }
- return children;
-}
-
 
 function App() {
-   return (
-    <LearningStatsProvider>
-      <Router>
-       <AuthProvider>
+  return (
+ 
+    <Router>
+      <AuthProvider> 
+        <LearningStatsProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
 
-            <Route
+           <Route
               path="/userProfile"
               element={
                 <ProtectedRoute>
                   <Layout> 
-                    <Profile />
+                       <Profile />
                   </Layout>
                 </ProtectedRoute>
               }
@@ -81,12 +67,11 @@ function App() {
               }
             />
 
-            {/* Redirect any unknown path to login*/}
-              <Route path="*" element={<Navigate to="/login" replace />} />
+            <Route path="*" element={<Navigate to="/login" />} />
           </Routes>
-        </AuthProvider> 
-      </Router>
-    </LearningStatsProvider>
+        </LearningStatsProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 

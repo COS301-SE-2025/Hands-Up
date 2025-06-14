@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { useStatUpdater } from "../hooks/learningStatsUpdater.js";
-//import {login} from'../utils/apiCalls.js';
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/authContext.js'; 
@@ -17,9 +16,9 @@ function Login() {
   const [mounted, setMounted] = useState(false);
 
   const navigate = useNavigate();
-  const handleUpdate = useStatUpdater();
+  const handleUpdate = useStatUpdater(); 
 
-  const { login } = useAuth();
+  const { login } = useAuth(); 
 
   useEffect(() => {
     setMounted(true);
@@ -37,19 +36,16 @@ function Login() {
     }
 
     try {
-      await login({ email, password });
+     await login({ email, password }); 
+      handleUpdate("streak"); 
       
-      // localStorage.setItem('isLoggedIn', 'true');
-      // localStorage.setItem('userData', JSON.stringify(data.user));
-      // navigate('/Home');
-      handleUpdate("streak");
-      
-    } catch (error) {
-      setError(error.message);
-      console.error('Login error:', error);
+    } catch (err) {
+      setError(err.message);
+      console.error('Login error:', err);
     } finally {
+
       await new Promise(resolve => setTimeout(resolve, 1000));
-      setError('');
+      setError(''); 
       setIsLoading(false);
     }
   };
@@ -153,7 +149,7 @@ function Login() {
               </div>
           </div>
 
-         
+          
 
           <div className="hero-section">
             <div className="hero-background-image" style={{ backgroundImage: `url(${heroImage})` }}></div>

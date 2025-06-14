@@ -1,44 +1,53 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { getLearningProgress, updateLearningProgress } from "../utils/apiCalls";
+import { useAuth } from './authContext'; 
 import PropTypes from "prop-types";
 
 const LearningStatsContext = createContext();
- 
+ 
 export function LearningStatsProvider({ children }) {
+  const { currentUser, isLoggedIn, loading: authLoading } = useAuth(); // Get currentUser and isLoggedIn from AuthContext
   const [stats, setStats] = useState(null);
-  const storedUser = localStorage.getItem('userData');
-  console.log(storedUser); 
-  let username = ""; 
-  if (storedUser) {
-    const parsedUser = JSON.parse(storedUser);
-    username = parsedUser.username;
-    console.log(username); 
-  }
-  else {
-    console.log("error retrieving username for learning stats"); 
-  }
+
+  const username = currentUser?.username; 
 
   useEffect(() => {
-    const loadStats = async () => {
-      try {
-        const progress = await getLearningProgress(username);
-        if (progress?.data?.[0]) {
-          setStats(progress.data[0]);
-        } 
-      } catch (error) {
-        console.error("Failed to load learning stats", error);
-      }
-    };
-    loadStats();
-  }, [username]);
+    if (!authLoading && isLoggedIn && username) {
+      const loadStats = async () => {
+        try {
+          const progress = await getLearningProgress(username);
+          if (progress?.data?.[0]) {
+            setStats(progress.data[0]);
+          } else {
+            setStats(null);
+          }
+        } catch (error) {
+          console.error("Failed to load learning stats", error);
+          setStats(null); 
+        }
+      };
+      loadStats();
+    } else if (!authLoading && !isLoggedIn) {
+  
+      setStats(null);
+    }
+  }, [username, isLoggedIn, authLoading]); 
 
   const updateStats = async (updates) => {
+    if (!username) {
+      console.error("Cannot update stats: User not logged in or username not available.");
+      return;
+    }
     const newStats = { ...stats, ...updates };
-    const response = await updateLearningProgress(username, newStats);
-    if (response && response.status !== "error") {
-      setStats(newStats);
-    } else {
-      console.error("Failed to update stats");
+    try {
+      const response = await updateLearningProgress(username, newStats);
+      if (response && response.status !== "error") {
+        setStats(newStats);
+      } else {
+        console.error("Failed to update stats: API error or unexpected response.");
+      }
+    } catch (error) {
+      console.error("Failed to update stats:", error);
     }
   };
 

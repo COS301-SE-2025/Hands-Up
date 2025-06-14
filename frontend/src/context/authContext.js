@@ -1,87 +1,73 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { login as apiLogin, logout as apiLogout } from '../utils/apiCalls'; 
 import { useNavigate } from 'react-router-dom';
-import { login as apiLogin, logout as apiLogout, getLoggedInUserDetails } from '../utils/apiCalls'; 
 
-const AuthContext = createContext(null);
-
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userData, setUserData] = useState(null);
-  const [loadingAuth, setLoadingAuth] = useState(true); 
-
+  const [currentUser, setCurrentUser] = useState(null); 
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-
-  const checkAuthStatus = async () => {
-    try {
-      const response = await getLoggedInUserDetails(); 
-      
-      if (response && response.user) {
-        setIsLoggedIn(true);
-        setUserData(response.user);
-      } else {
-        setIsLoggedIn(false);
-        setUserData(null);
+ useEffect(() => {
+    const checkSession = async () => {
+      try {
+       
+      } catch (error) {
+        console.error("Session check failed:", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Authentication check failed:", error);
-      setIsLoggedIn(false);
-      setUserData(null);
-    } finally {
-      setLoadingAuth(false);
-    }
-  };
-
-  useEffect(() => {
-    checkAuthStatus(); 
+    };
+    checkSession();
   }, []);
 
-  const login = async (credentials) => {
-    setLoadingAuth(true);
+  const login = async ({ email, password }) => {
+    setLoading(true);
     try {
-      const responseData = await apiLogin(credentials); 
-      setIsLoggedIn(true);
-      setUserData(responseData.user); 
-      navigate('../pages/Home');
-      return responseData;
+      const data = await apiLogin({ email, password });
+      setCurrentUser(data.user); 
+      navigate('/Home'); 
+      return data;
     } catch (error) {
-      setIsLoggedIn(false);
-      setUserData(null);
-      throw error; 
+      setCurrentUser(null);
+      throw error;
     } finally {
-      setLoadingAuth(false);
+      setLoading(false);
     }
   };
 
   const logout = async () => {
+    setLoading(true);
     try {
       await apiLogout(); 
-      setIsLoggedIn(false);
-      setUserData(null);
-      navigate('../pages/login'); 
+      setCurrentUser(null);
+      navigate('/login'); 
     } catch (error) {
       console.error("Logout failed:", error);
-      setIsLoggedIn(false);
-      setUserData(null);
-      navigate('../pages/login');
+
+      setCurrentUser(null);
+      navigate('/login');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const authContextValue = {
-    isLoggedIn,
-    userData,
-    loadingAuth,
+  const value = {
+    currentUser,
+    isLoggedIn: !!currentUser, 
+    loading,
     login,
     logout,
-    refreshUserData: checkAuthStatus 
   };
 
   return (
-    <AuthContext.Provider value={authContextValue}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
+};
+
+export const useAuth = () => {
+  return useContext(AuthContext);
 };

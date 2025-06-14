@@ -177,7 +177,7 @@ export const logout = async () => {
 };
 
 
-export const getLoggedInUserDetails = async () => { 
+export const getUserData = async () => { 
     try {
     const response = await fetch(`http://localhost:2000/handsUPApi/user/me`, {
       method: 'GET',
