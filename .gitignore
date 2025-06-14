@@ -8,6 +8,7 @@
 /ai_model/notebook/Logs
 /ai_model/notebook/__pycache__
 /ai_model/notebook/action.h5
+/ai_model/notebook/dataset
 
 /.pnp
 .pnp.js
