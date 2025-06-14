@@ -4,16 +4,16 @@ import PropTypes from "prop-types";
 import { Link, useNavigate, useLocation } from "react-router-dom"; // Import useLocation
 import "../styles/Layout.css";
 import logo from "../logo2.png";
+import HelpMenu from './Help.js'; // Assuming you have a HelpMenu component for the help section
 
-
-const NAV_ITEMS = ["Home", "Learn", "Translator", "Profile", "Help"];
+const NAV_ITEMS = ["Home", "Learn", "Translator", "Profile"];
 
 const NAV_PATHS = {
   Home: "/home",
   Learn: "/learn",
   Translator: "/translator",
   Profile: "/userProfile", 
-  Help: "/help",
+  //Help: "/help",
 };
 
 function Layout({ children, isLoggedIn }) {
@@ -69,7 +69,7 @@ function Layout({ children, isLoggedIn }) {
       </header>
 
       <main className="main-content">{children}</main>
-
+      <HelpMenu /> 
       <footer className="footer">
         <p>© 2025 Hands UP - A project by EPI-USE Africa in collaboration with TMKDT</p>
       </footer>
