@@ -1,15 +1,15 @@
 import { Router } from 'express';
 import { pool } from '../utils.js';
 import bcrypt from 'bcrypt';
-
+import crypto from 'crypto';
 const router = Router();
 
-export const learningProgress = async (req, res) => {
+const activeSessions = new Map();
 
+export const learningProgress = async (req, res) => {
+  const username = req.params.username;
   if (req.method == 'GET') {
     try {
-      const username = req.params.username; 
-
       if (!username) {
         return res.status(400).json({
           status: "error",
@@ -137,7 +137,8 @@ export const signUpUser = async (req, res) => {
         id: userID,
         email: email,
         username: username
-      }
+      },
+       message: 'User registered successfully'
     });
 
   } catch (err) {
@@ -162,10 +163,6 @@ export const signUpUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    // const hashedPassword = await bcrypt.hash(password, 10);
-    
-    // 1. Find user by email
     const userResult = await pool.query(
       'SELECT * FROM users WHERE email = $1', 
       [email]
@@ -177,27 +174,102 @@ export const loginUser = async (req, res) => {
     
     const user = userResult.rows[0];
     
-    // 2. Compare passwords (plaintext for now - we'll add hashing later)
-
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     
-    // 3. Successful login
+      const sessionId = crypto.randomBytes(32).toString('hex');
+
+        activeSessions.set(sessionId, user.userID); 
+
+        res.cookie('sessionId', sessionId, {
+            httpOnly: true,          
+            secure: process.env.NODE_ENV === 'production', 
+            sameSite: 'Lax',               
+            maxAge: 1000 * 60 * 60 * 24,   
+            path: '/',                   
+        });
     res.status(200).json({
       success: true,
       user: {
         id: user.userID,
         email: user.email,
         username: user.username
-      }
+      },
+            message: 'Login successful'
     });
     
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
+};
+
+export const logoutUser = async (req, res) => {
+    const sessionId = req.cookies.sessionId; 
+
+    if (sessionId) {
+        activeSessions.delete(sessionId);
+    }
+
+    res.clearCookie('sessionId', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Lax',
+        path: '/',
+    });
+
+    res.status(200).json({ message: 'Logged out successfully' });
+};
+
+
+export const authenticateUser = async (req, res, next) => {
+    const sessionId = req.cookies.sessionId; 
+
+    if (!sessionId) {
+        return res.status(401).json({ message: 'Unauthorized: No session provided.' });
+    }
+
+    try {
+        const userId = activeSessions.get(sessionId);
+
+        if (!userId) {
+            res.clearCookie('sessionId', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Lax', path: '/' });
+            return res.status(401).json({ message: 'Unauthorized: Session invalid or expired.' });
+        }
+ const userResult = await pool.query('SELECT "userID", username, email FROM users WHERE "userID" = $1', [userId]);
+        const user = userResult.rows[0];
+
+        if (!user) {
+            activeSessions.delete(sessionId); 
+            res.clearCookie('sessionId', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Lax', path: '/' });
+            return res.status(401).json({ message: 'Unauthorized: User not found.' });
+        }
+
+        req.user = {
+            id: user.userID, 
+            username: user.username,
+            email: user.email,
+        };
+
+        next(); 
+
+    } catch (error) {
+        console.error('Server error during authentication:', error);
+        res.status(500).json({ message: 'Internal server error during authentication.' });
+    }
+};
+
+export const getAuthenticatedUser = async (req, res) => {
+    if (req.user) {
+        return res.status(200).json({
+            user: req.user,
+            message: 'User is authenticated.'
+        });
+    } else {
+        res.status(401).json({ message: 'User not authenticated.' });
+    }
 };
 
 export const getUserData = async (req, res) => {
