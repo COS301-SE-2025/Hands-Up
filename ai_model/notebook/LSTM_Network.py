@@ -1,37 +1,47 @@
-import os
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense
-from tensorflow.keras.callbacks import TensorBoard
 from Preprocess_Data import load_data
+from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dense, Dropout
+import os
 
-# Define your actions
-actions = ['hello', 'thanks', 'iloveyou']
+# === Configurations ===
+DATASET_PATH = 'dataset/ASL_Sign'
+MAPPING_PATH = 'dataset/mapping.txt'
+SEQUENCE_LENGTH = 30
+SAVE_MODEL_PATH = 'action.h5'
 
-# Load data
-(X_train, X_test, y_train, y_test), label_map = load_data(actions=actions)
+# === Load Data ===
+(actions, X_train, X_test, y_train, y_test), label_map = load_data(
+    dataset_path=DATASET_PATH,
+    mapping_path=MAPPING_PATH,
+    sequence_length=SEQUENCE_LENGTH
+)
 
-# TensorBoard callback
-log_dir = os.path.join('Logs')
-tb_callback = TensorBoard(log_dir=log_dir)
+# === Define Model ===
+def build_lstm_model(input_shape, num_classes):
+    model = Sequential()
+    model.add(LSTM(64, return_sequences=True, activation='relu', input_shape=input_shape))
+    model.add(Dropout(0.5))
+    model.add(LSTM(64, return_sequences=False, activation='relu'))
+    model.add(Dropout(0.5))
+    model.add(Dense(64, activation='relu'))
+    model.add(Dense(num_classes, activation='softmax'))
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    return model
 
-# Build model
-model = Sequential()
-model.add(LSTM(64, return_sequences=True, activation='relu', input_shape=(30, 1662)))
-model.add(LSTM(128, return_sequences=True, activation='relu'))
-model.add(LSTM(64, return_sequences=False, activation='relu'))
-model.add(Dense(64, activation='relu'))
-model.add(Dense(32, activation='relu'))
-model.add(Dense(len(actions), activation='softmax'))  # use len(actions)
+# === Build and Compile ===
+model = build_lstm_model(input_shape=(SEQUENCE_LENGTH, X_train.shape[2]), num_classes=len(actions))
 
-# Compile model
-model.compile(optimizer='Adam', loss='categorical_crossentropy', metrics=['categorical_accuracy'])
+# === Save Best Model During Training ===
+checkpoint = ModelCheckpoint(SAVE_MODEL_PATH, monitor='val_accuracy', save_best_only=True, verbose=1)
 
-# Train model
-model.fit(X_train, y_train, epochs=2000, callbacks=[tb_callback])
+# === Train ===
+model.fit(X_train, y_train,
+          validation_data=(X_test, y_test),
+          epochs=30,
+          batch_size=32,
+          callbacks=[checkpoint])
 
-# Save the model after training
-model.save('action.h5')
-print("✅ Model saved as 'action.h5'")
-
-# Summary
-model.summary()
+# Save final model
+model.save(SAVE_MODEL_PATH)
+print(f"✅ Model training complete. Saved as '{SAVE_MODEL_PATH}'")
