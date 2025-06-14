@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { learningProgress } from './controllers/dbController.js';
-import { loginUser, signUpUser } from './controllers/dbController.js';
-import { getUserData } from './controllers/dbController.js';
-import { uniqueUsername } from './controllers/dbController.js';
-import { uniqueEmail } from './controllers/dbController.js';
-import { updateUserDetails } from './controllers/dbController.js';
-import { updateUserPassword } from './controllers/dbController.js';
+import { learningProgress } from '../controllers/dbController.js';
+import { loginUser, signUpUser } from '../controllers/dbController.js';
+import { getUserData } from '../controllers/dbController.js';
+import { uniqueUsername } from '../controllers/dbController.js';
+import { uniqueEmail } from '../controllers/dbController.js';
+import { updateUserDetails } from '../controllers/dbController.js';
+import { updateUserPassword } from '../controllers/dbController.js';
 
 const router = Router();
 

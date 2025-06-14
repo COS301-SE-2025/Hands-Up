@@ -1,3 +1,24 @@
+export const processVideo = async (videoBlob) => {
+  // setResult("Processing captured video...");
+
+  const formData = new FormData();
+  formData.append('video', videoBlob, 'sign.webm');
+
+  try {
+    const response = await fetch('/sign/process-video', {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await response.json();
+    return (`Detected phrase: '${data.phrase || "Unknown"}'`);
+    // setSpeakDisabled(false);
+  } catch (error) {
+    console.error(error);
+    return ('Error processing video');
+  }
+};
+
 export const getLearningProgress = async (username) => {
    try {
     const response = await fetch(`http://localhost:2000/handsUPApi/learning/progress/${username}`);
