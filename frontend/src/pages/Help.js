@@ -19,10 +19,26 @@ import {
 } from 'lucide-react';
 import '../styles/Help.css'; // or Help.css, match your file name
 
+const tips = [
+  "Tip: Use the camera in a well-lit area for best translation accuracy.",
+  "Tip: Set learning reminders in your profile to stay on track!",
+  "Tip: Try the built-in game to boost your XP and have fun.",
+  "Tip: You can change your preferred sign language dialect in settings.",
+  "Tip: Practice daily to keep your streak and earn more achievements.",
+  "Tip: Upload clear images or videos for better translation results.",
+  "Tip: Explore interactive lessons for hands-on learning.",
+  "Tip: Use the audio output to practice pronunciation."
+];
+
+function getRandomTip() {
+  return tips[Math.floor(Math.random() * tips.length)];
+}
+
 const HelpMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedSection, setExpandedSection] = useState(null);
+  const [randomTip] = useState(getRandomTip());
 
   const toggleSection = (section) => {
     setExpandedSection(expandedSection === section ? null : section);
@@ -220,6 +236,11 @@ const HelpMenu = () => {
           {/* Main Content */}
           <div className="help-main-content">
             <div className="help-content-inner">
+              {/* Random Tip Banner */}
+              <div className="help-tip-banner">
+                <span role="img" aria-label="lightbulb">💡</span> {randomTip}
+              </div>
+
               {searchQuery.trim() === '' ? (
                 <>
                   {/* Default Welcome Content */}
