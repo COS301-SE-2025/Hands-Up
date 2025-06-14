@@ -154,10 +154,10 @@ export const login = async (credentials) => {
       throw new Error(data.error || 'Login failed');
     }
 
-    return data; // Returns user data on success
+    return data; 
   } catch (error) {
     console.error('Login error:', error);
-    throw error; // Re-throw to handle in the component
+    throw error; 
   }
 };
 

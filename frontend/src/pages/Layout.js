@@ -1,4 +1,3 @@
-// src/pages/Layout.js (Assuming your Layout component is in the 'pages' directory)
 import React from "react";
 import PropTypes from "prop-types";
 import { Link, useNavigate, useLocation } from "react-router-dom"; // Import useLocation
@@ -83,4 +82,3 @@ Layout.propTypes = {
 };
 
 export default Layout;
-
