@@ -1,6 +1,14 @@
 export const getLearningProgress = async (username) => {
    try {
-    const response = await fetch(`http://localhost:2000/handsUPApi/learning/progress/${username}`);
+    const response = await fetch(`http://localhost:2000/handsUPApi/learning/progress/${username}`,{
+          method: 'GET',
+            credentials: 'include'
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to get learning progress');
+        }
     const data = await response.json();
     return data;
   } catch (error) {
@@ -16,7 +24,8 @@ export const updateLearningProgress = async (username, progressData) => {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(progressData)
+      body: JSON.stringify(progressData),
+      credentials: 'include',
     });
     const data = await response.json();
     return data;
@@ -133,6 +142,7 @@ export const login = async (credentials) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(credentials),
+      credentials: 'include',
     });
 
     const data = await response.json();
