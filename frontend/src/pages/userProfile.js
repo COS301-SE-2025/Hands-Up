@@ -1,10 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import {LearningStats} from "../components/learningStats.js";
+import { LearningStats } from "../components/learningStats.js";
+import { useAuth } from '../context/authContext.js';
 import "../styles/userProfile.css";
-import {uniqueUsername, uniqueEmail, updateUserDetails, updateUserPassword} from'../utils/apiCalls.js'; 
+import { 
+  uniqueUsername, 
+  uniqueEmail, 
+  updateUserDetails, 
+  updateUserPassword,
+ } from '../utils/apiCalls.js'; 
 
 export default function UserProfile() {
+  const { currentUser, isLoggedIn, loading: authLoading, logout } = useAuth();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -12,28 +19,49 @@ export default function UserProfile() {
   const [formSuccess, setFormSuccess] = useState("");
   const navigate = useNavigate();
 
+  const fetchOwnUserData = useCallback(async () => {
+   try {
+      const response = await fetch(`http://localhost:2000/handsUPApi/user/me`, {
+        credentials: 'include' 
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          console.error("Unauthorized access to user/me, logging out.");
+          logout(); 
+        }
+        throw new Error('Failed to fetch user data');
+      }
+      
+      const data = await response.json();
+      setUserData(data.user); 
+    } catch (err) {
+      console.error("Error fetching user data:", err);
+      setError("Failed to fetch user data");
+    } finally {
+      setLoading(false);
+    }
+  }, [logout]); 
+  
   useEffect(() => {
-    // Check if user is logged in
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const storedUser = localStorage.getItem('userData');
-    
-    if (!isLoggedIn || !storedUser) {
+    if (authLoading) {
+      return; 
+    }
+
+    if (!isLoggedIn) {
       navigate('/login');
       return;
     }
 
-    try {
-      const user = JSON.parse(storedUser);
-      setUserData(user);
-      fetchUserData(user.id);
-      
-    } catch (err) {
-      setError("Failed to load user data");
-      console.error(err);
-    } finally {
+     if (currentUser) {
+      setUserData(currentUser); 
+     fetchOwnUserData(); 
+    } else {
+       setError("User data not available after authentication.");
       setLoading(false);
     }
-  }, [navigate]);
+  }, [authLoading, isLoggedIn, currentUser, navigate, fetchOwnUserData]);
+
 
   useEffect(() => {
     if (formSuccess) {
@@ -45,26 +73,19 @@ export default function UserProfile() {
   }, [formSuccess]);
 
 
-  const fetchUserData = async (userID) => {
-    try {
-      const response = await fetch(`http://localhost:2000/handsUPApi/user/${userID}`);
-      if (!response.ok) throw new Error('Failed to fetch user data');
-      
-      const data = await response.json();
-      setUserData(data.user);
-    } catch (err) {
-      console.error("Error fetching user data:", err);
-    }
+  const handleLogout = () => {
+    logout(); 
   };
-
-  // const handleLogout = () => {
-  //   localStorage.removeItem('isLoggedIn');
-  //   localStorage.removeItem('userData');
-  //   navigate('/login');
-  // };
 
   const handleSaveChanges = async (e) => {
     e.preventDefault();
+    setFormErrors({}); 
+    setFormSuccess(""); 
+
+    if (!userData || !userData.id) {
+      setFormErrors({ general: "User data not available for saving." });
+      return;
+    }
 
     const name = document.getElementById("name").value.trim();
     const surname = document.getElementById("surname").value.trim();
@@ -72,16 +93,14 @@ export default function UserProfile() {
     const email = document.getElementById("email").value.trim();
     const newPassword = document.getElementById("newPassword").value;
     const confirmPassword = document.getElementById("confirmPassword").value;
-    const errors = {};
+    let errors = {};
 
-    //check if details actually changed 
     if (name === userData.name && surname === userData.surname && username === userData.username && email === userData.email && !newPassword && !confirmPassword) {
       errors.general = "No changes detected to save"; 
       setFormErrors(errors);
       return;
     }
 
-    //check if any fields are empty
     if (!name) errors.name = "Name is required.";
     if (!surname) errors.surname = "Surname is required.";
     if (!username) errors.username = "Username is required.";
@@ -92,7 +111,6 @@ export default function UserProfile() {
       return;
     }
 
-    //check if name and surname only contain letters
     const nameRegex = /^[A-Za-z]+$/;
     if (name && !nameRegex.test(name)) {
       errors.name = "Name must contain only letters.";
@@ -106,22 +124,22 @@ export default function UserProfile() {
       return;
     }
 
-    //check that username does not already exist 
     if (username !== userData.username) {
       try {
         const data = await uniqueUsername(username);
-        if (data) {
+        if (data && data.exists) { // Ensure to check data.exists as per your uniqueUsername API
           errors.username = "Username already taken.";
           setFormErrors(errors);
-          return;  
+          return; 
         }
       } catch (error) {
         console.error('Error checking username:', error);
-        return null; 
+        errors.general = "An error occurred checking username availability.";
+        setFormErrors(errors);
+        return; 
       }
     }
 
-    //check if email is in a valid format and does not already exist 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (email && !emailRegex.test(email)) {
       errors.email = "Invalid email format.";
@@ -131,75 +149,58 @@ export default function UserProfile() {
     if (email !== userData.email) {
       try {
         const data = await uniqueEmail(email);
-        if (data) {
+        if (data && data.exists) { // Ensure to check data.exists as per your uniqueEmail API
           errors.email = "Email already in use.";
           setFormErrors(errors);
-          return;  
+          return; 
         }
       } catch (error) {
         console.error('Error checking email:', error);
-        return null; 
+        errors.general = "An error occurred checking email availability.";
+        setFormErrors(errors);
+        return; 
       }
     }
 
     if (!newPassword && !confirmPassword) {
-      //save updated user details (without password)
       try {
-        await updateUserDetails(userData.userID, name, surname, username, email);
-        const updatedUser = {
-          id: userData.userID,        
-          email: email,
-          username: username
-        };
-        localStorage.setItem("userData", JSON.stringify(updatedUser));
-        setUserData(updatedUser);
-        fetchUserData(userData.userID);
-        setFormSuccess("User updated successfully!");
+        await updateUserDetails(userData.id, name, surname, username, email);
+        fetchOwnUserData(); // Re-fetch the current user's data after update
+        setFormSuccess("User details updated successfully!");
       } catch (err) {
-        errors.general = "An error occurred while updating: " + err.message;
+        errors.general = "An error occurred while updating details: " + err.message;
         setFormErrors(errors);
-        return;
       }
-    }
-    else {
-      //check that both fields are not empty 
-      if (!newPassword) errors.newPassword = "Password is required.";
+    } else {
+      if (!newPassword) errors.newPassword = "New password is required.";
       if (!confirmPassword) errors.confirmPassword = "Confirm password is required.";
       if (Object.keys(errors).length > 0) {
         setFormErrors(errors);
         return;
       }
 
-      //check that password and confirm password match
       if (newPassword !== confirmPassword) {
         errors.confirmPassword = "Passwords do not match.";
         setFormErrors(errors);
         return;
       }
 
-      //save updated user details (with password)
       try {
-        await updateUserPassword( userData.userID, name, surname, username, email, newPassword );
-        const updatedUser = {
-          id: userData.userID,        
-          email: email,
-          username: username
-        };
-        localStorage.setItem("userData", JSON.stringify(updatedUser));
-        setUserData(updatedUser);
-        fetchUserData(userData.userID);
-        setFormSuccess("User updated successfully!");
+        await updateUserPassword( userData.id, name, surname, username, email, newPassword );
+        fetchOwnUserData(); // Re-fetch the current user's data after password update
+        setFormSuccess("Password updated successfully!");
       } catch (err) {
-        errors.general = "An error occurred while updating: " + err.message;
+        errors.general = "An error occurred while updating password: " + err.message;
         setFormErrors(errors);
-        return;
       }
     }
-
   };
 
-  if (loading) return <div className="containerP">Loading...</div>;
+  if (authLoading) return <div className="containerP">Loading authentication...</div>;
+  if (!isLoggedIn) return null; 
+  if (loading) return <div className="containerP">Loading user data...</div>;
   if (error) return <div className="containerP">Error: {error}</div>;
+  if (!userData) return <div className="containerP">No user data available.</div>; 
 
   return (
     <div className="containerP">
@@ -215,7 +216,7 @@ export default function UserProfile() {
           </div>
         </section>
 
-          <LearningStats />
+        <LearningStats />
 
         <section className="profile-settings">
           <h3>Profile Settings</h3>
@@ -276,6 +277,7 @@ export default function UserProfile() {
               <div className="btn-group">
                 <button type="button" className="btn-secondary">Reset Progress</button>
                 <button type="button" className="btn-danger">Delete Account</button>
+                <button type="button" className="btn-danger" onClick={handleLogout}>Logout</button>
               </div>
             </div>
           </form>
