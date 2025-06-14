@@ -71,7 +71,8 @@ export const updateUserDetails = async (userID, name, surname, username, email) 
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ name, surname, username, email })
+      body: JSON.stringify({ name, surname, username, email }),
+      credentials: 'include',
     });
 
     const result = await response.json();
@@ -92,7 +93,8 @@ export const updateUserPassword = async ( userID, name, surname, username, email
     const response = await fetch(`http://localhost:2000/handsUPApi/user/${userID}/password`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, surname, username, email, password: newPassword })
+      body: JSON.stringify({ name, surname, username, email, password: newPassword }),
+      credentials: 'include',
     });
 
     const result = await response.json();
@@ -123,6 +125,7 @@ export const signup = async ({ name, surname, username, email, password }) => {
       email,
       password,
     }),
+      credentials: 'include',
   });
 
   const data = await response.json();
