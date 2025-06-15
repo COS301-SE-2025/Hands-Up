@@ -12,12 +12,12 @@ export default function Translator()
   const [speakDisabled, setSpeakDisabled] = useState(true);
   const [audioProgressWidth, setAudioProgressWidth] = useState(0);
   const [capturedImage, setCapturedImage] = useState(null);
-  const [capturedType, setCapturedType] = useState(null); // 'image' or 'video'
+  const [capturedType, setCapturedType] = useState(null); // image or video
   const [captureHistory, setCaptureHistory] = useState([]);
-  const [capturedBlob, setCapturedBlob] = useState(null); // Store the actual blob for API processing
+  const [capturedBlob, setCapturedBlob] = useState(null); // Store the actual blob 
 
   const [mediaRecorder, setMediaRecorder] = useState(null);
-  //const [recordedChunks, setRecordedChunks] = useState([]);
+  // const [recordedChunks, setRecordedChunks] = useState([]);
 
   useEffect(() => {
     const enableCamera = async () => {
@@ -59,9 +59,9 @@ export default function Translator()
         const imageUrl = URL.createObjectURL(blob);
         setCapturedImage(imageUrl);
         setCapturedType('image');
-        setCapturedBlob(blob); // Store blob 
+        setCapturedBlob(blob);
 
-        // Add to history with blob
+        // Add to history
         setCaptureHistory(prev => [{
           id: Date.now(),
           url: imageUrl,
@@ -70,7 +70,6 @@ export default function Translator()
           timestamp: new Date().toLocaleTimeString()
         }, ...prev.slice(0, 4)]);
 
-        // Process the captured image
         const sign = await processImage(blob);
         setResult(sign.phrase);
         setConfidence((sign.confidence * 100).toFixed(2) + '%');
@@ -90,11 +89,8 @@ export default function Translator()
 
     const stream = videoRef.current?.srcObject;
     if (!stream) return;
-
-    // Reset chunks for new recording
-    //setRecordedChunks([]);
+    // setRecordedChunks([]);
     
-    // Use higher bitrate for better quality and faster processing
     const options = {
       mimeType: 'video/webm;codecs=vp8',
       videoBitsPerSecond: 2500000 // 2.5 Mbps
@@ -105,7 +101,6 @@ export default function Translator()
     try {
       recorder = new MediaRecorder(stream, options);
     } catch (e) {
-      // Fallback to default
       console.log(e);
       recorder = new MediaRecorder(stream);
     }
@@ -119,30 +114,26 @@ export default function Translator()
     };
 
     recorder.onstop = async () => {
-      // Create blob from collected chunks
+      // Create blob 
       const blob = new Blob(chunks, { type: 'video/webm' });
       const videoURL = URL.createObjectURL(blob);
       
       setCapturedImage(videoURL);
       setCapturedType('video');
-      setCapturedBlob(blob); // Store blob for API processing
+      setCapturedBlob(blob); 
       
-      // Add to history with blob
       setCaptureHistory(prev => [{
         id: Date.now(),
         url: videoURL,
         type: 'video',
-        blob: blob, // Store blob in history for later API calls
+        blob: blob, // Store blob in history 
         timestamp: new Date().toLocaleTimeString()
       }, ...prev.slice(0, 4)]);
 
-      // Process the video
       const signsFromVideo = await processVideo(blob);
 
-      // Display phrase
-      setResult("Detected phrase: " + signsFromVideo.phrase);
+      setResult("Detected word sequence: " + signsFromVideo.phrase);
 
-      // Display average confidence or list
       if (signsFromVideo.frames && signsFromVideo.frames.length > 0) {
         const avgConf = (
           signsFromVideo.frames.reduce((acc, curr) => acc + curr.confidence, 0) / signsFromVideo.frames.length
@@ -157,14 +148,15 @@ export default function Translator()
 
     setMediaRecorder(recorder);
     
-    // Start recording with timeslice for more frequent data events
-    recorder.start(200); // Request data every 200ms
+    recorder.start(200);
     setRecording(true);
-    setResult("Recording signs... Click again to stop");
+    setResult("Capturing Signs...");
+    setConfidence("Calculating confidence...");
   };
 
   const stopRecording = () => {
     if (mediaRecorder && mediaRecorder.state === 'recording') {
+      setRecording(false);
       mediaRecorder.stop();
     }
   };
@@ -173,29 +165,31 @@ export default function Translator()
     if (e.target.files.length > 0) {
       const file = e.target.files[0];
       const isVideo = file.type.includes('video');
-      //const isImage = file.type.includes('image');
+      const isImage = file.type.includes('image');
       
       setResult(`Processing uploaded ${isVideo ? 'video' : 'image'}...`);
       
       const fileUrl = URL.createObjectURL(file);
       setCapturedImage(fileUrl);
       setCapturedType(isVideo ? 'video' : 'image');
-      setCapturedBlob(file); // Store file blob for API processing
+      setCapturedBlob(file);
 
-      // Add to history with blob
       setCaptureHistory(prev => [{
         id: Date.now(),
         url: fileUrl,
         type: isVideo ? 'video' : 'image',
-        blob: file, // Store file blob in history
+        blob: file, 
         timestamp: new Date().toLocaleTimeString()
       }, ...prev.slice(0, 4)]);
 
-      // Process the uploaded file
       if (isVideo) {
         processVideo(file);
-      } else {
+      } else if (isImage) {
         processImage(file);
+      }
+      else{
+        setResult("Unsupported file type. Please upload an image or video.");
+        return;
       }
     }
   };
@@ -354,7 +348,6 @@ export default function Translator()
                     }}>
                       {capture.type === 'video' ? '🎥' : '📷'}
                     </div>
-                    {/* Hover overlay */}
                     <div style={{
                       position: 'absolute',
                       top: 0,
@@ -377,7 +370,6 @@ export default function Translator()
                     </div>
                   </div>
                 ))}
-                {/* Fill remaining slots with empty divs */}
                 {Array.from({ length: Math.max(0, 5 - captureHistory.length) }, (_, i) => (
                   <div key={`empty-${i}`} className="recognizer-history-item"></div>
                 ))}
@@ -390,8 +382,6 @@ export default function Translator()
               <h3 className="recognizer-results-title">
                 <i className="fas fa-language recognizer-results-icon"></i> Translation Results
               </h3>
-              
-              {/* Display captured image/video if available */}
               {capturedImage && (
                 <div className="recognizer-captured-image" style={{ marginBottom: '10px' }}>
                   {renderMediaPreview(capturedImage, capturedType)}
@@ -406,14 +396,12 @@ export default function Translator()
 
               <div className="recognizer-audio-controls">
                 <button 
-                  // onClick={speak} 
                   className="recognizer-speak-button" 
                   disabled={speakDisabled}
                 >
                   <i className="fas fa-volume-up"></i>
                 </button>
                 <button 
-                  //onClick={sendToAPI} 
                   className="recognizer-speak-button" 
                   disabled={!capturedBlob}
                   title="Send to API for processing"
@@ -468,7 +456,7 @@ export default function Translator()
 
             <div className="recognizer-support">
               <p className="recognizer-support-text">
-                Need help? <button className="recognizer-support-link">Contact Support</button> {/*Added by Karabo - invalid link - linting*/}
+                Need help? <button className="recognizer-support-link">Contact Support</button>
               </p>
             </div>
           </div>
