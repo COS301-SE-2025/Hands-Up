@@ -44,7 +44,10 @@ def detect_from_image(imagine):
     cap.release()
     if predictions:
       phrase = max(set(predictions), key=predictions.count)
-      return {'phrase': phrase, 'confidence': confidence}
+      if confidence > 0.8:
+        return {'phrase': phrase, 'confidence': confidence}
+      else:
+        return {'phrase': 'Nothing detected', 'confidence': 0.0}
     else:
         return {'phrase': 'Nothing detected', 'confidence': 0.0}
 
@@ -91,6 +94,11 @@ def detect_from_video(video_path):
                     predictedIndex = np.argmax(prediction, axis=1)[0]
                     predictedLabel = labelEncoder.inverse_transform([predictedIndex])[0]
                     confidence = float(np.max(prediction))
+
+                    if confidence < 0.8:
+                        return {
+                            'phrase': 'Nothing detected'
+                        }
 
                     predictions.append({'label': predictedLabel, 'confidence': round(confidence, 4)})
 

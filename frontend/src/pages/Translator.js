@@ -150,12 +150,13 @@ export default function Translator()
     recorder.start(200);
     setRecording(true);
     setResult("Capturing Signs...");
-    setConfidence("Calculating confidence...");
   };
 
   const stopRecording = () => {
     if (mediaRecorder && mediaRecorder.state === 'recording') {
       setRecording(false);
+      setResult("Processing...");
+      setConfidence("Calculating confidence...");
       mediaRecorder.stop();
     }
   };
