@@ -1,3 +1,49 @@
+export const processImage = async (image) => {
+  console.log("Processing captured image...");
+
+  const formData = new FormData();
+  formData.append('image', image, 'sign.jpg');
+  console.log(image);
+
+  try {
+    const response = await fetch('http://127.0.0.1:5000/handsUPApi/sign/processImage', {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await response.json();
+    console.log("Response:", data);
+    return (data);
+
+  } catch (error) {
+    console.error(error);
+    return ('Error processing image');
+  }
+};
+
+export const processVideo = async (blob) => {
+  console.log("Processing captured video...");
+
+  const formData = new FormData();
+  formData.append('video', blob, 'sign.webm');
+  console.log(blob);
+
+  try {
+    const response = await fetch('http://127.0.0.1:5000/handsUPApi/sign/processVideo', {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await response.json();
+    console.log("Response:", data);
+    return (data);
+
+  } catch (error) {
+    console.error(error);
+    return ('Error processing video');
+  }
+};
+
 export const getLearningProgress = async (username) => {
    try {
     const response = await fetch(`http://localhost:2000/handsUPApi/learning/progress/${username}`);
