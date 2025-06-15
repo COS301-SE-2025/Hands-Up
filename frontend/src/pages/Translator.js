@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { processImage } from '../utils/apiCalls';
+import { processImage, processVideo} from '../utils/apiCalls';
 import '../styles/translator.css';
 
 export default function Translator() 
@@ -34,7 +34,7 @@ export default function Translator()
     };
 
     enableCamera();
-    const currentVideo = videoRef.current; //Added by Karabo - linting
+    const currentVideo = videoRef.current; 
 
     return () => {
       if (currentVideo && currentVideo.srcObject) {
@@ -78,161 +78,127 @@ export default function Translator()
     }
   };
 
-  // const processImage = async () => {
-  //   setResult("Processing captured image...");
-
-  //   // Simulate processing
-  //   setTimeout(() => {
-  //     setResult("Detected: 'Hello'");
-  //     setSpeakDisabled(false);
-  //     setAudioProgressWidth(0);
-  //     setTimeout(() => {
-  //       setAudioProgressWidth(100);
-  //     }, 100);
-  //   }, 1500);
-  // 
-  //   
-  //   const formData = new FormData();
-  //   formData.append('image', imageBlob, 'capture.jpg');
-    
-  //   try {
-  //     const response = await fetch('/api/process-sign', {
-  //       method: 'POST',
-  //       body: formData
-  //     });
-  //     const data = await response.json();
-  //     setResult(`Detected: '${data.sign}'`);
-  //     setSpeakDisabled(false);
-  //   } catch (error) {
-  //     setResult('Error processing image');
-  //   }
-  //   
-  // };
-
-  // const processVideo = async () => {
-  //   setResult("Processing captured video...");
-
-  //  
-  //   setTimeout(() => {
-  //     setResult("Detected phrase: 'How are you?'");
-  //     setSpeakDisabled(false);
-  //     setAudioProgressWidth(0);
-  //     setTimeout(() => {
-  //       setAudioProgressWidth(100);
-  //     }, 100);
-  //   }, 800); // Reduced from 2000ms to 800ms
-
-  //   processVideo(capturedBlob); 
-  // };
-
   const capture = () => {
     captureImageFromVideo();
   };
 
-  // const startRecording = () => {
-  //   if (recording) {
-  //     // Stop recording if already recording
-  //     stopRecording();
-  //     return;
-  //   }
+  const startRecording = () => {
+    if (recording) {
+      stopRecording();
+      return;
+    }
 
-  //   const stream = videoRef.current?.srcObject;
-  //   if (!stream) return;
+    const stream = videoRef.current?.srcObject;
+    if (!stream) return;
 
-  //   // Reset chunks for new recording
-  //   //setRecordedChunks([]);
+    // Reset chunks for new recording
+    //setRecordedChunks([]);
     
-  //   // Use higher bitrate for better quality and faster processing
-  //   const options = {
-  //     mimeType: 'video/webm;codecs=vp8',
-  //     videoBitsPerSecond: 2500000 // 2.5 Mbps
-  //   };
+    // Use higher bitrate for better quality and faster processing
+    const options = {
+      mimeType: 'video/webm;codecs=vp8',
+      videoBitsPerSecond: 2500000 // 2.5 Mbps
+    };
     
-  //   
-  //   let recorder;
-  //   try {
-  //     recorder = new MediaRecorder(stream, options);
-  //   } catch (e) {
-  //     // Fallback to default
-  //     console.log(e);
-  //     recorder = new MediaRecorder(stream);
-  //   }
-
-  //   const chunks = []; 
-
-  //   recorder.ondataavailable = (e) => {
-  //     if (e.data.size > 0) {
-  //       chunks.push(e.data);
-  //     }
-  //   };
-
-  //   recorder.onstop = () => {
-  //     // Create blob from collected chunks
-  //     const blob = new Blob(chunks, { type: 'video/webm' });
-  //     const videoURL = URL.createObjectURL(blob);
-      
-  //     setCapturedImage(videoURL);
-  //     setCapturedType('video');
-  //     setCapturedBlob(blob); // Store blob for API processing
-      
-  //     // Add to history with blob
-  //     setCaptureHistory(prev => [{
-  //       id: Date.now(),
-  //       url: videoURL,
-  //       type: 'video',
-  //       blob: blob, // Store blob in history for later API calls
-  //       timestamp: new Date().toLocaleTimeString()
-  //     }, ...prev.slice(0, 4)]);
-
-  //     // Process the video
-  //     processVideo(blob);
-  //     setRecording(false);
-  //   };
-
-  //   setMediaRecorder(recorder);
     
-  //   // Start recording with timeslice for more frequent data events
-  //   recorder.start(200); // Request data every 200ms
-  //   setRecording(true);
-  //   setResult("Recording signs... Click again to stop");
-  // };
+    let recorder;
+    try {
+      recorder = new MediaRecorder(stream, options);
+    } catch (e) {
+      // Fallback to default
+      console.log(e);
+      recorder = new MediaRecorder(stream);
+    }
 
-  // const stopRecording = () => {
-  //   if (mediaRecorder && mediaRecorder.state === 'recording') {
-  //     mediaRecorder.stop();
-  //   }
-  // };
+    const chunks = []; 
 
-  // const handleFileUpload = (e) => {
-  //   if (e.target.files.length > 0) {
-  //     const file = e.target.files[0];
-  //     const isVideo = file.type.includes('video');
-  //     //const isImage = file.type.includes('image');
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) {
+        chunks.push(e.data);
+      }
+    };
+
+    recorder.onstop = async () => {
+      // Create blob from collected chunks
+      const blob = new Blob(chunks, { type: 'video/webm' });
+      const videoURL = URL.createObjectURL(blob);
       
-  //     setResult(`Processing uploaded ${isVideo ? 'video' : 'image'}...`);
+      setCapturedImage(videoURL);
+      setCapturedType('video');
+      setCapturedBlob(blob); // Store blob for API processing
       
-  //     const fileUrl = URL.createObjectURL(file);
-  //     setCapturedImage(fileUrl);
-  //     setCapturedType(isVideo ? 'video' : 'image');
-  //     setCapturedBlob(file); // Store file blob for API processing
+      // Add to history with blob
+      setCaptureHistory(prev => [{
+        id: Date.now(),
+        url: videoURL,
+        type: 'video',
+        blob: blob, // Store blob in history for later API calls
+        timestamp: new Date().toLocaleTimeString()
+      }, ...prev.slice(0, 4)]);
 
-  //     // Add to history with blob
-  //     setCaptureHistory(prev => [{
-  //       id: Date.now(),
-  //       url: fileUrl,
-  //       type: isVideo ? 'video' : 'image',
-  //       blob: file, // Store file blob in history
-  //       timestamp: new Date().toLocaleTimeString()
-  //     }, ...prev.slice(0, 4)]);
+      // Process the video
+      const signsFromVideo = await processVideo(blob);
 
-  //     // Process the uploaded file
-  //     if (isVideo) {
-  //       processVideo(file);
-  //     } else {
-  //       processImage(file);
-  //     }
-  //   }
-  // };
+      // Display phrase
+      setResult("Detected phrase: " + signsFromVideo.phrase);
+
+      // Display average confidence or list
+      if (signsFromVideo.frames && signsFromVideo.frames.length > 0) {
+        const avgConf = (
+          signsFromVideo.frames.reduce((acc, curr) => acc + curr.confidence, 0) / signsFromVideo.frames.length
+        ).toFixed(2);
+        setConfidence(avgConf + '%');
+      } else {
+        setConfidence("0%");
+      }
+
+        setRecording(false);
+      };
+
+    setMediaRecorder(recorder);
+    
+    // Start recording with timeslice for more frequent data events
+    recorder.start(200); // Request data every 200ms
+    setRecording(true);
+    setResult("Recording signs... Click again to stop");
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+      mediaRecorder.stop();
+    }
+  };
+
+  const handleFileUpload = (e) => {
+    if (e.target.files.length > 0) {
+      const file = e.target.files[0];
+      const isVideo = file.type.includes('video');
+      //const isImage = file.type.includes('image');
+      
+      setResult(`Processing uploaded ${isVideo ? 'video' : 'image'}...`);
+      
+      const fileUrl = URL.createObjectURL(file);
+      setCapturedImage(fileUrl);
+      setCapturedType(isVideo ? 'video' : 'image');
+      setCapturedBlob(file); // Store file blob for API processing
+
+      // Add to history with blob
+      setCaptureHistory(prev => [{
+        id: Date.now(),
+        url: fileUrl,
+        type: isVideo ? 'video' : 'image',
+        blob: file, // Store file blob in history
+        timestamp: new Date().toLocaleTimeString()
+      }, ...prev.slice(0, 4)]);
+
+      // Process the uploaded file
+      if (isVideo) {
+        processVideo(file);
+      } else {
+        processImage(file);
+      }
+    }
+  };
 
   // const speak = () => {
   //   const text = result.replace('Detected: ', '').replace('Detected phrase: ', '').replace('API Result: ', '');
@@ -344,7 +310,7 @@ export default function Translator()
               <button onClick={capture} className="recognizer-control-button recognizer-capture-button">
                 <i className="fas fa-camera"></i> Capture Sign
               </button>
-              {/* <button 
+              <button 
                 onClick={startRecording} 
                 className={`recognizer-control-button ${recording ? 'recognizer-stop-button' : 'recognizer-record-button'}`}
               >
@@ -359,7 +325,7 @@ export default function Translator()
                   className="recognizer-file-input" 
                   onChange={handleFileUpload}
                 />
-              </label> */}
+              </label>
             </div>
 
             <div className="recognizer-history">
