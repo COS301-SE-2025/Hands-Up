@@ -4,7 +4,7 @@ import tensorflow as tf
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score
 
-dataDictTrain = pickle.load(open('./processed_data/trainData.pickle', 'rb'))
+dataDictTrain = pickle.load(open('../processed_data/trainData.pickle', 'rb'))
 
 cleaned_data = []
 cleaned_labels = []
@@ -16,7 +16,7 @@ for i, item in enumerate(dataDictTrain['data']):
 xTrain = np.stack(cleaned_data)
 yTrainRaw = np.array(cleaned_labels)
 
-dataDictTest = pickle.load(open('./processed_data/testData.pickle', 'rb'))
+dataDictTest = pickle.load(open('../processed_data/testData.pickle', 'rb'))
 xTestRaw = np.array(dataDictTest['data'], dtype=np.float32)
 yTestRaw = np.array(dataDictTest['labels'])
 
@@ -39,7 +39,7 @@ model = tf.keras.models.Sequential([
 ])
 
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-model.fit(xTrain, yTrainEncoded, epochs=15, batch_size=32, validation_split=0.1)
+model.fit(xTrain, yTrainEncoded, epochs=15, batch_size=32, validation_split=0)
 
 testLoss, testAccuracy = model.evaluate(xTest, yTestEncoded)
 print(f"\nTest accuracy: {testAccuracy * 100:.2f}%")
