@@ -96,7 +96,8 @@
 }
 
 .level-card.unlocked {
-  background-color: #8ee4af;
+  background-color: #2d4d3a;
+  color:#ffc61a;
 }
 
 .level-card.locked {
