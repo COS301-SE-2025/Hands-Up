@@ -183,7 +183,7 @@ export default function Translator()
 
       if (isVideo) {
         const signsFromVideo = await processVideo(file);
-        setResult(signsFromVideo.phrase? ("Alphabet sequence: " + signsFromVideo.phrase) : "No sign detected");
+        setResult(signsFromVideo.phrase!="Nothing detected"? ("Alphabet sequence: " + signsFromVideo.phrase) : "No sign detected");
 
         if (signsFromVideo.frames && signsFromVideo.frames.length > 0) {
           const avgConf = (
