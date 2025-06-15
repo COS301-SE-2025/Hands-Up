@@ -7,6 +7,9 @@
 /.pnp
 .pnp.js
 
+#data
+ai_model/data
+
 # testing
 /tests/coverage
 
@@ -14,7 +17,8 @@
 /build
 
 # misc
-.DS_Store
+backend/api/.env
+backend/database/.env
 .env.local
 .env.development.local
 .env.test.local
