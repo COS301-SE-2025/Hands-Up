@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { processVideo } from '../utils/apiCalls';
+import { processImage } from '../utils/apiCalls';
 import '../styles/translator.css';
 
 export default function Translator() 
@@ -7,6 +7,7 @@ export default function Translator()
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [result, setResult] = useState("Awaiting sign capture...");
+  const [confidence, setConfidence] = useState("Awaiting capture to detect confidence level...");
   const [recording, setRecording] = useState(false);
   const [speakDisabled, setSpeakDisabled] = useState(true);
   const [audioProgressWidth, setAudioProgressWidth] = useState(0);
@@ -49,197 +50,195 @@ export default function Translator()
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d');
 
-      // Set canvas dimensions to video dimensions
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
 
-      // Draw the current video frame to canvas
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // Convert canvas to blob/base64 for processing
-      canvas.toBlob((blob) => {
+      canvas.toBlob(async (blob) => {
         const imageUrl = URL.createObjectURL(blob);
         setCapturedImage(imageUrl);
         setCapturedType('image');
-        setCapturedBlob(blob); // Store blob for API processing
+        setCapturedBlob(blob); // Store blob 
 
         // Add to history with blob
         setCaptureHistory(prev => [{
           id: Date.now(),
           url: imageUrl,
           type: 'image',
-          blob: blob, // Store blob in history for later API calls
+          blob: blob, 
           timestamp: new Date().toLocaleTimeString()
         }, ...prev.slice(0, 4)]);
 
         // Process the captured image
-        processImage(blob);
+        const sign = await processImage(blob);
+        setResult(sign.phrase);
+        setConfidence((sign.confidence * 100).toFixed(2) + '%');
       }, 'image/jpeg', 0.8);
     }
   };
 
-  const processImage = async () => {
-    setResult("Processing captured image...");
+  // const processImage = async () => {
+  //   setResult("Processing captured image...");
 
-    // Simulate processing
-    setTimeout(() => {
-      setResult("Detected: 'Hello'");
-      setSpeakDisabled(false);
-      setAudioProgressWidth(0);
-      setTimeout(() => {
-        setAudioProgressWidth(100);
-      }, 100);
-    }, 1500);
-
-    // Example API call for image processing
-    /*
-    const formData = new FormData();
-    formData.append('image', imageBlob, 'capture.jpg');
+  //   // Simulate processing
+  //   setTimeout(() => {
+  //     setResult("Detected: 'Hello'");
+  //     setSpeakDisabled(false);
+  //     setAudioProgressWidth(0);
+  //     setTimeout(() => {
+  //       setAudioProgressWidth(100);
+  //     }, 100);
+  //   }, 1500);
+  // 
+  //   
+  //   const formData = new FormData();
+  //   formData.append('image', imageBlob, 'capture.jpg');
     
-    try {
-      const response = await fetch('/api/process-sign', {
-        method: 'POST',
-        body: formData
-      });
-      const data = await response.json();
-      setResult(`Detected: '${data.sign}'`);
-      setSpeakDisabled(false);
-    } catch (error) {
-      setResult('Error processing image');
-    }
-    */
-  };
+  //   try {
+  //     const response = await fetch('/api/process-sign', {
+  //       method: 'POST',
+  //       body: formData
+  //     });
+  //     const data = await response.json();
+  //     setResult(`Detected: '${data.sign}'`);
+  //     setSpeakDisabled(false);
+  //   } catch (error) {
+  //     setResult('Error processing image');
+  //   }
+  //   
+  // };
 
-  const processVideo = async () => {
-    setResult("Processing captured video...");
+  // const processVideo = async () => {
+  //   setResult("Processing captured video...");
 
-    // Simulate faster processing
-    setTimeout(() => {
-      setResult("Detected phrase: 'How are you?'");
-      setSpeakDisabled(false);
-      setAudioProgressWidth(0);
-      setTimeout(() => {
-        setAudioProgressWidth(100);
-      }, 100);
-    }, 800); // Reduced from 2000ms to 800ms
+  //  
+  //   setTimeout(() => {
+  //     setResult("Detected phrase: 'How are you?'");
+  //     setSpeakDisabled(false);
+  //     setAudioProgressWidth(0);
+  //     setTimeout(() => {
+  //       setAudioProgressWidth(100);
+  //     }, 100);
+  //   }, 800); // Reduced from 2000ms to 800ms
 
-    processVideo(capturedBlob); // Use the captured blob for processin
-  };
+  //   processVideo(capturedBlob); 
+  // };
 
   const capture = () => {
     captureImageFromVideo();
   };
 
-  const startRecording = () => {
-    if (recording) {
-      // Stop recording if already recording
-      stopRecording();
-      return;
-    }
+  // const startRecording = () => {
+  //   if (recording) {
+  //     // Stop recording if already recording
+  //     stopRecording();
+  //     return;
+  //   }
 
-    const stream = videoRef.current?.srcObject;
-    if (!stream) return;
+  //   const stream = videoRef.current?.srcObject;
+  //   if (!stream) return;
 
-    // Reset chunks for new recording
-    //setRecordedChunks([]);
+  //   // Reset chunks for new recording
+  //   //setRecordedChunks([]);
     
-    // Use higher bitrate for better quality and faster processing
-    const options = {
-      mimeType: 'video/webm;codecs=vp8',
-      videoBitsPerSecond: 2500000 // 2.5 Mbps for good quality
-    };
+  //   // Use higher bitrate for better quality and faster processing
+  //   const options = {
+  //     mimeType: 'video/webm;codecs=vp8',
+  //     videoBitsPerSecond: 2500000 // 2.5 Mbps
+  //   };
     
-    // Fallback options if the preferred format isn't supported
-    let recorder;
-    try {
-      recorder = new MediaRecorder(stream, options);
-    } catch (e) {
-      // Fallback to default
-      console.log(e);
-      recorder = new MediaRecorder(stream);
-    }
+  //   
+  //   let recorder;
+  //   try {
+  //     recorder = new MediaRecorder(stream, options);
+  //   } catch (e) {
+  //     // Fallback to default
+  //     console.log(e);
+  //     recorder = new MediaRecorder(stream);
+  //   }
 
-    const chunks = []; // Local array to collect chunks
+  //   const chunks = []; 
 
-    recorder.ondataavailable = (e) => {
-      if (e.data.size > 0) {
-        chunks.push(e.data);
-      }
-    };
+  //   recorder.ondataavailable = (e) => {
+  //     if (e.data.size > 0) {
+  //       chunks.push(e.data);
+  //     }
+  //   };
 
-    recorder.onstop = () => {
-      // Create blob from collected chunks
-      const blob = new Blob(chunks, { type: 'video/webm' });
-      const videoURL = URL.createObjectURL(blob);
+  //   recorder.onstop = () => {
+  //     // Create blob from collected chunks
+  //     const blob = new Blob(chunks, { type: 'video/webm' });
+  //     const videoURL = URL.createObjectURL(blob);
       
-      setCapturedImage(videoURL);
-      setCapturedType('video');
-      setCapturedBlob(blob); // Store blob for API processing
+  //     setCapturedImage(videoURL);
+  //     setCapturedType('video');
+  //     setCapturedBlob(blob); // Store blob for API processing
       
-      // Add to history with blob
-      setCaptureHistory(prev => [{
-        id: Date.now(),
-        url: videoURL,
-        type: 'video',
-        blob: blob, // Store blob in history for later API calls
-        timestamp: new Date().toLocaleTimeString()
-      }, ...prev.slice(0, 4)]);
+  //     // Add to history with blob
+  //     setCaptureHistory(prev => [{
+  //       id: Date.now(),
+  //       url: videoURL,
+  //       type: 'video',
+  //       blob: blob, // Store blob in history for later API calls
+  //       timestamp: new Date().toLocaleTimeString()
+  //     }, ...prev.slice(0, 4)]);
 
-      // Process the video
-      processVideo(blob);
-      setRecording(false);
-    };
+  //     // Process the video
+  //     processVideo(blob);
+  //     setRecording(false);
+  //   };
 
-    setMediaRecorder(recorder);
+  //   setMediaRecorder(recorder);
     
-    // Start recording with timeslice for more frequent data events
-    recorder.start(200); // Request data every 200ms
-    setRecording(true);
-    setResult("Recording signs... Click again to stop");
-  };
+  //   // Start recording with timeslice for more frequent data events
+  //   recorder.start(200); // Request data every 200ms
+  //   setRecording(true);
+  //   setResult("Recording signs... Click again to stop");
+  // };
 
-  const stopRecording = () => {
-    if (mediaRecorder && mediaRecorder.state === 'recording') {
-      mediaRecorder.stop();
-    }
-  };
+  // const stopRecording = () => {
+  //   if (mediaRecorder && mediaRecorder.state === 'recording') {
+  //     mediaRecorder.stop();
+  //   }
+  // };
 
-  const handleFileUpload = (e) => {
-    if (e.target.files.length > 0) {
-      const file = e.target.files[0];
-      const isVideo = file.type.includes('video');
-      //const isImage = file.type.includes('image');
+  // const handleFileUpload = (e) => {
+  //   if (e.target.files.length > 0) {
+  //     const file = e.target.files[0];
+  //     const isVideo = file.type.includes('video');
+  //     //const isImage = file.type.includes('image');
       
-      setResult(`Processing uploaded ${isVideo ? 'video' : 'image'}...`);
+  //     setResult(`Processing uploaded ${isVideo ? 'video' : 'image'}...`);
       
-      const fileUrl = URL.createObjectURL(file);
-      setCapturedImage(fileUrl);
-      setCapturedType(isVideo ? 'video' : 'image');
-      setCapturedBlob(file); // Store file blob for API processing
+  //     const fileUrl = URL.createObjectURL(file);
+  //     setCapturedImage(fileUrl);
+  //     setCapturedType(isVideo ? 'video' : 'image');
+  //     setCapturedBlob(file); // Store file blob for API processing
 
-      // Add to history with blob
-      setCaptureHistory(prev => [{
-        id: Date.now(),
-        url: fileUrl,
-        type: isVideo ? 'video' : 'image',
-        blob: file, // Store file blob in history
-        timestamp: new Date().toLocaleTimeString()
-      }, ...prev.slice(0, 4)]);
+  //     // Add to history with blob
+  //     setCaptureHistory(prev => [{
+  //       id: Date.now(),
+  //       url: fileUrl,
+  //       type: isVideo ? 'video' : 'image',
+  //       blob: file, // Store file blob in history
+  //       timestamp: new Date().toLocaleTimeString()
+  //     }, ...prev.slice(0, 4)]);
 
-      // Process the uploaded file
-      if (isVideo) {
-        processVideo(file);
-      } else {
-        processImage(file);
-      }
-    }
-  };
+  //     // Process the uploaded file
+  //     if (isVideo) {
+  //       processVideo(file);
+  //     } else {
+  //       processImage(file);
+  //     }
+  //   }
+  // };
 
-  const speak = () => {
-    const text = result.replace('Detected: ', '').replace('Detected phrase: ', '').replace('API Result: ', '');
-    const utterance = new SpeechSynthesisUtterance(text);
-    window.speechSynthesis.speak(utterance);
-  };
+  // const speak = () => {
+  //   const text = result.replace('Detected: ', '').replace('Detected phrase: ', '').replace('API Result: ', '');
+  //   const utterance = new SpeechSynthesisUtterance(text);
+  //   window.speechSynthesis.speak(utterance);
+  // };
 
   const renderMediaPreview = (url, type) => {
     if (type === 'video') {
@@ -345,7 +344,7 @@ export default function Translator()
               <button onClick={capture} className="recognizer-control-button recognizer-capture-button">
                 <i className="fas fa-camera"></i> Capture Sign
               </button>
-              <button 
+              {/* <button 
                 onClick={startRecording} 
                 className={`recognizer-control-button ${recording ? 'recognizer-stop-button' : 'recognizer-record-button'}`}
               >
@@ -360,7 +359,7 @@ export default function Translator()
                   className="recognizer-file-input" 
                   onChange={handleFileUpload}
                 />
-              </label>
+              </label> */}
             </div>
 
             <div className="recognizer-history">
@@ -441,7 +440,7 @@ export default function Translator()
 
               <div className="recognizer-audio-controls">
                 <button 
-                  onClick={speak} 
+                  // onClick={speak} 
                   className="recognizer-speak-button" 
                   disabled={speakDisabled}
                 >
@@ -466,7 +465,7 @@ export default function Translator()
 
               <div className="recognizer-additional-info">
                 <div className="recognizer-confidence">
-                  <span>Confidence: <span className="recognizer-confidence-value">98%</span></span>
+                  <span>Confidence: <span className="recognizer-confidence-value">{confidence}</span></span>
                   <span>Alternative: <span className="recognizer-alternative-value">None</span></span>
                 </div>
               </div>
@@ -509,8 +508,6 @@ export default function Translator()
           </div>
         </div>
       </div>
-      
-      
     </div>
   );
 }

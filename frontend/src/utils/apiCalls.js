@@ -1,21 +1,23 @@
-export const processVideo = async (videoBlob) => {
-  // setResult("Processing captured video...");
+export const processImage = async (blob) => {
+  console.log("Processing captured image...");
 
   const formData = new FormData();
-  formData.append('video', videoBlob, 'sign.webm');
+  formData.append('image', blob, 'sign.webm');
+  console.log(blob);
 
   try {
-    const response = await fetch('/sign/process-video', {
+    const response = await fetch('http://127.0.0.1:5000/handsUPApi/sign/processImage', {
       method: 'POST',
       body: formData
     });
 
     const data = await response.json();
-    return (`Detected phrase: '${data.phrase || "Unknown"}'`);
+    console.log("Response from server:", data);
+    return (data);
     // setSpeakDisabled(false);
   } catch (error) {
     console.error(error);
-    return ('Error processing video');
+    return ('Error processing image');
   }
 };
 

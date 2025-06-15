@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import '../styles/Help.css';
+import '../styles/help.css';
 import helpImage from '../Picture1.png';
 
 const faqs = [
