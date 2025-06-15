@@ -4,8 +4,8 @@ import tensorflow as tf
 import mediapipe as mp
 import pickle
 
-model = tf.keras.models.load_model('models/detectLettersModel.keras')
-with open('models/labelEncoder.pickle', 'rb') as f:
+model = tf.keras.models.load_model('../../ai_model/models/detectLettersModel.keras')
+with open('../../ai_model/models/labelEncoder.pickle', 'rb') as f:
     labelEncoder = pickle.load(f)
 
 mpHands = mp.solutions.hands
@@ -39,6 +39,11 @@ def detect_from_video(video_path):
                 predictedIndex = np.argmax(prediction, axis=1)[0]
                 predictedLabel = labelEncoder.inverse_transform([predictedIndex])[0]
                 predictions.append(predictedLabel)
+                confidence = float(np.max(prediction))
 
     cap.release()
-    return max(set(predictions), key=predictions.count) if predictions else "Nothing detected"
+    if predictions:
+      phrase = max(set(predictions), key=predictions.count)
+      return {'phrase': phrase, 'confidence': confidence}
+    else:
+        return {'phrase': 'Nothing detected', 'confidence': 0.0}
