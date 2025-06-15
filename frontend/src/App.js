@@ -11,6 +11,7 @@ import Signup from "./pages/signup";
 import Profile from "./pages/userProfile"; // Renamed from Profile to userProfile as per NAV_PATHS
 import Translator from "./pages/translator";
 import Learn from "./pages/learn";
+import SignLearn from "./pages/signLearn";
 import Home from "./pages/home";
 import Layout from "./pages/layout"; 
 console.log('Layout:', Layout);
@@ -18,7 +19,6 @@ console.log('Layout:', Layout);
 
 function App() {
   const isLoggedIn = true;
-
   return (
     <LearningStatsProvider>
     <Router>
@@ -76,6 +76,17 @@ function App() {
           }
         />
         <Route
+          path="/sign/:letter"
+          element={
+            isLoggedIn ? (
+              <Layout isLoggedIn={isLoggedIn}>
+                <SignLearn/>
+              </Layout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />        <Route
           path="/help"
           element={
             isLoggedIn ? (

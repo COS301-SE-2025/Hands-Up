@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/learn.css';
+
 
 const Sidebar = ({ onSelect }) => (
   <div className="sidebar">
@@ -33,7 +35,7 @@ const CategoryTile = ({ name, emoji, onClick }) => (
 
 const LevelTile = ({ level, unlocked, onClick }) => (
   <div className={`level-card ${unlocked ? 'unlocked' : 'locked'}`} onClick={unlocked ? onClick : undefined}>
-    <div className="level-number">Level {level}</div>
+    <div className="level-number">{level}</div>
     {!unlocked && <div className="lock-icon"></div>}
   </div>
 );
@@ -48,7 +50,9 @@ const categories = [
 export default function Learn() {
   const [selectedSection, setSelectedSection] = useState('dashboard');
   const [currentCategory, setCurrentCategory] = useState(null);
-  const [unlockedLevels] = useState(5);
+  const [unlockedLevels] = useState(10);
+  const navigate = useNavigate();
+
 
   const goBack = () => {
     setCurrentCategory(null);
@@ -67,7 +71,6 @@ export default function Learn() {
                 <CategoryTile
                   key={cat.id}
                   name={cat.name}
-                  emoji={cat.emoji}
                   onClick={() => setCurrentCategory(cat)}
                 />
               ))}
@@ -77,18 +80,20 @@ export default function Learn() {
 
         {currentCategory && (
           <div className="category-levels">
-            <button onClick={goBack} className="back-button">← Back</button>
+  
             <h2>{currentCategory.name} Levels</h2>
             <div className="stepping-poles">
-              {[...Array(10)].map((_, i) => (
+              {[...Array(26)].map((_, i) => (
                 <LevelTile
                   key={i}
-                  level={i + 1}
+                  level={String.fromCharCode(65 + i)} 
                   unlocked={i < unlockedLevels}
-                  onClick={() => alert(`Go to ${currentCategory.name} - Level ${i + 1}`)}
+                  onClick={() => navigate(`/sign/${String.fromCharCode(65 + i)}`)}
                 />
               ))}
             </div>
+            <br></br>
+            <button onClick={goBack} className="back-button">← Back</button>
           </div>
         )}
       </div>
