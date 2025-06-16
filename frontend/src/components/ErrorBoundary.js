@@ -1,37 +1,38 @@
-import React from "react";
-import PropTypes from "prop-types";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { toast } from 'react-toastify';
 
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    console.error("ErrorBoundary caught an error:", error, errorInfo);
-    // You could also log error info to a monitoring service
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div style={{ padding: "2rem", textAlign: "center", color: "red" }}>
-          <h2>Something went wrong.</h2>
-          <p>{this.state.error?.message}</p>
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
+function ErrorFallback({ error, resetErrorBoundary }) {
+  return (
+    <div role="alert" className="error-boundary">
+      <h2>Something went wrong</h2>
+      <p>{error.message}</p>
+      <button onClick={resetErrorBoundary}>Try again</button>
+    </div>
+  );
 }
+function ErrorBoundary({ children }) {
+
+  return (
+    <React.ErrorBoundary
+      FallbackComponent={ErrorFallback}
+      onError={(error, info) => {
+        console.error("Error caught by boundary:", error, info);
+        toast.error(`An error occurred: ${error.message}`);
+      }}
+    >
+      {children}
+    </React.ErrorBoundary>
+  );
+}
+
+ErrorFallback.propTypes = {
+  error: PropTypes.object.isRequired,
+  resetErrorBoundary: PropTypes.func.isRequired,
+};
+
 ErrorBoundary.propTypes = {
-  children: PropTypes.node
+  children: PropTypes.node.isRequired,
 };
 
 export default ErrorBoundary;
-

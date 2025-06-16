@@ -5,9 +5,6 @@ import { LearningStatsProvider } from "./context/learningStatsContext";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import "./App.css";
 
-import { ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
-import ErrorBoundary from "./components/ErrorBoundary";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/userProfile"; // Renamed from Profile to userProfile as per NAV_PATHS
@@ -24,80 +21,77 @@ function App() {
 
   return (
     <LearningStatsProvider>
-      <ErrorBoundary>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
-          
-            <Route
-              path="/userProfile"
-              element={
-                isLoggedIn ? (
-                  <Layout isLoggedIn={isLoggedIn}>
-                    <Profile />
-                  </Layout>
-                ) : (
-                  <Navigate to="/login" />
-                )
-              }
-            />
-            <Route
-              path="/translator"
-              element={
-                isLoggedIn ? (
-                  <Layout isLoggedIn={isLoggedIn}>
-                    <Translator />
-                  </Layout>
-                ) : (
-                  <Navigate to="/login" />
-                )
-              }
-            />
-            <Route
-              path="/learn"
-              element={
-                isLoggedIn ? (
-                  <Layout isLoggedIn={isLoggedIn}>
-                    <Learn />
-                  </Layout>
-                ) : (
-                  <Navigate to="/login" />
-                )
-              }
-            />
-            <Route
-              path="/home"
-              element={
-                isLoggedIn ? (
-                  <Layout isLoggedIn={isLoggedIn}>
-                    <Home />
-                  </Layout>
-                ) : (
-                  <Navigate to="/login" />
-                )
-              }
-            />
-            <Route
-              path="/help"
-              element={
-                isLoggedIn ? (
-                  <Layout isLoggedIn={isLoggedIn}>
-                    <Help />
-                  </Layout>
-                ) : (
-                  <Navigate to="/login" />
-                )
-              }
-            />
+       
+        <Route
+          path="/userProfile"
+          element={
+            isLoggedIn ? (
+              <Layout isLoggedIn={isLoggedIn}>
+                <Profile />
+              </Layout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/translator"
+          element={
+            isLoggedIn ? (
+              <Layout isLoggedIn={isLoggedIn}>
+                <Translator />
+              </Layout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/learn"
+          element={
+            isLoggedIn ? (
+              <Layout isLoggedIn={isLoggedIn}>
+                <Learn />
+              </Layout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/home"
+          element={
+            isLoggedIn ? (
+              <Layout isLoggedIn={isLoggedIn}>
+                <Home />
+              </Layout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/help"
+          element={
+            isLoggedIn ? (
+              <Layout isLoggedIn={isLoggedIn}>
+                <Help />
+              </Layout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
 
-            {/* Redirect any unknown path to login */}
-            <Route path="*" element={<Navigate to="/login" />} />
-          </Routes>
-        </Router>
-        <ToastContainer position="top-right" autoClose={3000} />
-      </ErrorBoundary>
+        {/* Redirect any unknown path to login */}
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
+    </Router>
     </LearningStatsProvider>
   );
 }
