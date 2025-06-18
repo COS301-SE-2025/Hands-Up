@@ -3,7 +3,7 @@
   position: fixed;
   bottom: 1.5rem;
   right: 1.5rem;
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  background: linear-gradient(135deg, #28880e,#28880e);
   color: white;
   padding: 1rem;
   border-radius: 50%;
@@ -15,7 +15,7 @@
 }
 
 .help-button:hover {
-  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  background: linear-gradient(135deg, #38b714,#38b714);
   transform: scale(1.1);
   box-shadow: 0 15px 35px rgba(37, 99, 235, 0.4);
 }
@@ -53,7 +53,7 @@
 
 /* Modal Header */
 .help-modal-header {
-  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  background: linear-gradient(135deg,  #28880e,#28880e);
   color: white;
   padding: 1.5rem;
 }
