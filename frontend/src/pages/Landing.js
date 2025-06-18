@@ -32,7 +32,7 @@ const LandingPage = () => {
 
       <header className="landing-header">
         <div className="landing-header-left">
-          <img src={logo} alt="Hands Up Logo" className="logo" />
+          <img src={logo} alt="Hands Up Logo" className="landing-logo" />
           <h1>Hands UP</h1>
         </div>
 
@@ -51,70 +51,111 @@ const LandingPage = () => {
       <div className="hero-container">
         <div className="hero-div">
           <img src={phil} alt="Phil" className="side-image left-image" />
-          <h1 className="hero-div-h1">Welcome to Hands Up</h1>
-          <p className="hero-div-p">Empowering Communication <br></br> One Sign at a Time.</p>
-          <div className="hero-buttons">
-            <button className="hero-button">Start Translating</button>
-            <button className="hero-button">Start Learning</button>
+          <div>
+            <h1 className="hero-div-h1">Welcome to Hands Up</h1>
+            <p className="hero-div-p">Empowering Communication <br></br> One Sign at a Time.</p>
+            <div className="hero-buttons">
+              <button className="hero-button">Start Translating</button>
+              <button className="hero-button">Start Learning</button>
+            </div>
           </div>
           <img src={angie} alt="Angie" className="side-image right-image" />
         </div>
       </div>
 
+      <section id="about">
       <div className="about-section">
         <h2 className="about-heading">OUR MISSION</h2>
         <div className="about-container">
           <div className="about">
-            <p> Hands UP is an innovative, application that bridges the communication gap between
-                signers and non-signers. <br></br><br></br>Using advanced AI technology, the application detects and
-                translates sign language in real-time through the device's camera, converting signs
-                into both text and spoken language without significant delays. <br></br><br></br>Beyond translation, it
-                also serves as an interactive learning platform with structured lessons and
-                immediate feedback on signing accuracy.</p>
+            <p> Hands UP is designed to make sign language accessible, enjoyable and part of everyday life for everyone.
+                <br></br><br></br>
+                Whether you're just starting to learn or a novice signer, Hands UP uses AI to translate sign language instantly through your device’s camera — turning signs into text and speech with ease, right when you need it.
+                <br></br><br></br>
+                But it’s more than just a translator. It’s a fun, interactive learning space where you can practice, improve your signing skills and get real-time feedback to build your confidence as you go.</p>
           </div>
         </div>
       </div>
+      </section>
 
+    <section id="features">
       <div className="landing-features-section">
         <h2 className="landing-features-heading">Explore Our Features</h2>
         <div className="landing-features-container">
           <div className="feature-card">
             <div className="card-inner">
-              <div className="card-front">
-                <p>Translating</p>
+              <div className="card-front one-front">
+                <p>Real-Time Translation</p>
               </div>
               <div className="card-back">
-                <p>Real-time sign language translation to text and speech.</p>
+                <p>Instantly convert sign language into text and speech using your camera.</p>
               </div>
             </div>
           </div>
 
           <div className="feature-card">
             <div className="card-inner">
-              <div className="card-front">
-                <p>Learning</p>
+              <div className="card-front two-front">
+                <p>Interactive Learning</p>
               </div>
               <div className="card-back">
-                <p>Interactive lessons to improve your signing skills with instant feedback.</p>
+                <p>Step-by-step learning curriculum with engaging tutorials and challenges.</p>
               </div>
             </div>
           </div>
 
           <div className="feature-card">
             <div className="card-inner">
-              <div className="card-front">
-                <p>User Profile</p>
+              <div className="card-front one-front">
+                <p>Instant Feedback</p>
               </div>
               <div className="card-back">
-                <p>Track your progress, achievements, and personalize your experience.</p>
+                <p>AI-driven feedback on your signs for better accuracy and faster improvement.</p>
               </div>
             </div>
           </div>
+
+          <div className="feature-card">
+            <div className="card-inner">
+              <div className="card-front two-front">
+                <p>Progress Tracking</p>
+              </div>
+              <div className="card-back">
+                <p>Track your progress, achievements and completed lessons.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="feature-card">
+            <div className="card-inner">
+              <div className="card-front one-front">
+                <p>Multi-Language Support <br></br>(Coming Soon)</p>
+              </div>
+              <div className="card-back">
+                <p>Currently supports American Sign Language (ASL), with plans to expand to SASL, BSL and more.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="feature-card">
+            <div className="card-inner">
+              <div className="card-front two-front">
+                <p>Fun Challenges <br></br>(Coming Soon)</p>
+              </div>
+              <div className="card-back">
+                <p>Play a fun sign-collecting game where you grab the right signs to build words and phrases as you go!</p>
+              </div>
+            </div>
+          </div>
+
+
         </div>
       </div>
+      </section>
 
+      <section id="help">
       <div className="help-section">
-        <h2 className="help-heading">Need a Hand?</h2> {/* Playful title */}
+        <h2 className="help-heading">Need a Hand?</h2> 
         
         <div className="help-container">
           <div className="download-info">
@@ -138,6 +179,7 @@ const LandingPage = () => {
           </div>
         </div>
       </div>
+      </section>
 
       <footer className="landing-footer">
         <p>© 2025 Hands UP - A project by EPI-USE Africa in collaboration with TMKDT</p>
