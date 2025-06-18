@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import '../styles/Landing.css';
 import video1 from "../media/landing_video1.mp4";
 import logo from "../media/logo.png";
@@ -7,16 +7,11 @@ import devices from "../media/devices.png";
 import angie from "../media/angie.png";
 import phil from "../media/phil.png";
 
-const NAV_ITEMS = ["Home", "Learn", "Translator", "Profile"];
-
-const NAV_PATHS = {
-  Home: "/home",
-  Learn: "/learn",
-  Translator: "/translator",
-  Profile: "/userProfile", 
-};
-
 const LandingPage = () => {
+  const navigate = useNavigate();
+  const goToLogin = () => navigate('/login');
+  const goToSignup = () => navigate('/signup');
+  const goToTranslator = () => navigate('/translator');
 
   const [error, setError] = useState('');
 
@@ -43,8 +38,8 @@ const LandingPage = () => {
         </nav>
 
         <div className="landing-header-right">
-          <button className="nav-button login">Login</button>
-          <button className="nav-button signup">Sign Up</button>
+          <button className="nav-button login" onClick={goToLogin}>Login</button>
+          <button className="nav-button signup" onClick={goToSignup}>Sign Up</button>
         </div>
       </header>
 
@@ -55,8 +50,8 @@ const LandingPage = () => {
             <h1 className="hero-div-h1">Welcome to Hands Up</h1>
             <p className="hero-div-p">Empowering Communication <br></br> One Sign at a Time.</p>
             <div className="hero-buttons">
-              <button className="hero-button">Start Translating</button>
-              <button className="hero-button">Start Learning</button>
+              <button className="hero-button" onClick={goToTranslator}>Start Translating</button>
+              <button className="hero-button" onClick={goToSignup}>Start Learning</button>
             </div>
           </div>
           <img src={angie} alt="Angie" className="side-image right-image" />

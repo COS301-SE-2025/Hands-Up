@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import React from "react";
+import React, { useEffect } from "react";
 import { LearningStatsProvider } from "./context/learningStatsContext";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import "./App.css";
@@ -17,6 +17,10 @@ console.log('Layout:', Layout);
 
 function App() {
   const isLoggedIn = true;
+
+  // useEffect(() => {
+  //   document.title = "Hands UP";
+  // }, []);
 
   return (
     <LearningStatsProvider>
