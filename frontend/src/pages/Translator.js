@@ -15,8 +15,9 @@ export default function Translator()
   const [capturedType, setCapturedType] = useState(null); // image or video
   const [captureHistory, setCaptureHistory] = useState([]);
   const [capturedBlob, setCapturedBlob] = useState(null); // Store the actual blob 
+  const [autoCaptureEnabled, setAutoCaptureEnabled] = useState(false);
 
-  const [mediaRecorder, setMediaRecorder] = useState(null);
+  // const [mediaRecorder, setMediaRecorder] = useState(null);
   // const [recordedChunks, setRecordedChunks] = useState([]);
 
   useEffect(() => {
@@ -44,6 +45,21 @@ export default function Translator()
     };
   }, []);
 
+  useEffect(() => {
+    let intervalId;
+
+    if (autoCaptureEnabled && videoRef.current) {
+      intervalId = setInterval(() => {
+        captureImageFromVideo();
+      }, 2000);
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [autoCaptureEnabled, videoRef.current]);
+
+
   const captureImageFromVideo = () => {
     if(videoRef.current && canvasRef.current) {
       const video = videoRef.current;
@@ -61,7 +77,6 @@ export default function Translator()
         setCapturedType('image');
         setCapturedBlob(blob);
 
-        // Add to history
         setCaptureHistory(prev => [{
           id: Date.now(),
           url: imageUrl,
@@ -77,88 +92,22 @@ export default function Translator()
     }
   };
 
-  const capture = () => {
-    captureImageFromVideo();
-  };
-
   const startRecording = () => {
     if (recording) {
       stopRecording();
+      setAutoCaptureEnabled(false);
+      setRecording(false);
+      setCapturedImage(null);
       return;
     }
 
-    const stream = videoRef.current?.srcObject;
-    if (!stream) return;
-    // setRecordedChunks([]);
-    
-    const options = {
-      mimeType: 'video/webm;codecs=vp8',
-      videoBitsPerSecond: 2500000 // 2.5 Mbps
-    };
-    
-    
-    let recorder;
-    try {
-      recorder = new MediaRecorder(stream, options);
-    } catch (e) {
-      console.log(e);
-      recorder = new MediaRecorder(stream);
-    }
-
-    const chunks = []; 
-
-    recorder.ondataavailable = (e) => {
-      if (e.data.size > 0) {
-        chunks.push(e.data);
-      }
-    };
-
-    recorder.onstop = async () => {
-      // Create blob 
-      const blob = new Blob(chunks, { type: 'video/webm' });
-      const videoURL = URL.createObjectURL(blob);
-      
-      setCapturedImage(videoURL);
-      setCapturedType('video');
-      setCapturedBlob(blob); 
-      
-      setCaptureHistory(prev => [{
-        id: Date.now(),
-        url: videoURL,
-        type: 'video',
-        blob: blob, // Store blob in history 
-        timestamp: new Date().toLocaleTimeString()
-      }, ...prev.slice(0, 4)]);
-
-      const signsFromVideo = await processVideo(blob);
-
-      setResult(signsFromVideo.phrase? ("Alphabet sequence: " + signsFromVideo.phrase) : "No sign detected");
-
-      if (signsFromVideo.frames && signsFromVideo.frames.length > 0) {
-        const avgConf = (
-          signsFromVideo.frames.reduce((acc, curr) => acc + curr.confidence, 0) / signsFromVideo.frames.length
-        ).toFixed(2);
-        setConfidence(avgConf + '%');
-      } else {
-        setConfidence("0%");
-      }
-        setRecording(false);
-      };
-
-    setMediaRecorder(recorder);
-    
-    recorder.start(200);
+    setAutoCaptureEnabled(true);
     setRecording(true);
-    setResult("Capturing Signs...");
+    // setResult("Capturing Signs...");
   };
 
   const stopRecording = () => {
-    if (mediaRecorder && mediaRecorder.state === 'recording') {
-      setRecording(false);
-      setResult("Processing...");
-      setConfidence("Calculating confidence...");
-      mediaRecorder.stop();
-    }
+    setRecording(false);
   };
 
   const handleFileUpload = async (e) => {
@@ -315,9 +264,9 @@ export default function Translator()
             </div>
 
             <div className="recognizer-controls">
-              <button onClick={capture} className="recognizer-control-button recognizer-capture-button">
+              {/* <button onClick={capture} className="recognizer-control-button recognizer-capture-button">
                 <i className="fas fa-camera"></i> Capture Sign
-              </button>
+              </button> */}
               <button 
                 onClick={startRecording} 
                 className={`recognizer-control-button ${recording ? 'recognizer-stop-button' : 'recognizer-record-button'}`}
