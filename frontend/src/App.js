@@ -86,7 +86,8 @@ function App() {
               <Navigate to="/login" />
             )
           }
-        />        <Route
+        />        
+        <Route
           path="/help"
           element={
             isLoggedIn ? (
