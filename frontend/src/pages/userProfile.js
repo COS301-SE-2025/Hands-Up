@@ -270,11 +270,11 @@ export default function UserProfile() {
             </div>
 
             <div className="form-actions">
-              <button type="submit" className="btn-primary">Save Changes</button>
+              <button type="submit" className="btn-save-profile">Save Changes</button>
               {formErrors.general && <div style={{ color: 'red' }}>{formErrors.general}</div>}
               {formSuccess && <div style={{ color: 'green' }}>{formSuccess}</div>}
               <div className="btn-group">
-                <button type="button" className="btn-secondary">Reset Progress</button>
+                {/* <button type="button" className="btn-secondary">Reset Progress</button> */}
                 <button type="button" className="btn-danger">Delete Account</button>
               </div>
             </div>

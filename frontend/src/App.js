@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import React, { useEffect } from "react";
+import React from "react";
 import { LearningStatsProvider } from "./context/learningStatsContext";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import "./App.css";
@@ -18,10 +18,6 @@ console.log('Layout:', Layout);
 function App() {
   const isLoggedIn = true;
 
-  // useEffect(() => {
-  //   document.title = "Hands UP";
-  // }, []);
-
   return (
     <LearningStatsProvider>
     <Router>
@@ -30,10 +26,9 @@ function App() {
         <Route path="/landing" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-
        
         <Route
-          path="/userProfile"
+          path="/profile"
           element={
             isLoggedIn ? (
               <Layout isLoggedIn={isLoggedIn}>

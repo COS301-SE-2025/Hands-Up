@@ -1,10 +1,8 @@
-// src/pages/Layout.js (Assuming your Layout component is in the 'pages' directory)
 import React from "react";
 import PropTypes from "prop-types";
-import { Link, useNavigate, useLocation } from "react-router-dom"; // Import useLocation
+import { Link, useNavigate, useLocation } from "react-router-dom"; 
 import "../styles/Layout.css";
 import logo from "../logo2.png";
-
 
 const NAV_ITEMS = ["Home", "Learn", "Translator", "Profile"];
 
@@ -12,7 +10,7 @@ const NAV_PATHS = {
   Home: "/home",
   Learn: "/learn",
   Translator: "/translator",
-  Profile: "/userProfile", 
+  Profile: "/profile", 
 };
 
 function Layout({ children, isLoggedIn }) {
@@ -46,20 +44,44 @@ function Layout({ children, isLoggedIn }) {
               <li key={item}>
                 <Link
                   to={NAV_PATHS[item]}
-                  className={`nav-link ${
-                    currentPage === item ? "nav-link-active" : ""
-                  }`}
+                  className={`nav-link ${currentPage === item ? "nav-link-active" : ""}`}
                 >
-                  {item}
+                  <div className="nav-icon-text">
+                  {item === "Home" && (
+                    <>
+                      <i className="fas fa-home nav-icon"></i>
+                      <span className="nav-text">Home</span>
+                    </>
+                  )}
+                  {item === "Learn" && (
+                    <>
+                      <i className="fas fa-book-open nav-icon"></i>
+                      <span className="nav-text">Learn</span>
+                    </>
+                  )}
+                  {item === "Translator" && (
+                    <>
+                      <i class="fa-solid fa-hands-asl-interpreting"></i>
+                      <span className="nav-text">Translator</span>
+                    </>
+                  )}
+                  {item === "Profile" && (
+                    <>
+                      <i className="fas fa-user nav-icon"></i>
+                      <span className="nav-text">Profile</span>
+                    </>
+                  )}
+                  </div>
                 </Link>
               </li>
             ))}
 
             {isLoggedIn && ( 
               <li>
-                <button onClick={handleLogout} className="nav-link logout-button" title="Logout">
+                <button onClick={handleLogout} className="nav-link logout-button">
                   <i className="fas fa-sign-out-alt logout-icon"></i>
-                  <span className="sr-only">Logout</span>
+                  <span className="nav-text">Logout</span>
+                  {/* <span className="sr-only">Logout</span> */}
                 </button>
               </li>
             )}
