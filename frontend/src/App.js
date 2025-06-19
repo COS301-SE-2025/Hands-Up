@@ -1,4 +1,3 @@
-
 // src/App.js
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import React from "react";
@@ -12,6 +11,7 @@ import Profile from "./pages/userProfile"; // Renamed from Profile to userProfil
 import Translator from "./pages/Translator";
 import Learn from "./pages/Learn";
 import Home from "./pages/Home";
+import Help from "./pages/Help";
 import Layout from "./pages/Layout"; 
 console.log('Layout:', Layout);
 
@@ -69,6 +69,18 @@ function App() {
             isLoggedIn ? (
               <Layout isLoggedIn={isLoggedIn}>
                 <Home />
+              </Layout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/help"
+          element={
+            isLoggedIn ? (
+              <Layout isLoggedIn={isLoggedIn}>
+                <Help />
               </Layout>
             ) : (
               <Navigate to="/login" />
