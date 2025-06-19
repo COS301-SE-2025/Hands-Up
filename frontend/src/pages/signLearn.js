@@ -52,6 +52,7 @@ export default function SignDisplayPage() {
     ctx.shadowColor = 'rgba(0,0,0,0.2)';
     ctx.shadowBlur = 4;
 
+    // Draw simplified palm fill
     const palmIndices = [0, 5, 9, 13, 17];
     if (palmIndices.every(i => landmarks[i])) {
       ctx.beginPath();
@@ -62,10 +63,11 @@ export default function SignDisplayPage() {
         ctx.lineTo(p.x * w, p.y * h);
       }
       ctx.closePath();
-      ctx.fillStyle = 'rgba(135, 206, 250, 0.3)'; 
+      ctx.fillStyle = 'rgba(135, 206, 250, 0.3)';
       ctx.fill();
     }
 
+    // Draw bone connections
     const connections = [
       [0, 1], [1, 2], [2, 3], [3, 4],       // Thumb
       [0, 5], [5, 6], [6, 7], [7, 8],       // Index
@@ -88,6 +90,26 @@ export default function SignDisplayPage() {
       }
     });
 
+    // 🟦 Draw accurate hand outline (custom anatomical path)
+    const outlineIndices = [0, 1, 2, 3, 4, 8, 12, 16, 20, 17, 13, 9, 5, 0];
+    const outlinePoints = outlineIndices.map(i => {
+      const p = landmarks[i];
+      return [p.x * w, p.y * h];
+    });
+
+    ctx.beginPath();
+    ctx.moveTo(outlinePoints[0][0], outlinePoints[0][1]);
+    for (let i = 1; i < outlinePoints.length; i++) {
+      ctx.lineTo(outlinePoints[i][0], outlinePoints[i][1]);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = 'blue';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(0, 0, 255, 0.1)';
+    ctx.fill();
+
+    // Draw landmarks as circles
     landmarks.forEach(point => {
       if (typeof point.x === 'number' && typeof point.y === 'number') {
         const x = point.x * w;
@@ -108,9 +130,9 @@ export default function SignDisplayPage() {
       {error && <p className="error-message" style={{ color: 'red' }}>{error}</p>}
 
       <div className="sign-character">
-        <canvas 
-          ref={canvasRef} 
-          style={{ border: '1px solid #ccc', backgroundColor: 'white' }} 
+        <canvas
+          ref={canvasRef}
+          style={{ border: '1px solid #ccc', backgroundColor: 'white' }}
         />
       </div>
     </div>

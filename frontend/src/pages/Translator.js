@@ -51,7 +51,7 @@ export default function Translator()
     if (autoCaptureEnabled && videoRef.current) {
       intervalId = setInterval(() => {
         captureImageFromVideo();
-      }, 2000);
+      }, 500);
     }
 
     return () => {
