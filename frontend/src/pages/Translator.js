@@ -6,7 +6,7 @@ export default function Translator()
 {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  const [result, setResult] = useState("Awaiting sign capture...");
+  const [result, setResult] = useState("");
   const [confidence, setConfidence] = useState("Awaiting capture to detect confidence level...");
   const [recording, setRecording] = useState(false);
   const [speakDisabled, setSpeakDisabled] = useState(true);
@@ -86,7 +86,19 @@ export default function Translator()
         }, ...prev.slice(0, 4)]);
 
         const sign = await processImage(blob);
-        setResult(sign.phrase? sign.phrase : "No sign detected");
+      
+        setResult(prevResult => {
+          if (sign.phrase === "SPACE") {
+            return prevResult + " ";
+          } else if (sign.phrase === "DEL") {
+            return prevResult.slice(0, -1);
+          } else if (sign.phrase === "Nothing detected") {
+            return prevResult;
+          } else {
+            return prevResult + sign.phrase;
+          }
+        });
+
         setConfidence((sign.confidence * 100).toFixed(2) + '%');
       }, 'image/jpeg', 0.8);
     }
@@ -264,9 +276,9 @@ export default function Translator()
             </div>
 
             <div className="recognizer-controls">
-              {/* <button onClick={capture} className="recognizer-control-button recognizer-capture-button">
-                <i className="fas fa-camera"></i> Capture Sign
-              </button> */}
+              <button onClick={() => setResult("")} className="recognizer-control-button recognizer-capture-button">
+                <i></i> Clear Results
+              </button>
               <button 
                 onClick={startRecording} 
                 className={`recognizer-control-button ${recording ? 'recognizer-stop-button' : 'recognizer-record-button'}`}
