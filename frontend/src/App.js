@@ -12,6 +12,7 @@ import Profile from "./pages/userProfile"; // Renamed from Profile to userProfil
 import Translator from "./pages/translator";
 import Learn from "./pages/learn";
 import SignLearn from "./pages/signLearn";
+import SignLearn from "./pages/signLearn";
 import Home from "./pages/home";
 import Layout from "./pages/layout"; 
 console.log('Layout:', Layout);
