@@ -6,15 +6,15 @@ from sklearn.metrics import accuracy_score
 
 dataDictTrain = pickle.load(open('../processed_data/trainData.pickle', 'rb'))
 
-cleaned_data = []
-cleaned_labels = []
+cleanedData = []
+cleanedLabels = []
 for i, item in enumerate(dataDictTrain['data']):
     if isinstance(item, (np.ndarray, list)) and len(item) == 42:
-        cleaned_data.append(np.array(item, dtype=np.float32))
-        cleaned_labels.append(dataDictTrain['labels'][i]) 
+        cleanedData.append(np.array(item, dtype=np.float32))
+        cleanedLabels.append(dataDictTrain['labels'][i])
 
-xTrain = np.stack(cleaned_data)
-yTrainRaw = np.array(cleaned_labels)
+xTrain = np.stack(cleanedData)
+yTrainRaw = np.array(cleanedLabels)
 
 dataDictTest = pickle.load(open('../processed_data/testData.pickle', 'rb'))
 xTestRaw = np.array(dataDictTest['data'], dtype=np.float32)
@@ -35,7 +35,7 @@ model = tf.keras.models.Sequential([
     tf.keras.layers.Conv1D(64, kernel_size=3, activation='relu'),
     tf.keras.layers.Flatten(),
     tf.keras.layers.Dense(64, activation='relu'),
-    tf.keras.layers.Dense(len(labelEncoder.classes_), activation='softmax')  
+    tf.keras.layers.Dense(len(labelEncoder.classes_), activation='softmax')
 ])
 
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
@@ -52,6 +52,6 @@ print("\nPredictions:")
 for i, pred in enumerate(predictedLabels):
     print(f"Image {i}: Predicted = {pred}, Actual = {yTestRaw[i]}")
 
-model.save("detectLettersModel.keras") 
-with open("labelEncoder.pickle", "wb") as file: 
+model.save("detectLettersModel.keras")
+with open("labelEncoder.pickle", "wb") as file:
     pickle.dump(labelEncoder, file)
