@@ -190,7 +190,7 @@ export const loginUser = async (req, res) => {
 
     res.cookie('sessionId', sessionId, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Set to true only if using HTTPS
+      secure: true, // Set to true only if using HTTPS
       sameSite: 'Lax',
       maxAge: 1000 * 60 * 60 * 24,
       path: '/',
