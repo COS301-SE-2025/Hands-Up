@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from controllers.modelControllers import detect_from_video, detect_from_image
+from controllers.modelControllers import detect_from_image
 import tempfile
 import os
 
