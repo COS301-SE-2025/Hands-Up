@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from controllers.modelControllers import detect_from_video, detect_from_image
+from controllers.modelControllers import detectFromImage, detectFromVideo
 import tempfile
 import os
 
@@ -16,7 +16,7 @@ def process_image():
         image_path = tmp.name
         image_file.save(image_path)
 
-    result = detect_from_image(image_path)
+    result = detectFromImage(image_path)
     os.remove(image_path)
 
     return jsonify(result)
@@ -32,7 +32,7 @@ def process_video():
         video_path = tmp.name
         video_file.save(video_path)
 
-    result = detect_from_video(video_path)
+    result = detectFromVideo(video_path)
     os.remove(video_path)
 
     return jsonify(result)

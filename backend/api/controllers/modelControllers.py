@@ -3,6 +3,8 @@ import numpy as np
 import tensorflow as tf
 import mediapipe as mp
 import pickle
+import collections
+import time
 
 model = tf.keras.models.load_model('../../ai_model/models/detectLettersModel.keras')
 with open('../../ai_model/models/labelEncoder.pickle', 'rb') as f:
@@ -11,11 +13,101 @@ with open('../../ai_model/models/labelEncoder.pickle', 'rb') as f:
 mpHands = mp.solutions.hands
 hands = mpHands.Hands(static_image_mode=False, max_num_hands=1, min_detection_confidence=0.3)
 
-def detect_from_image(imagine):
-    cap = cv2.VideoCapture(imagine)
-    predictions = []
+class ZGestureStateMachine:
+    def __init__(self):
+        self.state = 0
+        self.resetTimer()
 
-    while cap.isOpened():
+    def resetTimer(self):
+        self.timeInState = 0
+        self.maxTimePerState = 10
+
+    def update(self, landmarks):
+        self.timeInState += 1
+        if self.timeInState > self.maxTimePerState:
+            self.state = 0
+            self.resetTimer()
+            return False
+
+        indexTip = landmarks[8]
+        wrist = landmarks[0]
+        dx = indexTip.x - wrist.x
+        dy = indexTip.y - wrist.y
+
+        direction = self.getDirection(dx, dy)
+
+        if self.state == 0 and direction == "right":
+            self.state = 1
+            self.resetTimer()
+        elif self.state == 1 and direction == "down_right":
+            self.state = 2
+            self.resetTimer()
+        elif self.state == 2 and direction == "right":
+            self.state = 3
+            self.resetTimer()
+            return True
+
+        return False
+
+    def getDirection(self, dx, dy):
+        if abs(dx) > abs(dy):
+            return "right" if dx > 0 else "left"
+        elif abs(dy) > abs(dx):
+            return "down" if dy > 0 else "up"
+        elif dx > 0 and dy > 0:
+            return "down_right"
+        return "unknown"
+
+class JGestureStateMachine:
+    def __init__(self):
+        self.state = 0
+        self.timeInState = 0
+        self.maxTimePerState = 10
+
+    def update(self, landmarks):
+        self.timeInState += 1
+        if self.timeInState > self.maxTimePerState:
+            self.state = 0
+            self.timeInState = 0
+            return False
+
+        pinkyTip = landmarks[20]
+        wrist = landmarks[0]
+
+        dx = pinkyTip.x - wrist.x
+        dy = pinkyTip.y - wrist.y
+
+        direction = self.getDirection(dx, dy)
+
+        if self.state == 0 and direction == "down":
+            self.state = 1
+            self.timeInState = 0
+        elif self.state == 1 and direction == "left":
+            self.state = 2
+            self.timeInState = 0
+            return True
+
+        return False
+
+    def getDirection(self, dx, dy, threshold=0.02):
+        if abs(dy) > abs(dx):
+            return "down"
+        elif abs(dx) > abs(dy):
+            return "left"
+        return "unknown"
+
+
+def detectFromImage(imagine):
+    cap = cv2.VideoCapture(imagine)
+    predictions = collections.deque(maxlen=15)
+    landmarkBuffer = collections.deque(maxlen=30)
+    zStateMachine = ZGestureStateMachine()
+    jStateMachine = JGestureStateMachine()
+    phrase = ""
+    lastPredictionTime = 0
+    cooldownDuration = 6
+
+    while True:
         ret, frame = cap.read()
         if not ret:
             break
@@ -23,47 +115,71 @@ def detect_from_image(imagine):
         imgRGB = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results = hands.process(imgRGB)
 
+        currentTime = time.time()
+
         if results.multi_hand_landmarks:
             for handLandmarks in results.multi_hand_landmarks:
-                x_ = [lm.x for lm in handLandmarks.landmark]
-                y_ = [lm.y for lm in handLandmarks.landmark]
-                xMin, yMin = min(x_), min(y_)
+                landmarkBuffer.append(handLandmarks.landmark)
 
-                dataAux = []
-                for lm in handLandmarks.landmark:
-                    dataAux.append(lm.x - xMin)
-                    dataAux.append(lm.y - yMin)
+                if zStateMachine.update(handLandmarks.landmark):
+                    phrase = "Z"
+                    predictions.clear()
+                    lastPredictionTime = currentTime
+                    continue
 
-                input_data = np.array(dataAux, dtype=np.float32).reshape(1, 42, 1)
-                prediction = model.predict(input_data)
-                predictedIndex = np.argmax(prediction, axis=1)[0]
-                predictedLabel = labelEncoder.inverse_transform([predictedIndex])[0]
-                predictions.append(predictedLabel)
-                confidence = float(np.max(prediction))
+                if jStateMachine.update(handLandmarks.landmark):
+                    phrase = "J"
+                    predictions.clear()
+                    lastPredictionTime = currentTime
+                    continue
+
+                if currentTime - lastPredictionTime > cooldownDuration:
+                    x_ = [lm.x for lm in handLandmarks.landmark]
+                    y_ = [lm.y for lm in handLandmarks.landmark]
+                    xMin, yMin = min(x_), min(y_)
+
+                    dataAux = []
+                    for lm in handLandmarks.landmark:
+                        dataAux.append(lm.x - xMin)
+                        dataAux.append(lm.y - yMin)
+
+                    inputData = np.array(dataAux, dtype=np.float32).reshape(1, 42, 1)
+                    prediction = model.predict(inputData, verbose=0)
+                    predictedIndex = np.argmax(prediction, axis=1)[0]
+                    predictedLabel = labelEncoder.inverse_transform([predictedIndex])[0]
+                    confidence = float(np.max(prediction))
+
+                    if confidence > 0.8:
+                        predictions.append(predictedLabel)
+
+                        if len(predictions) == predictions.maxlen:
+                            phrase = max(set(predictions), key=predictions.count)
+                            lastPredictionTime = currentTime
+                            predictions.clear()
 
     cap.release()
     if predictions:
-      phrase = max(set(predictions), key=predictions.count)
-      if confidence > 0.8:
-        return {'phrase': phrase, 'confidence': confidence}
-      else:
-        return {'phrase': 'Nothing detected', 'confidence': 0.0}
+        phrase = max(set(predictions), key=predictions.count)
+        if confidence > 0.8:
+            return {'phrase': phrase, 'confidence': confidence}
+        else:
+            return {'phrase': 'Nothing detected', 'confidence': 0.0}
     else:
         return {'phrase': 'Nothing detected', 'confidence': 0.0}
 
 import time
 
-def detect_from_video(video_path):
-    cap = cv2.VideoCapture(video_path)
+def detectFromVideo(videoPath):
+    cap = cv2.VideoCapture(videoPath)
 
     predictions = []
-    filtered_phrase = []
-    previous_label = None
-    frames_without_hand = 0
-    HAND_LOST_THRESHOLD = 8  
-    SIGN_INTERVAL = 2.0  
+    filteredPhrase = []
+    previousLabel = None
+    framesWithoutHand = 0
+    handLostThreshold = 8
+    signInterval = 2.0
 
-    last_sign_time = time.time() - SIGN_INTERVAL  
+    lastSignTime = time.time() - signInterval
 
     while True:
         ret, frame = cap.read()
@@ -74,10 +190,10 @@ def detect_from_video(video_path):
         results = hands.process(imgRGB)
 
         if results.multi_hand_landmarks:
-            frames_without_hand = 0
+            framesWithoutHand = 0
 
-            current_time = time.time()
-            if current_time - last_sign_time >= SIGN_INTERVAL:
+            currentTime = time.time()
+            if currentTime - lastSignTime >= signInterval:
                 for handLandmarks in results.multi_hand_landmarks:
                     x_ = [lm.x for lm in handLandmarks.landmark]
                     y_ = [lm.y for lm in handLandmarks.landmark]
@@ -89,8 +205,8 @@ def detect_from_video(video_path):
                         dataAux.append(lm.x - xMin)
                         dataAux.append(lm.y - yMin)
 
-                    input_data = np.array(dataAux, dtype=np.float32).reshape(1, 42, 1)
-                    prediction = model.predict(input_data, verbose=0)
+                    inputData = np.array(dataAux, dtype=np.float32).reshape(1, 42, 1)
+                    prediction = model.predict(inputData, verbose=0)
                     predictedIndex = np.argmax(prediction, axis=1)[0]
                     predictedLabel = labelEncoder.inverse_transform([predictedIndex])[0]
                     confidence = float(np.max(prediction))
@@ -102,19 +218,19 @@ def detect_from_video(video_path):
 
                     predictions.append({'label': predictedLabel, 'confidence': round(confidence, 4)})
 
-                    if predictedLabel != previous_label:
-                        filtered_phrase.append(predictedLabel)
-                        previous_label = predictedLabel
-                        last_sign_time = current_time  
+                    if predictedLabel != previousLabel:
+                        filteredPhrase.append(predictedLabel)
+                        previousLabel = predictedLabel
+                        lastSignTime = currentTime
 
         else:
-            frames_without_hand += 1
-            if frames_without_hand > HAND_LOST_THRESHOLD:
-                previous_label = None  
+            framesWithoutHand += 1
+            if framesWithoutHand > handLostThreshold:
+                previousLabel = None
 
     cap.release()
 
     return {
-        'phrase': ''.join(filtered_phrase),
+        'phrase': ''.join(filteredPhrase),
         'frames': predictions
     } if predictions else {'phrase': 'Nothing detected', 'frames': []}
