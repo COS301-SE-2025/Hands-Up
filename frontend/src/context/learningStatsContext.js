@@ -6,7 +6,7 @@ import PropTypes from "prop-types";
 const LearningStatsContext = createContext();
  
 export function LearningStatsProvider({ children }) {
-  const { currentUser, isLoggedIn, loading: authLoading } = useAuth(); // Get currentUser and isLoggedIn from AuthContext
+  const { currentUser, isLoggedIn, loading: authLoading } = useAuth(); 
   const [stats, setStats] = useState(null);
 
   const username = currentUser?.username; 

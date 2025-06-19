@@ -18,9 +18,9 @@ router.post("/auth/signup", signUpUser);
 router.post("/auth/login", loginUser);
 router.post("/auth/logout", logoutUser);
 
-router.get("/user/me", authenticateUser, getUserData); // New route for authenticated user's own data
-router.put('/user/:id/details', authenticateUser, updateUserDetails); // Still uses :id for direct update
-router.put('/user/:id/password', authenticateUser, updateUserPassword); // Still uses :id for direct update
+router.get("/user/me", authenticateUser, getUserData); 
+router.put('/user/:id/details', authenticateUser, updateUserDetails);
+router.put('/user/:id/password', authenticateUser, updateUserPassword);
 
 router.get("/learning/progress/:username", authenticateUser, learningProgress); 
 router.put("/learning/progress/:username", authenticateUser, learningProgress);

@@ -1,13 +1,14 @@
+// controllers/dbController.js
 import { Router } from 'express';
-import { pool } from './utils.js'; 
+import { pool } from '../utils.js'; // Assuming utils.js is in the parent directory
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
-const router = Router();
 
-const activeSessions = new Map(); 
+const activeSessions = new Map();
+
 export const learningProgress = async (req, res) => {
   const username = req.params.username;
- 
+
   if (req.method === 'GET') {
     try {
       if (!username) {
@@ -43,8 +44,14 @@ export const learningProgress = async (req, res) => {
       });
     }
   } else if (req.method === 'PUT') {
+    if (req.user && req.user.username !== req.params.username) {
+        return res.status(403).json({
+            status: "error",
+            message: 'Forbidden: You can only update your own progress.',
+        });
+    }
+
     try {
-      const username = req.params.username;
       const progressData = req.body;
 
       if (!username || !progressData) {
@@ -104,17 +111,17 @@ export const signUpUser = async (req, res) => {
     await pool.query('BEGIN');
 
     const userResult = await pool.query(
-      `INSERT INTO users (username, name, surname, email, password) 
-       VALUES ($1, $2, $3, $4, $5) 
+      `INSERT INTO users (username, name, surname, email, password)
+       VALUES ($1, $2, $3, $4, $5)
        RETURNING "userID", username, email`,
       [username, name, surname, email, hashedPassword]
     );
 
     const userID = userResult.rows[0].userID;
-await pool.query(
-      `INSERT INTO learn ("userID", "lessonsCompleted", "signsLearned", "streak", "currentLevel") 
+    await pool.query(
+      `INSERT INTO learn ("userID", "lessonsCompleted", "signsLearned", "streak", "currentLevel")
        VALUES ($1, $2, $3, $4, $5)`,
-      [userID, 0, 0, 0, 'Bronze'] 
+      [userID, 0, 0, 0, 'Bronze']
     );
 
     await pool.query('COMMIT');
@@ -151,31 +158,42 @@ await pool.query(
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+
     const userResult = await pool.query(
-      'SELECT * FROM users WHERE email = $1', 
+      'SELECT * FROM users WHERE email = $1',
       [email]
     );
-    
+
     if (userResult.rows.length === 0) {
+      console.log(`[BACKEND - LOGIN] User not found for email: ${email}`);
       return res.status(401).json({ error: 'Invalid email or password' });
     }
-    
+
     const user = userResult.rows[0];
-    
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      console.log(`[BACKEND - LOGIN] Incorrect password for user: ${user.username}`);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
-    
+
     const sessionId = crypto.randomBytes(32).toString('hex');
-    activeSessions.set(sessionId, user.userID); 
+    const sessionExpiration = Date.now() + (1000 * 60 * 60 * 24); // 24 hours
+    activeSessions.set(sessionId, {
+        userId: user.userID,
+        username: user.username,
+        email: user.email,
+        expires: sessionExpiration
+    });
+
+   
 
     res.cookie('sessionId', sessionId, {
-      httpOnly: true,             
-      secure: process.env.NODE_ENV === 'production', 
-      sameSite: 'Lax',           
-      maxAge: 1000 * 60 * 60 * 24, 
-      path: '/',                 
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // Set to true only if using HTTPS
+      sameSite: 'Lax',
+      maxAge: 1000 * 60 * 60 * 24,
+      path: '/',
     });
 
     res.status(200).json({
@@ -187,18 +205,19 @@ export const loginUser = async (req, res) => {
       },
       message: 'Login successful'
     });
-    
+
   } catch (err) {
-    console.error('Login error:', err);
+    console.error('[BACKEND - LOGIN] Error during login:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
 
 export const logoutUser = async (req, res) => {
-  const sessionId = req.cookies.sessionId; 
+  const sessionId = req.cookies.sessionId;
 
   if (sessionId) {
     activeSessions.delete(sessionId);
+    console.log(`[BACKEND - LOGOUT] Session ID ${sessionId} removed from activeSessions.`);
   }
 
   res.clearCookie('sessionId', {
@@ -208,49 +227,53 @@ export const logoutUser = async (req, res) => {
     path: '/',
   });
 
+  console.log('[BACKEND - LOGOUT] User logged out successfully.');
   res.status(200).json({ message: 'Logged out successfully' });
 };
 
 
 export const authenticateUser = async (req, res, next) => {
-  const sessionId = req.cookies.sessionId; 
-
-  if (!sessionId) {
-    return res.status(401).json({ message: 'Unauthorized: No session provided.' });
-  }
+  const sessionId = req.cookies.sessionId;
 
   try {
-    const userId = activeSessions.get(sessionId);
+    const sessionData = activeSessions.get(sessionId);
+  
+    if (!sessionData) {
+   res.clearCookie('sessionId', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Lax', path: '/' });
+      return res.status(401).json({ message: 'Unauthorized: Session invalid or expired.' });
+    }
 
-    if (!userId) {
+    if (Date.now() > sessionData.expires) {
+    activeSessions.delete(sessionId);
       res.clearCookie('sessionId', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Lax', path: '/' });
       return res.status(401).json({ message: 'Unauthorized: Session invalid or expired.' });
     }
 
+   sessionData.expires = Date.now() + (1000 * 60 * 60 * 24); // Extend by 24 hours
+    activeSessions.set(sessionId, sessionData);
+ 
     const userResult = await pool.query(
-      'SELECT "userID", username, name, surname, email FROM users WHERE "userID" = $1', // Select all necessary fields
-      [userId]
+      'SELECT "userID", username, name, surname, email FROM users WHERE "userID" = $1',
+      [sessionData.userId]
     );
     const user = userResult.rows[0];
 
     if (!user) {
-      activeSessions.delete(sessionId); 
+     activeSessions.delete(sessionId);
       res.clearCookie('sessionId', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Lax', path: '/' });
       return res.status(401).json({ message: 'Unauthorized: User not found.' });
     }
 
-    req.user = { 
-      id: user.userID, 
+    req.user = {
+      id: user.userID,
       username: user.username,
       email: user.email,
-      name: user.name,   
-      surname: user.surname, 
+      name: user.name,
+      surname: user.surname,
     };
-
-    next(); 
+    next();
 
   } catch (error) {
-    console.error('Server error during authentication:', error);
     res.status(500).json({ message: 'Internal server error during authentication.' });
   }
 };
@@ -258,15 +281,16 @@ export const authenticateUser = async (req, res, next) => {
 
 export const getUserData = async (req, res) => {
   if (req.user) {
+    console.log(`[BACKEND - GET_USER_DATA] User data retrieved for: ${req.user.username}`);
    return res.status(200).json({
       user: req.user,
       message: 'User data retrieved successfully.'
     });
   } else {
+    console.log('[BACKEND - GET_USER_DATA] User not authenticated for getUserData.');
    res.status(401).json({ message: 'User not authenticated.' });
   }
 };
-
 
 
 export const uniqueUsername = async (req, res) => {
@@ -282,7 +306,7 @@ export const uniqueUsername = async (req, res) => {
     console.error('Error checking username:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
-}; 
+};
 
 export const uniqueEmail = async (req, res) => {
   try {
@@ -297,19 +321,19 @@ export const uniqueEmail = async (req, res) => {
     console.error('Error checking email:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
-}; 
+};
 
 export const updateUserDetails = async (req, res) => {
- if (!req.user || req.user.id !== parseInt(req.params.id)) {
-    return res.status(403).json({ error: 'Forbidden: You can only update your own details.' });
-  }
+   if (!req.user || req.user.id !== parseInt(req.params.id)) {
+     return res.status(403).json({ error: 'Forbidden: You can only update your own details.' });
+   }
 
   try {
     const { id } = req.params;
     const { name, surname, username, email } = req.body;
 
-    const query = 
-      `UPDATE users 
+    const query =
+      `UPDATE users
        SET name = $1, surname = $2, username = $3, email = $4
        WHERE "userID" = $5
        RETURNING "userID", username, name, surname, email`;
@@ -335,14 +359,14 @@ export const updateUserPassword = async (req, res) => {
 
   try {
     const { id } = req.params;
-    const { name, surname, username, email, password } = req.body; // Note: 'name', 'surname', 'username', 'email' likely not needed here
+    const { password } = req.body;
 
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    const query = 
+    const query =
       `UPDATE users SET password = $1 WHERE "userID" = $2 RETURNING "userID", username, name, surname, email`;
-    const values = [hashedPassword, id]; 
+    const values = [hashedPassword, id];
 
     const result = await pool.query(query, values);
 
