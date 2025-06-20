@@ -5,8 +5,6 @@ import mediapipe as mp
 import pickle
 import collections
 import time
-
-# Load model and label encoder
 model = tf.keras.models.load_model('models/detectLettersModel.keras')
 with open('models/labelEncoder.pickle', 'rb') as f:
     labelEncoder = pickle.load(f)
@@ -85,14 +83,12 @@ while True:
         for handLandmarks in results.multi_hand_landmarks:
             landmarkBuffer.append(handLandmarks.landmark)
 
-            # Detect Z Gesture first
             if zStateMachine.update(handLandmarks.landmark):
                 phrase = "Z"
                 predictions.clear()
                 lastPredictionTime = currentTime
                 continue
 
-            # If not in cooldown, make a static prediction
             if currentTime - lastPredictionTime > cooldownDuration:
                 x_ = [lm.x for lm in handLandmarks.landmark]
                 y_ = [lm.y for lm in handLandmarks.landmark]
@@ -111,7 +107,6 @@ while True:
 
                 if confidence > 0.8:
                     predictions.append(predictedLabel)
-                    # Only update the phrase if we have a consensus
                     if len(predictions) == predictions.maxlen:
                         phrase = max(set(predictions), key=predictions.count)
                         lastPredictionTime = currentTime

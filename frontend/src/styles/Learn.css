@@ -1,28 +1,22 @@
 .sign-character {
-  display: flex; /* Use flexbox to center its child */
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically (if height allows) */
-  /* If you want the canvas to take up a certain height for vertical centering,
-     you might need to define a height for .sign-character, e.g.: */
-  /* height: 500px; */
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
 }
 
 .sign-canvas {
-  border: 4px solid yellow; /* Make the border yellow and thicker */
-  background-color: white; /* Keep a background for the drawing */
-  display: block; /* Ensures no extra space below the canvas if it's inline */
-  /* Since it's inside a flex container with justify-content: center, it will be centered */
+  border: 4px solid yellow; 
+  background-color: white; 
+  display: block; 
 }
 
-/* Optional: Add some margin below the h1 or around the canvas */
 .sign-display h1 {
     margin-bottom: 20px;
 }
 .sign-character {
-    margin-top: 20px; /* Adjust as needed */
+    margin-top: 20px; 
 }
 
-/* Style for error messages */
 .error-message {
     font-weight: bold;
     margin-top: 10px;

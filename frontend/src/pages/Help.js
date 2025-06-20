@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/help.css';
-import helpImage from '../Picture1.png';
+import helpImage from '../images/picture1.png';
 
 const faqs = [
   {

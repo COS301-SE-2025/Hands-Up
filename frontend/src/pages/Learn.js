@@ -1,44 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Sidebar from '../components/learnSidebar';
+import CategoryTile from '../components/learnCategoryTile';
+import LevelTile from '../components/learnLevelTile';
 import '../styles/learn.css';
-
-
-const Sidebar = ({ onSelect }) => (
-  <div className="sidebar">
-    <div className="sidebar-item active" onClick={() => onSelect('dashboard')}>
-      Dashboard
-    </div>
-
-    <div className="sidebar-summary">
-      <div className="summary-item">
-        <div className="summary-title">Progress</div>
-        <div className="summary-value">45%</div>
-      </div>
-      <div className="summary-item">
-        <div className="summary-title">Signs Learned</div>
-        <div className="summary-value">28</div>
-      </div>
-      <div className="summary-item">
-        <div className="summary-title">Lessons Completed</div>
-        <div className="summary-value">6</div>
-      </div>
-    </div>
-  </div>
-);
-
-const CategoryTile = ({ name, emoji, onClick }) => (
-  <div className="category-tile" onClick={onClick}>
-    <div className="category-emoji">{emoji}</div>
-    <div className="category-name">{name}</div>
-  </div>
-);
-
-const LevelTile = ({ level, unlocked, onClick }) => (
-  <div className={`level-card ${unlocked ? 'unlocked' : 'locked'}`} onClick={unlocked ? onClick : undefined}>
-    <div className="level-number">{level}</div>
-    {!unlocked && <div className="lock-icon"></div>}
-  </div>
-);
 
 const categories = [
   { id: 'alphabets', name: 'Alphabets'},
@@ -47,12 +12,11 @@ const categories = [
   { id: 'food', name: 'Food & Drinks'},
 ];
 
-export default function Learn() {
+const Learn = () => {
   const [selectedSection, setSelectedSection] = useState('dashboard');
   const [currentCategory, setCurrentCategory] = useState(null);
   const [unlockedLevels] = useState(10);
   const navigate = useNavigate();
-
 
   const goBack = () => {
     setCurrentCategory(null);
@@ -100,3 +64,5 @@ export default function Learn() {
     </div>
   );
 }
+
+export default Learn;

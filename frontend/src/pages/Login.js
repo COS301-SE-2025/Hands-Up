@@ -1,23 +1,20 @@
 import { useNavigate } from 'react-router-dom';
-import { useStatUpdater } from "../hooks/learningStatsUpdater.js";
-import {login} from'../utils/apiCalls.js';
+import { useLogin } from "../hooks/login.js";
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 
 import '../styles/login.css';
-import heroImage from "../sign33.png";
-import logo from "../logo2.png";
+import heroImage from "../images/sign33.png";
+import logo from "../images/logo2.png";
 
-function Login() {
+const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   const navigate = useNavigate();
-  const handleUpdate = useStatUpdater();
+  const { handleLogin, isLoading, error } = useLogin();
 
   useEffect(() => {
     setMounted(true);
@@ -25,30 +22,7 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    if (!email || !password) {
-      setError('Please enter both email and password.');
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      const data = await login({ email, password });
-      
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('userData', JSON.stringify(data.user));
-      navigate('/Home');
-      handleUpdate("streak");
-      
-    } catch (error) {
-      setError(error.message);
-      console.error('Login error:', error);
-    } finally {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setError('');
-      setIsLoading(false);
-    }
+    await handleLogin(email, password);
   };
 
   return (
@@ -149,9 +123,6 @@ function Login() {
                 </div>
               </div>
           </div>
-
-         
-
           <div className="hero-section">
             <div className="hero-background-image" style={{ backgroundImage: `url(${heroImage})` }}></div>
             <div className="hero-overlay" style={{ background: `linear-gradient(135deg, rgba(78, 122, 81, 0.6), rgba(179, 208, 119, 0.55), rgba(255, 198, 26, 0.5))` }}></div>

@@ -3,8 +3,8 @@ import { getLearningProgress, updateLearningProgress } from "../utils/apiCalls";
 import PropTypes from "prop-types";
 
 const LearningStatsContext = createContext();
- 
-export function LearningStatsProvider({ children }) {
+
+const LearningStatsProvider = ({ children }) => {
   const [stats, setStats] = useState(null);
   const storedUser = localStorage.getItem('userData');
   console.log(storedUser); 
@@ -53,4 +53,6 @@ LearningStatsProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-export const useLearningStats = () => useContext(LearningStatsContext);
+const useLearningStats = () => useContext(LearningStatsContext);
+
+export { LearningStatsProvider, useLearningStats };

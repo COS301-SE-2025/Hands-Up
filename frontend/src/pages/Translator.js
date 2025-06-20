@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { processImage, processVideo} from '../utils/apiCalls';
 import '../styles/translator.css';
 
-export default function Translator() 
+function Translator() 
 {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -440,3 +440,5 @@ export default function Translator()
     </div>
   );
 }
+
+export default Translator;

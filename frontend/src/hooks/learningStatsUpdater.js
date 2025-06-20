@@ -1,6 +1,6 @@
-import { useLearningStats } from "../context/learningStatsContext";
+import { useLearningStats } from "../contexts/learningStatsContext";
 
-export function useStatUpdater() {
+export function useStatUpdater(){
   const { stats, updateStats } = useLearningStats();
 
   const handleUpdate = (type) => { 
@@ -14,7 +14,6 @@ export function useStatUpdater() {
       newStats.streak = newStats.streak + 1;
     }
 
-  
     const TOTAL_LESSONS = 30;
     const calcLessonsCompleted = Math.min(newStats.lessonsCompleted || 0, TOTAL_LESSONS);
     const totalProgress = calcLessonsCompleted + (newStats.signsLearned || 0) + ((newStats.streak || 0) % 365);

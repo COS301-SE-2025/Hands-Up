@@ -4,7 +4,7 @@ import {LearningStats} from "../components/learningStats.js";
 import "../styles/userProfile.css";
 import {uniqueUsername, uniqueEmail, updateUserDetails, updateUserPassword} from'../utils/apiCalls.js'; 
 
-export default function UserProfile() {
+function UserProfile() {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -284,3 +284,5 @@ export default function UserProfile() {
     </div>
   );
 }
+
+export default UserProfile;

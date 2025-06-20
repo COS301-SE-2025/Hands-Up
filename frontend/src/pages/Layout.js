@@ -1,9 +1,8 @@
-// src/pages/Layout.js (Assuming your Layout component is in the 'pages' directory)
 import React from "react";
 import PropTypes from "prop-types";
-import { Link, useNavigate, useLocation } from "react-router-dom"; // Import useLocation
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import "../styles/layout.css";
-import logo from "../logo2.png";
+import logo from "../images/logo2.png";
 
 
 const NAV_ITEMS = ["Home", "Learn", "Translator", "Profile", "Help"];
@@ -16,7 +15,7 @@ const NAV_PATHS = {
   Help: "/help",
 };
 
-function Layout({ children, isLoggedIn }) {
+const Layout = ({ children, isLoggedIn }) => {
   const navigate = useNavigate();
   const location = useLocation(); 
 

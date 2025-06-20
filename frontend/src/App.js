@@ -1,9 +1,9 @@
 // src/App.js
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import React from "react";
-import { LearningStatsProvider } from "./context/learningStatsContext";
+import { LearningStatsProvider } from "./contexts/learningStatsContext";
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import "./App.css";
+import "./styles/App.css";
 import Help from "./pages/help";
 import Login from "./pages/login";
 import Signup from "./pages/signup";

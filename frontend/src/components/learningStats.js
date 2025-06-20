@@ -1,10 +1,9 @@
 import React from "react";
-import { useLearningStats } from "../context/learningStatsContext";
+import { useLearningStats } from "../contexts/learningStatsContext";
 
-export function LearningStats() {
+const LearningStats = () => {
     const statsContext = useLearningStats() || {};
     const { stats } = statsContext;
-    // const handleUpdate = useStatUpdater();
 
     const {
       lessonsCompleted = 0,
@@ -60,3 +59,5 @@ export function LearningStats() {
     </section>
   );
 }
+
+export { LearningStats };

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../styles/learn.css';
 
-export default function SignDisplayPage() {
+function SignDisplayPage() {
   const { letter } = useParams();
   const navigate = useNavigate();
   const canvasRef = useRef(null);
@@ -138,3 +138,5 @@ export default function SignDisplayPage() {
     </div>
   );
 }
+
+export default SignDisplayPage;
