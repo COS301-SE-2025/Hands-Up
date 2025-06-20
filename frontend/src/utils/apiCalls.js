@@ -185,3 +185,17 @@ export const updateLearningProgress = async (username, progressData) => {
         throw error;
     }
 };
+
+
+export const deleteUserAccount = async (userID) => {
+    try {
+        const response = await fetch(`${API_BASE_URL_USER}/${userID}`, {
+            method: 'DELETE',
+            credentials: 'include',
+        });
+        return handleApiResponse(response);
+    } catch (error) {
+        console.error("Error deleting user account:", error);
+        throw error;
+    }
+};

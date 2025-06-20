@@ -379,3 +379,76 @@ export const updateUserPassword = async (req, res) => {
     res.status(500).json({ error: 'Internal server error.' });
   }
 };
+
+
+export const deleteUserAccount = async (req, res) => {
+  const { id } = req.params;
+  const userIDToDelete = parseInt(id, 10);
+  
+  if (isNaN(userIDToDelete)) {
+    return res.status(400).json({ message: 'Invalid User ID provided.' });}
+    
+  if (!req.user || req.user.id !== userIDToDelete) {
+    return res.status(403).json({ message: 'Forbidden: You can only delete your own account.' });}
+    
+    let client;
+
+    try {
+      client = await pool.connect(); 
+      await client.query('BEGIN'); 
+      const deleteLearnResult = await client.query(
+        `DELETE FROM learn WHERE "userID" = $1`,
+        [userIDToDelete]
+      );
+      
+      console.log(`[BACKEND - DELETE_USER] Deleted ${deleteLearnResult.rowCount} learning progress records for user ${userIDToDelete}.`);
+
+      const deleteUserResult = await client.query(
+        
+        `DELETE FROM users WHERE "userID" = $1 RETURNING "userID", username`,
+         [userIDToDelete] );
+         
+         if (deleteUserResult.rows.length === 0) 
+          {
+          await client.query('ROLLBACK');
+          return res.status(404).json({ message: 'User not found.' });}
+
+
+          await client.query('COMMIT');
+           let sessionDeleted = false;
+           
+           for (const [sessionId, sessionData] of activeSessions.entries()) {
+            
+            if (sessionData.userId === userIDToDelete) {
+              activeSessions.delete(sessionId);
+              console.log(`[BACKEND - DELETE_USER] Session ID ${sessionId} removed for deleted user.`);
+
+              if (req.cookies.sessionId === sessionId) {
+                 res.clearCookie('sessionId', 
+                  {
+                   httpOnly: true,
+                   secure: process.env.NODE_ENV === 'production',
+                   sameSite: 'Lax',
+                   path: '/',}); 
+                   sessionDeleted = true;}}}
+
+console.log(`[BACKEND - DELETE_USER] User account '${deleteUserResult.rows[0].username}' (ID: ${userIDToDelete}) and associated data deleted successfully.`);
+
+res.status(200).json({ message: 'User account deleted successfully.' });
+
+
+
+} catch (err) {
+  if (client) {
+  await client.query('ROLLBACK'); 
+}
+
+console.error('Error deleting user account:', err);
+
+res.status(500).json({ message: 'Internal server error during account deletion.', error: err.message });
+} finally {
+
+  if (client) {client.release(); }
+ }
+
+};
