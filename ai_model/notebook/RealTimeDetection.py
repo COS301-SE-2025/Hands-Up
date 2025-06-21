@@ -1,14 +1,16 @@
+import os
 import cv2
 import numpy as np
 import mediapipe as mp
 from tensorflow.keras.models import load_model
 
+PROCESSED_PATH = 'processed_dataset'
+print(cv2.__version__)
 # Load your trained model
 model = load_model('action.h5')
 
 # Define the actions your model predicts
-actions = ['hello', 'thanks', 'iloveyou']
-
+actions = sorted([folder for folder in os.listdir(PROCESSED_PATH) if os.path.isdir(os.path.join(PROCESSED_PATH, folder))])
 # MediaPipe holistic model setup
 mp_holistic = mp.solutions.holistic
 mp_drawing = mp.solutions.drawing_utils
@@ -65,13 +67,9 @@ def extract_keypoints(results):
     rh = np.array([[lm.x, lm.y, lm.z] for lm in results.right_hand_landmarks.landmark]).flatten() if results.right_hand_landmarks else np.zeros(21*3)
     return np.concatenate([pose, face, lh, rh])
 
-def prob_viz(res, actions, input_frame, colors):
-    output_frame = input_frame.copy()
-    for num, prob in enumerate(res):
-        cv2.rectangle(output_frame, (0, 60 + num*40), (int(prob * 100), 90 + num*40), colors[num], -1)
-        cv2.putText(output_frame, actions[num], (0, 85 + num*40), 
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-    return output_frame
+def hands_detected(results):
+    """Check if at least one hand is detected"""
+    return results.left_hand_landmarks is not None or results.right_hand_landmarks is not None
 
 def main():
     sequence = []
@@ -90,28 +88,31 @@ def main():
             image, results = mediapipe_detection(frame, holistic)
             draw_styled_landmarks(image, results)
 
-            keypoints = extract_keypoints(results)
-            sequence.append(keypoints)
-            sequence = sequence[-30:]  # Keep only last 30 frames
+            # Only process if hands are detected
+            if hands_detected(results):
+                keypoints = extract_keypoints(results)
+                sequence.append(keypoints)
+                sequence = sequence[-30:]  # Keep only last 30 frames
 
-            if len(sequence) == 30:
-                res = model.predict(np.expand_dims(sequence, axis=0))[0]
-                predicted_action = actions[np.argmax(res)]
-                predictions.append(np.argmax(res))
+                if len(sequence) == 30:
+                    res = model.predict(np.expand_dims(sequence, axis=0))[0]
+                    predicted_action = actions[np.argmax(res)]
+                    predictions.append(np.argmax(res))
 
-                # Only append to sentence if consistent prediction for last 10 frames & above threshold
-                if np.unique(predictions[-10:])[0] == np.argmax(res):
-                    if res[np.argmax(res)] > threshold:
-                        if len(sentence) > 0:
-                            if predicted_action != sentence[-1]:
+                    # Only append to sentence if consistent prediction for last 10 frames & above threshold
+                    if np.unique(predictions[-10:])[0] == np.argmax(res):
+                        if res[np.argmax(res)] > threshold:
+                            if len(sentence) > 0:
+                                if predicted_action != sentence[-1]:
+                                    sentence.append(predicted_action)
+                            else:
                                 sentence.append(predicted_action)
-                        else:
-                            sentence.append(predicted_action)
 
-                if len(sentence) > 5:
-                    sentence = sentence[-5:]
-
-                image = prob_viz(res, actions, image, colors)
+                    if len(sentence) > 5:
+                        sentence = sentence[-5:]
+            else:
+                # Clear sequence when no hands are detected
+                sequence = []
 
             # Display predicted sentence
             cv2.rectangle(image, (0,0), (640, 40), (245, 117, 16), -1)
