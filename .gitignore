@@ -11,6 +11,7 @@
 /ai_model/notebook/dataset
 /ai_model/notebook/processed_dataset
 /backend/uploads
+/ai_model/notebook/translation_output.json
 
 /.pnp
 .pnp.js
