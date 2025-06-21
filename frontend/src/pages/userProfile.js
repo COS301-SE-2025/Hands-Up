@@ -318,7 +318,7 @@ const termsContent = {
                 onClick={() => setShowTermsModal(false)}
                 aria-label="Close"
               >
-                ×
+                
               </button>
             </div>
             <div className="modal-body">
@@ -368,7 +368,7 @@ const termsContent = {
                 </div>
                 <div className="modal-footer">
                   <button 
-                    className="btn-secondary"
+                    className="btn-primary"
                     onClick={cancelDelete}
                   >
                     Cancel
@@ -403,7 +403,7 @@ const termsContent = {
                 </div>
                 <div className="modal-footer">
                   <button 
-                    className="btn-secondary"
+                    className="btn-primary"
                     onClick={cancelDelete}
                   >
                     Cancel
