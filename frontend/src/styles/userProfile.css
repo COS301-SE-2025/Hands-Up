@@ -27,19 +27,7 @@
   font-family: var(--font-family);
 }
 
-.containerP {
-  background: #fff;
-  width: 100%;
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  box-shadow: var(--shadow-lg);
-  border-radius: 1rem;
-  color: #333;
-  min-height: 100vh;
-  position: relative;
-}
+
 
 .loading-state,
 .error-state {

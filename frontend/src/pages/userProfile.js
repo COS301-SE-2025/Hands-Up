@@ -307,7 +307,7 @@ const termsContent = {
   if (!currentUser) return <div className="containerP error-state">No user data available. Please log in.</div>;
 
   return (
-    <div className="containerP">
+    <>
       {showTermsModal && (
         <div className="modal-overlay">
           <div className="modal-content terms-modal">
@@ -557,6 +557,6 @@ const termsContent = {
           </div>
         </section>
       </main>
-    </div>
+    </>
   );
 }
