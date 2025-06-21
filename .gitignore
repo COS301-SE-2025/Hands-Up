@@ -9,6 +9,8 @@
 /ai_model/notebook/__pycache__
 /ai_model/notebook/action.h5
 /ai_model/notebook/dataset
+/ai_model/notebook/processed_dataset
+/backend/uploads
 
 /.pnp
 .pnp.js
