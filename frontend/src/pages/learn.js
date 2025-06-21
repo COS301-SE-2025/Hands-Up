@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/learnSidebar';
 import { CategoryTile } from '../components/learnCategoryTile';
 import { LevelTile } from '../components/learnLevelTile';
-import '../styles/learn.css';
+import '../styles/Learn.css';
 
 const categories = [
   { id: 'alphabets', name: 'Alphabets'},

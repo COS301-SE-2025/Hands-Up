@@ -1,5 +1,5 @@
 import React from 'react';
-import '../styles/learn.css';
+import '../styles/Learn.css';
 import PropTypes from "prop-types";
 
 export function Sidebar({ onSelect }){

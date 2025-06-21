@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import '../styles/learn.css';
+import '../styles/Learn.css';
 
 export function SignLearn() {
   const { letter } = useParams();

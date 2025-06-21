@@ -3,7 +3,7 @@ import { useLogin } from "../hooks/login.js";
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 
-import '../styles/login.css';
+import '../styles/Login.css';
 import heroImage from "../images/sign33.png";
 import logo from "../images/logo2.png";
 
