@@ -1,33 +1,28 @@
-from tensorflow.keras.models import load_model
 import numpy as np
-import json
+from tensorflow.keras.models import load_model
 from Preprocess_Data import load_data
+import os
 
-# Load mapping from class index to phrase
-with open('dataset/mapping.txt', 'r') as f:
-    class_map = json.load(f)
+# Path where processed keypoints are stored
+PROCESSED_PATH = 'processed_dataset'
 
-# Convert keys from string to int
-class_map = {int(k): v for k, v in class_map.items()}
+# Get actions dynamically from folder names inside PROCESSED_PATH
+actions = sorted([folder for folder in os.listdir(PROCESSED_PATH) if os.path.isdir(os.path.join(PROCESSED_PATH, folder))])
+print("Detected actions:", actions)
 
-# Load data
-(X_train, X_test, y_train, y_test), _ = load_data()
+# Load data using detected actions
+(X_train, X_test, y_train, y_test), _ = load_data(data_path=PROCESSED_PATH, actions=actions)
 
-# Load the trained model
+# Load your trained model
 model = load_model('action.h5')
 
-# Predict and compare for a few test samples
-num_samples_to_check = 5
-for i in range(min(num_samples_to_check, len(X_test))):
-    input_sample = np.expand_dims(X_test[i], axis=0)  # Add batch dimension
-    prediction = model.predict(input_sample)[0]
-    predicted_index = np.argmax(prediction)
-    true_index = np.argmax(y_test[i])
+# Predict on test data
+res = model.predict(X_test)
 
-    predicted_label = class_map.get(predicted_index, f"Unknown ({predicted_index})")
-    true_label = class_map.get(true_index, f"Unknown ({true_index})")
+# If you want to print one sample's prediction (e.g., the first)
+print("Predicted:", actions[np.argmax(res[0])])
+print("Actual:   ", actions[np.argmax(y_test[0])])
 
-    print(f"Sample {i + 1}:")
-    print(f"  Prediction : {predicted_label} (Confidence: {np.max(prediction):.2f})")
-    print(f"  True Label : {true_label}")
-    print("-" * 40)
+# Or loop through all predictions (optional)
+for i in range(len(res)):
+    print(f"Sample {i} - Predicted: {actions[np.argmax(res[i])]}, Actual: {actions[np.argmax(y_test[i])]}")
