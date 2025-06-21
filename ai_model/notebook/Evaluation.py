@@ -1,13 +1,21 @@
+import os
 import numpy as np
 from tensorflow.keras.models import load_model
 from sklearn.metrics import multilabel_confusion_matrix, accuracy_score
 from Preprocess_Data import load_data
 
-# Define your actions (must match the training phase)
-actions = ['hello', 'thanks', 'iloveyou']
+# Path to your processed data
+PROCESSED_PATH = os.path.join('processed_dataset')
+
+# Automatically detect actions
+actions = sorted([
+    d for d in os.listdir(PROCESSED_PATH)
+    if os.path.isdir(os.path.join(PROCESSED_PATH, d))
+])
+print("Detected actions:", actions)
 
 # Load data
-(_, X_test, _, y_test), _ = load_data(actions=actions)
+(_, X_test, _, y_test), label_map = load_data(data_path=PROCESSED_PATH)
 
 # Load trained model
 model = load_model('action.h5')
@@ -24,7 +32,7 @@ conf_matrix = multilabel_confusion_matrix(y_true, y_pred)
 acc_score = accuracy_score(y_true, y_pred)
 
 # Output
-print("✅ Confusion Matrix (per class):")
+print("\n✅ Confusion Matrix (per class):")
 for idx, matrix in enumerate(conf_matrix):
     print(f"\nClass '{actions[idx]}'")
     print(matrix)
