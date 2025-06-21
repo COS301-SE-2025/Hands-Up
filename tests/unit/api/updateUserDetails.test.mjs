@@ -1,12 +1,12 @@
 import { jest, expect, it, describe, beforeEach } from '@jest/globals';
 
-jest.unstable_mockModule('../../../backend/api/utils.js', () => ({
+jest.unstable_mockModule('../../../backend/api/utils/dbConnection', () => ({
   pool: {
     query: jest.fn(),
   },
 }));
 
-const { pool } = await import('../../../backend/api/utils.js');
+const { pool } = import('../../../backend/api/utils/dbConnection');
 const {
   uniqueUsername,
   uniqueEmail,

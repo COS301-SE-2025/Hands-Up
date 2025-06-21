@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { pool } from '../utils.js';
+import { pool } from '../utils/dbConnection.js';
 import bcrypt from 'bcrypt';
 
 const router = Router();
@@ -88,7 +88,7 @@ export const learningProgress = async (req, res) => {
     }
 };
 
-// New signup function
+
 export const signUpUser = async (req, res) => {
   try {
     const { name, surname, username, email, password } = req.body;
@@ -302,4 +302,3 @@ export const updateUserPassword = async (req, res) => {
   }
 };
 
-export default router;

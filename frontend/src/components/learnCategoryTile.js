@@ -1,10 +1,16 @@
 import React from "react";
+import PropTypes from "prop-types";
 
-const CategoryTile = ({ name, emoji, onClick }) => (
+export function CategoryTile({ name, emoji, onClick }){
   <div className="category-tile" onClick={onClick}>
     <div className="category-emoji">{emoji}</div>
     <div className="category-name">{name}</div>
   </div>
-);
+};
 
-export default CategoryTile;
+CategoryTile.propTypes = {
+  children: PropTypes.node.isRequired,
+  name: PropTypes.node.isRequired,
+  emoji: PropTypes.node.isRequired,
+  onClick: PropTypes.node.isRequired,
+};

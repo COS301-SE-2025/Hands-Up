@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Sidebar from '../components/learnSidebar';
-import CategoryTile from '../components/learnCategoryTile';
-import LevelTile from '../components/learnLevelTile';
+import { Sidebar } from '../components/learnSidebar';
+import { CategoryTile } from '../components/learnCategoryTile';
+import { LevelTile } from '../components/learnLevelTile';
 import '../styles/learn.css';
 
 const categories = [
@@ -12,7 +12,7 @@ const categories = [
   { id: 'food', name: 'Food & Drinks'},
 ];
 
-const Learn = () => {
+export function Learn(){
   const [selectedSection, setSelectedSection] = useState('dashboard');
   const [currentCategory, setCurrentCategory] = useState(null);
   const [unlockedLevels] = useState(10);
@@ -64,5 +64,3 @@ const Learn = () => {
     </div>
   );
 }
-
-export default Learn;

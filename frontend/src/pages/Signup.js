@@ -6,7 +6,7 @@ import '../styles/signup.css';
 import heroImage from "../images/sign33.png";
 import logo from "../images/logo2.png";
 
-function SignupPage() {
+export function Signup() {
   const {
   formData,
   handleChange,
@@ -157,5 +157,3 @@ function SignupPage() {
     </div>
   );
 }
-
-export default SignupPage;

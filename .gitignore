@@ -1,28 +1,21 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+#editor configs
+.vscode/settings.json
+
 # dependencies
-/node_modules
-/backend/api/node_modules
-/frontend/node_modules
-/.pnp
-.pnp.js
+**/node_modules/
 
 # testing
-/tests/coverage
-
-# production
-/build
+tests/coverage/
 
 #datasets
 ai_model/data
 
 # misc
-/backend/api/.env
-/backend/database/.env
+**/.env
 
-
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+#cache
+**/__pycache__/
 
 *:Zone.Identifier

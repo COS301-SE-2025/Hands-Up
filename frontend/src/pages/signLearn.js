@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../styles/learn.css';
 
-function SignDisplayPage() {
+export function SignLearn() {
   const { letter } = useParams();
   const navigate = useNavigate();
   const canvasRef = useRef(null);
@@ -52,7 +52,6 @@ function SignDisplayPage() {
     ctx.shadowColor = 'rgba(0,0,0,0.2)';
     ctx.shadowBlur = 4;
 
-    // Draw simplified palm fill
     const palmIndices = [0, 5, 9, 13, 17];
     if (palmIndices.every(i => landmarks[i])) {
       ctx.beginPath();
@@ -67,14 +66,13 @@ function SignDisplayPage() {
       ctx.fill();
     }
 
-    // Draw bone connections
     const connections = [
-      [0, 1], [1, 2], [2, 3], [3, 4],       // Thumb
-      [0, 5], [5, 6], [6, 7], [7, 8],       // Index
-      [5, 9], [9, 10], [10, 11], [11, 12],  // Middle
-      [9, 13], [13, 14], [14, 15], [15, 16],// Ring
-      [13, 17], [17, 18], [18, 19], [19, 20], // Pinky
-      [0, 17]                               // Outer palm
+      [0, 1], [1, 2], [2, 3], [3, 4],       
+      [0, 5], [5, 6], [6, 7], [7, 8],      
+      [5, 9], [9, 10], [10, 11], [11, 12], 
+      [9, 13], [13, 14], [14, 15], [15, 16],
+      [13, 17], [17, 18], [18, 19], [19, 20], 
+      [0, 17]                               
     ];
 
     ctx.strokeStyle = 'gray';
@@ -90,7 +88,6 @@ function SignDisplayPage() {
       }
     });
 
-    // 🟦 Draw accurate hand outline (custom anatomical path)
     const outlineIndices = [0, 1, 2, 3, 4, 8, 12, 16, 20, 17, 13, 9, 5, 0];
     const outlinePoints = outlineIndices.map(i => {
       const p = landmarks[i];
@@ -109,7 +106,6 @@ function SignDisplayPage() {
     ctx.fillStyle = 'rgba(0, 0, 255, 0.1)';
     ctx.fill();
 
-    // Draw landmarks as circles
     landmarks.forEach(point => {
       if (typeof point.x === 'number' && typeof point.y === 'number') {
         const x = point.x * w;
@@ -138,5 +134,3 @@ function SignDisplayPage() {
     </div>
   );
 }
-
-export default SignDisplayPage;

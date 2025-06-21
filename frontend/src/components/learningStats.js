@@ -1,7 +1,7 @@
 import React from "react";
 import { useLearningStats } from "../contexts/learningStatsContext";
 
-const LearningStats = () => {
+export function LearningStats(){
     const statsContext = useLearningStats() || {};
     const { stats } = statsContext;
 
@@ -60,4 +60,3 @@ const LearningStats = () => {
   );
 }
 
-export { LearningStats };

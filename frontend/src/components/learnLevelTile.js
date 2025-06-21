@@ -1,10 +1,17 @@
 import React from "react";
+import PropTypes from "prop-types";
 
-const LevelTile = ({ level, unlocked, onClick }) => (
+export function LevelTile({ level, unlocked, onClick }){
   <div className={`level-card ${unlocked ? 'unlocked' : 'locked'}`} onClick={unlocked ? onClick : undefined}>
     <div className="level-number">{level}</div>
     {!unlocked && <div className="lock-icon"></div>}
   </div>
-);
+};
 
-export default LevelTile;
+LevelTile.propTypes = {
+    children: PropTypes.node.isRequired,
+    level: PropTypes.node.isRequired,
+    unlocked: PropTypes.bool.isRequired,
+    onClick: PropTypes.func.isRequired,
+};
+

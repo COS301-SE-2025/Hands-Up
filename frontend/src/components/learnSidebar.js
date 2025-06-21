@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import '../styles/learn.css';
+import PropTypes from "prop-types";
 
-const Sidebar = ({ onSelect }) => (
+export function Sidebar({ onSelect }){
   <div className="sidebar">
     <div className="sidebar-item active" onClick={() => onSelect('dashboard')}>
       Dashboard
@@ -23,6 +23,9 @@ const Sidebar = ({ onSelect }) => (
       </div>
     </div>
   </div>
-);
+};
 
-export default Sidebar;
+Sidebar.propTypes = {
+  children: PropTypes.node.isRequired,
+  onSelect: PropTypes.node.isRequired,
+};

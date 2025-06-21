@@ -22,7 +22,7 @@ export function useLogin() {
       const data = await login({ email, password });
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('userData', JSON.stringify(data.user));
-      navigate('/Home');
+      navigate('/home');
       handleUpdate("streak");
       return true;
     } catch (err) {

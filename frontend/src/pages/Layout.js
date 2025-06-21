@@ -4,7 +4,6 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import "../styles/layout.css";
 import logo from "../images/logo2.png";
 
-
 const NAV_ITEMS = ["Home", "Learn", "Translator", "Profile", "Help"];
 
 const NAV_PATHS = {
@@ -15,7 +14,7 @@ const NAV_PATHS = {
   Help: "/help",
 };
 
-const Layout = ({ children, isLoggedIn }) => {
+export function Layout({ children, isLoggedIn }) {
   const navigate = useNavigate();
   const location = useLocation(); 
 
@@ -81,6 +80,3 @@ Layout.propTypes = {
   currentPage: PropTypes.node.isRequired,
   isLoggedIn: PropTypes.bool.isRequired, 
 };
-
-export default Layout;
-

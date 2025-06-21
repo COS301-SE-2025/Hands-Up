@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import '../styles/home.css'; 
 import homeImage from '../images/picture1.png';
 
-const HomePage = () => {
+export function Home(){
   return (
     <div className="home-container">
       <section className="home-section">
@@ -56,5 +56,3 @@ const HomePage = () => {
     </div>
   );
 };
-
-export default HomePage;

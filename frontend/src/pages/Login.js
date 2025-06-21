@@ -7,7 +7,7 @@ import '../styles/login.css';
 import heroImage from "../images/sign33.png";
 import logo from "../images/logo2.png";
 
-const Login = () => {
+export function Login(){
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -144,4 +144,3 @@ const Login = () => {
   );
 }
 
-export default Login;

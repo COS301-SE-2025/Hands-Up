@@ -1,231 +1,28 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { processImage, processVideo} from '../utils/apiCalls';
+import React, { useState } from 'react';
+import {useTranslator} from '../hooks/translateResults';
+import {renderMediaPreview} from '../components/mediaPreview';
+import {renderHistoryItem} from '../components/historyItem';
 import '../styles/translator.css';
 
-function Translator() 
-{
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const [result, setResult] = useState("");
-  const [confidence, setConfidence] = useState("Awaiting capture to detect confidence level...");
-  const [recording, setRecording] = useState(false);
-  const [speakDisabled, setSpeakDisabled] = useState(true);
-  const [audioProgressWidth, setAudioProgressWidth] = useState(0);
-  const [capturedImage, setCapturedImage] = useState(null);
-  const [capturedType, setCapturedType] = useState(null); // image or video
-  const [captureHistory, setCaptureHistory] = useState([]);
-  const [capturedBlob, setCapturedBlob] = useState(null); // Store the actual blob 
-  const [autoCaptureEnabled, setAutoCaptureEnabled] = useState(false);
+export function Translator(){
 
-  // const [mediaRecorder, setMediaRecorder] = useState(null);
-  // const [recordedChunks, setRecordedChunks] = useState([]);
+  const [speakDisabled] = useState(true);
+  const [audioProgressWidth] = useState(0);
 
-  useEffect(() => {
-    const enableCamera = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      } catch (err) 
-      {
-        console.log(err);
-        setResult('Camera access denied.');
-      }
-    };
-
-    enableCamera();
-    const currentVideo = videoRef.current; 
-
-    return () => {
-      if (currentVideo && currentVideo.srcObject) {
-        const tracks = currentVideo.srcObject.getTracks();
-        tracks.forEach(track => track.stop());
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    let intervalId;
-
-    if (autoCaptureEnabled && videoRef.current) {
-      intervalId = setInterval(() => {
-        captureImageFromVideo();
-      }, 500);
-    }
-
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [autoCaptureEnabled, videoRef.current]);
-
-
-  const captureImageFromVideo = () => {
-    if(videoRef.current && canvasRef.current) {
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
-
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      canvas.toBlob(async (blob) => {
-        const imageUrl = URL.createObjectURL(blob);
-        setCapturedImage(imageUrl);
-        setCapturedType('image');
-        setCapturedBlob(blob);
-
-        setCaptureHistory(prev => [{
-          id: Date.now(),
-          url: imageUrl,
-          type: 'image',
-          blob: blob, 
-          timestamp: new Date().toLocaleTimeString()
-        }, ...prev.slice(0, 4)]);
-
-        const sign = await processImage(blob);
-      
-        setResult(prevResult => {
-          if (sign.phrase === "SPACE") {
-            return prevResult + " ";
-          } else if (sign.phrase === "DEL") {
-            return prevResult.slice(0, -1);
-          } else if (sign.phrase === "Nothing detected") {
-            return prevResult;
-          } else {
-            return prevResult + sign.phrase;
-          }
-        });
-
-        setConfidence((sign.confidence * 100).toFixed(2) + '%');
-      }, 'image/jpeg', 0.8);
-    }
-  };
-
-  const startRecording = () => {
-    if (recording) {
-      stopRecording();
-      setAutoCaptureEnabled(false);
-      setRecording(false);
-      setCapturedImage(null);
-      return;
-    }
-
-    setAutoCaptureEnabled(true);
-    setRecording(true);
-    // setResult("Capturing Signs...");
-  };
-
-  const stopRecording = () => {
-    setRecording(false);
-  };
-
-  const handleFileUpload = async (e) => {
-    if (e.target.files.length > 0) {
-      const file = e.target.files[0];
-      const isVideo = file.type.includes('video');
-      const isImage = file.type.includes('image');
-      
-      setResult(`Processing uploaded ${isVideo ? 'video' : 'image'}...`);
-      
-      const fileUrl = URL.createObjectURL(file);
-      setCapturedImage(fileUrl);
-      setCapturedType(isVideo ? 'video' : 'image');
-      setCapturedBlob(file);
-
-      setCaptureHistory(prev => [{
-        id: Date.now(),
-        url: fileUrl,
-        type: isVideo ? 'video' : 'image',
-        blob: file, 
-        timestamp: new Date().toLocaleTimeString()
-      }, ...prev.slice(0, 4)]);
-
-      if (isVideo) {
-        const signsFromVideo = await processVideo(file);
-        setResult(signsFromVideo.phrase!="Nothing detected"? ("Alphabet sequence: " + signsFromVideo.phrase) : "No sign detected");
-
-        if (signsFromVideo.frames && signsFromVideo.frames.length > 0) {
-          const avgConf = (
-            signsFromVideo.frames.reduce((acc, curr) => acc + curr.confidence, 0) / signsFromVideo.frames.length
-          ).toFixed(2);
-          setConfidence(avgConf + '%');
-        } else {
-          setConfidence("0%");
-        }
-          setRecording(false);
-        
-      } else if (isImage) {
-        const sign = await processImage(file);
-        setResult(sign.phrase? sign.phrase : "No sign detected");
-        setConfidence((sign.confidence * 100).toFixed(2) + '%');
-      }
-      else{
-        setResult("Unsupported file type. Please upload an image or video.");
-        return;
-      }
-    }
-  };
-
-  // const speak = () => {
-  //   const text = result.replace('Detected: ', '').replace('Detected phrase: ', '').replace('API Result: ', '');
-  //   const utterance = new SpeechSynthesisUtterance(text);
-  //   window.speechSynthesis.speak(utterance);
-  // };
-
-  const renderMediaPreview = (url, type) => {
-    if (type === 'video') {
-      return (
-        <video 
-          controls 
-          src={url} 
-          style={{ 
-            width: '100%', 
-            height: '250px', 
-            objectFit: 'cover',
-            border: '2px solid #ddd', 
-            borderRadius: '8px' 
-          }}
-        />
-      );
-    } else {
-      return (
-        <img 
-          src={url} 
-          alt="Captured sign" 
-          style={{ 
-            width: '100%', 
-            height: '250px', 
-            objectFit: 'cover', 
-            border: '2px solid #ddd', 
-            borderRadius: '8px' 
-          }}
-        />
-      );
-    }
-  };
-
-  const renderHistoryItem = (capture) => {
-    if (capture.type === 'video') {
-      return (
-        <video 
-          src={capture.url} 
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          muted
-        />
-      );
-    } else {
-      return (
-        <img 
-          src={capture.url} 
-          alt={`Capture`}
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-        />
-      );
-    }
-  };
+  const {
+    videoRef,
+    canvasRef,
+    result,
+    confidence,
+    recording,
+    capturedImage,
+    capturedType,
+    captureHistory,
+    capturedBlob,
+    startRecording,
+    handleFileUpload,
+    setResult
+  } = useTranslator();
 
   return (
     <div className="recognizer-container">
@@ -440,5 +237,3 @@ function Translator()
     </div>
   );
 }
-
-export default Translator;

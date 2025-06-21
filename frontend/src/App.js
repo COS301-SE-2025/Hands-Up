@@ -4,16 +4,15 @@ import React from "react";
 import { LearningStatsProvider } from "./contexts/learningStatsContext";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import "./styles/App.css";
-import Help from "./pages/help";
-import Login from "./pages/login";
-import Signup from "./pages/signup";
-import Profile from "./pages/userProfile"; // Renamed from Profile to userProfile as per NAV_PATHS
-import Translator from "./pages/translator";
-import Learn from "./pages/learn";
-import SignLearn from "./pages/signLearn";
-import Home from "./pages/home";
-import Layout from "./pages/layout"; 
-console.log('Layout:', Layout);
+import { Help } from "./pages/help";
+import { Login } from "./pages/login";
+import { Signup} from "./pages/signup";
+import { UserProfile } from "./pages/userProfile"; 
+import { Translator } from "./pages/translator";
+import { Learn } from "./pages/learn";
+import { SignLearn } from "./pages/signLearn";
+import { Home} from "./pages/home";
+import { Layout } from "./pages/layout"; 
 
 
 function App() {
@@ -24,14 +23,13 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-
        
         <Route
           path="/userProfile"
           element={
             isLoggedIn ? (
               <Layout isLoggedIn={isLoggedIn}>
-                <Profile />
+                <UserProfile />
               </Layout>
             ) : (
               <Navigate to="/login" />
