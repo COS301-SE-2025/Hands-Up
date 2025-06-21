@@ -313,8 +313,6 @@ export default function Translator()
   };
 
   return (
-    <div className="recognizer-container">
-      <div className="recognizer-content">
         <div className="recognizer-columns">
           <div className="recognizer-left-column">
             <h2 className="recognizer-title">
@@ -527,9 +525,6 @@ export default function Translator()
             </div>
           </div>
         </div>
-      </div>
-      
-      
-    </div>
+   
   );
 }
