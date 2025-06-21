@@ -10,9 +10,6 @@ model = tf.keras.models.load_model('../../ai_model/models/detectLettersModel.ker
 with open('../../ai_model/models/labelEncoder.pickle', 'rb') as f:
     labelEncoder = pickle.load(f)
 
-mpHands = mp.solutions.hands
-hands = mpHands.Hands(static_image_mode=False, max_num_hands=1, min_detection_confidence=0.3)
-
 class ZGestureStateMachine:
     def __init__(self):
         self.state = 0
@@ -97,8 +94,7 @@ class JGestureStateMachine:
         return "unknown"
 
 
-def detectFromImage(imagine):
-    cap = cv2.VideoCapture(imagine)
+def detectFromImage(imageIn):
     predictions = collections.deque(maxlen=15)
     landmarkBuffer = collections.deque(maxlen=30)
     zStateMachine = ZGestureStateMachine()
@@ -107,12 +103,10 @@ def detectFromImage(imagine):
     lastPredictionTime = 0
     cooldownDuration = 6
 
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
+    image = cv2.imread(imageIn)
+    imgRGB = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-        imgRGB = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    with mp.solutions.hands.Hands(static_image_mode=True) as hands:
         results = hands.process(imgRGB)
 
         currentTime = time.time()
@@ -156,8 +150,6 @@ def detectFromImage(imagine):
                             phrase = max(set(predictions), key=predictions.count)
                             lastPredictionTime = currentTime
                             predictions.clear()
-
-    cap.release()
     if predictions:
         phrase = max(set(predictions), key=predictions.count)
         if confidence > 0.8:
