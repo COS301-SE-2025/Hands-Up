@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 import { FaAmericanSignLanguageInterpreting, FaComments, FaGlobeAfrica, FaChartLine, FaGamepad } from "react-icons/fa";
 import { FaPersonChalkboard } from "react-icons/fa6";
-import { Link } from 'react-router-dom';
 import '../styles/Landing.css';
 import video1 from "../media/landing_video1.mp4";
 import logo from "../media/logo.png";
@@ -9,16 +11,12 @@ import devices from "../media/devices.png";
 import angie from "../media/angie.png";
 import phil from "../media/phil.png";
 
-const NAV_ITEMS = ["Home", "Learn", "Translator", "Profile"];
-
-const NAV_PATHS = {
-  Home: "/home",
-  Learn: "/learn",
-  Translator: "/translator",
-  Profile: "/userProfile", 
-};
-
 const LandingPage = () => {
+
+  const navigate = useNavigate();
+  const goToLogin = () => navigate('/login');
+  const goToSignup = () => navigate('/signup');
+  const goToTranslator = () => navigate('/translator');
 
   const [error, setError] = useState('');
 
@@ -28,6 +26,13 @@ const LandingPage = () => {
       setError('');
     }, 3000); 
   };
+
+  useEffect(() => {
+    AOS.init({
+      duration: 1000, 
+      once: false,     
+    });
+  }, []);
 
   return (
     <div className="landing-container">
@@ -45,8 +50,8 @@ const LandingPage = () => {
         </nav>
 
         <div className="landing-header-right">
-          <button className="nav-button login">Login</button>
-          <button className="nav-button signup">Sign Up</button>
+          <button className="nav-button login" onClick={goToLogin}>Login</button>
+          <button className="nav-button signup" onClick={goToSignup}>Sign Up</button>
         </div>
       </header>
 
@@ -57,8 +62,8 @@ const LandingPage = () => {
             <h1 className="hero-div-h1">Welcome to Hands Up</h1>
             <p className="hero-div-p">Empowering Communication <br></br> One Sign at a Time.</p>
             <div className="hero-buttons">
-              <button className="hero-button">Start Translating</button>
-              <button className="hero-button">Start Learning</button>
+              <button className="hero-button" onClick={goToTranslator}>Start Translating</button>
+              <button className="hero-button" onClick={goToSignup}>Start Learning</button>
             </div>
           </div>
           <img src={angie} alt="Angie" className="side-image right-image" />
@@ -67,9 +72,9 @@ const LandingPage = () => {
 
       <section id="about">
       <div className="about-section">
-        <h2 className="about-heading">OUR MISSION</h2>
+        <h2 className="about-heading" data-aos="zoom-in">OUR MISSION</h2>
         <div className="about-container">
-          <div className="about">
+          <div className="about" data-aos="fade-up">
             <p> Hands UP is designed to make sign language accessible, enjoyable and part of everyday life for everyone.
                 <br></br><br></br>
                 Whether you're just starting to learn or a novice signer, Hands UP uses AI to translate sign language instantly through your device’s camera — turning signs into text and speech with ease, right when you need it.
@@ -82,9 +87,9 @@ const LandingPage = () => {
 
     <section id="features">
       <div className="landing-features-section">
-        <h2 className="landing-features-heading">Explore Our Features</h2>
+        <h2 className="landing-features-heading" data-aos="zoom-in">Explore Our Features</h2>
         <div className="landing-features-container">
-          <div className="feature-card">
+          <div className="feature-card" data-aos="fade-up">
             <div className="card-inner">
               <div className="card-front one-front">
                 <FaAmericanSignLanguageInterpreting className="landing-feature-icon" />
@@ -96,7 +101,7 @@ const LandingPage = () => {
             </div>
           </div>
 
-          <div className="feature-card">
+          <div className="feature-card" data-aos="fade-up">
             <div className="card-inner">
               <div className="card-front two-front">
                 <FaPersonChalkboard className="landing-feature-icon" />
@@ -108,7 +113,7 @@ const LandingPage = () => {
             </div>
           </div>
 
-          <div className="feature-card">
+          <div className="feature-card" data-aos="fade-up">
             <div className="card-inner">
               <div className="card-front one-front">
                 <FaComments className="landing-feature-icon" />
@@ -120,7 +125,7 @@ const LandingPage = () => {
             </div>
           </div>
 
-          <div className="feature-card">
+          <div className="feature-card" data-aos="fade-up">
             <div className="card-inner">
               <div className="card-front two-front">
                 <FaChartLine className="landing-feature-icon" />
@@ -132,7 +137,7 @@ const LandingPage = () => {
             </div>
           </div>
 
-          <div className="feature-card">
+          <div className="feature-card" data-aos="fade-up">
             <div className="card-inner">
               <div className="card-front one-front">
                 <FaGlobeAfrica className="landing-feature-icon" />
@@ -144,7 +149,7 @@ const LandingPage = () => {
             </div>
           </div>
 
-          <div className="feature-card">
+          <div className="feature-card" data-aos="fade-up">
             <div className="card-inner">
               <div className="card-front two-front">
                 <FaGamepad className="landing-feature-icon" />
@@ -162,10 +167,10 @@ const LandingPage = () => {
 
       <section id="help">
       <div className="help-section">
-        <h2 className="help-heading">Need a Hand?</h2> 
+        <h2 className="help-heading" data-aos="zoom-in">Need a Hand?</h2> 
         
         <div className="help-container">
-          <div className="download-info">
+          <div className="download-info" data-aos="fade-up">
             <h3>How to Download</h3>
             <p>Download info coming soon...</p>
             <img src={devices} alt="Devices" className="device-image"/>
@@ -174,7 +179,7 @@ const LandingPage = () => {
             {error && <p className="error-message">{error}</p>}
           </div>
 
-          <div className="tutorial-video">
+          <div className="tutorial-video" data-aos="fade-up">
             <h3>Watch the Tutorial</h3>
             <p>See how Hands UP works and how to get started with signing and learning.</p>
             <iframe width="560" height="315" 

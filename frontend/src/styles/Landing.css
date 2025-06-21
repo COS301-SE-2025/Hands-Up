@@ -27,11 +27,12 @@ html, body {
 }
 
 .landing-header {
-  position: relative;
+  position: fixed;
+  z-index: 100;
   width: 100%;
   height: 70px;
   top: 0;
-  background-color: white; 
+  background: linear-gradient(to bottom, white 0%, white 90%, rgba(255, 255, 255, 0) 100%);
   color: rgb(80, 80, 80);
   display: flex;
   justify-content: space-between;
@@ -52,6 +53,11 @@ html, body {
   width: 60px; 
   height: auto;
   z-index: 100;
+  transition: transform 0.3s ease; 
+}
+
+.landing-logo:hover {
+  transform: rotate(10deg);
 }
 
 .landing-nav-center {
@@ -133,6 +139,7 @@ html, body {
 /* hero section */
 .hero-container {
   position: relative;
+  margin-top: 70px;
   width: 100%;
   min-height: 36vh; 
   min-height: 35svh;
@@ -202,6 +209,16 @@ html, body {
   max-height: 86%;
 }
 
+@keyframes jump {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-12px); }
+  100% { transform: translateY(0); }
+}
+
+.side-image:hover {
+  animation: jump 0.8s ease-in-out;
+}
+
 /* about section */
 .about-section {
   position: relative;
@@ -244,7 +261,7 @@ html, body {
   position: relative; 
   width: 100%;
   height: auto;
-  margin-top: 2vh;
+  margin-top: 5vh;
   padding: 2rem 2rem;
   text-align: center;
   background-color: white;
