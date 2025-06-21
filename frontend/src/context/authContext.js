@@ -1,7 +1,7 @@
 // src/context/AuthContext.js
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { login as apiLogin, logout as apiLogout, getUserData } from '../utils/apiCalls';
+import { login as apiLogin, logout as apiLogout, getUserData,resetPassword as apiResetPassword,confirmPasswordReset as apiConfirmPasswordReset} from '../utils/apiCalls';
 import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
@@ -85,6 +85,32 @@ export const AuthProvider = ({ children }) => {
         }
     }, [navigate]);
 
+    const resetPassword = useCallback(async (email) => {
+        console.log("[AUTH_CONTEXT - resetPassword] Initiating password reset for:", email);
+        
+        try {
+            const data = await apiResetPassword(email);
+            console.log("[AUTH_CONTEXT - resetPassword] Password reset email sent successfully:", data);
+            return data;
+        } catch (error) {
+            console.error('[AUTH_CONTEXT - resetPassword] Error during password reset:', error);
+            throw error;
+        }
+    }, []);
+
+    const confirmPasswordReset = useCallback(async (token, newPassword, confirmPassword) => {
+        console.log("[AUTH_CONTEXT - confirmPasswordReset] Confirming password reset");
+        
+        try {
+            const data = await apiConfirmPasswordReset(token, newPassword, confirmPassword);
+            console.log("[AUTH_CONTEXT - confirmPasswordReset] Password reset confirmed successfully:", data);
+            return data;
+        } catch (error) {
+            console.error('[AUTH_CONTEXT - confirmPasswordReset] Error during password reset confirmation:', error);
+            throw error;
+        }
+    }, []);
+
     const value = {
         currentUser,
         isLoggedIn: !!currentUser,
@@ -92,6 +118,8 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         updateUser,
+        resetPassword,
+        confirmPasswordReset,
     };
 
     return (

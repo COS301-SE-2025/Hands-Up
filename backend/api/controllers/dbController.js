@@ -1,10 +1,23 @@
-// controllers/dbController.js
 import { Router } from 'express';
-import { pool } from '../utils.js'; // Assuming utils.js is in the parent directory
+import { pool } from '../utils.js'; 
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 
 const activeSessions = new Map();
+const resetTokens = new Map(); 
+
+const createEmailTransporter = () => {
+  return nodemailer.createTransporter({
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT || 587,
+    secure: process.env.SMTP_PORT == 465, 
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+};
 
 export const learningProgress = async (req, res) => {
   const username = req.params.username;
@@ -186,11 +199,11 @@ export const loginUser = async (req, res) => {
         expires: sessionExpiration
     });
 
-   
+
 
     res.cookie('sessionId', sessionId, {
       httpOnly: true,
-      secure: true, // Set to true only if using HTTPS
+      secure: true,
       sameSite: 'Lax',
       maxAge: 1000 * 60 * 60 * 24,
       path: '/',
@@ -249,7 +262,7 @@ export const authenticateUser = async (req, res, next) => {
       return res.status(401).json({ message: 'Unauthorized: Session invalid or expired.' });
     }
 
-   sessionData.expires = Date.now() + (1000 * 60 * 60 * 24); // Extend by 24 hours
+   sessionData.expires = Date.now() + (1000 * 60 * 60 * 24);
     activeSessions.set(sessionId, sessionData);
  
     const userResult = await pool.query(
@@ -452,3 +465,177 @@ res.status(500).json({ message: 'Internal server error during account deletion.'
  }
 
 };
+
+export const resetPassword = async (req, res) => {
+  console.log("[BACKEND - RESET_PASSWORD] Password reset request received");
+  
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+
+    const userResult = await pool.query(
+      'SELECT "userID", username, email, name FROM users WHERE email = $1',
+      [email]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: 'If an account with that email exists, a password reset link has been sent.'
+      });
+    }
+
+    const user = userResult.rows[0];
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const tokenExpiration = Date.now() + (1000 * 60 * 15); // 15 minutes
+
+    resetTokens.set(resetToken, {
+      userId: user.userID,
+      email: user.email,
+      expires: tokenExpiration
+    });
+
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+    const transporter = createEmailTransporter();
+    
+    const mailOptions = {
+      from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      to: email,
+      subject: 'Password Reset Request - HandsUP',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #333;">Password Reset Request</h2>
+          <p>Hello ${user.name},</p>
+          <p>You have requested to reset your password for your HandsUP account.</p>
+          <p>Click the link below to reset your password:</p>
+          <p>
+            <a href="${resetUrl}" 
+               style="background-color: #007bff; color: white; padding: 10px 20px; 
+                      text-decoration: none; border-radius: 5px; display: inline-block;">
+              Reset Password
+            </a>
+          </p>
+          <p>This link will expire in 15 minutes.</p>
+          <p>If you didn't request this password reset, please ignore this email.</p>
+          <p>Best regards,<br>The HandsUP Team</p>
+        </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    console.log(`[BACKEND - RESET_PASSWORD] Password reset email sent to: ${email}`);
+
+    res.status(200).json({
+      success: true,
+      message: 'If an account with that email exists, a password reset link has been sent.'
+    });
+
+  } catch (error) {
+    console.error('[BACKEND - RESET_PASSWORD] Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error. Please try again later.'
+    });
+  }
+};
+
+export const confirmPasswordReset = async (req, res) => {
+  console.log("[BACKEND - CONFIRM_RESET] Password reset confirmation request received");
+  
+  try {
+    const { token, newPassword, confirmPassword } = req.body;
+
+    if (!token || !newPassword || !confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token, new password, and confirmation password are required'
+      });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Passwords do not match'
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters long'
+      });
+    }
+
+    const tokenData = resetTokens.get(token);
+    
+    if (!tokenData) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired reset token'
+      });
+    }
+
+    if (Date.now() > tokenData.expires) {
+      resetTokens.delete(token);
+      return res.status(400).json({
+        success: false,
+        message: 'Reset token has expired'
+      });
+    }
+
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    const updateResult = await pool.query(
+      'UPDATE users SET password = $1 WHERE "userID" = $2 RETURNING "userID", username, email',
+      [hashedPassword, tokenData.userId]
+    );
+
+    if (updateResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    resetTokens.delete(token);
+  for (const [sessionId, sessionData] of activeSessions.entries()) {
+      if (sessionData.userId === tokenData.userId) {
+        activeSessions.delete(sessionId);
+        console.log(`[BACKEND - CONFIRM_RESET] Session ${sessionId} invalidated for user ${tokenData.userId}`);
+      }
+    }
+
+    console.log(`[BACKEND - CONFIRM_RESET] Password reset successful for user: ${updateResult.rows[0].username}`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset successful. You can now log in with your new password.'
+    });
+
+  } catch (error) {
+    console.error('[BACKEND - CONFIRM_RESET] Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error. Please try again later.'
+    });
+  }
+};
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [token, data] of resetTokens.entries()) {
+    if (now > data.expires) {
+      resetTokens.delete(token);
+      console.log(`[BACKEND - CLEANUP] Expired reset token cleaned up: ${token}`);
+    }
+  }
+}, 1000 * 60 * 5);

@@ -50,7 +50,31 @@ export const signup = async ({ name, surname, username, email, password }) => {
         });
         return handleApiResponse(response);
     } catch (error) {
-        console.error('Signup error:', error);
+        console.error("[API_CALLS - resetPassword] Network or unexpected error:", error);
+        throw error;
+    }
+};
+
+export const confirmPasswordReset = async (token, newPassword, confirmPassword) => {
+    console.log("[API_CALLS - confirmPasswordReset] Confirming password reset with token");
+    
+    try {
+        const response = await fetch(`${API_BASE_URL_AUTH}/confirm-reset-password`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ 
+                token, 
+                newPassword, 
+                confirmPassword 
+            }),
+        });
+
+        return handleApiResponse(response);
+    } catch (error) {
+        console.error("[API_CALLS - confirmPasswordReset] Network or unexpected error:", error);
         throw error;
     }
 };
@@ -199,3 +223,22 @@ export const deleteUserAccount = async (userID) => {
         throw error;
     }
 };
+
+export const resetPassword = async (email) => {
+    console.log("[API_CALLS - resetPassword] Sending password reset request for:", email);
+    
+    try {
+        const response = await fetch(`${API_BASE_URL_AUTH}/reset-password`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ email }),
+        });
+
+        return handleApiResponse(response);
+    }catch (error) {
+        console.error("Error deleting user account:", error);
+        throw error;
+    }};

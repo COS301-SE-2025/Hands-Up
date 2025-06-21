@@ -14,6 +14,8 @@ import {
     deleteUserAccount // <--- ADD THIS IMPORT
 } from './controllers/dbController.js';
 
+import { resetPassword, confirmPasswordReset } from './controllers/dbController.js';
+
 const router = Router();
 
 router.post("/auth/signup", signUpUser);
@@ -31,4 +33,6 @@ router.put("/learning/progress/:username", authenticateUser, learningProgress);
 router.get("/auth/unique-username/:username", uniqueUsername);
 router.get("/auth/unique-email/:email", uniqueEmail);
 
+router.post('/reset-password', resetPassword);
+router.post('/confirm-reset-password', confirmPasswordReset);
 export default router;
