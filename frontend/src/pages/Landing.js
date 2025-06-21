@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { FaAmericanSignLanguageInterpreting, FaComments, FaGlobeAfrica, FaChartLine, FaGamepad } from "react-icons/fa";
+import { FaPersonChalkboard } from "react-icons/fa6";
 import { Link } from 'react-router-dom';
 import '../styles/Landing.css';
 import video1 from "../media/landing_video1.mp4";
@@ -85,6 +87,7 @@ const LandingPage = () => {
           <div className="feature-card">
             <div className="card-inner">
               <div className="card-front one-front">
+                <FaAmericanSignLanguageInterpreting className="landing-feature-icon" />
                 <p>Real-Time Translation</p>
               </div>
               <div className="card-back">
@@ -96,6 +99,7 @@ const LandingPage = () => {
           <div className="feature-card">
             <div className="card-inner">
               <div className="card-front two-front">
+                <FaPersonChalkboard className="landing-feature-icon" />
                 <p>Interactive Learning</p>
               </div>
               <div className="card-back">
@@ -107,6 +111,7 @@ const LandingPage = () => {
           <div className="feature-card">
             <div className="card-inner">
               <div className="card-front one-front">
+                <FaComments className="landing-feature-icon" />
                 <p>Instant Feedback</p>
               </div>
               <div className="card-back">
@@ -118,6 +123,7 @@ const LandingPage = () => {
           <div className="feature-card">
             <div className="card-inner">
               <div className="card-front two-front">
+                <FaChartLine className="landing-feature-icon" />
                 <p>Progress Tracking</p>
               </div>
               <div className="card-back">
@@ -129,6 +135,7 @@ const LandingPage = () => {
           <div className="feature-card">
             <div className="card-inner">
               <div className="card-front one-front">
+                <FaGlobeAfrica className="landing-feature-icon" />
                 <p>Multi-Language Support <br></br>(Coming Soon)</p>
               </div>
               <div className="card-back">
@@ -140,6 +147,7 @@ const LandingPage = () => {
           <div className="feature-card">
             <div className="card-inner">
               <div className="card-front two-front">
+                <FaGamepad className="landing-feature-icon" />
                 <p>Fun Challenges <br></br>(Coming Soon)</p>
               </div>
               <div className="card-back">
@@ -147,7 +155,6 @@ const LandingPage = () => {
               </div>
             </div>
           </div>
-
 
         </div>
       </div>

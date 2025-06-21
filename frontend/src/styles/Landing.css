@@ -300,6 +300,14 @@ html, body {
 
 .card-front {
   background-color: #FFC542;
+  display: flex;
+  flex-direction: column;
+}
+
+.landing-feature-icon {
+  color: #1d1d1d;
+  font-size: 100px;
+  margin-bottom: 10px;
 }
 
 .card-front p {
@@ -418,7 +426,7 @@ html, body {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 540px) {
   .landing-logo {
     width: 40px;
   }
@@ -477,6 +485,10 @@ html, body {
 
   .feature-card {
     width: 47.5%;
+  }
+  
+  .landing-feature-icon {
+    font-size: 50px;
   }
 
   .card-front p {
