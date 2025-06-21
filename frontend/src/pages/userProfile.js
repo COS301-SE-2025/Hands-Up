@@ -308,7 +308,6 @@ const termsContent = {
 
   return (
     <div className="containerP">
-      {/* Terms and Conditions Modal */}
       {showTermsModal && (
         <div className="modal-overlay">
           <div className="modal-content terms-modal">
@@ -438,7 +437,6 @@ const termsContent = {
           </div>
         </section>
 
-        {/* <LearningStats /> */}
 
         <section className="profile-settings">
 
@@ -542,11 +540,10 @@ const termsContent = {
           </form>
         </section>
 
-        {/* POPIA Compliance Section */}
         <section className="privacy-section">
           <div className="privacy-card">
             <h4>🔒 Privacy & Data Rights</h4>
-            <p>We respect your privacy and comply with POPIA (Protection of Personal Information Act). 
+            <p>We respect your privacy and comply with POPIA. 
                 Your data is secure and you have full control over your information.</p>
             <div className="privacy-actions">
               <button 

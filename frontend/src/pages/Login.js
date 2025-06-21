@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-// import { useStatUpdater } from "../hooks/learningStatsUpdater.js"; // This hook is not used here anymore
 import React, { useState, useEffect } from 'react';
-import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/authContext.js'; 
 import '../styles/Login.css';
 import heroImage from "../sign33.png";
@@ -14,10 +13,15 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
+  
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [resetEmailSent, setResetEmailSent] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
 
   const navigate = useNavigate();
+  const { login, resetPassword } = useAuth();
 
-  const { login } = useAuth(); 
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -35,7 +39,6 @@ function Login() {
 
     try {
       await login({ email, password }); 
-     
     } catch (err) { 
       setError(err.message);
       console.error('Login error:', err);
@@ -44,6 +47,35 @@ function Login() {
       setError(''); 
       setIsLoading(false);
     }
+  };
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setError('');
+    setResetLoading(true);
+
+    if (!forgotEmail) {
+      setError('Please enter your email address.');
+      setResetLoading(false);
+      return;
+    }
+
+    try {
+      await resetPassword(forgotEmail);
+      setResetEmailSent(true);
+    } catch (err) {
+      setError(err.message || 'Failed to send reset email. Please try again.');
+      console.error('Password reset error:', err);
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const resetForgotPasswordForm = () => {
+    setShowForgotPassword(false);
+    setForgotEmail('');
+    setResetEmailSent(false);
+    setError('');
   };
 
   return (
@@ -63,74 +95,160 @@ function Login() {
                   <div className="logo-icon-wrapper" style={{ background: `linear-gradient(135deg, #ffc61a, #b3d077)` }}>
                     <img src={logo} alt="Logo" className="logo-image" />
                   </div>
-                  <h1 className="welcome-title">Welcome Back!</h1>
+                  <h1 className="welcome-title">
+                    {showForgotPassword ? 'Reset Password' : 'Welcome Back!'}
+                  </h1>
                 </div>
-                <p className="subtitle">Unlock your signing journey.</p>
+                <p className="subtitle">
+                  {showForgotPassword ? 'Enter your email to reset your password.' : 'Unlock your signing journey.'}
+                </p>
               </div>
 
               <div className="form-fields-container">
                 {error && <div className="error-message">{error}</div>}
 
-                <div className="input-group">
-                  <label htmlFor="email" className="input-label">
-                    <Mail className="mail-icon" /> Email Address
-                  </label>
-                  <div className="input-wrapper">
-                    <input
-                      type="email"
-                      id="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="you@example.com"
-                      className="text-input"
-                    />
-                  </div>
-                </div>
+                {!showForgotPassword ? (
+                  <>
+                    <div className="input-group">
+                      <label htmlFor="email" className="input-label">
+                        <Mail className="mail-icon" /> Email Address
+                      </label>
+                      <div className="input-wrapper">
+                        <input
+                          type="email"
+                          id="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="you@example.com"
+                          className="text-input"
+                        />
+                      </div>
+                    </div>
 
-                <div className="input-group">
-                  <label htmlFor="password" className="input-label">
-                    <Lock className="lock-icon" /> Password
-                  </label>
-                  <div className="input-wrapper">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      id="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="text-input"
-                    />
+                    <div className="input-group">
+                      <label htmlFor="password" className="input-label">
+                        <Lock className="lock-icon" /> Password
+                      </label>
+                      <div className="input-wrapper">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          id="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="••••••••"
+                          className="text-input"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="password-toggle-button"
+                        >
+                          {showPassword ? <EyeOff className="password-icon" /> : <Eye className="password-icon" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="forgot-password-link-container">
+                      <button
+                        type="button"
+                        onClick={() => setShowForgotPassword(true)}
+                        className="forgot-password-link"
+                      >
+                        Forgot your password?
+                      </button>
+                    </div>
+
                     <button
                       type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="password-toggle-button"
+                      disabled={isLoading}
+                      onClick={handleSubmit}
+                      className="submit-button"
                     >
-                      {showPassword ? <EyeOff className="password-icon" /> : <Eye className="password-icon" />}
+                      <div className="submit-button-overlay-1"></div>
+                      <div className="submit-button-overlay-2"></div>
+                      <div className="submit-button-content">
+                        {isLoading ? (
+                          <div className="spinner"></div>
+                        ) : (
+                          <>
+                            <span className="button-text">Log In</span>
+                            <ArrowRight className="arrow-right-icon" />
+                          </>
+                        )}
+                      </div>
                     </button>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  disabled={isLoading}
-                  onClick={handleSubmit}
-                  className="submit-button"
-                >
-                  <div className="submit-button-overlay-1"></div>
-                  <div className="submit-button-overlay-2"></div>
-                  <div className="submit-button-content">
-                    {isLoading ? (
-                      <div className="spinner"></div>
+                  </>
+                ) : (
+           
+                  <>
+                    {resetEmailSent ? (
+                      <div className="reset-email-sent">
+                        <div className="success-message">
+                          <Mail className="mail-icon" />
+                          <h3>Check your email!</h3>
+                          <p>We've sent a password reset link to <strong>{forgotEmail}</strong></p>
+                          <p className="reset-instructions">
+                            Click the link in the email to reset your password. 
+                            If you don't see it, check your spam folder.
+                          </p>
+                        </div>
+                      </div>
                     ) : (
-                      <>
-                        <span className="button-text">Log In</span>
-                        <ArrowRight className="arrow-right-icon" />
-                      </>
+                      <div className="input-group">
+                        <label htmlFor="forgot-email" className="input-label">
+                          <Mail className="mail-icon" /> Email Address
+                        </label>
+                        <div className="input-wrapper">
+                          <input
+                            type="email"
+                            id="forgot-email"
+                            value={forgotEmail}
+                            onChange={(e) => setForgotEmail(e.target.value)}
+                            placeholder="you@example.com"
+                            className="text-input"
+                          />
+                        </div>
+                      </div>
                     )}
-                  </div>
-                </button>
+
+                    <div className="forgot-password-buttons">
+                      {!resetEmailSent && (
+                        <button
+                          type="button"
+                          disabled={resetLoading}
+                          onClick={handleForgotPassword}
+                          className="submit-button"
+                        >
+                          <div className="submit-button-overlay-1"></div>
+                          <div className="submit-button-overlay-2"></div>
+                          <div className="submit-button-content">
+                            {resetLoading ? (
+                              <div className="spinner"></div>
+                            ) : (
+                              <>
+                                <span className="button-text">Send Reset Email</span>
+                                <ArrowRight className="arrow-right-icon" />
+                              </>
+                            )}
+                          </div>
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={resetForgotPasswordForm}
+                        className="back-to-login-button"
+                      >
+                        <ArrowLeft className="back-arrow-icon" />
+                        <span>Back to Login</span>
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
+            
+            {!showForgotPassword && (
               <div className="signup-section">
                 <div className="signup-card">
                   <p className="signup-text">Don&apos;t have an account?</p>
@@ -143,9 +261,8 @@ function Login() {
                   </button>
                 </div>
               </div>
+            )}
           </div>
-
-          
 
           <div className="hero-section">
             <div className="hero-background-image" style={{ backgroundImage: `url(${heroImage})` }}></div>
@@ -161,8 +278,6 @@ function Login() {
           </div>
 
         </div>
-
-        
       </div>
     </div>
   );
