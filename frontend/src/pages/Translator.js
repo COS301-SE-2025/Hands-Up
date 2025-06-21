@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import '../styles/Translator.css';
 
-export default function Translator() 
-{
+export default function Translator() {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [result, setResult] = useState("Awaiting sign capture...");
@@ -10,12 +9,15 @@ export default function Translator()
   const [speakDisabled, setSpeakDisabled] = useState(true);
   const [audioProgressWidth, setAudioProgressWidth] = useState(0);
   const [capturedImage, setCapturedImage] = useState(null);
-  const [capturedType, setCapturedType] = useState(null); // 'image' or 'video'
+  const [capturedType, setCapturedType] = useState(null);
   const [captureHistory, setCaptureHistory] = useState([]);
-  const [capturedBlob, setCapturedBlob] = useState(null); // Store the actual blob for API processing
-
+  const [capturedBlob, setCapturedBlob] = useState(null);
+  const [processing, setProcessing] = useState(false);
+  const [confidence, setConfidence] = useState(0);
   const [mediaRecorder, setMediaRecorder] = useState(null);
-  //const [recordedChunks, setRecordedChunks] = useState([]);
+
+  // API Configuration
+  const API_BASE_URL = 'http://localhost:2000/handsUPApi';
 
   useEffect(() => {
     const enableCamera = async () => {
@@ -24,15 +26,14 @@ export default function Translator()
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
         }
-      } catch (err) 
-      {
+      } catch (err) {
         console.log(err);
         setResult('Camera access denied.');
       }
     };
 
     enableCamera();
-    const currentVideo = videoRef.current; //Added by Karabo - linting
+    const currentVideo = videoRef.current;
 
     return () => {
       if (currentVideo && currentVideo.srcObject) {
@@ -48,101 +49,107 @@ export default function Translator()
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d');
 
-      // Set canvas dimensions to video dimensions
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
-
-      // Draw the current video frame to canvas
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // Convert canvas to blob/base64 for processing
       canvas.toBlob((blob) => {
         const imageUrl = URL.createObjectURL(blob);
         setCapturedImage(imageUrl);
         setCapturedType('image');
-        setCapturedBlob(blob); // Store blob for API processing
+        setCapturedBlob(blob);
 
-        // Add to history with blob
         setCaptureHistory(prev => [{
           id: Date.now(),
           url: imageUrl,
           type: 'image',
-          blob: blob, // Store blob in history for later API calls
+          blob: blob,
           timestamp: new Date().toLocaleTimeString()
         }, ...prev.slice(0, 4)]);
 
-        // Process the captured image
         processImage(blob);
       }, 'image/jpeg', 0.8);
     }
   };
 
-  const processImage = async () => {
+  const processImage = async (imageBlob) => {
     setResult("Processing captured image...");
+    setProcessing(true);
+    setSpeakDisabled(true);
+    setConfidence(0);
 
-    // Simulate processing
-    setTimeout(() => {
-      setResult("Detected: 'Hello'");
-      setSpeakDisabled(false);
-      setAudioProgressWidth(0);
-      setTimeout(() => {
-        setAudioProgressWidth(100);
-      }, 100);
-    }, 1500);
-
-    // Example API call for image processing
-    /*
-    const formData = new FormData();
-    formData.append('image', imageBlob, 'capture.jpg');
-    
     try {
-      const response = await fetch('/api/process-sign', {
+      const formData = new FormData();
+      formData.append('image', imageBlob, 'capture.jpg');
+      
+      const response = await fetch(`${API_BASE_URL}/process-sign`, {
         method: 'POST',
         body: formData
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
-      setResult(`Detected: '${data.sign}'`);
-      setSpeakDisabled(false);
+      
+      if (data.error) {
+        setResult(`Error: ${data.error}`);
+      } else {
+        setResult(`Detected: '${data.sign}'`);
+        setConfidence(data.confidence);
+        setSpeakDisabled(false);
+        setAudioProgressWidth(0);
+        setTimeout(() => {
+          setAudioProgressWidth(100);
+        }, 100);
+      }
     } catch (error) {
-      setResult('Error processing image');
+      console.error('Error processing image:', error);
+      setResult('Error processing image. Please check your connection.');
+    } finally {
+      setProcessing(false);
     }
-    */
   };
 
-  const processVideo = async () => {
+  const processVideo = async (videoBlob) => {
     setResult("Processing captured video...");
+    setProcessing(true);
+    setSpeakDisabled(true);
+    setConfidence(0);
 
-    // Simulate faster processing
-    setTimeout(() => {
-      setResult("Detected phrase: 'How are you?'");
-      setSpeakDisabled(false);
-      setAudioProgressWidth(0);
-      setTimeout(() => {
-        setAudioProgressWidth(100);
-      }, 100);
-    }, 800); // Reduced from 2000ms to 800ms
-
-    // Example API call for video processing with optimized FormData
-    /*
-    const formData = new FormData();
-    formData.append('video', videoBlob, 'sign.webm');
-    
     try {
-      const response = await fetch('/api/process-video', {
+      const formData = new FormData();
+      formData.append('video', videoBlob, 'sign.webm');
+      
+      const response = await fetch(`${API_BASE_URL}/process-video`, {
         method: 'POST',
-        body: formData,
-        // Add headers for faster processing
-        headers: {
-          'Accept': 'application/json',
-        }
+        body: formData
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
-      setResult(`Detected phrase: '${data.phrase}'`);
-      setSpeakDisabled(false);
+      
+      if (data.error) {
+        setResult(`Error: ${data.error}`);
+      } else {
+        setResult(data.phrase);
+        setConfidence(data.confidence);
+        setSpeakDisabled(false);
+        setAudioProgressWidth(0);
+        setTimeout(() => {
+          setAudioProgressWidth(100);
+        }, 100);
+      }
     } catch (error) {
-      setResult('Error processing video');
+      console.error('Error processing video:', error);
+      setResult('Error processing video. Please check your connection.');
+    } finally {
+      setProcessing(false);
     }
-    */
   };
 
   const capture = () => {
@@ -151,7 +158,6 @@ export default function Translator()
 
   const startRecording = () => {
     if (recording) {
-      // Stop recording if already recording
       stopRecording();
       return;
     }
@@ -159,26 +165,20 @@ export default function Translator()
     const stream = videoRef.current?.srcObject;
     if (!stream) return;
 
-    // Reset chunks for new recording
-    //setRecordedChunks([]);
-    
-    // Use higher bitrate for better quality and faster processing
     const options = {
       mimeType: 'video/webm;codecs=vp8',
-      videoBitsPerSecond: 2500000 // 2.5 Mbps for good quality
+      videoBitsPerSecond: 2500000
     };
     
-    // Fallback options if the preferred format isn't supported
     let recorder;
     try {
       recorder = new MediaRecorder(stream, options);
     } catch (e) {
-      // Fallback to default
       console.log(e);
       recorder = new MediaRecorder(stream);
     }
 
-    const chunks = []; // Local array to collect chunks
+    const chunks = [];
 
     recorder.ondataavailable = (e) => {
       if (e.data.size > 0) {
@@ -187,32 +187,27 @@ export default function Translator()
     };
 
     recorder.onstop = () => {
-      // Create blob from collected chunks
       const blob = new Blob(chunks, { type: 'video/webm' });
       const videoURL = URL.createObjectURL(blob);
       
       setCapturedImage(videoURL);
       setCapturedType('video');
-      setCapturedBlob(blob); // Store blob for API processing
+      setCapturedBlob(blob);
       
-      // Add to history with blob
       setCaptureHistory(prev => [{
         id: Date.now(),
         url: videoURL,
         type: 'video',
-        blob: blob, // Store blob in history for later API calls
+        blob: blob,
         timestamp: new Date().toLocaleTimeString()
       }, ...prev.slice(0, 4)]);
 
-      // Process the video
       processVideo(blob);
       setRecording(false);
     };
 
     setMediaRecorder(recorder);
-    
-    // Start recording with timeslice for more frequent data events
-    recorder.start(200); // Request data every 200ms
+    recorder.start(200);
     setRecording(true);
     setResult("Recording signs... Click again to stop");
   };
@@ -227,25 +222,22 @@ export default function Translator()
     if (e.target.files.length > 0) {
       const file = e.target.files[0];
       const isVideo = file.type.includes('video');
-      //const isImage = file.type.includes('image');
       
       setResult(`Processing uploaded ${isVideo ? 'video' : 'image'}...`);
       
       const fileUrl = URL.createObjectURL(file);
       setCapturedImage(fileUrl);
       setCapturedType(isVideo ? 'video' : 'image');
-      setCapturedBlob(file); // Store file blob for API processing
+      setCapturedBlob(file);
 
-      // Add to history with blob
       setCaptureHistory(prev => [{
         id: Date.now(),
         url: fileUrl,
         type: isVideo ? 'video' : 'image',
-        blob: file, // Store file blob in history
+        blob: file,
         timestamp: new Date().toLocaleTimeString()
       }, ...prev.slice(0, 4)]);
 
-      // Process the uploaded file
       if (isVideo) {
         processVideo(file);
       } else {
@@ -258,6 +250,16 @@ export default function Translator()
     const text = result.replace('Detected: ', '').replace('Detected phrase: ', '').replace('API Result: ', '');
     const utterance = new SpeechSynthesisUtterance(text);
     window.speechSynthesis.speak(utterance);
+  };
+
+  const reprocessCapture = async () => {
+    if (!capturedBlob) return;
+    
+    if (capturedType === 'video') {
+      await processVideo(capturedBlob);
+    } else {
+      await processImage(capturedBlob);
+    }
   };
 
   const renderMediaPreview = (url, type) => {
@@ -333,7 +335,6 @@ export default function Translator()
                 playsInline 
                 className="recognizer-video"
               ></video>
-              {/* Hidden canvas for capturing video frames */}
               <canvas 
                 ref={canvasRef} 
                 style={{ display: 'none' }}
@@ -358,15 +359,25 @@ export default function Translator()
                   <i className="fas fa-circle recognizer-pulse-icon"></i> Recording...
                 </div>
               )}
+              {processing && (
+                <div className="recognizer-processing-indicator">
+                  <i className="fas fa-spinner fa-spin"></i> Processing...
+                </div>
+              )}
             </div>
 
             <div className="recognizer-controls">
-              <button onClick={capture} className="recognizer-control-button recognizer-capture-button">
+              <button 
+                onClick={capture} 
+                className="recognizer-control-button recognizer-capture-button"
+                disabled={processing}
+              >
                 <i className="fas fa-camera"></i> Capture Sign
               </button>
               <button 
                 onClick={startRecording} 
                 className={`recognizer-control-button ${recording ? 'recognizer-stop-button' : 'recognizer-record-button'}`}
+                disabled={processing}
               >
                 <i className={`fas ${recording ? 'fa-stop' : 'fa-video'}`}></i> 
                 {recording ? 'Stop Recording' : 'Record Sequence'}
@@ -378,6 +389,7 @@ export default function Translator()
                   accept="image/*,video/*" 
                   className="recognizer-file-input" 
                   onChange={handleFileUpload}
+                  disabled={processing}
                 />
               </label>
             </div>
@@ -392,7 +404,6 @@ export default function Translator()
                     key={capture.id} 
                     className="recognizer-history-item" 
                     title={`${capture.type} - ${capture.timestamp}`}
-                    //onClick={() => handleHistoryClick(capture)}
                     style={{ cursor: 'pointer', position: 'relative' }}
                   >
                     {renderHistoryItem(capture)}
@@ -408,30 +419,8 @@ export default function Translator()
                     }}>
                       {capture.type === 'video' ? '🎥' : '📷'}
                     </div>
-                    {/* Hover overlay */}
-                    <div style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      background: 'rgba(0,0,0,0.3)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      opacity: 0,
-                      transition: 'opacity 0.2s',
-                      color: 'white',
-                      fontSize: '12px',
-                      fontWeight: 'bold'
-                    }}
-                    className="history-hover-overlay"
-                    >
-                    
-                    </div>
                   </div>
                 ))}
-                {/* Fill remaining slots with empty divs */}
                 {Array.from({ length: Math.max(0, 5 - captureHistory.length) }, (_, i) => (
                   <div key={`empty-${i}`} className="recognizer-history-item"></div>
                 ))}
@@ -445,7 +434,6 @@ export default function Translator()
                 <i className="fas fa-language recognizer-results-icon"></i> Translation Results
               </h3>
               
-              {/* Display captured image/video if available */}
               {capturedImage && (
                 <div className="recognizer-captured-image" style={{ marginBottom: '10px' }}>
                   {renderMediaPreview(capturedImage, capturedType)}
@@ -462,18 +450,18 @@ export default function Translator()
                 <button 
                   onClick={speak} 
                   className="recognizer-speak-button" 
-                  disabled={speakDisabled}
+                  disabled={speakDisabled || processing}
                 >
                   <i className="fas fa-volume-up"></i>
                 </button>
                 <button 
-                  //onClick={sendToAPI} 
+                  onClick={reprocessCapture} 
                   className="recognizer-speak-button" 
-                  disabled={!capturedBlob}
-                  title="Send to API for processing"
+                  disabled={!capturedBlob || processing}
+                  title="Reprocess with AI"
                   style={{ marginLeft: '10px' }}
                 >
-                  <i className="fas fa-cloud-upload-alt"></i>
+                  <i className={`fas ${processing ? 'fa-spinner fa-spin' : 'fa-redo'}`}></i>
                 </button>
                 <div className="recognizer-audio-progress-container">
                   <div 
@@ -485,8 +473,8 @@ export default function Translator()
 
               <div className="recognizer-additional-info">
                 <div className="recognizer-confidence">
-                  <span>Confidence: <span className="recognizer-confidence-value">98%</span></span>
-                  <span>Alternative: <span className="recognizer-alternative-value">None</span></span>
+                  <span>Confidence: <span className="recognizer-confidence-value">{confidence}%</span></span>
+                  <span>Status: <span className="recognizer-alternative-value">{processing ? 'Processing...' : 'Ready'}</span></span>
                 </div>
               </div>
             </div>
@@ -522,14 +510,12 @@ export default function Translator()
 
             <div className="recognizer-support">
               <p className="recognizer-support-text">
-                Need help? <button className="recognizer-support-link">Contact Support</button> {/*Added by Karabo - invalid link - linting*/}
+                Need help? <button className="recognizer-support-link">Contact Support</button>
               </p>
             </div>
           </div>
         </div>
       </div>
-      
-      
     </div>
   );
 }
