@@ -1,79 +1,52 @@
-import os
-import json
-import cv2
 import numpy as np
-from mediapipe.python.solutions.holistic import Holistic
-from tensorflow.keras.utils import to_categorical
+import os
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
-from keyPoints import extract_keypoints  # Ensure this is defined properly
+from tensorflow.keras.utils import to_categorical
 
-def read_sentence_mapping(path):
-    with open(path, 'r') as f:
-        mapping = json.load(f)
-    return mapping
+def load_data(data_path='processed_dataset', actions=None, sequence_length=30, test_size=0.2, random_state=42):
+    if actions is None:
+        actions = sorted([folder for folder in os.listdir(data_path) if os.path.isdir(os.path.join(data_path, folder))])
+    
+    print(f"Actions found: {actions}")
+    
+    label_map = {label: num for num, label in enumerate(actions)}
+    sequences, labels = [], []
 
-def get_label_from_file(filename, folder, mapping=None):
-    name = os.path.splitext(filename)[0]
-    if folder == "sentences" and mapping:
-        return mapping.get(name)
-    return None
+    for action in actions:
+        action_path = os.path.join(data_path, action)
+        action_sequences = 0
+        
+        for file in os.listdir(action_path):
+            if not file.endswith('.npy'):
+                continue
+            file_path = os.path.join(action_path, file)
+            sequence = np.load(file_path)
 
-def process_video(video_path, holistic, sequence_length):
-    cap = cv2.VideoCapture(video_path)
-    if not cap.isOpened():
-        print(f"[ERROR] Failed to open video: {video_path}")
-        return []
-
-    keypoints_sequence = []
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
-            break
-
-        # Convert to RGB
-        image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        image.flags.writeable = False
-        results = holistic.process(image)
-        keypoints = extract_keypoints(results)
-        keypoints_sequence.append(keypoints)
-
-    cap.release()
-
-    if len(keypoints_sequence) == 0:
-        return []
-
-    # Pad or trim to fixed length
-    while len(keypoints_sequence) < sequence_length:
-        keypoints_sequence.append(np.zeros_like(keypoints_sequence[0]))
-    if len(keypoints_sequence) > sequence_length:
-        keypoints_sequence = keypoints_sequence[:sequence_length]
-
-    return keypoints_sequence
-
-def load_data(data_path='dataset/ASL_Sign/sentences', mapping_path='dataset/mapping.txt'):
-    # Load mapping
-    with open(mapping_path, 'r') as f:
-        mapping = json.load(f)
-
-    X, y = [], []
-
-    for fname in os.listdir(data_path):
-        if fname.endswith('.mp4'):
-            file_id = os.path.splitext(fname)[0]
-            label = mapping.get(file_id)
-            if not label:
+            if sequence.shape[0] != sequence_length:
+                print(f"Skipping {file_path} due to incorrect length: {sequence.shape[0]}")
                 continue
 
-            video_path = os.path.join(data_path, fname)
-            frames = extract_frames(video_path)  # you define this
-            X.append(frames)
-            y.append(label)
+            sequences.append(sequence)
+            labels.append(label_map[action])
+            action_sequences += 1
+        
+        print(f"Action '{action}': {action_sequences} sequences loaded")
 
-    # Convert labels
-    unique_labels = sorted(set(y))
-    label_to_index = {label: i for i, label in enumerate(unique_labels)}
-    y_encoded = [label_to_index[label] for label in y]
-    y_one_hot = np.eye(len(unique_labels))[y_encoded]
-
-    return train_test_split(np.array(X), np.array(y_one_hot), test_size=0.2), label_to_index
+    X = np.array(sequences)
+    y = to_categorical(labels).astype(int)
+    
+    print(f"\nDataset Summary:")
+    print(f"X shape: {X.shape}")
+    print(f"y shape: {y.shape}")
+    print(f"Unique labels: {np.unique(labels)}")
+    print(f"Label distribution: {np.bincount(labels)}")
+    print(f"Data range: [{X.min():.4f}, {X.max():.4f}]")
+    print(f"Data mean: {X.mean():.4f}, std: {X.std():.4f}")
+    
+    # Check for data issues
+    if np.any(np.isnan(X)):
+        print("WARNING: NaN values found in data!")
+    if np.any(np.isinf(X)):
+        print("WARNING: Infinite values found in data!")
+    
+    return train_test_split(X, y, test_size=test_size, random_state=random_state, stratify=labels), label_map
