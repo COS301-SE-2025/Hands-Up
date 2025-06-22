@@ -1,5 +1,5 @@
 import { jest, expect, test, afterEach, describe, beforeEach } from '@jest/globals';
-import { login } from '../../../frontend/src/utils/apiCalls'; // Import the login function
+import { login } from '../../../../frontend/src/utils/apiCalls'; // Import the login function
 
 globalThis.fetch = jest.fn();
 

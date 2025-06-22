@@ -6,8 +6,8 @@ jest.unstable_mockModule('../../../backend/api/utils/dbConnection', () => ({
   },
 }));
 
-const { pool } =  import('../../../backend/api/utils/dbConnection');
-const { learningProgress } = import('../../../backend/api/controllers/dbController.js');
+const { pool } =  import('../../../../backend/api/utils/dbConnection.js');
+const { learningProgress } = import('../../../../backend/api/controllers/dbController.js');
 
 describe('learningProgress controller', () => {
   let req, res;

@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from controllers.modelControllers import detectFromImage, detectFromVideo
+from controllers.modelControllers import detectFromImage
 import tempfile
 import os
 
@@ -18,21 +18,5 @@ def process_image():
 
     result = detectFromImage(image_path)
     os.remove(image_path)
-
-    return jsonify(result)
-
-@api_blueprint.route('/sign/processVideo', methods=['POST'])
-def process_video():
-    if 'video' not in request.files:
-        return jsonify({'error': 'No video uploaded'}), 400
-
-    video_file = request.files['video']
-
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.webm') as tmp:
-        video_path = tmp.name
-        video_file.save(video_path)
-
-    result = detectFromVideo(video_path)
-    os.remove(video_path)
 
     return jsonify(result)

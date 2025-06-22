@@ -8,5 +8,3 @@ app.register_blueprint(api_blueprint, url_prefix='/handsUPApi')
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-input("Press Enter to exit...")

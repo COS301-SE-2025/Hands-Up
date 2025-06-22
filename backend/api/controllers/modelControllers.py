@@ -6,8 +6,8 @@ import pickle
 import collections
 import time
 
-model = tf.keras.models.load_model('../../ai_model/models/detectLettersModel.keras')
-with open('../../ai_model/models/labelEncoder.pickle', 'rb') as f:
+model = tf.keras.models.load_model('../../../ai_model/models/detectLettersModel.keras')
+with open('../../../ai_model/models/labelEncoder.pickle', 'rb') as f:
     labelEncoder = pickle.load(f)
 
 class ZGestureStateMachine:
@@ -158,71 +158,3 @@ def detectFromImage(imageIn):
             return {'phrase': 'Nothing detected', 'confidence': 0.0}
     else:
         return {'phrase': 'Nothing detected', 'confidence': 0.0}
-
-import time
-
-def detectFromVideo(videoPath):
-    cap = cv2.VideoCapture(videoPath)
-
-    predictions = []
-    filteredPhrase = []
-    previousLabel = None
-    framesWithoutHand = 0
-    handLostThreshold = 8
-    signInterval = 2.0
-
-    lastSignTime = time.time() - signInterval
-
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
-
-        imgRGB = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = hands.process(imgRGB)
-
-        if results.multi_hand_landmarks:
-            framesWithoutHand = 0
-
-            currentTime = time.time()
-            if currentTime - lastSignTime >= signInterval:
-                for handLandmarks in results.multi_hand_landmarks:
-                    x_ = [lm.x for lm in handLandmarks.landmark]
-                    y_ = [lm.y for lm in handLandmarks.landmark]
-
-                    xMin, yMin = min(x_), min(y_)
-                    dataAux = []
-
-                    for lm in handLandmarks.landmark:
-                        dataAux.append(lm.x - xMin)
-                        dataAux.append(lm.y - yMin)
-
-                    inputData = np.array(dataAux, dtype=np.float32).reshape(1, 42, 1)
-                    prediction = model.predict(inputData, verbose=0)
-                    predictedIndex = np.argmax(prediction, axis=1)[0]
-                    predictedLabel = labelEncoder.inverse_transform([predictedIndex])[0]
-                    confidence = float(np.max(prediction))
-
-                    if confidence < 0.8:
-                        return {
-                            'phrase': 'Nothing detected'
-                        }
-
-                    predictions.append({'label': predictedLabel, 'confidence': round(confidence, 4)})
-
-                    if predictedLabel != previousLabel:
-                        filteredPhrase.append(predictedLabel)
-                        previousLabel = predictedLabel
-                        lastSignTime = currentTime
-
-        else:
-            framesWithoutHand += 1
-            if framesWithoutHand > handLostThreshold:
-                previousLabel = None
-
-    cap.release()
-
-    return {
-        'phrase': ''.join(filteredPhrase),
-        'frames': predictions
-    } if predictions else {'phrase': 'Nothing detected', 'frames': []}
