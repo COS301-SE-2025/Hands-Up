@@ -1,136 +1,132 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import '../styles/Learn.css';
+
+async function getLandmarks(letter) {
+  const response = await fetch(`/landmarks/${letter}.json`);
+  const data = await response.json();
+  return data.frames;
+}
 
 export function SignLearn() {
   const { letter } = useParams();
-  const navigate = useNavigate();
   const canvasRef = useRef(null);
   const [landmarks, setLandmarks] = useState([]);
-  const [error, setError] = useState(null);
+  const [frameIndex, setFrameIndex] = useState(0);
 
   useEffect(() => {
-    const dataPath = '/landmarks.json';
-
-    fetch(dataPath)
-      .then(res => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! Status: ${res.status}`);
-        }
-        return res.json();
-      })
-      .then(data => {
-        const signData = data.find(item => item.label === letter.toUpperCase());
-        if (signData) {
-          setLandmarks(signData.landmarks);
-          setError(null);
-        } else {
-          setLandmarks([]);
-          setError(`No data for '${letter.toUpperCase()}' found.`);
-        }
-      })
-      .catch(err => {
-        console.error("Error fetching landmarks:", err);
-        setError(`Failed to load data: ${err.message}`);
-        setLandmarks([]);
-      });
+    async function loadData() {
+      const frames = await getLandmarks(letter);
+      setLandmarks(frames);
+      setFrameIndex(0);
+    }
+    loadData();
   }, [letter]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || landmarks.length === 0) return;
+    const ctx = canvas?.getContext('2d');
+    let animationId;
 
-    const ctx = canvas.getContext('2d');
-    canvas.width = 640;
-    canvas.height = 480;
+    function drawFrame() {
+    if (!ctx || landmarks.length === 0) return;
 
-    const w = canvas.width;
-    const h = canvas.height;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.clearRect(0, 0, w, h);
+    const frame = landmarks[frameIndex];
+    if (!frame) return;
 
-    ctx.shadowColor = 'rgba(0,0,0,0.2)';
-    ctx.shadowBlur = 4;
-
-    const palmIndices = [0, 5, 9, 13, 17];
-    if (palmIndices.every(i => landmarks[i])) {
-      ctx.beginPath();
-      const start = landmarks[palmIndices[0]];
-      ctx.moveTo(start.x * w, start.y * h);
-      for (let i = 1; i < palmIndices.length; i++) {
-        const p = landmarks[palmIndices[i]];
-        ctx.lineTo(p.x * w, p.y * h);
-      }
-      ctx.closePath();
-      ctx.fillStyle = 'rgba(135, 206, 250, 0.3)';
-      ctx.fill();
-    }
-
-    const connections = [
-      [0, 1], [1, 2], [2, 3], [3, 4],       
-      [0, 5], [5, 6], [6, 7], [7, 8],      
-      [5, 9], [9, 10], [10, 11], [11, 12], 
-      [9, 13], [13, 14], [14, 15], [15, 16],
-      [13, 17], [17, 18], [18, 19], [19, 20], 
-      [0, 17]                               
-    ];
-
-    ctx.strokeStyle = 'gray';
-    ctx.lineWidth = 2;
-    connections.forEach(([start, end]) => {
-      const p1 = landmarks[start];
-      const p2 = landmarks[end];
-      if (p1 && p2) {
-        ctx.beginPath();
-        ctx.moveTo(p1.x * w, p1.y * h);
-        ctx.lineTo(p2.x * w, p2.y * h);
-        ctx.stroke();
-      }
+    const getCoord = ({ x, y, z = 0 }) => ({
+      x: x * canvas.width,
+      y: y * canvas.height,
+      z,
     });
 
-    const outlineIndices = [0, 1, 2, 3, 4, 8, 12, 16, 20, 17, 13, 9, 5, 0];
-    const outlinePoints = outlineIndices.map(i => {
-      const p = landmarks[i];
-      return [p.x * w, p.y * h];
-    });
+    const points = frame.map(getCoord);
+    const light = { x: canvas.width * 0.5, y: canvas.height * 0.5 };
 
+    const getShadedColor = (p) => {
+      const dx = p.x - light.x;
+      const dy = p.y - light.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const intensity = Math.max(0.4, 1 - dist / 300 - p.z * 2);
+      const alpha = 0.8;
+      const r = 220 * intensity;
+      const g = 160 * intensity;
+      const b = 130 * intensity;
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    };
+
+    const palmIndices = [0, 1, 5, 9, 13, 17];
     ctx.beginPath();
-    ctx.moveTo(outlinePoints[0][0], outlinePoints[0][1]);
-    for (let i = 1; i < outlinePoints.length; i++) {
-      ctx.lineTo(outlinePoints[i][0], outlinePoints[i][1]);
+    for (let i = 0; i < palmIndices.length; i++) {
+      const current = points[palmIndices[i]];
+      const next = points[palmIndices[(i + 1) % palmIndices.length]];
+      const midX = (current.x + next.x) / 2;
+      const midY = (current.y + next.y) / 2;
+
+      if (i === 0) {
+        ctx.moveTo(current.x, current.y);
+      }
+      ctx.quadraticCurveTo(current.x, current.y, midX, midY);
     }
+
     ctx.closePath();
-    ctx.strokeStyle = 'blue';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.fillStyle = 'rgba(0, 0, 255, 0.1)';
+    ctx.fillStyle = getShadedColor(points[0]);
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = 'rgba(0,0,0,0.08)';
     ctx.fill();
 
-    landmarks.forEach(point => {
-      if (typeof point.x === 'number' && typeof point.y === 'number') {
-        const x = point.x * w;
-        const y = point.y * h;
-        ctx.beginPath();
-        ctx.arc(x, y, 5, 0, 2 * Math.PI);
-        ctx.fillStyle = 'deepskyblue';
-        ctx.fill();
+    const fingers = [
+      [1, 2, 3, 4], [5, 6, 7, 8],
+      [9, 10, 11, 12], [13, 14, 15, 16],
+      [17, 18, 19, 20]
+    ];
+
+    for (const finger of fingers) {
+      ctx.beginPath();
+      const start = points[finger[0]];
+      ctx.moveTo(start.x, start.y);
+
+      for (let i = 0; i < finger.length - 1; i++) {
+        const cp = points[finger[i]];
+        const ep = points[finger[i + 1]];
+        const midX = (cp.x + ep.x) / 2;
+        const midY = (cp.y + ep.y) / 2;
+        ctx.quadraticCurveTo(cp.x, cp.y, midX, midY);
       }
-    });
-  }, [landmarks]);
+
+      ctx.strokeStyle = getShadedColor(start);
+      ctx.lineWidth = 25 - start.z * 4;
+      ctx.lineCap = 'round';
+      ctx.shadowColor = 'rgba(0,0,0,0.12)';
+      ctx.shadowBlur = 10;
+      ctx.stroke();
+
+      // Add a rounded fingertip
+      // const tip = points[finger[finger.length - 1]];
+      // ctx.beginPath();
+      // ctx.arc(tip.x, tip.y, 5 - tip.z * 3, 0, 2 * Math.PI);
+      // ctx.fillStyle = getShadedColor(tip);
+      // ctx.fill();
+    }
+
+    // Animate next frame
+    setFrameIndex((prev) => (prev + 1) % landmarks.length);
+    animationId = requestAnimationFrame(drawFrame);
+  }
+
+      animationId = requestAnimationFrame(drawFrame);
+
+      return () => cancelAnimationFrame(animationId);
+    }, [landmarks, frameIndex]);
 
   return (
-    <div className="sign-display">
-      <button onClick={() => navigate(-1)} className="back-button">← Back</button>
-      <h1>{letter.toUpperCase()}</h1>
-
-      {error && <p className="error-message" style={{ color: 'red' }}>{error}</p>}
-
-      <div className="sign-character">
-        <canvas
-          ref={canvasRef}
-          style={{ border: '1px solid #ccc', backgroundColor: 'white' }}
-        />
-      </div>
+    <div className="sign-learn-container">
+      <h1>Learning Sign: {letter}</h1>
+      <canvas ref={canvasRef} width={640} height={480} className="sign-canvas" />
     </div>
   );
 }

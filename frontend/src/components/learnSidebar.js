@@ -3,7 +3,8 @@ import '../styles/Learn.css';
 import PropTypes from "prop-types";
 
 export function Sidebar({ onSelect }){
-  <div className="sidebar">
+  
+  return <div className="sidebar">
     <div className="sidebar-item active" onClick={() => onSelect('dashboard')}>
       Dashboard
     </div>

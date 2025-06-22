@@ -1,8 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-export function CategoryTile({ name, emoji, onClick }){
-  <div className="category-tile" onClick={onClick}>
+export const CategoryTile = ({ name, emoji, onClick }) =>{
+  return <div className="category-tile" onClick={onClick}>
     <div className="category-emoji">{emoji}</div>
     <div className="category-name">{name}</div>
   </div>
