@@ -15,11 +15,10 @@ def extractLandmarksFromVideo(videoPath, letter, outputDir='landmarks'):
         if not success:
             break
 
-        # Flip and convert color for MediaPipe
         frame = cv2.flip(frame, 1)
-        imageRgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        imageRGB = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-        results = hands.process(imageRgb)
+        results = hands.process(imageRGB)
 
         frameLandmarks = []
         if results.multi_hand_landmarks:
@@ -29,7 +28,6 @@ def extractLandmarksFromVideo(videoPath, letter, outputDir='landmarks'):
                     "x": lm.x,
                     "y": lm.y,
                     "z": lm.z,
-                    "visibility": lm.visibility
                 })
 
         if frameLandmarks:
@@ -58,22 +56,19 @@ def processAllVideosInDirectory(videoDirectory, outputDirectory='landmarks'):
         print(f"Error: Video directory '{videoDirectory}' not found.")
         return
 
-    # Create the output directory if it doesn't exist
     os.makedirs(outputDirectory, exist_ok=True)
 
     for filename in os.listdir(videoDirectory):
-        if filename.lower().endswith(('.mp4')): # Add other video extensions if needed
+        if filename.lower().endswith(('.mp4')): 
             videoPath = os.path.join(videoDirectory, filename)
-            # Extract the letter from the filename (e.g., "A.mp4" -> "A")
             letter = os.path.splitext(filename)[0]
             print(f"Processing video: {filename} for letter: {letter}")
             extractLandmarksFromVideo(videoPath, letter, outputDirectory)
         else:
             print(f"Skipping non-video file: {filename}")
 
-# Example usage
 if __name__ == "__main__":
-    videoInputDirectory = "../video_data" # Assuming your videos are in a folder named 'videos'
-    landmarkOutputDirectory = "../processed_data/landmarks" # Output directory for JSON files
+    videoInputDirectory = "../video_data" '
+    landmarkOutputDirectory = "../processed_data/landmarks" 
     
     processAllVideosInDirectory(videoInputDirectory, landmarkOutputDirectory)
