@@ -11,6 +11,7 @@ tests/coverage/
 
 #datasets
 ai_model/data
+ai_model/video_data
 
 # misc
 **/.env
