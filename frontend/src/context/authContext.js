@@ -98,18 +98,14 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
-    const confirmPasswordReset = useCallback(async (token, newPassword, confirmPassword) => {
-        console.log("[AUTH_CONTEXT - confirmPasswordReset] Confirming password reset");
-        
-        try {
-            const data = await apiConfirmPasswordReset(token, newPassword, confirmPassword);
-            console.log("[AUTH_CONTEXT - confirmPasswordReset] Password reset confirmed successfully:", data);
-            return data;
-        } catch (error) {
-            console.error('[AUTH_CONTEXT - confirmPasswordReset] Error during password reset confirmation:', error);
-            throw error;
-        }
-    }, []);
+const confirmPasswordReset = async (email, token, newPassword,confirmNewPassword ) => {
+    try {
+        const data = await apiConfirmPasswordReset(email, token, newPassword, confirmNewPassword );
+        return data;
+    } catch (error) {
+        throw error;
+    }
+};
 
     const value = {
         currentUser,

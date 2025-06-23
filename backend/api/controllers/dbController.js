@@ -1,17 +1,26 @@
 import { Router } from 'express';
-import { pool } from '../utils.js'; 
+import { pool } from '../utils.js';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
+import multer from 'multer';
+import User from '../models/User.js';
+import jwt from 'jsonwebtoken';
 
 const activeSessions = new Map();
-const resetTokens = new Map(); 
+const resetTokens = new Map();
+const MAX_LOGIN_ATTEMPTS = 4;
+const LOCKOUT_DURATION_MINUTES = 2; 
+const LOCKOUT_DURATION_MS = LOCKOUT_DURATION_MINUTES * 60 * 1000;
+
+const loginAttempts = new Map();
+
 
 const createEmailTransporter = () => {
-  return nodemailer.createTransporter({
+  return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT || 587,
-    secure: process.env.SMTP_PORT == 465, 
+    secure: process.env.SMTP_PORT == 465,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
@@ -172,6 +181,20 @@ export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    let loginData = loginAttempts.get(email);
+    if (!loginData) {
+        loginData = { attempts: 0, lockoutUntil: null, lastAttemptTime: Date.now() };
+        loginAttempts.set(email, loginData);
+    }
+
+    if (loginData.lockoutUntil && Date.now() < loginData.lockoutUntil) {
+        const remainingSeconds = Math.ceil((loginData.lockoutUntil - Date.now()) / 1000);
+        console.log(`[BACKEND - LOGIN] Login attempt for ${email} blocked due to lockout. Remaining: ${remainingSeconds}s`);
+        return res.status(401).json({
+            message: `Too many failed login attempts. Please try again after ${remainingSeconds} seconds.`
+        });
+    }
+
     const userResult = await pool.query(
       'SELECT * FROM users WHERE email = $1',
       [email]
@@ -179,7 +202,8 @@ export const loginUser = async (req, res) => {
 
     if (userResult.rows.length === 0) {
       console.log(`[BACKEND - LOGIN] User not found for email: ${email}`);
-      return res.status(401).json({ error: 'Invalid email or password' });
+     
+      return res.status(401).json({ message: `Invalid email or password. ` });
     }
 
     const user = userResult.rows[0];
@@ -187,11 +211,23 @@ export const loginUser = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       console.log(`[BACKEND - LOGIN] Incorrect password for user: ${user.username}`);
-      return res.status(401).json({ error: 'Invalid credentials' });
+      loginData.attempts++;
+      loginData.lastAttemptTime = Date.now(); 
+      if (loginData.attempts >= MAX_LOGIN_ATTEMPTS) {
+          loginData.lockoutUntil = Date.now() + LOCKOUT_DURATION_MS;
+          console.warn(`[BACKEND - LOGIN] Lockout initiated for ${email} due to ${loginData.attempts} failed attempts.`);
+          return res.status(401).json({ message: `Too many failed login attempts. Please try again after ${LOCKOUT_DURATION_MINUTES} minutes.` });
+      }
+      loginAttempts.set(email, loginData); 
+      const attemptsLeft = MAX_LOGIN_ATTEMPTS - loginData.attempts;
+      return res.status(401).json({ message: `Incorrect password. ${attemptsLeft} attempts left.` });
     }
 
+    loginAttempts.delete(email);
+    console.log(`[BACKEND - LOGIN] Login successful, login attempts cleared for ${email}`);
+
     const sessionId = crypto.randomBytes(32).toString('hex');
-    const sessionExpiration = Date.now() + (1000 * 60 * 60 * 24); // 24 hours
+    const sessionExpiration = Date.now() + (1000 * 60 * 60 * 24);
     activeSessions.set(sessionId, {
         userId: user.userID,
         username: user.username,
@@ -199,11 +235,9 @@ export const loginUser = async (req, res) => {
         expires: sessionExpiration
     });
 
-
-
     res.cookie('sessionId', sessionId, {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production', 
       sameSite: 'Lax',
       maxAge: 1000 * 60 * 60 * 24,
       path: '/',
@@ -221,7 +255,7 @@ export const loginUser = async (req, res) => {
 
   } catch (err) {
     console.error('[BACKEND - LOGIN] Error during login:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -264,9 +298,9 @@ export const authenticateUser = async (req, res, next) => {
 
    sessionData.expires = Date.now() + (1000 * 60 * 60 * 24);
     activeSessions.set(sessionId, sessionData);
- 
+  
     const userResult = await pool.query(
-      'SELECT "userID", username, name, surname, email FROM users WHERE "userID" = $1',
+      'SELECT "userID", username, name, surname, email, avatarurl FROM users WHERE "userID" = $1',
       [sessionData.userId]
     );
     const user = userResult.rows[0];
@@ -283,6 +317,7 @@ export const authenticateUser = async (req, res, next) => {
       email: user.email,
       name: user.name,
       surname: user.surname,
+      avatarurl: user.avatarurl,
     };
     next();
 
@@ -407,8 +442,8 @@ export const deleteUserAccount = async (req, res) => {
     let client;
 
     try {
-      client = await pool.connect(); 
-      await client.query('BEGIN'); 
+      client = await pool.connect();
+      await client.query('BEGIN');
       const deleteLearnResult = await client.query(
         `DELETE FROM learn WHERE "userID" = $1`,
         [userIDToDelete]
@@ -419,31 +454,31 @@ export const deleteUserAccount = async (req, res) => {
       const deleteUserResult = await client.query(
         
         `DELETE FROM users WHERE "userID" = $1 RETURNING "userID", username`,
-         [userIDToDelete] );
-         
-         if (deleteUserResult.rows.length === 0) 
+          [userIDToDelete] );
+          
+          if (deleteUserResult.rows.length === 0)
           {
           await client.query('ROLLBACK');
           return res.status(404).json({ message: 'User not found.' });}
 
 
-          await client.query('COMMIT');
+           await client.query('COMMIT');
            let sessionDeleted = false;
            
            for (const [sessionId, sessionData] of activeSessions.entries()) {
-            
+           
             if (sessionData.userId === userIDToDelete) {
               activeSessions.delete(sessionId);
               console.log(`[BACKEND - DELETE_USER] Session ID ${sessionId} removed for deleted user.`);
 
               if (req.cookies.sessionId === sessionId) {
-                 res.clearCookie('sessionId', 
+                  res.clearCookie('sessionId',
                   {
-                   httpOnly: true,
-                   secure: process.env.NODE_ENV === 'production',
-                   sameSite: 'Lax',
-                   path: '/',}); 
-                   sessionDeleted = true;}}}
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'Lax',
+                    path: '/',});
+                    sessionDeleted = true;}}}
 
 console.log(`[BACKEND - DELETE_USER] User account '${deleteUserResult.rows[0].username}' (ID: ${userIDToDelete}) and associated data deleted successfully.`);
 
@@ -453,7 +488,7 @@ res.status(200).json({ message: 'User account deleted successfully.' });
 
 } catch (err) {
   if (client) {
-  await client.query('ROLLBACK'); 
+  await client.query('ROLLBACK');
 }
 
 console.error('Error deleting user account:', err);
@@ -494,7 +529,7 @@ export const resetPassword = async (req, res) => {
     const user = userResult.rows[0];
 
     const resetToken = crypto.randomBytes(32).toString('hex');
-    const tokenExpiration = Date.now() + (1000 * 60 * 15); // 15 minutes
+    const tokenExpiration = Date.now() + (1000 * 60 * 15); 
 
     resetTokens.set(resetToken, {
       userId: user.userID,
@@ -502,7 +537,7 @@ export const resetPassword = async (req, res) => {
       expires: tokenExpiration
     });
 
-    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}?email=${user.email}`;
     const transporter = createEmailTransporter();
     
     const mailOptions = {
@@ -516,9 +551,9 @@ export const resetPassword = async (req, res) => {
           <p>You have requested to reset your password for your HandsUP account.</p>
           <p>Click the link below to reset your password:</p>
           <p>
-            <a href="${resetUrl}" 
-               style="background-color: #007bff; color: white; padding: 10px 20px; 
-                      text-decoration: none; border-radius: 5px; display: inline-block;">
+            <a href="${resetUrl}"
+              style="background-color: #007bff; color: white; padding: 10px 20px;
+                     text-decoration: none; border-radius: 5px; display: inline-block;">
               Reset Password
             </a>
           </p>
@@ -551,16 +586,15 @@ export const confirmPasswordReset = async (req, res) => {
   console.log("[BACKEND - CONFIRM_RESET] Password reset confirmation request received");
   
   try {
-    const { token, newPassword, confirmPassword } = req.body;
+    const { email,token, newPassword, confirmationPassword } = req.body;
 
-    if (!token || !newPassword || !confirmPassword) {
-      return res.status(400).json({
-        success: false,
-        message: 'Token, new password, and confirmation password are required'
-      });
+      if (!email || !token || !newPassword || !confirmationPassword) {
+        console.error("Missing required fields in backend:", { email, token, newPassword, confirmationPassword });
+        return res.status(400).json({ message: 'Token, new password, and confirmation password are required' });
+    
     }
 
-    if (newPassword !== confirmPassword) {
+    if (newPassword !== confirmationPassword) {
       return res.status(400).json({
         success: false,
         message: 'Passwords do not match'
@@ -607,7 +641,7 @@ export const confirmPasswordReset = async (req, res) => {
     }
 
     resetTokens.delete(token);
-  for (const [sessionId, sessionData] of activeSessions.entries()) {
+    for (const [sessionId, sessionData] of activeSessions.entries()) {
       if (sessionData.userId === tokenData.userId) {
         activeSessions.delete(sessionId);
         console.log(`[BACKEND - CONFIRM_RESET] Session ${sessionId} invalidated for user ${tokenData.userId}`);
@@ -638,4 +672,91 @@ setInterval(() => {
       console.log(`[BACKEND - CLEANUP] Expired reset token cleaned up: ${token}`);
     }
   }
-}, 1000 * 60 * 5);
+}, 1000 * 60 * 5); 
+
+setInterval(() => {
+    const now = Date.now();
+    for (const [email, data] of loginAttempts.entries()) {
+        if (data.lockoutUntil && now > data.lockoutUntil) {
+            loginAttempts.delete(email);
+            console.log(`[BACKEND - CLEANUP] Expired lockout for ${email} cleaned up.`);
+        }
+    
+        else if (!data.lockoutUntil && (now - data.lastAttemptTime > LOCKOUT_DURATION_MS * 5)) {
+            loginAttempts.delete(email);
+            console.log(`[BACKEND - CLEANUP] Stale login attempts for ${email} cleared.`);
+        }
+    }
+}, 1000 * 30);
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+
+    cb(null, 'uploads/avatars/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${req.user.id}-${Date.now()}-${file.originalname}`);
+  },
+});
+
+const upload = multer({
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'), false);
+    }
+  },
+  limits: {
+    fileSize: 5 * 1024 * 1024 
+  }
+});
+
+
+export const uploadUserAvatar = async (req, res) => {
+  upload.single('avatar')(req, res, async (err) => {
+    if (err) {
+      if (err instanceof multer.MulterError) {
+        return res.status(400).json({ status: "error", message: err.message });
+      } else if (err) {
+        return res.status(500).json({ status: "error", message: err.message });
+      }
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ status: "error", message: 'No file uploaded.' });
+    }
+
+    if (!req.user || req.user.id !== parseInt(req.params.id)) {
+        return res.status(403).json({ error: 'Forbidden: You can only upload an avatar for your own account.' });
+    }
+
+    const userID = parseInt(req.params.id);
+    const avatarPath = req.file.path.replace(/\\/g, '/'); 
+    try {
+      const result = await pool.query(
+        `UPDATE users SET "avatarurl" = $1 WHERE "userID" = $2 RETURNING "userID", username, "avatarurl"`,
+        [avatarPath, userID]
+      );
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ status: "error", message: 'User not found.' });
+      }
+
+      res.status(200).json({
+        status: "success",
+        message: 'Avatar uploaded successfully',
+        data: {
+          userID: result.rows[0].userID,
+          username: result.rows[0].username,
+          avatarurl: result.rows[0].avatarurl,
+        },
+      });
+
+    } catch (dbError) {
+      console.error('DB error uploading avatar:', dbError);
+      res.status(500).json({ status: "error", message: 'Internal Server Error' });
+    }
+  });
+};

@@ -7,10 +7,7 @@
 .recognizer-content {
   background-color: white;
   border-radius: 1rem;
-  /* Updated box-shadow for an even, light bluish glow */
-  box-shadow: 0 0 20px rgba(173, 216, 230, 0.7); /* Light blue, spread 20px, 70% opacity */
-  /* You can add a second, subtler shadow for more depth if desired, similar to your original */
-  /* box-shadow: 0 0 20px rgba(173, 216, 230, 0.7), 0 5px 15px rgba(0, 0, 0, 0.1); */
+  box-shadow: 0 0 20px rgba(173, 216, 230, 0.7);
   width: 100%;
   overflow: hidden;
   padding: 2rem;

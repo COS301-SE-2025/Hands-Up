@@ -1,10 +1,10 @@
 .login-page {
-  font-size: 1.45rem; /* Base font size that might be scaled by browser zoom */
-  min-height: 100vh; /* Keep this if you want the *page container* to always fill the screen and center the form */
+  font-size: 1.45rem; 
+  min-height: 100vh; 
   background-color: #f0f2f5;
   display: flex;
-  align-items: center; /* Centers content vertically within the 100vh page */
-  justify-content: center; /* Centers content horizontally */
+  align-items: center; 
+  justify-content: center;
   padding: 1rem;
   position: relative;
   overflow: hidden;
@@ -46,12 +46,9 @@
   position: relative;
   z-index: 10;
   width: 100%;
-  height: auto; /* Let content determine height */
-  max-width: 72rem; /* Good for width constraint */
-  /* Add a maximum height here if you want it to truly be "small" and potentially scroll content if needed */
-  /* max-height: 80vh; /* Example: Max 80% of viewport height */
-  max-height: 50rem; /* Example: Max fixed height in rem, will scale with browser zoom */
-  /* Consider overflow-y: auto; if content might exceed max-height */
+  height: auto; 
+  max-width: 72rem;
+  max-height: 50rem; 
 
   transition: all 1000ms ease-in-out;
   opacity: 0;
@@ -73,7 +70,7 @@
   border-radius: 1.5rem;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(229, 231, 235, 0.5);
-  overflow: hidden; /* Important for containing content if max-height is hit */
+  overflow: hidden; 
   transition: all 500ms ease-in-out;
   min-height: auto; 
 }
@@ -594,4 +591,19 @@ dd these styles to your existing Login.css file */
 
 .back-to-login-button:hover .back-arrow-icon {
   transform: translateX(-0.25rem);
+}
+
+.submit-button:disabled {
+    cursor: not-allowed;
+    background: linear-gradient(135deg, #a0a0a0, #808080);
+    pointer-events: none;
+    transform: none; 
+    box-shadow: none;
+    color: #e2e2e2;
+    opacity: 0.7;
+}
+
+.submit-button:disabled .submit-button-overlay-1,
+.submit-button:disabled .submit-button-overlay-2 {
+    display: none;
 }

@@ -4,10 +4,17 @@ import { useAuth } from './authContext';
 import PropTypes from "prop-types";
 
 const LearningStatsContext = createContext();
- 
+
+const DEFAULT_STATS = {
+    lessonsCompleted: 0,
+    signsLearned: 0,
+    streak: 0,
+    currentLevel: "Bronze",
+};
+
 export function LearningStatsProvider({ children }) {
   const { currentUser, isLoggedIn, loading: authLoading } = useAuth(); 
-  const [stats, setStats] = useState(null);
+  const [stats, setStats] = useState(DEFAULT_STATS);
 
   const username = currentUser?.username; 
 
@@ -17,19 +24,19 @@ export function LearningStatsProvider({ children }) {
         try {
           const progress = await getLearningProgress(username);
           if (progress?.data?.[0]) {
-            setStats(progress.data[0]);
+            setStats({ ...DEFAULT_STATS, ...progress.data[0] });
           } else {
-            setStats(null);
+            setStats(DEFAULT_STATS);
           }
         } catch (error) {
           console.error("Failed to load learning stats", error);
-          setStats(null); 
+          setStats(DEFAULT_STATS); 
         }
       };
       loadStats();
     } else if (!authLoading && !isLoggedIn) {
   
-      setStats(null);
+      setStats(DEFAULT_STATS);
     }
   }, [username, isLoggedIn, authLoading]); 
 

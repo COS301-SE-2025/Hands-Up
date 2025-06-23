@@ -10,12 +10,10 @@ export default function Translator()
   const [speakDisabled, setSpeakDisabled] = useState(true);
   const [audioProgressWidth, setAudioProgressWidth] = useState(0);
   const [capturedImage, setCapturedImage] = useState(null);
-  const [capturedType, setCapturedType] = useState(null); // 'image' or 'video'
+  const [capturedType, setCapturedType] = useState(null);
   const [captureHistory, setCaptureHistory] = useState([]);
-  const [capturedBlob, setCapturedBlob] = useState(null); // Store the actual blob for API processing
-
+  const [capturedBlob, setCapturedBlob] = useState(null); 
   const [mediaRecorder, setMediaRecorder] = useState(null);
-  //const [recordedChunks, setRecordedChunks] = useState([]);
 
   useEffect(() => {
     const enableCamera = async () => {
@@ -47,31 +45,23 @@ export default function Translator()
       const video = videoRef.current;
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d');
-
-      // Set canvas dimensions to video dimensions
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
-
-      // Draw the current video frame to canvas
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // Convert canvas to blob/base64 for processing
       canvas.toBlob((blob) => {
         const imageUrl = URL.createObjectURL(blob);
         setCapturedImage(imageUrl);
         setCapturedType('image');
-        setCapturedBlob(blob); // Store blob for API processing
-
-        // Add to history with blob
+        setCapturedBlob(blob);
         setCaptureHistory(prev => [{
           id: Date.now(),
           url: imageUrl,
           type: 'image',
-          blob: blob, // Store blob in history for later API calls
+          blob: blob, 
           timestamp: new Date().toLocaleTimeString()
         }, ...prev.slice(0, 4)]);
 
-        // Process the captured image
         processImage(blob);
       }, 'image/jpeg', 0.8);
     }
@@ -80,7 +70,6 @@ export default function Translator()
   const processImage = async () => {
     setResult("Processing captured image...");
 
-    // Simulate processing
     setTimeout(() => {
       setResult("Detected: 'Hello'");
       setSpeakDisabled(false);
@@ -90,29 +79,12 @@ export default function Translator()
       }, 100);
     }, 1500);
 
-    // Example API call for image processing
-    /*
-    const formData = new FormData();
-    formData.append('image', imageBlob, 'capture.jpg');
-    
-    try {
-      const response = await fetch('/api/process-sign', {
-        method: 'POST',
-        body: formData
-      });
-      const data = await response.json();
-      setResult(`Detected: '${data.sign}'`);
-      setSpeakDisabled(false);
-    } catch (error) {
-      setResult('Error processing image');
-    }
-    */
+   
   };
 
   const processVideo = async () => {
     setResult("Processing captured video...");
 
-    // Simulate faster processing
     setTimeout(() => {
       setResult("Detected phrase: 'How are you?'");
       setSpeakDisabled(false);
@@ -120,29 +92,7 @@ export default function Translator()
       setTimeout(() => {
         setAudioProgressWidth(100);
       }, 100);
-    }, 800); // Reduced from 2000ms to 800ms
-
-    // Example API call for video processing with optimized FormData
-    /*
-    const formData = new FormData();
-    formData.append('video', videoBlob, 'sign.webm');
-    
-    try {
-      const response = await fetch('/api/process-video', {
-        method: 'POST',
-        body: formData,
-        // Add headers for faster processing
-        headers: {
-          'Accept': 'application/json',
-        }
-      });
-      const data = await response.json();
-      setResult(`Detected phrase: '${data.phrase}'`);
-      setSpeakDisabled(false);
-    } catch (error) {
-      setResult('Error processing video');
-    }
-    */
+    }, 800); 
   };
 
   const capture = () => {
@@ -151,7 +101,6 @@ export default function Translator()
 
   const startRecording = () => {
     if (recording) {
-      // Stop recording if already recording
       stopRecording();
       return;
     }
@@ -159,26 +108,21 @@ export default function Translator()
     const stream = videoRef.current?.srcObject;
     if (!stream) return;
 
-    // Reset chunks for new recording
-    //setRecordedChunks([]);
     
-    // Use higher bitrate for better quality and faster processing
     const options = {
       mimeType: 'video/webm;codecs=vp8',
-      videoBitsPerSecond: 2500000 // 2.5 Mbps for good quality
+      videoBitsPerSecond: 2500000 
     };
     
-    // Fallback options if the preferred format isn't supported
     let recorder;
     try {
       recorder = new MediaRecorder(stream, options);
     } catch (e) {
-      // Fallback to default
       console.log(e);
       recorder = new MediaRecorder(stream);
     }
 
-    const chunks = []; // Local array to collect chunks
+    const chunks = []; 
 
     recorder.ondataavailable = (e) => {
       if (e.data.size > 0) {
@@ -187,32 +131,25 @@ export default function Translator()
     };
 
     recorder.onstop = () => {
-      // Create blob from collected chunks
       const blob = new Blob(chunks, { type: 'video/webm' });
       const videoURL = URL.createObjectURL(blob);
       
       setCapturedImage(videoURL);
       setCapturedType('video');
-      setCapturedBlob(blob); // Store blob for API processing
-      
-      // Add to history with blob
+      setCapturedBlob(blob);
       setCaptureHistory(prev => [{
         id: Date.now(),
         url: videoURL,
         type: 'video',
-        blob: blob, // Store blob in history for later API calls
+        blob: blob, 
         timestamp: new Date().toLocaleTimeString()
       }, ...prev.slice(0, 4)]);
-
-      // Process the video
       processVideo(blob);
       setRecording(false);
     };
 
     setMediaRecorder(recorder);
-    
-    // Start recording with timeslice for more frequent data events
-    recorder.start(200); // Request data every 200ms
+    recorder.start(200); 
     setRecording(true);
     setResult("Recording signs... Click again to stop");
   };
@@ -227,25 +164,21 @@ export default function Translator()
     if (e.target.files.length > 0) {
       const file = e.target.files[0];
       const isVideo = file.type.includes('video');
-      //const isImage = file.type.includes('image');
-      
+
       setResult(`Processing uploaded ${isVideo ? 'video' : 'image'}...`);
       
       const fileUrl = URL.createObjectURL(file);
       setCapturedImage(fileUrl);
       setCapturedType(isVideo ? 'video' : 'image');
-      setCapturedBlob(file); // Store file blob for API processing
-
-      // Add to history with blob
+      setCapturedBlob(file); 
       setCaptureHistory(prev => [{
         id: Date.now(),
         url: fileUrl,
         type: isVideo ? 'video' : 'image',
-        blob: file, // Store file blob in history
+        blob: file, 
         timestamp: new Date().toLocaleTimeString()
       }, ...prev.slice(0, 4)]);
 
-      // Process the uploaded file
       if (isVideo) {
         processVideo(file);
       } else {
@@ -331,7 +264,6 @@ export default function Translator()
                 playsInline 
                 className="recognizer-video"
               ></video>
-              {/* Hidden canvas for capturing video frames */}
               <canvas 
                 ref={canvasRef} 
                 style={{ display: 'none' }}
@@ -390,7 +322,6 @@ export default function Translator()
                     key={capture.id} 
                     className="recognizer-history-item" 
                     title={`${capture.type} - ${capture.timestamp}`}
-                    //onClick={() => handleHistoryClick(capture)}
                     style={{ cursor: 'pointer', position: 'relative' }}
                   >
                     {renderHistoryItem(capture)}
@@ -429,7 +360,7 @@ export default function Translator()
                     </div>
                   </div>
                 ))}
-                {/* Fill remaining slots with empty divs */}
+
                 {Array.from({ length: Math.max(0, 5 - captureHistory.length) }, (_, i) => (
                   <div key={`empty-${i}`} className="recognizer-history-item"></div>
                 ))}
@@ -443,7 +374,6 @@ export default function Translator()
                 <i className="fas fa-language recognizer-results-icon"></i> Translation Results
               </h3>
               
-              {/* Display captured image/video if available */}
               {capturedImage && (
                 <div className="recognizer-captured-image" style={{ marginBottom: '10px' }}>
                   {renderMediaPreview(capturedImage, capturedType)}

@@ -1,34 +1,25 @@
-// src/utils/apiCalls.js
-
 const API_BASE_URL_AUTH = 'https://localhost:2000/handsUPApi/auth';
 const API_BASE_URL_USER = 'https://localhost:2000/handsUPApi/user';
 const API_BASE_URL_LEARNING = 'https://localhost:2000/handsUPApi/learning';
+const API_BASE_URL = "https://localhost:2000/handsUPApi";
 
-const handleApiResponse = async (response) => {
-    if (response.ok) {
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-            return await response.json();
+export const handleApiResponse = async (response) => {
+    const data = await response.json();
+    if (!response.ok) {
+        const error = new Error(data.message || 'An unknown error occurred');
+        if (data.attemptsLeft !== undefined) {
+            error.attemptsLeft = data.attemptsLeft;
         }
-       return { success: true, status: response.status };
-    } else {
-       if (response.status === 401 || response.status === 403) {
-           return { status: response.status, message: 'Unauthorized or Forbidden' };
+        if (data.locked !== undefined) {
+            error.locked = data.locked;
+        }
+        if (data.timeLeft !== undefined) {
+            error.timeLeft = data.timeLeft;
         }
 
-        let errorData = {};
-        try {
-            const contentType = response.headers.get("content-type");
-            if (contentType && contentType.includes("application/json")) {
-                errorData = await response.json();
-            } else {
-                errorData = { message: await response.text() };
-            }
-        } catch (e) {
-            errorData = { message: `Failed to parse error response. Status: ${response.status}` };
-        }
-        throw new Error(errorData.message || `API Error: Status ${response.status}`);
+        throw error;
     }
+    return data;
 };
 
 
@@ -55,28 +46,15 @@ export const signup = async ({ name, surname, username, email, password }) => {
     }
 };
 
-export const confirmPasswordReset = async (token, newPassword, confirmPassword) => {
-    console.log("[API_CALLS - confirmPasswordReset] Confirming password reset with token");
-    
-    try {
-        const response = await fetch(`${API_BASE_URL_AUTH}/confirm-reset-password`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify({ 
-                token, 
-                newPassword, 
-                confirmPassword 
-            }),
-        });
-
-        return handleApiResponse(response);
-    } catch (error) {
-        console.error("[API_CALLS - confirmPasswordReset] Network or unexpected error:", error);
-        throw error;
-    }
+export const confirmPasswordReset = async (email, token, newPassword,confirmNewPassword ) => {
+    const response = await fetch(`${API_BASE_URL}/auth/confirm-reset-password`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, token, newPassword,confirmationPassword: confirmNewPassword }),
+    });
+    return handleApiResponse(response);
 };
 
 export const login = async (credentials) => {
@@ -176,6 +154,20 @@ export const updateUserPassword = async (userID, name, surname, username, email,
     } catch (err) {
         console.error('Error updating password:', err);
         throw err;
+    }
+};
+
+export const uploadUserAvatar = async (userID, formData) => {
+    try {
+        const response = await fetch(`${API_BASE_URL_USER}/${userID}/avatar`, {
+            method: 'PUT',
+            body: formData,
+            credentials: 'include',
+        });
+        return handleApiResponse(response);
+    } catch (error) {
+        console.error("Error in uploadUserAvatar:", error);
+        throw error;
     }
 };
 

@@ -28,6 +28,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 
+app.use('/uploads', express.static('uploads'));
 app.use((req, res, next) => {
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -47,8 +48,8 @@ try {
     const httpsServer = https.createServer(httpsOptions, app);
     
     httpsServer.listen(HTTPS_PORT, () => {
-        console.log(`✅ HTTPS Server running on https://localhost:${HTTPS_PORT}`);
-        console.log(`✅ API available at https://localhost:${HTTPS_PORT}/handsUPApi`);
+        console.log(`HTTPS Server running on https://localhost:${HTTPS_PORT}`);
+        console.log(`API available at https://localhost:${HTTPS_PORT}/handsUPApi`);
     });
 
     const httpApp = express();
@@ -59,14 +60,14 @@ try {
     });
 
     http.createServer(httpApp).listen(HTTP_PORT, () => {
-        console.log(`📡 HTTP Server running on http://localhost:${HTTP_PORT} (redirects to HTTPS)`);
+        console.log(`HTTP Server running on http://localhost:${HTTP_PORT} (redirects to HTTPS)`);
         console.log(`Type "shutdown" to stop the server.`);
     });
 
 } catch (error) {
-    console.error('❌ SSL Certificate Error:', error.message);
-    console.log('📝 Make sure you have copied localhost+2.pem and localhost+2-key.pem to your server directory');
-    console.log('🔄 Falling back to HTTP only...');
+    console.error('SSL Certificate Error:', error.message);
+    console.log('Make sure you have copied localhost+2.pem and localhost+2-key.pem to your server directory');
+    console.log('Falling back to HTTP only...');
     
     app.listen(HTTP_PORT, () => {
         console.log(`⚠️  HTTP Server running on http://localhost:${HTTP_PORT} (HTTPS certificates not found)`);

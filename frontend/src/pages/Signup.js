@@ -10,21 +10,21 @@ import logo from "../logo2.png";
 function TermsModal({ isOpen, onClose, termsContent }) {
     if (!isOpen) return null;
 
-    return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                <div className="modal-header">
-                    <h2>{termsContent.title}</h2>
-                    <button className="close-button" onClick={onClose}>&times;</button>
+ return (
+    <div className="modal-overlay" onClick={onClose}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+                <h2>{termsContent.title}</h2>
+                <button className="close-button" onClick={onClose}>&times;</button>
+            </div>
+            <div className="modal-body">
+                <p className="last-updated">{termsContent.lastUpdated}</p>
+                {termsContent.sections.map((section, index) => (
+                <div key={index} className="modal-section">
+                    <h3>{section.title}</h3>
+                    <p>{section.content}</p>
                 </div>
-                <div className="modal-body">
-                    <p className="last-updated">{termsContent.lastUpdated}</p>
-                    {termsContent.sections.map((section, index) => (
-                        <div key={index} className="modal-section">
-                            <h3>{section.title}</h3>
-                            <p>{section.content}</p>
-                        </div>
-                    ))}
+                ))}
                 </div>
                 <div className="modal-footer">
                     <button className="close-button-bottom" onClick={onClose}>Close</button>
@@ -163,53 +163,52 @@ function SignupPage() {
         ]
     };
 
-    return (
-        <div className="signup-page">
-            <div className="bg-animation-container">
-                <div className="bg-animation-circle-1" style={{ backgroundColor: '#b3d077', '--initial-opacity': 0.05, '--pulse-opacity': 0.08 }}></div>
-                <div className="bg-animation-circle-2" style={{ backgroundColor: '#ffc61a', '--initial-opacity': 0.07, '--pulse-opacity': 0.1 }}></div>
+ return (
+    <div className="signup-page">
+        <div className="bg-animation-container">
+            <div className="bg-animation-circle-1" style={{ backgroundColor: '#b3d077', '--initial-opacity': 0.05, '--pulse-opacity': 0.08 }}></div>
+            <div className="bg-animation-circle-2" style={{ backgroundColor: '#ffc61a', '--initial-opacity': 0.07, '--pulse-opacity': 0.1 }}></div>
+        </div>
+
+        <div className={`signup-content-wrapper ${mounted ? 'mounted' : ''}`}>
+            <div className="signup-grid">
+                <div className="hero-section">
+                  <div className="hero-background-image" style={{ backgroundImage: `url(${heroImage})` }}></div>
+                  <div className="hero-overlay" style={{ background: `linear-gradient(135deg, rgba(78, 122, 81, 0.6), rgba(179, 208, 119, 0.55), rgba(255, 198, 26, 0.5))` }}></div>
+                  <div className="hero-content">
+                    <div className="hero-text-content">
+                        <h2 className="hero-title">Join Us!</h2>
+                        <p className="hero-description">Create your account to start your journey with Hands UP.</p>
+                    </div>
+                    <div className="hero-decor-circle-1" style={{ backgroundColor: '#ffc61a', opacity: 0.1 }}></div>
+                    <div className="hero-decor-circle-2" style={{ backgroundColor: '#b3d077', opacity: 0.08 }}></div>
+                </div>
             </div>
 
-            <div className={`signup-content-wrapper ${mounted ? 'mounted' : ''}`}>
-                <div className="signup-grid">
-                    <div className="hero-section">
-                        <div className="hero-background-image" style={{ backgroundImage: `url(${heroImage})` }}></div>
-                        <div className="hero-overlay" style={{ background: `linear-gradient(135deg, rgba(78, 122, 81, 0.6), rgba(179, 208, 119, 0.55), rgba(255, 198, 26, 0.5))` }}></div>
-                        <div className="hero-content">
-                            <div className="hero-text-content">
-                                <h2 className="hero-title">Join Us!</h2>
-                                <p className="hero-description">Create your account to start your journey with Hands UP.</p>
+            <div className="form-section">
+                <form className="form-content" onSubmit={handleSubmit}>
+                    <div className="header-section">
+                        <div className="logo-group">
+                            <div className="logo-icon-wrapper" style={{ background: `linear-gradient(135deg, #ffc61a, #b3d077)` }}>
+                                <img src={logo} alt="Logo" className="logo-image" />
                             </div>
-                            <div className="hero-decor-circle-1" style={{ backgroundColor: '#ffc61a', opacity: 0.1 }}></div>
-                            <div className="hero-decor-circle-2" style={{ backgroundColor: '#b3d077', opacity: 0.08 }}></div>
+                            <h1 className="welcome-title">Create Account</h1>
                         </div>
-                    </div>
-
-                    <div className="form-section">
-                        <form className="form-content" onSubmit={handleSubmit}>
-                            <div className="header-section">
-                                <div className="logo-group">
-                                    <div className="logo-icon-wrapper" style={{ background: `linear-gradient(135deg, #ffc61a, #b3d077)` }}>
-                                        <img src={logo} alt="Logo" className="logo-image" />
-                                    </div>
-                                    <h1 className="welcome-title">Create Account</h1>
-                                </div>
                                 <p className="subtitle">Join the Hands UP community!</p>
-                            </div>
+                        </div>
 
-                            <div className="form-fields-container">
-                                {error && <div className="error-message">{error}</div>}
-                                {successMessage && <div className="success-message">{successMessage}</div>}
-
-
-                                <div className="form-row">
-                                    <div className="input-group">
-                                        <label htmlFor="name" className="input-label"><User className="mail-icon" /> First Name</label>
-                                        <div className="input-wrapper">
-                                            <input type="text" name="name" id="name" value={formData.name} onChange={handleChange} placeholder="Your First Name" className="text-input" />
-                                        </div>
+                        <div className="form-fields-container">
+                            {error && <div className="error-message">{error}</div>}
+                            {successMessage && <div className="success-message">{successMessage}</div>}
+                            
+                             <div className="form-row">
+                                <div className="input-group">
+                                    <label htmlFor="name" className="input-label"><User className="mail-icon" /> First Name</label>
+                                    <div className="input-wrapper">
+                                        <input type="text" name="name" id="name" value={formData.name} onChange={handleChange} placeholder="Your First Name" className="text-input" />
                                     </div>
-                                    <div className="input-group">
+                                </div>
+                                <div className="input-group">
                                         <label htmlFor="surname" className="input-label"><User className="mail-icon" /> Surname</label>
                                         <div className="input-wrapper">
                                             <input type="text" name="surname" id="surname" value={formData.surname} onChange={handleChange} placeholder="Your Surname" className="text-input" />
