@@ -23,7 +23,7 @@ CONFIDENCE_SMOOTHING_WINDOW = 5
 MIN_SEQUENCE_CONFIDENCE = 0.2
 
 class SignLanguageDetector:
-    def __init__(self, model_path='action.h5', processed_path='processed_dataset'):
+    def __init__(self, model_path='action_model.h5', processed_path='processed_dataset'):
         print("Initializing SignLanguageDetector...", flush=True)
         
         self.script_dir = Path(__file__).parent.absolute()
@@ -56,7 +56,7 @@ class SignLanguageDetector:
         self.holistic = self.mp_holistic.Holistic(
             min_detection_confidence=MIN_DETECTION_CONFIDENCE,
             min_tracking_confidence=MIN_TRACKING_CONFIDENCE,
-            model_complexity=1,  # Reduced complexity for better performance
+            model_complexity=1,
             smooth_landmarks=True
         )
         
@@ -66,19 +66,17 @@ class SignLanguageDetector:
         self.frames_without_detection = 0
         self.max_frames_without_detection = 10
         
+        # Visualization
+        self.visualize = False
+        
         print("SignLanguageDetector initialized successfully", flush=True)
     
     def _load_assets(self):
         """Load model and action labels with error handling"""
         try:
             print("Loading TensorFlow model...", flush=True)
-            # Import here to catch TensorFlow issues
-            try:
-                from tensorflow.keras.models import load_model
-                print("TensorFlow imported successfully", flush=True)
-            except ImportError as e:
-                print(f"TensorFlow import failed: {e}", flush=True)
-                raise ImportError(f"TensorFlow not available: {e}")
+            from tensorflow.keras.models import load_model
+            print("TensorFlow imported successfully", flush=True)
             
             print(f"Loading model from: {self.model_path}", flush=True)
             model = load_model(str(self.model_path))
@@ -101,7 +99,6 @@ class SignLanguageDetector:
     def _preprocess_frame(self, frame):
         """Enhance frame for better detection"""
         try:
-            # Convert to square
             h, w = frame.shape[:2]
             if h != w:
                 size = max(h, w)
@@ -111,15 +108,90 @@ class SignLanguageDetector:
                 squared[offset_h:offset_h+h, offset_w:offset_w+w] = frame
                 frame = squared
             
-            # Resize and enhance contrast
             frame = cv2.resize(frame, (640, 640))
             ycrcb = cv2.cvtColor(frame, cv2.COLOR_BGR2YCrCb)
             ycrcb[:,:,0] = cv2.equalizeHist(ycrcb[:,:,0])
             return cv2.cvtColor(ycrcb, cv2.COLOR_YCrCb2RGB)
         except Exception as e:
             print(f"Error preprocessing frame: {e}", flush=True)
-            # Return original frame if preprocessing fails
             return cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    
+    def _draw_landmarks(self, image, results):
+        """Draw MediaPipe landmarks on the image"""
+        if results is None:
+            return image
+        
+        try:
+            # Draw pose landmarks
+            self.mp_drawing.draw_landmarks(
+                image,
+                results.pose_landmarks,
+                self.mp_holistic.POSE_CONNECTIONS,
+                self.mp_drawing.DrawingSpec(color=(245,117,66), thickness=2, circle_radius=2),
+                self.mp_drawing.DrawingSpec(color=(245,66,230), thickness=2, circle_radius=2)
+            )
+            
+            # Draw face landmarks
+            self.mp_drawing.draw_landmarks(
+                image,
+                results.face_landmarks,
+                self.mp_holistic.FACEMESH_TESSELATION,
+                self.mp_drawing.DrawingSpec(color=(80,110,10), thickness=1, circle_radius=1),
+                self.mp_drawing.DrawingSpec(color=(80,256,121), thickness=1, circle_radius=1)
+            )
+            
+            # Draw hand landmarks
+            self.mp_drawing.draw_landmarks(
+                image,
+                results.left_hand_landmarks,
+                self.mp_holistic.HAND_CONNECTIONS,
+                self.mp_drawing.DrawingSpec(color=(121,22,76), thickness=2, circle_radius=4),
+                self.mp_drawing.DrawingSpec(color=(121,44,250), thickness=2, circle_radius=2)
+            )
+            self.mp_drawing.draw_landmarks(
+                image,
+                results.right_hand_landmarks,
+                self.mp_holistic.HAND_CONNECTIONS,
+                self.mp_drawing.DrawingSpec(color=(245,117,66), thickness=2, circle_radius=4),
+                self.mp_drawing.DrawingSpec(color=(245,66,230), thickness=2, circle_radius=2)
+            )
+            
+            return image
+        except Exception as e:
+            print(f"Error drawing landmarks: {e}", flush=True)
+            return image
+    
+    def _draw_info(self, image, prediction=None, landmark_stats=None):
+        """Draw prediction and landmark info on the image"""
+        try:
+            h, w = image.shape[:2]
+            
+            # Draw prediction
+            if prediction and prediction.get('action'):
+                text = f"Sign: {prediction['action']} ({prediction['confidence']:.2f})"
+                cv2.putText(image, text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 
+                           1, (0, 255, 0), 2, cv2.LINE_AA)
+            
+            # Draw landmark stats
+            if landmark_stats:
+                y_offset = 60
+                stats_text = [
+                    f"Hands: {landmark_stats['hand_score']:.2f} ({landmark_stats['hand_count']})",
+                    f"Pose: {landmark_stats['pose_score']:.2f}",
+                    f"Face: {landmark_stats['face_score']:.2f}",
+                    f"Total: {landmark_stats['total_score']:.2f}",
+                    f"Threshold: {landmark_stats['threshold_used']:.2f}"
+                ]
+                
+                for text in stats_text:
+                    cv2.putText(image, text, (10, y_offset), cv2.FONT_HERSHEY_SIMPLEX,
+                               0.6, (255, 255, 255), 1, cv2.LINE_AA)
+                    y_offset += 25
+            
+            return image
+        except Exception as e:
+            print(f"Error drawing info: {e}", flush=True)
+            return image
     
     def process_frame(self, frame):
         """Process a single frame"""
@@ -128,10 +200,14 @@ class SignLanguageDetector:
             processed.flags.writeable = False
             results = self.holistic.process(processed)
             processed.flags.writeable = True
-            return cv2.cvtColor(processed, cv2.COLOR_RGB2BGR), results
+            image = cv2.cvtColor(processed, cv2.COLOR_RGB2BGR)
+            
+            if self.visualize:
+                image = self._draw_landmarks(image, results)
+            
+            return image, results
         except Exception as e:
             print(f"Error processing frame: {e}", flush=True)
-            # Return original frame and None results if processing fails
             return frame, None
     
     def extract_keypoints(self, results):
@@ -144,7 +220,6 @@ class SignLanguageDetector:
             return np.concatenate([pose, face, lh, rh])
         except Exception as e:
             print(f"Error extracting keypoints: {e}", flush=True)
-            # Return zeros if extraction fails
             return np.zeros(33*4 + 468*3 + 21*3 + 21*3)
     
     def has_sufficient_landmarks(self, results):
@@ -163,18 +238,15 @@ class SignLanguageDetector:
             }
         
         try:
-            # Check for hands (primary requirement)
             has_hands = results.left_hand_landmarks is not None or results.right_hand_landmarks is not None
             has_pose = results.pose_landmarks is not None
             has_face = results.face_landmarks is not None
             
-            # Calculate detection scores
             hand_score = 0
             pose_score = 0
             face_score = 0
             hand_count = 0
             
-            # Hand scoring
             if results.left_hand_landmarks:
                 hand_count += 1
                 if len(results.left_hand_landmarks.landmark) >= 21:
@@ -198,7 +270,6 @@ class SignLanguageDetector:
             if hand_count > 0:
                 hand_score = hand_score / hand_count
             
-            # Pose scoring
             if results.pose_landmarks:
                 upper_body_indices = list(range(11, 17)) + list(range(23, 25))
                 pose_visibilities = [results.pose_landmarks.landmark[i].visibility 
@@ -207,11 +278,9 @@ class SignLanguageDetector:
                 if pose_visibilities:
                     pose_score = np.mean(pose_visibilities)
             
-            # Face scoring
             if results.face_landmarks:
                 face_score = 0.7
             
-            # Scoring system
             if has_hands:
                 total_score = (hand_score * 0.7) + (pose_score * 0.2) + (face_score * 0.1)
                 min_threshold = 0.15
@@ -261,7 +330,6 @@ class SignLanguageDetector:
             print(f"Image file not found: {image_path}", flush=True)
             raise FileNotFoundError(f"Image file not found: {image_path}")
         
-        # Read image
         frame = cv2.imread(image_path)
         if frame is None:
             print(f"Could not read image: {image_path}", flush=True)
@@ -269,59 +337,64 @@ class SignLanguageDetector:
         
         print(f"Image loaded: {frame.shape}", flush=True)
         
-        # Process the frame
         image, results = self.process_frame(frame)
-        
-        # Check if we have sufficient landmarks
         has_landmarks, landmark_stats = self.has_sufficient_landmarks(results)
         print(f"Landmarks detected: {has_landmarks}, stats: {landmark_stats}", flush=True)
         
         if not has_landmarks:
             print("Insufficient landmarks for detection", flush=True)
+            if self.visualize:
+                image = self._draw_info(image, None, landmark_stats)
+                cv2.imshow('Sign Language Detection', image)
+                cv2.waitKey(0)
+                cv2.destroyAllWindows()
             return {'action': None, 'confidence': 0.0, 'error': 'Insufficient landmarks detected'}
         
-        # Extract keypoints
         keypoints = self.extract_keypoints(results)
-        
-        # For single image, we need to create a sequence
-        # We'll duplicate the keypoints to create a sequence
         sequence = [keypoints] * SEQUENCE_LENGTH
         
         try:
-            # Make prediction
             res = self.model.predict(np.expand_dims(sequence, axis=0), verbose=0)[0]
             predicted_action = self.actions[np.argmax(res)]
             confidence = float(np.max(res))
             
             print(f"Prediction: {predicted_action}, confidence: {confidence}", flush=True)
             
+            if self.visualize:
+                prediction = {'action': predicted_action, 'confidence': confidence}
+                image = self._draw_info(image, prediction, landmark_stats)
+                cv2.imshow('Sign Language Detection', image)
+                cv2.waitKey(0)
+                cv2.destroyAllWindows()
+            
             return {
                 'action': predicted_action,
                 'confidence': confidence,
-                'sign': predicted_action,  # For API compatibility
+                'sign': predicted_action,
                 'landmark_stats': landmark_stats
             }
             
         except Exception as e:
             print(f"Prediction error: {e}", flush=True)
+            if self.visualize:
+                cv2.imshow('Sign Language Detection', image)
+                cv2.waitKey(0)
+                cv2.destroyAllWindows()
             return {'action': None, 'confidence': 0.0, 'error': str(e)}
     
     def process_video(self, video_path, max_frames=300):
         """Process video file and return predictions"""
         print(f"Starting video processing: {video_path}", flush=True)
         
-        # Check if video file exists
         if not os.path.exists(video_path):
             print(f"Video file not found: {video_path}", flush=True)
             raise FileNotFoundError(f"Video file not found: {video_path}")
         
-        print(f"Opening video capture...", flush=True)
         cap = cv2.VideoCapture(video_path)
         if not cap.isOpened():
             print(f"Could not open video: {video_path}", flush=True)
             raise ValueError(f"Could not open video: {video_path}")
         
-        # Get video properties
         fps = cap.get(cv2.CAP_PROP_FPS)
         frame_count_total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         duration = frame_count_total / fps if fps > 0 else 0
@@ -334,6 +407,9 @@ class SignLanguageDetector:
         detection_stats = []
         last_progress = 0
         
+        if self.visualize:
+            cv2.namedWindow('Sign Language Detection', cv2.WINDOW_NORMAL)
+        
         start_time = time.time()
         
         try:
@@ -345,21 +421,16 @@ class SignLanguageDetector:
                     
                 frame_count += 1
                 
-                # Progress reporting
                 progress = (frame_count / min(frame_count_total, max_frames)) * 100
                 if progress - last_progress >= 20:
                     elapsed = time.time() - start_time
                     print(f"Processing: {progress:.1f}% ({frame_count}/{min(frame_count_total, max_frames)} frames, {elapsed:.1f}s)", flush=True)
                     last_progress = progress
                 
-                # Process frame
                 image, results = self.process_frame(frame)
-                
-                # Check landmark quality
                 has_landmarks, landmark_stats = self.has_sufficient_landmarks(results)
                 detection_stats.append(landmark_stats)
                 
-                # Extract keypoints
                 keypoints = self.extract_keypoints(results)
                 
                 if has_landmarks:
@@ -378,10 +449,9 @@ class SignLanguageDetector:
                         self.last_valid_keypoints = None
                         self.frames_without_detection = 0
                 
-                # Maintain sequence length
                 sequence = sequence[-SEQUENCE_LENGTH:]
                 
-                # Make prediction if we have a full sequence
+                current_prediction = None
                 if len(sequence) == SEQUENCE_LENGTH:
                     try:
                         res = self.model.predict(np.expand_dims(sequence, axis=0), verbose=0)[0]
@@ -392,6 +462,10 @@ class SignLanguageDetector:
                         
                         if len(self.confidence_buffer) >= 3:
                             smoothed_action, smoothed_confidence = self._smooth_predictions()
+                            current_prediction = {
+                                'action': smoothed_action,
+                                'confidence': smoothed_confidence
+                            }
                             predictions.append({
                                 'action': smoothed_action,
                                 'confidence': smoothed_confidence,
@@ -400,6 +474,13 @@ class SignLanguageDetector:
                             })
                     except Exception as e:
                         print(f"Prediction error at frame {frame_count}: {e}", flush=True)
+                
+                if self.visualize:
+                    image = self._draw_info(image, current_prediction, landmark_stats)
+                    cv2.imshow('Sign Language Detection', image)
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        print("Visualization terminated by user", flush=True)
+                        break
         
         except Exception as e:
             print(f"Error during video processing: {e}", flush=True)
@@ -407,6 +488,8 @@ class SignLanguageDetector:
         
         finally:
             cap.release()
+            if self.visualize:
+                cv2.destroyAllWindows()
             processing_time = time.time() - start_time
             print(f"Video processing completed: {frame_count} frames in {processing_time:.2f}s", flush=True)
         
@@ -480,7 +563,7 @@ class SignLanguageDetector:
         return {
             'action': best_action, 
             'confidence': final_confidence,
-            'phrase': best_action  # For API compatibility
+            'phrase': best_action
         }
 
 
@@ -494,9 +577,10 @@ def main():
         parser.add_argument('--test', action='store_true', help='Run test mode')
         parser.add_argument('--min_confidence', type=float, default=0.3, 
                            help='Minimum confidence threshold (0.0-1.0)')
+        parser.add_argument('--visualize', action='store_true', help='Enable visualization')
         args = parser.parse_args()
         
-        print(f"Arguments parsed: video={args.video}, image={args.image}, test={args.test}", flush=True)
+        print(f"Arguments parsed: video={args.video}, image={args.image}, test={args.test}, visualize={args.visualize}", flush=True)
         
         if args.test:
             print("Test mode activated", flush=True)
@@ -512,6 +596,7 @@ def main():
         
         print("Creating detector...", flush=True)
         detector = SignLanguageDetector()
+        detector.visualize = args.visualize
         
         if args.image:
             print("Processing image...", flush=True)
