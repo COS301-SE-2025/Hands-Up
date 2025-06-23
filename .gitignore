@@ -12,8 +12,8 @@ tests/coverage/
 #datasets
 ai_model/data
 ai_model/video_data
-ai_model2/notebook/dataset
-ai_model2/notebook/processed_dataset
+ai_model2/dataset
+ai_model2/processed_dataset
 
 
 

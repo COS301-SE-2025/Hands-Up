@@ -115,7 +115,7 @@ export function cleanupFile(filePath) {
  * @returns {string} - Path to the Detection.py script
  */
 export function getDetectionScriptPath() {
-  return path.join(__dirname, '../../../ai_model2/notebook/Detection.py');
+  return path.join(__dirname, '../../../ai_model2/models/Detection.py');
 }
 
 /**
