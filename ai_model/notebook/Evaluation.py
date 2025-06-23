@@ -18,7 +18,7 @@ print("Detected actions:", actions)
 (_, X_test, _, y_test), label_map = load_data(data_path=PROCESSED_PATH)
 
 # Load trained model
-model = load_model('action.h5')
+model = load_model('action_model.h5')
 
 # Predict
 y_pred = model.predict(X_test)
