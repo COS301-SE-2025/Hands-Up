@@ -407,10 +407,10 @@ function Login() {
                                                             <div className="success-message">
                                                                 <Mail className="mail-icon" />
                                                                 <h3>Check your email!</h3>
-                                                                <p>We've sent a password reset link to **{forgotEmail}**</p>
+                                                                <p>We&apos;ve sent a password reset link to **{forgotEmail}**</p>
                                                                 <p className="reset-instructions">
                                                                     Click the link in the email to reset your password.
-                                                                    If you don't see it, check your spam folder.
+                                                                    If you don&apos;t see it, check your spam folder.
                                                                 </p>
                                                             </div>
                                                         </div>

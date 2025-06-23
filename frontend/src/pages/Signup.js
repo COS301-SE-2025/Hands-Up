@@ -6,6 +6,7 @@ import { useAuth } from '../context/authContext.js';
 import '../styles/Signup.css';
 import heroImage from "../sign33.png";
 import logo from "../logo2.png";
+import PropTypes from 'prop-types';
 
 function TermsModal({ isOpen, onClose, termsContent }) {
     if (!isOpen) return null;
@@ -297,5 +298,18 @@ function SignupPage() {
         </div>
     );
 }
-
+TermsModal.propTypes = {
+    isOpen: PropTypes.bool.isRequired,
+    onClose: PropTypes.func.isRequired,
+    termsContent: PropTypes.shape({
+        title: PropTypes.string.isRequired,
+        lastUpdated: PropTypes.string.isRequired,
+        sections: PropTypes.arrayOf(
+            PropTypes.shape({
+                title: PropTypes.string.isRequired,
+                content: PropTypes.string.isRequired,
+            })
+        ).isRequired,
+    }).isRequired,
+};
 export default SignupPage;

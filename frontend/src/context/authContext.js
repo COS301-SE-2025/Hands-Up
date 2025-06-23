@@ -1,5 +1,5 @@
 // src/context/AuthContext.js
-
+import PropTypes from 'prop-types';
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { login as apiLogin, logout as apiLogout, getUserData,resetPassword as apiResetPassword,confirmPasswordReset as apiConfirmPasswordReset} from '../utils/apiCalls';
 import { useNavigate } from 'react-router-dom';
@@ -125,6 +125,11 @@ const confirmPasswordReset = async (email, token, newPassword,confirmNewPassword
     );
 };
 
+
 export const useAuth = () => {
     return useContext(AuthContext);
+};
+
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };

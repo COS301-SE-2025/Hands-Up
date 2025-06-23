@@ -14,7 +14,7 @@ const signsOfTheDayData = [
   {
     id: 'sotd2',
     word: "Chocolate",
-    gif: chocolateVideo,   description: "To sign 'chocolate', form your dominant hand into a 'C' shape. Bring it to your non-dominant hand, which is held flat and stationary, and twist your 'C' hand on the back of your non-dominant hand."}
+    gif: chocolateVideo, description: "To sign 'chocolate', form your dominant hand into a 'C' shape. Bring it to your non-dominant hand, which is held flat and stationary, and twist your 'C' hand on the back of your non-dominant hand."}
 ];
 
 const features = [
@@ -151,7 +151,7 @@ const HomePage = () => {
                 <>
                     <hr className="divider" />
                     <section className="sign-of-the-day-section animated-section">
-                        <h2 className="section-title">Sign of the Day: "{signOfTheDay.word}" ✨</h2>
+                        <h2 className="section-title">Sign of the Day: &quot;{signOfTheDay.word}&quot; ✨</h2>
                         <div className="sign-content">
                                <div className="sign-media">
                             <video

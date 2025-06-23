@@ -22,7 +22,7 @@ app.use(cors({
     origin: ['http://localhost:3000', 'https://localhost:3000'],
     credentials: true,           
 }));
-
+app.use()
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
@@ -48,7 +48,9 @@ try {
     const httpsServer = https.createServer(httpsOptions, app);
     
     httpsServer.listen(HTTPS_PORT, () => {
-        console.log(`HTTPS Server running on https://localhost:${HTTPS_PORT}`);
+        console.log(`
+            
+            HTTPS Server running on https://localhost:${HTTPS_PORT}`);
         console.log(`API available at https://localhost:${HTTPS_PORT}/handsUPApi`);
     });
 

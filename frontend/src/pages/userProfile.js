@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from '../context/authContext.js';
 import "../styles/userProfile.css"; 
@@ -515,13 +515,13 @@ export default function UserProfile() {
                                         <li>Remove any custom settings or preferences.</li>
                                     </ul>
                                     <p className="final-warning">This action cannot be undone.</p>
-                                    <p>Click "Proceed" to continue to the final confirmation step, or "Cancel" to keep your account.</p>
+                                    <p>Click &quot;Proceed&quot; to continue to the final confirmation step, or &quot;Cancel&quot; to keep your account.</p>
                                 </>
                             )}
                             {deleteStep === 2 && (
                                 <>
                                     <p className="warning-message">
-                                        To confirm deletion, please type "DELETE" into the box below. This is irreversible.
+                                        To confirm deletion, please type &quot;DELETE&quot; into the box below. This is irreversible.
                                     </p>
                                     <input
                                         type="text"

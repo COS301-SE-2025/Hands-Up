@@ -1,11 +1,10 @@
-import { Router } from 'express';
+
 import { pool } from '../utils.js';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 import multer from 'multer';
-import User from '../models/User.js';
-import jwt from 'jsonwebtoken';
+
 
 const activeSessions = new Map();
 const resetTokens = new Map();
