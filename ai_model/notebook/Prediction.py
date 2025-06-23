@@ -14,7 +14,7 @@ print("Detected actions:", actions)
 (X_train, X_test, y_train, y_test), _ = load_data(data_path=PROCESSED_PATH, actions=actions)
 
 # Load your trained model
-model = load_model('action.h5')
+model = load_model('action_model.h5')
 
 # Predict on test data
 res = model.predict(X_test)
