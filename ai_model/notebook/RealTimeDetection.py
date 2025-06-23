@@ -7,7 +7,7 @@ from tensorflow.keras.models import load_model
 PROCESSED_PATH = 'processed_dataset'
 print(cv2.__version__)
 # Load your trained model
-model = load_model('action.h5')
+model = load_model('action_model.h5')
 
 # Define the actions your model predicts
 actions = sorted([folder for folder in os.listdir(PROCESSED_PATH) if os.path.isdir(os.path.join(PROCESSED_PATH, folder))])
