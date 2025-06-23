@@ -491,8 +491,6 @@
   60% { transform: translateY(-5px); }
 }
 
-dd these styles to your existing Login.css file */
-
 .forgot-password-link-container {
   display: flex;
   justify-content: flex-end;
