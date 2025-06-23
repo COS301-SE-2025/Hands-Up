@@ -99,7 +99,7 @@ export function SignLearn() {
       }
 
       ctx.strokeStyle = getShadedColor(start);
-      ctx.lineWidth = 25 - start.z * 4;
+      ctx.lineWidth = 20 - start.z * 4;
       ctx.lineCap = 'round';
       ctx.shadowColor = 'rgba(0,0,0,0.12)';
       ctx.shadowBlur = 10;
