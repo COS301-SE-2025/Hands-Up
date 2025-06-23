@@ -6,9 +6,9 @@ services:
     container_name: HandsUp_DB
     restart: always
     environment:
-      POSTGRES_USER: tmkdt
-      POSTGRES_PASSWORD: handsUpProject1.0
-      POSTGRES_DB: HandsUp
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5432:5432"
     volumes:
@@ -22,7 +22,6 @@ services:
       - postgres
     volumes:
       - ./sql:/flyway/sql
-    command: -url=jdbc:postgresql://postgres:5432/HandsUp -user=tmkdt -password=handsUpProject1.0 -connectRetries=10 migrate
-
+    command: -url=jdbc:postgresql://postgres:5432/${DB_NAME} -user=${DB_USER} -password=${DB_PASS} -connectRetries=10 migrate
 volumes:
   pgdata:

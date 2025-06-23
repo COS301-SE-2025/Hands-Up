@@ -1,12 +1,15 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import React from "react";
 import { LearningStatsProvider } from "./context/learningStatsContext";
+import { AuthProvider } from "./context/authContext"; 
+import ProtectedRoute from "./components/ProtectedRoute"; 
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import "./App.css";
 
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+
 import Profile from "./pages/userProfile"; 
 import Translator from "./pages/Translator";
 import Learn from "./pages/Learn";
@@ -17,84 +20,74 @@ console.log('Layout:', Layout);
 
 
 function App() {
-  const isLoggedIn = true;
-
   return (
-    <LearningStatsProvider>
+ 
     <Router>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/landing" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+      <AuthProvider> 
+        <LearningStatsProvider>
+          <Routes>
+            <Route path="/" element={<Landing/>} />
+            <Route path="/landing" element={<Landing/>} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/reset-password/:token" element={<Login />} />
+           <Route
+              path="/userProfile"
+              element={
+                <ProtectedRoute>
+                  <Layout> 
+                       <Profile />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/translator"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Translator />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/learn"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Learn />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/home"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Home />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+             <Route
+              path="/help"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Help/>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
 
-       
-        <Route
-          path="/userProfile"
-          element={
-            isLoggedIn ? (
-              <Layout isLoggedIn={isLoggedIn}>
-                <Profile />
-              </Layout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-        <Route
-          path="/translator"
-          element={
-            isLoggedIn ? (
-              <Layout isLoggedIn={isLoggedIn}>
-                <Translator />
-              </Layout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-        <Route
-          path="/learn"
-          element={
-            isLoggedIn ? (
-              <Layout isLoggedIn={isLoggedIn}>
-                <Learn />
-              </Layout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-        <Route
-          path="/home"
-          element={
-            isLoggedIn ? (
-              <Layout isLoggedIn={isLoggedIn}>
-                <Home />
-              </Layout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-        <Route
-          path="/help"
-          element={
-            isLoggedIn ? (
-              <Layout isLoggedIn={isLoggedIn}>
-                <Help />
-              </Layout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
 
-        {/* Redirect any unknown path to login */}
-        <Route path="*" element={<Navigate to="/login" />} />
-      </Routes>
+            <Route path="*" element={<Navigate to="/login" />} />
+          </Routes>
+        </LearningStatsProvider>
+      </AuthProvider>
     </Router>
-    </LearningStatsProvider>
   );
 }
 

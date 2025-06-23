@@ -417,7 +417,9 @@ html, body {
 .tutorial-video iframe {
   width: 70%;
   height: auto;
-  aspect-ratio: 16 / 9; 
+  position: relative;
+width: 100%;
+padding-bottom: 56.25%;
   border-radius: 0.5rem;  
 }
 

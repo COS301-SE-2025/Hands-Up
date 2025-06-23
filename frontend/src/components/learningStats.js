@@ -4,7 +4,6 @@ import { useLearningStats } from "../context/learningStatsContext";
 export function LearningStats() {
     const statsContext = useLearningStats() || {};
     const { stats } = statsContext;
-    // const handleUpdate = useStatUpdater();
 
     const {
       lessonsCompleted = 0,
