@@ -286,7 +286,7 @@ export default function UserProfile() {
             }
 
             try {
-                const result = await updateUserPassword(currentUser.id, newPassword);
+                 await updateUserPassword(currentUser.id, newPassword);
                 setFormSuccess("Password updated successfully!");
                 setFormData(prevData => ({ ...prevData, newPassword: '', confirmPassword: '' }));
             } catch (err) {
@@ -340,13 +340,12 @@ export default function UserProfile() {
             setShowEditForm(false);
         }
     };
-
-    const handleResetProgress = () => {
+  
         if (window.confirm("Are you sure you want to reset all your learning progress? This action cannot be undone.")) {
             setFormSuccess("Learning progress reset successfully!");
             console.log("Resetting learning progress...");
         }
-    };
+    
 
     if (authLoading) return <div className="containerP loading-state">Loading authentication...</div>;
     if (!isLoggedIn) return null;
