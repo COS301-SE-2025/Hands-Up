@@ -4,6 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from '../context/authContext.js';
 import "../styles/Layout.css";
 import logo from "../logo2.png";
+import HelpMenu from './Help.js'; 
 
 const BACKEND_BASE_URL = "https://localhost:2000"; 
 const NAV_ITEMS = ["Home", "Learn", "Translator"];
@@ -79,6 +80,7 @@ function Layout({ children }) {
       </header>
 
       <main className="main-content">{children}</main>
+      <HelpMenu /> 
 
       <footer className="footer">
         <p>© 2025 Hands UP - A project by EPI-USE Africa in collaboration with TMKDT</p>

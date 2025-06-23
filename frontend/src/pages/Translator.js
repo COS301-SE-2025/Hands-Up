@@ -188,8 +188,16 @@ export default function Translator()
   };
 
   const speak = () => {
+    const voices = window.speechSynthesis.getVoices();
+    const preferredVoice = voices.find(voice => voice.name === 'Microsoft Zira - English (United States)');
+
     const text = result.replace('Detected: ', '').replace('Detected phrase: ', '').replace('API Result: ', '');
     const utterance = new SpeechSynthesisUtterance(text);
+
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+    }
+
     window.speechSynthesis.speak(utterance);
   };
 

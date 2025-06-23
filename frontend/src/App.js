@@ -6,12 +6,15 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import "./App.css";
 
+import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import Profile from "./pages/userProfile";
+
+import Profile from "./pages/userProfile"; 
 import Translator from "./pages/Translator";
 import Learn from "./pages/Learn";
 import Home from "./pages/Home";
+import Help from "./pages/Help";
 import Layout from "./pages/Layout"; 
 console.log('Layout:', Layout);
 
@@ -66,6 +69,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
 
             <Route path="*" element={<Navigate to="/login" />} />
           </Routes>
