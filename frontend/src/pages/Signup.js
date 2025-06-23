@@ -256,11 +256,15 @@ function SignupPage() {
                                 <div className="terms-checkbox-group">
                                     <input type="checkbox" id="termsAccepted" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} className="checkbox-input" />
                                     <label htmlFor="termsAccepted" className="checkbox-label">
-                                  I agree to the <a href="#" onClick={(e) => { e.preventDefault(); 
-                                  setShowTermsModal(true); }} 
-                                  className="terms-link"> Terms and Conditions </a>
-                                  </label>
-                                  
+    I agree to the <button 
+        type="button"
+        onClick={() => setShowTermsModal(true)} 
+        className="terms-link"
+    >
+        Terms and Conditions
+    </button>
+</label>
+
                                 </div>
 
                                 <button type="submit" disabled={isLoading} className="submit-button">
