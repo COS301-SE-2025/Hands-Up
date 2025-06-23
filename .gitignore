@@ -12,6 +12,10 @@ tests/coverage/
 #datasets
 ai_model/data
 ai_model/video_data
+ai_model2/notebook/dataset
+ai_model2/notebook/processed_dataset
+
+
 
 # misc
 **/.env
@@ -20,3 +24,9 @@ ai_model/video_data
 **/__pycache__/
 
 *:Zone.Identifier
+
+#logs
+ai_model2/notebook/Logs
+
+#uploads
+backend/uploads
