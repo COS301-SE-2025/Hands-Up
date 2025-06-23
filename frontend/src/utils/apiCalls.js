@@ -147,3 +147,149 @@ export const login = async (credentials) => {
     throw error; // Re-throw to handle in the component
   }
 };
+
+// signLanguageAPI.js
+class SignLanguageAPI {
+  constructor(baseURL = 'http://localhost:2000/handsUPApi') {
+    this.baseURL = baseURL;
+  }
+
+  /**
+   * Process an image for sign language recognition
+   * @param {Blob} imageBlob - The image blob to process
+   * @returns {Promise<Object>} - API response with sign detection results
+   */
+  async processImage(imageBlob) {
+    try {
+      const formData = new FormData();
+      formData.append('image', imageBlob, 'capture.jpg');
+      
+      const response = await fetch(`${this.baseURL}/process-sign`, {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      
+      return {
+        success: true,
+        sign: data.sign,
+        confidence: data.confidence || 0,
+        rawData: data
+      };
+    } catch (error) {
+      console.error('Error processing image:', error);
+      return {
+        success: false,
+        error: error.message || 'Error processing image. Please check your connection.',
+        sign: null,
+        confidence: 0
+      };
+    }
+  }
+
+  /**
+   * Process a video for sign language recognition
+   * @param {Blob} videoBlob - The video blob to process
+   * @returns {Promise<Object>} - API response with phrase detection results
+   */
+  async processVideo(videoBlob) {
+    try {
+      const formData = new FormData();
+      formData.append('video', videoBlob, 'sign.webm');
+      
+      const response = await fetch(`${this.baseURL}/process-video`, {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      
+      return {
+        success: true,
+        phrase: data.phrase,
+        confidence: data.confidence || 0,
+        rawData: data
+      };
+    } catch (error) {
+      console.error('Error processing video:', error);
+      return {
+        success: false,
+        error: error.message || 'Error processing video. Please check your connection.',
+        phrase: null,
+        confidence: 0
+      };
+    }
+  }
+
+  /**
+   * Generic method to process media (auto-detects type)
+   * @param {Blob} mediaBlob - The media blob to process
+   * @param {string} type - 'image' or 'video'
+   * @returns {Promise<Object>} - API response
+   */
+  async processMedia(mediaBlob, type) {
+    if (type === 'video') {
+      return await this.processVideo(mediaBlob);
+    } else {
+      return await this.processImage(mediaBlob);
+    }
+  }
+
+  /**
+   * Set a new base URL for the API
+   * @param {string} newBaseURL - New base URL
+   */
+  setBaseURL(newBaseURL) {
+    this.baseURL = newBaseURL;
+  }
+
+  /**
+   * Get current base URL
+   * @returns {string} - Current base URL
+   */
+  getBaseURL() {
+    return this.baseURL;
+  }
+
+  /**
+   * Health check for the API
+   * @returns {Promise<boolean>} - True if API is accessible
+   */
+  async healthCheck() {
+    try {
+      const response = await fetch(`${this.baseURL}/health`, {
+        method: 'GET',
+        timeout: 5000
+      });
+      return response.ok;
+    } catch (error) {
+      console.error('API health check failed:', error);
+      return false;
+    }
+  }
+}
+
+// Create and export a singleton instance
+const signLanguageAPI = new SignLanguageAPI();
+
+export default signLanguageAPI;
+
+// Also export the class for custom instances
+export { SignLanguageAPI };
