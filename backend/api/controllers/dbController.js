@@ -1,9 +1,5 @@
-import { Router } from 'express';
 import { pool } from '../utils/dbConnection.js';
 import bcrypt from 'bcrypt';
-
-const router = Router();
-
 export const learningProgress = async (req, res) => {
 
   if (req.method == 'GET') {

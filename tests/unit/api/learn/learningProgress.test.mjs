@@ -1,13 +1,19 @@
-import { jest, expect, it, describe, beforeEach} from '@jest/globals';
+import { jest, expect, it, describe, beforeEach, beforeAll} from '@jest/globals';
+let pool, learningProgress
+
+beforeAll(async () => {
+  const dbModule = await import('../../../../backend/api/utils/dbConnection.js');
+  const controllerModule = await import('../../../../backend/api/controllers/dbController.js');
+
+  pool = dbModule.pool;
+  ({ learningProgress } = controllerModule);
+});
 
 jest.unstable_mockModule('../../../../backend/api/utils/dbConnection', () => ({
   pool: {
     query: jest.fn(),
   },
 }));
-
-const { pool } =  await import('../../../../backend/api/utils/dbConnection.js');
-const { learningProgress } = await import('../../../../backend/api/controllers/dbController.js');
 
 describe('learningProgress controller', () => {
   let req, res;

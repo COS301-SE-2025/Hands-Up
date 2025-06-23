@@ -15,7 +15,6 @@ def extractLandmarksFromVideo(videoPath, letter, outputDir='landmarks'):
         if not success:
             break
 
-        # Flip and convert color for MediaPipe
         frame = cv2.flip(frame, 1)
         imageRgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
@@ -29,7 +28,6 @@ def extractLandmarksFromVideo(videoPath, letter, outputDir='landmarks'):
                     "x": lm.x,
                     "y": lm.y,
                     "z": lm.z,
-                    "visibility": lm.visibility
                 })
 
         if frameLandmarks:
