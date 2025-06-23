@@ -340,12 +340,13 @@ export default function UserProfile() {
             setShowEditForm(false);
         }
     };
-  
-        if (window.confirm("Are you sure you want to reset all your learning progress? This action cannot be undone.")) {
-            setFormSuccess("Learning progress reset successfully!");
-            console.log("Resetting learning progress...");
-        }
-    
+
+    // const handleResetProgress = () => {
+    //     if (window.confirm("Are you sure you want to reset all your learning progress? This action cannot be undone.")) {
+    //         setFormSuccess("Learning progress reset successfully!");
+    //         console.log("Resetting learning progress...");
+    //     }
+    // };
 
     if (authLoading) return <div className="containerP loading-state">Loading authentication...</div>;
     if (!isLoggedIn) return null;
@@ -551,7 +552,7 @@ export default function UserProfile() {
 
             <div className="containerP">
                 <div className="profile-header">
-                    <div className="avatar-wrapper" onClick={() => fileInputRef.current.click()}>
+                    <div className="avatar-wrapper" >
                         {avatarurl ? (
                             <img src={avatarurl} alt="User Avatar" className="avatar-img" />
                         ) : (
@@ -567,10 +568,7 @@ export default function UserProfile() {
                             onChange={handleAvatarChange}
                             accept="image/*"
                         />
-                        <div className="upload-overlay">
-                            <span className="upload-icon"></span>
-                            Upload <br /> Image
-                        </div>
+                        
                     </div>
                     <div className="profile">
                         <h1 className="name">{currentUser.name} {currentUser.surname}</h1>
