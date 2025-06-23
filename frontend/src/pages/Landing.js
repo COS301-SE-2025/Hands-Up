@@ -77,9 +77,9 @@ const LandingPage = () => {
           <div className="about" data-aos="fade-up">
             <p> Hands UP is designed to make sign language accessible, enjoyable and part of everyday life for everyone.
                 <br></br><br></br>
-                Whether you're just starting to learn or a novice signer, Hands UP uses AI to translate sign language instantly through your device’s camera — turning signs into text and speech with ease, right when you need it.
+                Whether you&apos;re just starting to learn or a novice signer, Hands UP uses AI to translate sign language instantly through your device&apos;s camera — turning signs into text and speech with ease, right when you need it.
                 <br></br><br></br>
-                But it’s more than just a translator. It’s a fun, interactive learning space where you can practice, improve your signing skills and get real-time feedback to build your confidence as you go.</p>
+                But it is more than just a translator. It&apos;s a fun, interactive learning space where you can practice, improve your signing skills and get real-time feedback to build your confidence as you go.</p>
           </div>
         </div>
       </div>
