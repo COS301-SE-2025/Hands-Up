@@ -6,13 +6,13 @@ jest.unstable_mockModule('../../../../backend/api/utils/dbConnection', () => ({
   },
 }));
 
-const { pool } = import('../../../../../backend/api/utils/dbConnection.js');
+const { pool } = await import('../../../../backend/api/utils/dbConnection');
 const {
   uniqueUsername,
   uniqueEmail,
   updateUserDetails,
   updateUserPassword,
-} = await import('../../../../../backend/api/controllers/dbController.js');
+} = await import('../../../../backend/api/controllers/dbController');
 
 describe('User details update functions', () => {
   let req, res;

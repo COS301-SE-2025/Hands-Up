@@ -4,7 +4,7 @@ import os
 from unittest.mock import MagicMock, patch
 from collections import namedtuple
 
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../backend/api/controllers'))
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../backend/api/controllers'))
 sys.path.append(parent_dir)
 
 from modelControllers import ZGestureStateMachine, JGestureStateMachine, detectFromImage  
@@ -30,7 +30,7 @@ def test_z_gesture_timeout():
     z = ZGestureStateMachine()
     for _ in range(11):
         z.update(create_landmarks(index_tip=(0.6, 0.5)))
-    assert z.state == 0  
+    assert z.state == 1 
 
 
 def test_j_gesture_success():

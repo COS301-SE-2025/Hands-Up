@@ -6,7 +6,7 @@ import pickle
 import collections
 import time
 
-model = tf.keras.models.load_model('../../../ai_model/models/detectLettersModel.keras')
+model = tf.keras.models.load_model('Hands-Up/ai_model/models/detectLettersModel.keras')
 with open('../../../ai_model/models/labelEncoder.pickle', 'rb') as f:
     labelEncoder = pickle.load(f)
 
