@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import signLanguageAPI from '../utils/apiCalls'; // Import the API service
 import '../styles/Translator.css';
 
 export default function Translator() {
@@ -15,9 +16,6 @@ export default function Translator() {
   const [processing, setProcessing] = useState(false);
   const [confidence, setConfidence] = useState(0);
   const [mediaRecorder, setMediaRecorder] = useState(null);
-
-  // API Configuration
-  const API_BASE_URL = 'http://localhost:2000/handsUPApi';
 
   useEffect(() => {
     const enableCamera = async () => {
@@ -79,34 +77,22 @@ export default function Translator() {
     setConfidence(0);
 
     try {
-      const formData = new FormData();
-      formData.append('image', imageBlob, 'capture.jpg');
+      const response = await signLanguageAPI.processImage(imageBlob);
       
-      const response = await fetch(`${API_BASE_URL}/process-sign`, {
-        method: 'POST',
-        body: formData
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (data.error) {
-        setResult(`Error: ${data.error}`);
-      } else {
-        setResult(`Detected: '${data.sign}'`);
-        setConfidence(data.confidence);
+      if (response.success) {
+        setResult(`Detected: '${response.sign}'`);
+        setConfidence(response.confidence);
         setSpeakDisabled(false);
         setAudioProgressWidth(0);
         setTimeout(() => {
           setAudioProgressWidth(100);
         }, 100);
+      } else {
+        setResult(`Error: ${response.error}`);
       }
     } catch (error) {
-      console.error('Error processing image:', error);
-      setResult('Error processing image. Please check your connection.');
+      console.error('Unexpected error:', error);
+      setResult('Unexpected error occurred. Please try again.');
     } finally {
       setProcessing(false);
     }
@@ -119,34 +105,29 @@ export default function Translator() {
     setConfidence(0);
 
     try {
-      const formData = new FormData();
-      formData.append('video', videoBlob, 'sign.webm');
+      const response = await signLanguageAPI.processVideo(videoBlob);
       
-      const response = await fetch(`${API_BASE_URL}/process-video`, {
-        method: 'POST',
-        body: formData
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (data.error) {
-        setResult(`Error: ${data.error}`);
-      } else {
-        setResult(data.phrase);
-        setConfidence(data.confidence);
+      if (response.success) {
+        if(response.phrase != null){
+          setResult(response.phrase);
+          setConfidence(response.confidence);
+
+        }
+        else{
+          setResult("Not a valid sign");
+        }
+       
         setSpeakDisabled(false);
         setAudioProgressWidth(0);
         setTimeout(() => {
           setAudioProgressWidth(100);
         }, 100);
+      } else {
+        setResult(`Error: ${response.error}`);
       }
     } catch (error) {
-      console.error('Error processing video:', error);
-      setResult('Error processing video. Please check your connection.');
+      console.error('Unexpected error:', error);
+      setResult('Unexpected error occurred. Please try again.');
     } finally {
       setProcessing(false);
     }
