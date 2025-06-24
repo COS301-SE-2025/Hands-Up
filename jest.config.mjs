@@ -1,8 +1,9 @@
-
-
 export default {
   testEnvironment: 'node',
-  roots: ['<rootDir>/tests/unit/api'], //'<rootDir>/tests/unit/ui'], //where to find tests
+  setupFilesAfterEnv: ['<rootDir>/tests/setupJest.js'],
+  // roots: ['<rootDir>/tests/unit/api'], 
+  // roots: ['<rootDir>/tests/unit/ui'],
+  roots: ['<rootDir>/tests/unit/api'] ['<rootDir>/tests/unit/ui'],
   testMatch: ['**/?(*.)+(spec|test).[jt]s?(x)', '**/?(*.)+(spec|test).mjs'],
   collectCoverageFrom: [
     "**/*.{js,jsx,mjs}",
@@ -10,6 +11,13 @@ export default {
   ],
   coverageDirectory: 'tests/coverage',
   transform: {
-      "^.+\\.[jt]sx?$": "babel-jest",
-    },
+    "^.+\\.[jt]sx?$": "babel-jest",
+  },
+  moduleNameMapper: {
+    '^react$': '<rootDir>/node_modules/react',
+    '^react-dom$': '<rootDir>/node_modules/react-dom',
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy', 
+    '\\.(png|jpg|jpeg|gif|svg)$': '<rootDir>/tests/mocks/fileMock.cjs',
+    '^lucide-react$': '<rootDir>/tests/mocks/lucideReactMock.cjs', 
+  },
 }
