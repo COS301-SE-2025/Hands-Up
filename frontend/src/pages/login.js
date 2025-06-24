@@ -4,7 +4,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import React, { useState, useEffect, useRef } from 'react';
 import { Eye, EyeOff, Mail, Lock, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
 import { useAuth } from '../contexts/authContext.js';
-import '../styles/Login.css';
+import '../styles/login.css';
 import heroImage from "../images/sign33.png";
 import logo from "../images/logo2.png";
 

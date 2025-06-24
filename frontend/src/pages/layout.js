@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from '../contexts/authContext.js';
-import "../styles/Layout.css";
+import "../styles/layout.css";
 import logo from "../images/logo2.png";
 import {HelpMenu} from './help.js'; 
 

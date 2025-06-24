@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/learnSidebar';
 import { CategoryTile } from '../components/learnCategoryTile';
 import { LevelTile } from '../components/learnLevelTile';
-import '../styles/Learn.css';
+import '../styles/learn.css';
 import { useLearningStats } from '../contexts/learningStatsContext';
 
 const categories = [

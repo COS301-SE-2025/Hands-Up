@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import '../styles/Learn.css';
+import '../styles/learn.css';
 
 async function getLandmarks(letter) {
   const response = await fetch(`/landmarks/${letter}.json`);

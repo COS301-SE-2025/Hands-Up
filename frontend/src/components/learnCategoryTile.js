@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { CiLock } from 'react-icons/ci';
-import '../styles/Learn.css';
+import '../styles/learn.css';
 
 export const CategoryTile = ({ name, unlocked, onClick }) =>{
   return ( <div className={`category-tile ${unlocked ? 'unlocked' : 'locked'}`} onClick={unlocked ? onClick : null}>

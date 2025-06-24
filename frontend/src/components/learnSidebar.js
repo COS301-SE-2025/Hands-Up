@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../styles/Learn.css';
+import '../styles/learn.css';
 import PropTypes from "prop-types";
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
