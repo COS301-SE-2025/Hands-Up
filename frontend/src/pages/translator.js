@@ -1,259 +1,32 @@
-import React, { useState, useRef, useEffect } from 'react';
-import '../styles/Translator.css';
+import React, { useState } from 'react';
+import {useTranslator} from '../hooks/translateResults';
+import {renderMediaPreview} from '../components/mediaPreview';
+import {renderHistoryItem} from '../components/historyItem';
+import '../styles/translator.css';
 
-export default function Translator() 
-{
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const [result, setResult] = useState("Awaiting sign capture...");
-  const [recording, setRecording] = useState(false);
-  const [speakDisabled, setSpeakDisabled] = useState(true);
-  const [audioProgressWidth, setAudioProgressWidth] = useState(0);
-  const [capturedImage, setCapturedImage] = useState(null);
-  const [capturedType, setCapturedType] = useState(null);
-  const [captureHistory, setCaptureHistory] = useState([]);
-  const [capturedBlob, setCapturedBlob] = useState(null); 
-  const [mediaRecorder, setMediaRecorder] = useState(null);
+export function Translator(){
 
-  useEffect(() => {
-    const enableCamera = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      } catch (err) 
-      {
-        console.log(err);
-        setResult('Camera access denied.');
-      }
-    };
+  const [speakDisabled] = useState(true);
+  const [audioProgressWidth] = useState(0);
 
-    enableCamera();
-    const currentVideo = videoRef.current; //Added by Karabo - linting
-
-    return () => {
-      if (currentVideo && currentVideo.srcObject) {
-        const tracks = currentVideo.srcObject.getTracks();
-        tracks.forEach(track => track.stop());
-      }
-    };
-  }, []);
-
-  const captureImageFromVideo = () => {
-    if(videoRef.current && canvasRef.current) {
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      canvas.toBlob((blob) => {
-        const imageUrl = URL.createObjectURL(blob);
-        setCapturedImage(imageUrl);
-        setCapturedType('image');
-        setCapturedBlob(blob);
-        setCaptureHistory(prev => [{
-          id: Date.now(),
-          url: imageUrl,
-          type: 'image',
-          blob: blob, 
-          timestamp: new Date().toLocaleTimeString()
-        }, ...prev.slice(0, 4)]);
-
-        processImage(blob);
-      }, 'image/jpeg', 0.8);
-    }
-  };
-
-  const processImage = async () => {
-    setResult("Processing captured image...");
-
-    setTimeout(() => {
-      setResult("Detected: 'Hello'");
-      setSpeakDisabled(false);
-      setAudioProgressWidth(0);
-      setTimeout(() => {
-        setAudioProgressWidth(100);
-      }, 100);
-    }, 1500);
-
-   
-  };
-
-  const processVideo = async () => {
-    setResult("Processing captured video...");
-
-    setTimeout(() => {
-      setResult("Detected phrase: 'How are you?'");
-      setSpeakDisabled(false);
-      setAudioProgressWidth(0);
-      setTimeout(() => {
-        setAudioProgressWidth(100);
-      }, 100);
-    }, 800); 
-  };
-
-  const capture = () => {
-    captureImageFromVideo();
-  };
-
-  const startRecording = () => {
-    if (recording) {
-      stopRecording();
-      return;
-    }
-
-    const stream = videoRef.current?.srcObject;
-    if (!stream) return;
-
-    
-    const options = {
-      mimeType: 'video/webm;codecs=vp8',
-      videoBitsPerSecond: 2500000 
-    };
-    
-    let recorder;
-    try {
-      recorder = new MediaRecorder(stream, options);
-    } catch (e) {
-      console.log(e);
-      recorder = new MediaRecorder(stream);
-    }
-
-    const chunks = []; 
-
-    recorder.ondataavailable = (e) => {
-      if (e.data.size > 0) {
-        chunks.push(e.data);
-      }
-    };
-
-    recorder.onstop = () => {
-      const blob = new Blob(chunks, { type: 'video/webm' });
-      const videoURL = URL.createObjectURL(blob);
-      
-      setCapturedImage(videoURL);
-      setCapturedType('video');
-      setCapturedBlob(blob);
-      setCaptureHistory(prev => [{
-        id: Date.now(),
-        url: videoURL,
-        type: 'video',
-        blob: blob, 
-        timestamp: new Date().toLocaleTimeString()
-      }, ...prev.slice(0, 4)]);
-      processVideo(blob);
-      setRecording(false);
-    };
-
-    setMediaRecorder(recorder);
-    recorder.start(200); 
-    setRecording(true);
-    setResult("Recording signs... Click again to stop");
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorder && mediaRecorder.state === 'recording') {
-      mediaRecorder.stop();
-    }
-  };
-
-  const handleFileUpload = (e) => {
-    if (e.target.files.length > 0) {
-      const file = e.target.files[0];
-      const isVideo = file.type.includes('video');
-
-      setResult(`Processing uploaded ${isVideo ? 'video' : 'image'}...`);
-      
-      const fileUrl = URL.createObjectURL(file);
-      setCapturedImage(fileUrl);
-      setCapturedType(isVideo ? 'video' : 'image');
-      setCapturedBlob(file); 
-      setCaptureHistory(prev => [{
-        id: Date.now(),
-        url: fileUrl,
-        type: isVideo ? 'video' : 'image',
-        blob: file, 
-        timestamp: new Date().toLocaleTimeString()
-      }, ...prev.slice(0, 4)]);
-
-      if (isVideo) {
-        processVideo(file);
-      } else {
-        processImage(file);
-      }
-    }
-  };
-
-  const speak = () => {
-    const voices = window.speechSynthesis.getVoices();
-    const preferredVoice = voices.find(voice => voice.name === 'Microsoft Zira - English (United States)');
-
-    const text = result.replace('Detected: ', '').replace('Detected phrase: ', '').replace('API Result: ', '');
-    const utterance = new SpeechSynthesisUtterance(text);
-
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
-    }
-
-    window.speechSynthesis.speak(utterance);
-  };
-
-  const renderMediaPreview = (url, type) => {
-    if (type === 'video') {
-      return (
-        <video 
-          controls 
-          src={url} 
-          style={{ 
-            width: '100%', 
-            height: '250px', 
-            objectFit: 'cover',
-            border: '2px solid #ddd', 
-            borderRadius: '8px' 
-          }}
-        />
-      );
-    } else {
-      return (
-        <img 
-          src={url} 
-          alt="Captured sign" 
-          style={{ 
-            width: '100%', 
-            height: '250px', 
-            objectFit: 'cover', 
-            border: '2px solid #ddd', 
-            borderRadius: '8px' 
-          }}
-        />
-      );
-    }
-  };
-
-  const renderHistoryItem = (capture) => {
-    if (capture.type === 'video') {
-      return (
-        <video 
-          src={capture.url} 
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          muted
-        />
-      );
-    } else {
-      return (
-        <img 
-          src={capture.url} 
-          alt={`Capture`}
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-        />
-      );
-    }
-  };
+  const {
+    videoRef,
+    canvasRef,
+    result,
+    confidence,
+    recording,
+    capturedImage,
+    capturedType,
+    captureHistory,
+    capturedBlob,
+    startRecording,
+    handleFileUpload,
+    setResult
+  } = useTranslator();
 
   return (
+    <div className="recognizer-container">
+      <div className="recognizer-content">
         <div className="recognizer-columns">
           <div className="recognizer-left-column">
             <h2 className="recognizer-title">
@@ -272,6 +45,7 @@ export default function Translator()
                 playsInline 
                 className="recognizer-video"
               ></video>
+              {/* Hidden canvas for capturing video frames */}
               <canvas 
                 ref={canvasRef} 
                 style={{ display: 'none' }}
@@ -299,8 +73,8 @@ export default function Translator()
             </div>
 
             <div className="recognizer-controls">
-              <button onClick={capture} className="recognizer-control-button recognizer-capture-button">
-                <i className="fas fa-camera"></i> Capture Sign
+              <button onClick={() => setResult("")} className="recognizer-control-button recognizer-capture-button">
+                <i></i> Clear Results
               </button>
               <button 
                 onClick={startRecording} 
@@ -330,6 +104,7 @@ export default function Translator()
                     key={capture.id} 
                     className="recognizer-history-item" 
                     title={`${capture.type} - ${capture.timestamp}`}
+                    //onClick={() => handleHistoryClick(capture)}
                     style={{ cursor: 'pointer', position: 'relative' }}
                   >
                     {renderHistoryItem(capture)}
@@ -345,7 +120,6 @@ export default function Translator()
                     }}>
                       {capture.type === 'video' ? '🎥' : '📷'}
                     </div>
-                    {/* Hover overlay */}
                     <div style={{
                       position: 'absolute',
                       top: 0,
@@ -368,7 +142,6 @@ export default function Translator()
                     </div>
                   </div>
                 ))}
-
                 {Array.from({ length: Math.max(0, 5 - captureHistory.length) }, (_, i) => (
                   <div key={`empty-${i}`} className="recognizer-history-item"></div>
                 ))}
@@ -381,7 +154,6 @@ export default function Translator()
               <h3 className="recognizer-results-title">
                 <i className="fas fa-language recognizer-results-icon"></i> Translation Results
               </h3>
-              
               {capturedImage && (
                 <div className="recognizer-captured-image" style={{ marginBottom: '10px' }}>
                   {renderMediaPreview(capturedImage, capturedType)}
@@ -396,14 +168,12 @@ export default function Translator()
 
               <div className="recognizer-audio-controls">
                 <button 
-                  onClick={speak} 
                   className="recognizer-speak-button" 
                   disabled={speakDisabled}
                 >
                   <i className="fas fa-volume-up"></i>
                 </button>
                 <button 
-                  //onClick={sendToAPI} 
                   className="recognizer-speak-button" 
                   disabled={!capturedBlob}
                   title="Send to API for processing"
@@ -421,7 +191,7 @@ export default function Translator()
 
               <div className="recognizer-additional-info">
                 <div className="recognizer-confidence">
-                  <span>Confidence: <span className="recognizer-confidence-value">98%</span></span>
+                  <span>Confidence: <span className="recognizer-confidence-value">{confidence}</span></span>
                   <span>Alternative: <span className="recognizer-alternative-value">None</span></span>
                 </div>
               </div>
@@ -458,11 +228,12 @@ export default function Translator()
 
             <div className="recognizer-support">
               <p className="recognizer-support-text">
-                Need help? <button className="recognizer-support-link">Contact Support</button> {/*Added by Karabo - invalid link - linting*/}
+                Need help? <button className="recognizer-support-link">Contact Support</button>
               </p>
             </div>
           </div>
         </div>
-   
+      </div>
+    </div>
   );
 }

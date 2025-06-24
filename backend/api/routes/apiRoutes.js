@@ -12,9 +12,9 @@ import {
     getUserData,
     deleteUserAccount,
     uploadUserAvatar
-} from './controllers/dbController.js';
+} from '../controllers/dbController.js';
 
-import { resetPassword, confirmPasswordReset } from './controllers/dbController.js';
+import { resetPassword, confirmPasswordReset } from '../controllers/dbController.js';
 import{processVideo}from '../controllers/modelController.js'
 import multer from 'multer';
 import fs from 'fs';

@@ -1,23 +1,19 @@
 .login-page {
   font-size: 1.45rem; 
-<<<<<<< HEAD
   min-height: 100vh;
   background-color: #f0f2f5;
   display: flex;
   align-items: center; 
   justify-content: center; 
-=======
   min-height: 100vh; 
   background-color: #f0f2f5;
   display: flex;
   align-items: center; 
   justify-content: center;
->>>>>>> bug-fix/maintainability
   padding: 1rem;
   position: relative;
   overflow: hidden;
 }
-
 
 .bg-animation-container {
   position: absolute;
@@ -55,11 +51,7 @@
   z-index: 10;
   width: 100%;
   height: auto; 
-<<<<<<< HEAD
-  max-width: 72rem; 
-=======
   max-width: 72rem;
->>>>>>> bug-fix/maintainability
   max-height: 50rem; 
 
   transition: all 1000ms ease-in-out;
@@ -82,11 +74,7 @@
   border-radius: 1.5rem;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(229, 231, 235, 0.5);
-<<<<<<< HEAD
-  overflow: hidden;
-=======
   overflow: hidden; 
->>>>>>> bug-fix/maintainability
   transition: all 500ms ease-in-out;
   min-height: auto; 
 }

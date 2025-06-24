@@ -1,11 +1,11 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import React from "react";
-import { LearningStatsProvider } from "./context/learningStatsContext";
-import { AuthProvider } from "./context/authContext"; 
-import ProtectedRoute from "./components/ProtectedRoute"; 
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { LearningStatsProvider } from "./contexts/learningStatsContext";
+import { AuthProvider } from "./contexts/authContext"; 
+import ProtectedRoute from "./components/protectedRoute"; 
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import "./styles/App.css";
-import { Help } from "./pages/help";
+import { HelpMenu } from "./pages/help";
 import { Login } from "./pages/login";
 import { Signup} from "./pages/signup";
 import { UserProfile } from "./pages/userProfile"; 
@@ -74,7 +74,7 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Layout>
-                    <Help/>
+                    <HelpMenu/>
                   </Layout>
                 </ProtectedRoute>
               }

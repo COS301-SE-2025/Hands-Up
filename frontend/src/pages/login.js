@@ -3,12 +3,12 @@
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import React, { useState, useEffect, useRef } from 'react';
 import { Eye, EyeOff, Mail, Lock, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
-import { useAuth } from '../context/authContext.js';
+import { useAuth } from '../contexts/authContext.js';
 import '../styles/Login.css';
 import heroImage from "../images/sign33.png";
 import logo from "../images/logo2.png";
 
-function Login() {
+export function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -505,5 +505,3 @@ function Login() {
         </div>
     );
 }
-
-export default Login;

@@ -3,10 +3,10 @@ import { Eye, EyeOff, Mail, Lock, ArrowRight, User } from 'lucide-react';
 import {useSignup} from '../hooks/signup.js';
 import { useNavigate } from 'react-router-dom';
 import { signup } from '../utils/apiCalls.js';
-import { useAuth } from '../context/authContext.js';
-import '../styles/Signup.css';
-import heroImage from "../sign33.png";
-import logo from "../logo2.png";
+import { useAuth } from '../contexts/authContext.js';
+import '../styles/signup.css';
+import heroImage from "../images/sign33.png";
+import logo from "../images/logo2.png";
 import PropTypes from 'prop-types';
 
 function TermsModal({ isOpen, onClose, termsContent }) {
@@ -37,7 +37,7 @@ function TermsModal({ isOpen, onClose, termsContent }) {
 }
 
 
-function SignupPage() {
+export function Signup() {
     const [formData, setFormData] = useState({
         name: '',
         surname: '',
@@ -317,4 +317,3 @@ TermsModal.propTypes = {
         ).isRequired,
     }).isRequired,
 };
-export default SignupPage;

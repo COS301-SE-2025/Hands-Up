@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
-import apiRoutes from './apiRoutes.js';
+import apiRoutes from './routes/apiRoutes.js';
 import dotenv from 'dotenv';
 import https from 'https';
 import http from 'http';

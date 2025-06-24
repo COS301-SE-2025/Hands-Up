@@ -1,3 +1,27 @@
+const API_BASE_URL_AUTH = 'https://localhost:2000/handsUPApi/auth';
+const API_BASE_URL_USER = 'https://localhost:2000/handsUPApi/user';
+const API_BASE_URL_LEARNING = 'https://localhost:2000/handsUPApi/learning';
+const API_BASE_URL = "https://localhost:2000/handsUPApi";
+
+export const handleApiResponse = async (response) => {
+    const data = await response.json();
+    if (!response.ok) {
+        const error = new Error(data.message || 'An unknown error occurred');
+        if (data.attemptsLeft !== undefined) {
+            error.attemptsLeft = data.attemptsLeft;
+        }
+        if (data.locked !== undefined) {
+            error.locked = data.locked;
+        }
+        if (data.timeLeft !== undefined) {
+            error.timeLeft = data.timeLeft;
+        }
+
+        throw error;
+    }
+    return data;
+};
+
 export const processImage = async (image) => {
   console.log("Processing captured image...");
 
@@ -22,27 +46,30 @@ export const processImage = async (image) => {
 };
 
 
-
 export const getLearningProgress = async (username) => {
    try {
-    const response = await fetch(`http://localhost:2000/handsUPApi/learning/progress/${username}`);
-    const data = await response.json();
-    if (!response.ok) {
-        const error = new Error(data.message || 'An unknown error occurred');
-        if (data.attemptsLeft !== undefined) {
-            error.attemptsLeft = data.attemptsLeft;
-        }
-        if (data.locked !== undefined) {
-            error.locked = data.locked;
-        }
-        if (data.timeLeft !== undefined) {
-            error.timeLeft = data.timeLeft;
-        }
+        const response = await fetch(`http://localhost:2000/handsUPApi/learning/progress/${username}`);
+        const data = await response.json();
+        if (!response.ok) {
+            const error = new Error(data.message || 'An unknown error occurred');
+            if (data.attemptsLeft !== undefined) {
+                error.attemptsLeft = data.attemptsLeft;
+            }
+            if (data.locked !== undefined) {
+                error.locked = data.locked;
+            }
+            if (data.timeLeft !== undefined) {
+                error.timeLeft = data.timeLeft;
+            }
 
-        throw error;
+            throw error;
+        }
+        return data;
+    } catch (error) {
+        console.error("Error fetching learning progress:", error);
+        return error;
     }
-    return data;
-};
+}
 
 
 export const signup = async ({ name, surname, username, email, password }) => {
@@ -190,20 +217,6 @@ export const uploadUserAvatar = async (userID, formData) => {
     } catch (error) {
         console.error("Error in uploadUserAvatar:", error);
         throw error;
-    }
-};
-
-
-export const getLearningProgress = async (username) => {
-    try {
-        const response = await fetch(`${API_BASE_URL_LEARNING}/progress/${username}`, {
-            method: 'GET',
-            credentials: 'include'
-        });
-        return handleApiResponse(response);
-    } catch (error) {
-        console.error("Error getting progress", error);
-       throw error;
     }
 };
 

@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import '../styles/Help.css';
 
-const HelpMenu = () => {
+export function HelpMenu(){
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSection, setActiveSection] = useState('getting-started');
@@ -509,5 +509,3 @@ const HelpMenu = () => {
     </div>
   );
 };
-
-export default HelpMenu;
