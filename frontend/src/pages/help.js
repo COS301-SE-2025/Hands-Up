@@ -16,7 +16,7 @@ import {
   X,
   Menu // Add Menu icon for hamburger toggle
 } from 'lucide-react';
-import '../styles/Help.css';
+import '../styles/help.css';
 
 export function HelpMenu(){
   const [isOpen, setIsOpen] = useState(false);
