@@ -1,10 +1,13 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { useAuth } from '../context/authContext.js';
 import "../styles/Layout.css";
-import logo from "../images/logo2.png";
+import logo from "../logo2.png";
+import HelpMenu from './Help.js'; 
 
-const NAV_ITEMS = ["Home", "Learn", "Translator", "Profile", "Help"];
+const BACKEND_BASE_URL = "https://localhost:2000"; 
+const NAV_ITEMS = ["Home", "Learn", "Translator"];
 
 const NAV_PATHS = {
   Home: "/home",
@@ -14,23 +17,24 @@ const NAV_PATHS = {
   Help: "/help",
 };
 
-export function Layout({ children, isLoggedIn }) {
-  const navigate = useNavigate();
-  const location = useLocation(); 
+export function Layout({ children }) {
+  const { currentUser, isLoggedIn } = useAuth();
+  const location = useLocation();
 
   const currentPath = location.pathname;
   let currentPage = '';
+
   for (const itemKey in NAV_PATHS) {
     if (NAV_PATHS[itemKey] === currentPath) {
-      currentPage = itemKey; 
+      currentPage = itemKey;
       break;
     }
   }
 
-  const handleLogout = () => {
-    console.log("User logged out!");
-    navigate("/login");
-  };
+  const isProfileActive = currentPath === NAV_PATHS.Profile;
+  const displayAvatarUrl = currentUser?.avatarurl 
+                           ? `${BACKEND_BASE_URL}/${currentUser.avatarurl}` 
+                           : null;
 
   return (
     <div className="layout-container">
@@ -54,12 +58,22 @@ export function Layout({ children, isLoggedIn }) {
               </li>
             ))}
 
-            {isLoggedIn && ( 
-              <li>
-                <button onClick={handleLogout} className="nav-link logout-button" title="Logout">
-                  <i className="fas fa-sign-out-alt logout-icon"></i>
-                  <span className="sr-only">Logout</span>
-                </button>
+            {isLoggedIn && currentUser && (
+              <li className="profile-section">
+                <Link
+                  to={NAV_PATHS.Profile}
+                  className={`profile-link ${isProfileActive ? "nav-link-active" : ""}`}
+                >
+                  <div className="profile-info">
+                    <div className="profile-avatar"> 
+                      {displayAvatarUrl ? (
+                        <img src={displayAvatarUrl} alt="User Avatar" />
+                      ) : (
+                        `${currentUser.name?.charAt(0)?.toUpperCase()}${currentUser.surname?.charAt(0)?.toUpperCase()}`
+                      )}
+                    </div>
+                  </div>
+                </Link>
               </li>
             )}
           </ul>
@@ -67,6 +81,7 @@ export function Layout({ children, isLoggedIn }) {
       </header>
 
       <main className="main-content">{children}</main>
+      <HelpMenu /> 
 
       <footer className="footer">
         <p>© 2025 Hands UP - A project by EPI-USE Africa in collaboration with TMKDT</p>
@@ -77,6 +92,6 @@ export function Layout({ children, isLoggedIn }) {
 
 Layout.propTypes = {
   children: PropTypes.node.isRequired,
-  currentPage: PropTypes.node.isRequired,
-  isLoggedIn: PropTypes.bool.isRequired, 
 };
+
+

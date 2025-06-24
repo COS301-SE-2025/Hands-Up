@@ -7,10 +7,7 @@
 .recognizer-content {
   background-color: white;
   border-radius: 1rem;
-  /* Updated box-shadow for an even, light bluish glow */
-  box-shadow: 0 0 20px rgba(173, 216, 230, 0.7); /* Light blue, spread 20px, 70% opacity */
-  /* You can add a second, subtler shadow for more depth if desired, similar to your original */
-  /* box-shadow: 0 0 20px rgba(173, 216, 230, 0.7), 0 5px 15px rgba(0, 0, 0, 0.1); */
+  box-shadow: 0 0 20px rgba(173, 216, 230, 0.7);
   width: 100%;
   overflow: hidden;
   padding: 2rem;
@@ -50,7 +47,7 @@
 {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #2D4D3A;
+  color: black;
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
@@ -64,7 +61,7 @@
 
 .recognizer-banner 
 {
-  background: linear-gradient(to right, #2D4D3A, #3d6b50);
+  background:#7ED957;
   color: white;
   padding: 0.75rem;
   border-radius: 0.75rem;
@@ -198,7 +195,7 @@
 .recognizer-capture-button,
 .recognizer-record-button 
 {
-  background-color: #2D4D3A;
+  background-color: #7ED957;
   color: white;
 }
 

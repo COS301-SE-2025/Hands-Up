@@ -2,6 +2,10 @@
   "name": "handsUP-Api",
   "version": "1.0.0",
   "type": "module",
+  "eslintConfig":{
+     "env": {
+      "node": true
+  }},
   "scripts": {
     "start": "echo 'No app yet...'",
     "test-coverage": "echo 'No tests yet...'",

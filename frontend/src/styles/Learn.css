@@ -40,11 +40,10 @@
   font-size: 1.2rem;
   margin-bottom: 20px;
   cursor: pointer;
-}
-
-.sidebar-item.active {
-  font-weight: bold;
-  color: #333;
+  box-shadow: 0 1px 6px rgb(43,64,50, 0.1);
+  text-align: center;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
 }
 
 .sidebar-summary {
@@ -59,12 +58,12 @@
   padding: 10px;
   border-radius: 8px;
   font-size: 0.9rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  color: #2B3F32; 
 }
 
-.summary-title {
-  font-weight: 600;
-  color: #333;
+.content-area 
+{
+  padding: 0 1rem;
 }
 
 .summary-value {
@@ -72,7 +71,13 @@
   color: black;
 }
 
-.category-tiles {
+.alphabet-card
+{
+  background-color: #AAD576; 
+  border-radius: 10px;
+  width: 70px;
+  height: 90px;
+  box-shadow: 0 2px 8px rgb(43, 77, 58, 0.4);
   display: flex;
   flex-direction: column;
   gap: 20px;

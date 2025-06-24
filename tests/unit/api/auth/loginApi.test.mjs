@@ -36,7 +36,7 @@ describe('Login API', () => {
     const result = await login(mockCredentials);
 
     expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:2000/handsUPApi/auth/login',
+      'https://localhost:2000/handsUPApi/auth/login',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -66,7 +66,7 @@ describe('Login API', () => {
     await expect(login(mockCredentials)).rejects.toThrow('Invalid credentials');
 
     expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:2000/handsUPApi/auth/login',
+      'https://localhost:2000/handsUPApi/auth/login',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -90,7 +90,7 @@ describe('Login API', () => {
     await expect(login(mockCredentials)).rejects.toThrow('Invalid email or password');
 
     expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:2000/handsUPApi/auth/login',
+      'https://localhost:2000/handsUPApi/auth/login',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -114,7 +114,7 @@ describe('Login API', () => {
     await expect(login(mockCredentials)).rejects.toThrow('Invalid email or password');
 
     expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:2000/handsUPApi/auth/login',
+      'https://localhost:2000/handsUPApi/auth/login',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -139,7 +139,7 @@ describe('Login API', () => {
     await expect(login(mockCredentials)).rejects.toThrow('Invalid email or password');
 
     expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:2000/handsUPApi/auth/login',
+      'https://localhost:2000/handsUPApi/auth/login',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -161,7 +161,7 @@ describe('Login API', () => {
     await expect(login(mockCredentials)).rejects.toThrow('Invalid email or password');
 
     expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:2000/handsUPApi/auth/login',
+      'https://localhost:2000/handsUPApi/auth/login',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -186,7 +186,7 @@ describe('Login API', () => {
     await expect(login(mockCredentials)).rejects.toThrow('Internal server error');
 
     expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:2000/handsUPApi/auth/login',
+      'https://localhost:2000/handsUPApi/auth/login',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -218,7 +218,7 @@ describe('Login API', () => {
     const result = await login(mockCredentials);
 
     expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:2000/handsUPApi/auth/login',
+      'https://localhost:2000/handsUPApi/auth/login',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -242,7 +242,7 @@ describe('Login API', () => {
     await expect(login(mockCredentials)).rejects.toThrow('Invalid JSON');
 
     expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:2000/handsUPApi/auth/login',
+      'https://localhost:2000/handsUPApi/auth/login',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -274,7 +274,7 @@ describe('Login API', () => {
     const result = await login(mockCredentials);
 
     expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:2000/handsUPApi/auth/login',
+      'https://localhost:2000/handsUPApi/auth/login',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -301,7 +301,7 @@ describe('Login API', () => {
     await expect(login(mockCredentials)).rejects.toThrow('Too Many Requests');
 
     expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:2000/handsUPApi/auth/login',
+      'https://localhost:2000/handsUPApi/auth/login',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -326,7 +326,7 @@ describe('Login API', () => {
     await expect(login(mockCredentials)).rejects.toThrow('Invalid email or password');
 
     expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:2000/handsUPApi/auth/login',
+      'https://localhost:2000/handsUPApi/auth/login',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -349,7 +349,7 @@ describe('Login API', () => {
     await expect(login(mockCredentials)).rejects.toThrow('Login failed');
 
     expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:2000/handsUPApi/auth/login',
+      'https://localhost:2000/handsUPApi/auth/login',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
