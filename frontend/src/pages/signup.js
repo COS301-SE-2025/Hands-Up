@@ -3,7 +3,7 @@ import { Eye, EyeOff, Mail, Lock, ArrowRight, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { signup } from '../utils/apiCalls.js';
 import { useAuth } from '../context/authContext.js';
-import '../styles/Signup.css';
+import '../styles/signup.css';
 import heroImage from "../sign33.png";
 import logo from "../logo2.png";
 import PropTypes from 'prop-types';

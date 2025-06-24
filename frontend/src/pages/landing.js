@@ -4,7 +4,7 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { FaAmericanSignLanguageInterpreting, FaComments, FaGlobeAfrica, FaChartLine, FaGamepad } from "react-icons/fa";
 import { FaPersonChalkboard } from "react-icons/fa6";
-import '../styles/Landing.css';
+import '../styles/landing.css';
 import video1 from "../media/landing_video1.mp4";
 import logo from "../media/logo.png";
 import devices from "../media/devices.png";

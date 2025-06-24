@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import '../styles/Translator.css';
+import '../styles/translator.css';
 
 export default function Translator() 
 {

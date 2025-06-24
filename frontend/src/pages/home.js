@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/authContext.js';
 import { useLearningStats } from '../context/learningStatsContext.js';
-import '../styles/Home.css';
+import '../styles/home.css';
 import homeImage from '../Picture1.png';
 import learnVideo from '../videos/chocolate.mp4';
 import chocolateVideo from '../videos/learn.mp4';
