@@ -41,6 +41,7 @@ describe('Login API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockCredentials),
+        credentials: 'include',
       }
     );
     expect(result).toEqual(mockResponse);
@@ -71,6 +72,7 @@ describe('Login API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockCredentials),
+        credentials: 'include',
       }
     );
   });
@@ -95,6 +97,7 @@ describe('Login API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockCredentials),
+        credentials: 'include',
       }
     );
   });
@@ -119,6 +122,7 @@ describe('Login API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockCredentials),
+        credentials: 'include',
       }
     );
   });
@@ -144,6 +148,7 @@ describe('Login API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockCredentials),
+        credentials: 'include',
       }
     );
   });
@@ -166,6 +171,7 @@ describe('Login API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockCredentials),
+        credentials: 'include',
       }
     );
   });
@@ -191,6 +197,7 @@ describe('Login API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockCredentials),
+        credentials: 'include',
       }
     );
   });
@@ -223,6 +230,7 @@ describe('Login API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockCredentials),
+        credentials: 'include',
       }
     );
     expect(result).toEqual(mockResponse);
@@ -247,6 +255,7 @@ describe('Login API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockCredentials),
+        credentials: 'include',
       }
     );
   });
@@ -279,6 +288,7 @@ describe('Login API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockCredentials),
+        credentials: 'include',
       }
     );
     expect(result).toEqual(mockResponse);
@@ -306,6 +316,7 @@ describe('Login API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockCredentials),
+        credentials: 'include',
       }
     );
   });
@@ -331,6 +342,7 @@ describe('Login API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockCredentials),
+        credentials: 'include',
       }
     );
   });
@@ -346,7 +358,7 @@ describe('Login API', () => {
       json: () => Promise.resolve({}),
     });
 
-    await expect(login(mockCredentials)).rejects.toThrow('Login failed');
+    await expect(login(mockCredentials)).rejects.toThrow('An unknown error occurred');
 
     expect(fetch).toHaveBeenCalledWith(
       'https://localhost:2000/handsUPApi/auth/login',
@@ -354,6 +366,7 @@ describe('Login API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockCredentials),
+        credentials: 'include',
       }
     );
   });
