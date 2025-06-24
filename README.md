@@ -41,7 +41,7 @@ Thus, the system focuses on three core functionalities:
 | [Domain Model](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2#domain-model) | Visual representation of key entities and their relationships |
 | [Use Case Diagram](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2#use-case-diagram) | Overview of system interactions with external actors |
 | [Functional Requirements](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2#functional-requirements) | Core functionalities the system must perform |
-| [Architectural Requirements](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS#architectural-requirements) | High-level design constraints and objectives |
+| [Architectural Requirements](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2#architectural-requirements) | High-level design constraints and objectives |
 | [Technology Choices](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2#technology-choices) | Platforms, tools and languages required for implementation |
 | [Service Contracts](https://github.com/COS301-SE-2025/Hands-Up/wiki/Service_Contracts_2) | Defined inputs, outputs and behaviors of services |
 | [Contributions](#contributions) | Outlines each member's individual responsibilities. |
