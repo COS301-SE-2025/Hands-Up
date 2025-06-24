@@ -11,7 +11,7 @@ import devices from "../media/devices.png";
 import angie from "../media/angie.png";
 import phil from "../media/phil.png";
 
-const LandingPage = () => {
+export function Landing(){
 
   const navigate = useNavigate();
   const goToLogin = () => navigate('/login');
@@ -89,7 +89,7 @@ const LandingPage = () => {
       <div className="landing-features-section">
         <h2 className="landing-features-heading" data-aos="zoom-in">Explore Our Features</h2>
         <div className="landing-features-container">
-          <div className="feature-card" data-aos="fade-up">
+          <div className="landing-feature-card" data-aos="fade-up">
             <div className="card-inner">
               <div className="card-front one-front">
                 <FaAmericanSignLanguageInterpreting className="landing-feature-icon" />
@@ -101,7 +101,7 @@ const LandingPage = () => {
             </div>
           </div>
 
-          <div className="feature-card" data-aos="fade-up">
+          <div className="landing-feature-card" data-aos="fade-up">
             <div className="card-inner">
               <div className="card-front two-front">
                 <FaPersonChalkboard className="landing-feature-icon" />
@@ -113,7 +113,7 @@ const LandingPage = () => {
             </div>
           </div>
 
-          <div className="feature-card" data-aos="fade-up">
+          <div className="landing-feature-card" data-aos="fade-up">
             <div className="card-inner">
               <div className="card-front one-front">
                 <FaComments className="landing-feature-icon" />
@@ -125,7 +125,7 @@ const LandingPage = () => {
             </div>
           </div>
 
-          <div className="feature-card" data-aos="fade-up">
+          <div className="landing-feature-card" data-aos="fade-up">
             <div className="card-inner">
               <div className="card-front two-front">
                 <FaChartLine className="landing-feature-icon" />
@@ -137,7 +137,7 @@ const LandingPage = () => {
             </div>
           </div>
 
-          <div className="feature-card" data-aos="fade-up">
+          <div className="landing-feature-card" data-aos="fade-up">
             <div className="card-inner">
               <div className="card-front one-front">
                 <FaGlobeAfrica className="landing-feature-icon" />
@@ -149,7 +149,7 @@ const LandingPage = () => {
             </div>
           </div>
 
-          <div className="feature-card" data-aos="fade-up">
+          <div className="landing-feature-card" data-aos="fade-up">
             <div className="card-inner">
               <div className="card-front two-front">
                 <FaGamepad className="landing-feature-icon" />
@@ -200,5 +200,3 @@ const LandingPage = () => {
     </div>
   );
 };
-
-export default LandingPage;

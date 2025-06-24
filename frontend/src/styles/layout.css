@@ -4,14 +4,15 @@
 .layout-container {
   display: flex;
   flex-direction: column;
+  height:1%;
   min-height: 100vh;
-  background: linear-gradient(135deg, #b3d077 0%, #4e7a51 100%);
+  background: white;
   color: #4e7a51;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .header {
-
+ position:absolute;
   z-index: 100;
   width: 100%;
   height: 70px;

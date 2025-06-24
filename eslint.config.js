@@ -1,36 +1,45 @@
+import { defineConfig } from "eslint/config";
 import js from "@eslint/js";
-import react from "eslint-plugin-react";
-import reactHooks from "eslint-plugin-react-hooks";
+import pluginReact from "eslint-plugin-react";
+import pluginReactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
 
-export default [
+export default defineConfig([
+
+  {
+    files: ["**/*.{js,mjs,cjs,jsx}"],
+    languageOptions: {
+      globals: globals.browser,
+      ecmaVersion: 2021,
+    },
+    plugins: { js },
+    extends: ["js/recommended"],
+  },
+
   {
     files: ["**/*.{js,jsx}"],
-    languageOptions: {
-      ecmaVersion: "latest",
-      sourceType: "module",
-      parserOptions: {
-        ecmaFeatures: {
-          jsx: true,
-        },
-      },
-      globals: {
-        ...globals.browser,
-        ...globals.node,
-      },
-    },
-    plugins: {
-      react,
-      "react-hooks": reactHooks,
-    },
-    rules: {
-      ...react.configs.recommended.rules,
-      ...reactHooks.configs.recommended.rules,
-    },
+    plugins: { react: pluginReact },
+    ...pluginReact.configs.flat.recommended,
     settings: {
-      react: {
-        version: "detect",
-      },
+      react: { version: "detect" },
     },
   },
-];
+
+  {
+    files: ["**/*.{js,jsx}"],
+    plugins: { "react-hooks": pluginReactHooks },
+    rules: pluginReactHooks.configs.recommended.rules,
+  },
+
+  {
+    files: ["**/*.js"], 
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        process: "readonly", 
+      },
+      ecmaVersion: 2021,
+    },
+  }
+
+]);

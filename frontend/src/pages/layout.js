@@ -1,10 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Link, useLocation } from "react-router-dom";
-import { useAuth } from '../context/authContext.js';
+import { useAuth } from '../contexts/authContext.js';
 import "../styles/layout.css";
-import logo from "../logo2.png";
-import HelpMenu from './help.js'; 
+import logo from "../images/logo2.png";
+import {HelpMenu} from './help.js'; 
 
 const BACKEND_BASE_URL = "https://localhost:2000"; 
 const NAV_ITEMS = ["Home", "Learn", "Translator"];
@@ -14,9 +14,10 @@ const NAV_PATHS = {
   Learn: "/learn",
   Translator: "/translator",
   Profile: "/userProfile", 
+  Help: "/help",
 };
 
-function Layout({ children }) {
+export function Layout({ children }) {
   const { currentUser, isLoggedIn } = useAuth();
   const location = useLocation();
 
@@ -93,4 +94,3 @@ Layout.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-export default Layout;

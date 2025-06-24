@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/authContext.js';
-import { useLearningStats } from '../context/learningStatsContext.js';
+import { useAuth } from '../contexts/authContext.js';
+import { useLearningStats } from '../contexts/learningStatsContext';
 import '../styles/home.css';
-import homeImage from '../Picture1.png';
+import homeImage from '../images/picture1.png';
 import learnVideo from '../videos/chocolate.mp4';
 import chocolateVideo from '../videos/learn.mp4';
 
@@ -23,7 +23,7 @@ const features = [
     { id: 'profile', iconClass: 'fas fa-user-circle', title: 'Your Personalized Profile', description: 'Track your learning progress, manage your achievements, and customize your experience.', link: '/userProfile' },
 ];
 
-const HomePage = () => {
+export function Home(){
     const { currentUser, isLoggedIn } = useAuth();
     const { stats } = useLearningStats() || {};
 
@@ -219,5 +219,3 @@ const HomePage = () => {
         </div>
     );
 };
-
-export default HomePage;

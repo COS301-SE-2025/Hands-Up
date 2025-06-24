@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playpen+Sans&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lexend&display=swap');
 
 html, body {
   width: 100%;
@@ -44,7 +43,7 @@ html, body {
   display: flex;
   align-items: center;
   gap: 0; 
-  font-family: 'Playpen Sans', cursive;
+  font-family: 'Lexend', sans-serif;
   font-size: 0.8rem;
   color: black;
 }
@@ -156,14 +155,14 @@ html, body {
 }
 
 .hero-div-h1 {
-  font-family: 'Playpen Sans', cursive;
+  font-family: 'Lexend', sans-serif;
   font-size: 3rem;
   color: #333;
   margin: 2rem 0 1rem 0;
 }
 
 .hero-div-p {
-  font-family: 'Playpen Sans', cursive;
+  font-family: 'Lexend', sans-serif;
   font-size: 2rem;
   color: #333;
   margin: 0;
@@ -233,11 +232,11 @@ html, body {
   border: 10px solid #8B5E3C; 
   box-shadow: 0 0 12px rgb(0, 0, 0);
   color: white;  
-  font-family: 'Patrick Hand', cursive;
+  font-family: 'Lexend', sans-serif;
 }
 
 .about-heading {
-  font-size: 3rem;
+  font-size: 2.5rem;
 }
 
 .about-container {
@@ -249,7 +248,7 @@ html, body {
 
 .about {
   max-width: 95%;
-  font-size: 1.5rem;
+  font-size: 1rem;
   padding: 1rem;
   border-radius: 1rem;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -271,7 +270,7 @@ html, body {
 .landing-features-heading {
   font-size: 2.5rem;
   margin-bottom: 2rem;
-  font-family: 'Playpen Sans', cursive;
+  font-family: 'Lexend', sans-serif;
 }
 
 .landing-features-container {
@@ -281,22 +280,23 @@ html, body {
   flex-wrap: wrap;
 }
 
-.feature-card {
+.landing-feature-card {
   width: 30%;
   height: 250px;
   perspective: 1000px;
   cursor: pointer;
+  margin-top: 5vh;
 }
 
 .card-inner {
   width: 100%;
-  height: 100%;
+  height: 95%;
   transition: transform 0.8s;
   transform-style: preserve-3d;
   position: relative;
 }
 
-.feature-card:hover .card-inner {
+.landing-feature-card:hover .card-inner {
   transform: rotateY(180deg);
 }
 
@@ -364,7 +364,7 @@ html, body {
   text-align: center;
   font-size: 2.5rem;
   margin-bottom: 2rem;
-  font-family: 'Playpen Sans', cursive;
+  font-family: 'Lexend', sans-serif;
 }
 
 .help-container {
@@ -382,7 +382,7 @@ html, body {
 }
 
 .download-info h3, .tutorial-video h3 {
-  font-family: 'Playpen Sans', cursive;
+  font-family: 'Lexend', sans-serif;
   margin: 1rem 0;
 }
 
@@ -417,9 +417,7 @@ html, body {
 .tutorial-video iframe {
   width: 70%;
   height: auto;
-  position: relative;
-width: 100%;
-padding-bottom: 56.25%;
+  aspect-ratio: 16/9;
   border-radius: 0.5rem;  
 }
 
@@ -502,7 +500,7 @@ padding-bottom: 56.25%;
     font-size: 1.5rem;
   }
 
-  .feature-card {
+  .landing-feature-card {
     width: 47.5%;
   }
   

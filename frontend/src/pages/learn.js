@@ -1,181 +1,87 @@
 import React, { useState} from 'react';
-import { useStatUpdater } from "../hooks/learningStatsUpdater";
+import { useNavigate } from 'react-router-dom';
+import { Sidebar } from '../components/learnSidebar';
+import { CategoryTile } from '../components/learnCategoryTile';
+import { LevelTile } from '../components/learnLevelTile';
+import '../styles/learn.css';
+import { useLearningStats } from '../contexts/learningStatsContext';
 
-import "../styles/learn.css";
-const IconAlphabet = () => 
-    (
-  <span role="img" aria-label="alphabet" style={{ fontSize: '1.8rem' }}>
-    🔤
-  </span>
-);
-const IconSentences = () => 
-    (
-  <span role="img" aria-label="sentences" style={{ fontSize: '1.8rem' }}>
-    🗨️
-  </span>
-);
-const IconCurriculum = () => 
-    (
-  <span role="img" aria-label="curriculum" style={{ fontSize: '1.8rem' }}>
-    📚
-  </span>
-);
-
-const alphabets = [
-  { letter: 'A', sign: '✊' },   
-  { letter: 'B', sign: '✋' },  
-  { letter: 'C', sign: '🤏' },  
-  { letter: 'D', sign: '👆' },  
-  { letter: 'E', sign: '🖐️' },  
-  { letter: 'F', sign: '👌' },   
-  { letter: 'G', sign: '👉' }, 
-  { letter: 'H', sign: '✌️' },   
-  { letter: 'I', sign: '🤙' },   
-  { letter: 'J', sign: '🤙' },   
-  { letter: 'K', sign: '🖖' },  
-  { letter: 'L', sign: '👍' },  
-  { letter: 'M', sign: '👊' },   
-  { letter: 'N', sign: '👊' },  
-  { letter: 'O', sign: '👌' },  
-  { letter: 'P', sign: '👇' },  
-  { letter: 'Q', sign: '👇' },   
-  { letter: 'R', sign: '✌️' },    
-  { letter: 'S', sign: '✊' },   
-  { letter: 'T', sign: '👍' },   
-  { letter: 'U', sign: '🤞' },   
-  { letter: 'V', sign: '✌️' },  
-  { letter: 'W', sign: '👐' }, 
-  { letter: 'X', sign: '👉' },
-  { letter: 'Y', sign: '🤙' },    
-  { letter: 'Z', sign: '✍️' }, 
+const categories = [
+  { id: 'alphabets', name: 'The Alphabet', unlocked: true},
+  { id: 'numbers', name: 'Numbers & Counting', unlocked: false},
+  { id: 'introduce', name: 'Introduce Yourself', unlocked: false},
+  { id: 'family', name: 'Family Members', unlocked: false },
+  { id: 'feelings', name: 'Emotions & Feelings', unlocked: false },
+  { id: 'actions', name: 'Common Actions', unlocked: false },
+  { id: 'questions', name: 'Asking Questions', unlocked: false },
+  { id: 'time', name: 'Time & Days', unlocked: false },
+  { id: 'food', name: 'Food & Drinks', unlocked: false},
+  { id: 'colours', name: 'Colours', unlocked: false },
+  { id: 'things', name: 'Objects & Things', unlocked: false },
+  { id: 'animals', name: 'Animals', unlocked: false },
+  { id: 'seasons', name: 'Weather & Seasons', unlocked: false },
 ];
 
-const lessons = [
-  { title: "Introduce Yourself", sign: "🙋‍♀️", description: "Say your name and greet others." },
-  { title: "Common Greetings", sign: "👋", description: "Say hello, goodbye, and good morning." },
-  { title: "Thank You & Please", sign: "🙏", description: "Learn polite expressions." },
-  { title: "Basic Questions", sign: "❓", description: "Ask who, what, where, when, why." },
-  { title: "Yes & No", sign: "👍", description: "Simple affirmatives and negatives." },
-  { title: "Days of the Week", sign: "📅", description: "Sign Monday to Sunday." },
-  { title: "Numbers 1–10", sign: "🔢", description: "Learn basic numbers." },
-  { title: "Numbers 11–20", sign: "🔟", description: "Expand number knowledge." },
-  { title: "Colors", sign: "🎨", description: "Sign red, blue, green and more." },
-  { title: "Emotions", sign: "😊", description: "Express happiness, anger, sadness." },
-  { title: "Family Members", sign: "👨‍👩‍👧", description: "Sign mom, dad, siblings." },
-  { title: "Food & Drink", sign: "🍎", description: "Common foods and eating signs." },
-  { title: "Clothing", sign: "👕", description: "Learn how to sign shirt, pants, etc." },
-  { title: "Animals", sign: "🐶", description: "Dog, cat, bird, and others." },
-  { title: "School Words", sign: "🏫", description: "Sign classroom, teacher, book." },
-  { title: "Transportation", sign: "🚗", description: "Car, bus, walk, airplane." },
-  { title: "Weather", sign: "☀️", description: "Sunny, rainy, cloudy, and more." },
-  { title: "Time & Clock", sign: "⏰", description: "Sign time of day and asking time." },
-  { title: "Occupations", sign: "💼", description: "Doctor, teacher, engineer, etc." },
-  { title: "Hobbies", sign: "🎸", description: "Sign play, music, reading, sports." },
-  { title: "Around the House", sign: "🏠", description: "Chair, table, kitchen, bed." },
-  { title: "Places in Town", sign: "🏙️", description: "Bank, store, park, library." },
-  { title: "Directions", sign: "🧭", description: "Left, right, straight, behind." },
-  { title: "Body Parts", sign: "🧠", description: "Learn to sign head, arms, feet." },
-  { title: "Action Words", sign: "🏃‍♂️", description: "Run, walk, jump, sleep." },
-  { title: "Feelings", sign: "😢", description: "Lonely, excited, bored, tired." },
-  { title: "Technology", sign: "💻", description: "Phone, computer, TV, text." },
-  { title: "Holidays", sign: "🎄", description: "Learn signs for major holidays." },
-  { title: "Emergency Signs", sign: "🚨", description: "Help, danger, stop, call." },
-  { title: "Review & Practice", sign: "🔁", description: "Test your knowledge!" },
-];
+export function Learn(){
+  const { stats } = useLearningStats();
+  // const sectionRefs = categories.map(() => React.createRef());
+  const [selectedSection, setSelectedSection] = useState('dashboard');
+  const [currentCategory, setCurrentCategory] = useState(null);
+  const [unlockedLevels] = useState(10);
+  const navigate = useNavigate();
 
+  console.log(stats); 
+  const progressPercent = stats?.progressPercent || 25;
+  const signsLearned = stats?.signsLearned || 15;
+  const lessonsCompleted = stats?.lessonsCompleted || 0;
 
-export default function Learn()
-{
-  const [selectedOption, setSelectedOption] = useState(null);
-  const handleUpdate = useStatUpdater();
+  const goBack = () => {
+    setCurrentCategory(null);
+    setSelectedSection('dashboard');
+  };
 
   return (
-    <div className="learn-container">
-      <h1 className="learn-title">Learn Sign Language</h1>
-      <p className="learn-subtitle">Choose what you&apos;d like to learn:</p>
+    <div className="duo-app">
+      <Sidebar onSelect={goBack} progressPercent={progressPercent} signsLearned={signsLearned} lessonsCompleted={lessonsCompleted}/>
 
-      <div className="options-row">
-        <div
-          className={`option-card ${selectedOption === 'alphabets' ? 'selected' : ''}`}
-          onClick={() => setSelectedOption('alphabets')}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && setSelectedOption('alphabets')}
-        >
-          <IconAlphabet />
-          <h3>Alphabets</h3>
-          <p>Learn the 26 alphabets in sign language</p>
-        </div>
-
-        <div
-          className={`option-card ${selectedOption === 'sentences' ? 'selected' : ''}`}
-          onClick={() => setSelectedOption('sentences')}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && setSelectedOption('sentences')}
-        >
-          <IconSentences />
-          <h3>Sentences</h3>
-          <p>Learn how to sign common sentences</p>
-        </div>
-
-        <div
-          className={`option-card ${selectedOption === 'curriculum' ? 'selected' : ''}`}
-          onClick={() => setSelectedOption('curriculum')}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && setSelectedOption('curriculum')}
-        >
-          <IconCurriculum />
-          <h3>Full Curriculum</h3>
-          <p>Complete sign language learning course</p>
-        </div>
-      </div>
-
-      <div className="content-area">
-        {selectedOption === 'alphabets' && (
-          <>
-            <h2>Sign Language Alphabets</h2>
-            <div className="alphabets-grid">
-              {alphabets.map(({ letter, sign }) => (
-                <div key={letter} className="alphabet-card" onClick={() => handleUpdate("sign")}>
-                  <div className="sign">{sign}</div>
-                  <div className="letter">{letter}</div>
-                </div>
+      <div className="learn-main-content">
+        {selectedSection === 'dashboard' && !currentCategory && (
+          <div className="dashboard">
+            <div className="category-tiles">
+              {categories.map(cat => (
+                <CategoryTile
+                  key={cat.id}
+                  name={cat.name}
+                  unlocked={cat.unlocked}
+                  onClick={() =>{ if (cat.unlocked) setCurrentCategory(cat);}}
+                />
               ))}
             </div>
-          </>
-        )}
-
-        {selectedOption === 'sentences' && (
-          <>
-            <h2>Lessons Available</h2>
-            <div className="lessons-grid">
-              {lessons.map(({ title, sign, description }) => (
-                <div
-                  key={title}
-                  className="lesson-card"
-                  onClick={() => handleUpdate("lesson")}
-                >
-                  <div className="sign">{sign}</div>
-                  <div className="lesson-title">{title}</div>
-                  <div className="lesson-description">{description}</div>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-
-        {selectedOption === 'curriculum' && (
-          <div className="placeholder-message">
-            <h2>Full Curriculum</h2>
-            <p>Coming soon! A comprehensive course covering alphabets, sentences, grammar, and more.</p>
           </div>
         )}
 
-        {!selectedOption && (
-          <div className="placeholder-message">
-            <p>Please select an option above to start learning.</p>
+        {currentCategory && (
+          <div className="category-levels">
+  
+            <h2>{currentCategory.name} Levels</h2>
+            <div className="stepping-poles">
+              {[...Array(26)].map((_, i) => (
+                <LevelTile
+                  key={i}
+                  level={String.fromCharCode(65 + i)} 
+                  unlocked={i < unlockedLevels}
+                  onClick={() => navigate(`/sign/${String.fromCharCode(65 + i)}`)}
+                />
+              ))}
+              <LevelTile
+                  key={'quiz'}
+                  level={'Quiz'} 
+                  unlocked={false}
+                  onClick={() => navigate(`/sign/${String.fromCharCode(65)}`)}
+                />
+            </div>
+            <br></br>
+            <button onClick={goBack} className="back-button">← Back</button>
           </div>
         )}
       </div>

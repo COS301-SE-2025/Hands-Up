@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from '../context/authContext.js';
+import { useAuth } from '../contexts/authContext.js';
 import "../styles/userProfile.css"; 
 import {
     uniqueUsername,
@@ -13,7 +13,7 @@ import {
 
 const BACKEND_BASE_URL = "https://localhost:2000"; 
 
-export default function UserProfile() {
+export function UserProfile() {
     const { currentUser, isLoggedIn, loading: authLoading, logout, updateUser } = useAuth();
 
     const [formData, setFormData] = useState({
