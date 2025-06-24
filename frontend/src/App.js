@@ -9,6 +9,7 @@ import { Help } from "./pages/help";
 import { Login } from "./pages/login";
 import { Signup} from "./pages/signup";
 import { UserProfile } from "./pages/userProfile"; 
+import { Landing } from "./pages/landing";
 import { Translator } from "./pages/translator";
 import { Learn } from "./pages/learn";
 import { SignLearn } from "./pages/signLearn";
@@ -33,7 +34,7 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Layout> 
-                       <Profile />
+                       <UserProfile />
                   </Layout>
                 </ProtectedRoute>
               }
@@ -78,8 +79,16 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
-
+            <Route
+              path="/signLearn"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <SignLearn />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
             <Route path="*" element={<Navigate to="/login" />} />
           </Routes>
         </LearningStatsProvider>

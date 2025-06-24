@@ -12,7 +12,7 @@ const DEFAULT_STATS = {
     currentLevel: "Bronze",
 };
 
-export function LearningStatsProvider({ children }) {
+const LearningStatsProvider = () => ({ children }) {
   const { currentUser, isLoggedIn, loading: authLoading } = useAuth(); 
   const [stats, setStats] = useState(DEFAULT_STATS);
 
