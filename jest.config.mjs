@@ -16,8 +16,9 @@ export default {
   moduleNameMapper: {
     '^react$': '<rootDir>/node_modules/react',
     '^react-dom$': '<rootDir>/node_modules/react-dom',
+    '^react-router-dom$': '<rootDir>/frontend/node_modules/react-router-dom',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy', 
-    '\\.(png|jpg|jpeg|gif|svg)$': '<rootDir>/tests/mocks/fileMock.cjs',
+    '\\.(png|jpg|jpeg|gif|svg|mp4)$': '<rootDir>/tests/mocks/fileMock.cjs',
     '^lucide-react$': '<rootDir>/tests/mocks/lucideReactMock.cjs', 
   },
 }
