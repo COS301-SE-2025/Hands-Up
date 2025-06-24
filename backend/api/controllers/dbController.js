@@ -319,7 +319,7 @@ export const authenticateUser = async (req, res, next) => {
     next();
 
   } catch (error) {
-    res.status(500).json({ message: 'Internal server error during authentication.' });
+    res.status(500).json({ message: 'Internal server error during authentication.' + error });
   }
 };
 
@@ -460,7 +460,7 @@ export const deleteUserAccount = async (req, res) => {
 
 
            await client.query('COMMIT');
-           let sessionDeleted = false;
+          //  let sessionDeleted = false;
            
            for (const [sessionId, sessionData] of activeSessions.entries()) {
            
@@ -475,7 +475,8 @@ export const deleteUserAccount = async (req, res) => {
                     secure: process.env.NODE_ENV === 'production',
                     sameSite: 'Lax',
                     path: '/',});
-                    sessionDeleted = true;}}}
+                    // sessionDeleted = true;
+                    }}}
 
 console.log(`[BACKEND - DELETE_USER] User account '${deleteUserResult.rows[0].username}' (ID: ${userIDToDelete}) and associated data deleted successfully.`);
 

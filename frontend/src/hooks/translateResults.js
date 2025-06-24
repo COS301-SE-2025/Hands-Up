@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { processImage, processVideo } from '../utils/apiCalls';
+import { processImage} from '../utils/apiCalls';
 import signLanguageAPI from '../utils/apiCalls';
 
 export function useTranslator() {

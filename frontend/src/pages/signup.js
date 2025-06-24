@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Mail, Lock, ArrowRight, User } from 'lucide-react';
-import {useSignup} from '../hooks/signup.js';
+// import {useSignup} from '../hooks/signup.js';
 import { useNavigate } from 'react-router-dom';
 import { signup } from '../utils/apiCalls.js';
 import { useAuth } from '../contexts/authContext.js';

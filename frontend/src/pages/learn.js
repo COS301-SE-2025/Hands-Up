@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/learnSidebar';
 import { CategoryTile } from '../components/learnCategoryTile';
@@ -24,7 +24,7 @@ const categories = [
 
 export function Learn(){
   const { stats } = useLearningStats();
-  const sectionRefs = categories.map(() => React.createRef());
+  // const sectionRefs = categories.map(() => React.createRef());
   const [selectedSection, setSelectedSection] = useState('dashboard');
   const [currentCategory, setCurrentCategory] = useState(null);
   const [unlockedLevels] = useState(10);

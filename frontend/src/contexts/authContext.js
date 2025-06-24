@@ -99,12 +99,9 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
 const confirmPasswordReset = async (email, token, newPassword,confirmNewPassword ) => {
-    try {
-        const data = await apiConfirmPasswordReset(email, token, newPassword, confirmNewPassword );
-        return data;
-    } catch (error) {
-        throw error;
-    }
+    const data = await apiConfirmPasswordReset(email, token, newPassword, confirmNewPassword );
+    return data;
+   
 };
 
     const value = {

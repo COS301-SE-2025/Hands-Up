@@ -64,6 +64,7 @@ export function runPythonScript(scriptPath, args, timeout = 120000) {
               break;
             }
           } catch (e) {
+            console.log(e);
             continue;
           }
         }
