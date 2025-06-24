@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend&display=swap');
+
 .sign-character {
   display: flex; 
   justify-content: center; 
@@ -23,27 +25,32 @@
     margin-bottom: 10px;
 }
 .duo-app {
+  width: 100%;
+  height: 100%;
   display: flex;
-  height: 100vh;
   font-family: 'Segoe UI', sans-serif;
-  background-color: #f9fafb;
 }
+
 .sidebar {
-  width: 200px;
-  background-color: #f5f5f5;
+  width: 16%;
   padding: 20px;
   height: 100vh;
-  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  background-color: white;
+  margin-right: 1rem;
+  height: auto;
 }
 
 .sidebar-item {
-  font-size: 1.2rem;
-  margin-bottom: 20px;
+  font-size: 1.6rem;
+  margin-bottom: 2rem;
   cursor: pointer;
-  box-shadow: 0 1px 6px rgb(43,64,50, 0.1);
+}
+
+.sidebar-item.active {
+  font-weight: bold;
+  color: #333;
   text-align: center;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  user-select: none;
+  font-family: 'Lexend', sans-serif;
 }
 
 .sidebar-summary {
@@ -54,49 +61,98 @@
 }
 
 .summary-item {
-  background: #ffc61a;
   padding: 10px;
-  border-radius: 8px;
+  border-radius: 2rem;
   font-size: 0.9rem;
-  color: #2B3F32; 
+  margin-bottom: 1rem;
+  box-shadow: 0 0px 4px #ffc61a;
 }
 
-.content-area 
-{
-  padding: 0 1rem;
+.summary-title {
+  text-align: center;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 10px;
 }
 
 .summary-value {
-  font-size: 1.2rem;
-  color: black;
+  font-family: 'Poppins', sans-serif;  
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #4e7a51;
 }
 
-.alphabet-card
-{
-  background-color: #AAD576; 
-  border-radius: 10px;
+.summary-progress-value {
   width: 70px;
-  height: 90px;
-  box-shadow: 0 2px 8px rgb(43, 77, 58, 0.4);
+  height: 70px;
+  margin: 0 auto;
+  transform: scaleX(-1);
+}
+
+.CircularProgressbar-text {
+  transform: scaleX(-1);
+  transform-origin: center;
+  font-family: 'Poppins', sans-serif;  
+  font-weight: 400;
+}
+
+.learn-main-content {
+  margin-top: 1.5rem;
+  margin-left: 1.5rem;
+  background-color: white;
+  width: 80%;
+  height: 69vh;
+  overflow-y: scroll;
+}
+
+.category-levels {
+  font-family: 'Lexend', sans-serif;
+}
+
+.category-tiles {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  width: 70%;
+  margin: 0 auto;
+  /* margin-left: 7rem; */
 }
 
 .category-tile {
+  font-family: 'Lexend', sans-serif;
   background: #f0f0f0;
   border-radius: 10px;
   padding: 20px;
   display: flex;
   align-items: center;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.category-tile.unlocked {
+  background-color: #ffeb3bc3;
+  color: #333;
+}
+
+.category-tile.locked {
+  background-color: #f0f0f0; 
+  color: #888;
+  pointer-events: none; 
+}
+
+.lock-icon {
+  font-size: 20px;
+  color: #555;
 }
 
 .category-tile:hover {
-  background: #e0e0e0;
+  background: #ffeb3b;
 }
 
 .category-emoji {
@@ -132,6 +188,7 @@
 .level-card.locked {
   background-color: #ccc;
   cursor: not-allowed;
+  align-items: center;
 }
 
 .back-button {

@@ -1,22 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/learnSidebar';
 import { CategoryTile } from '../components/learnCategoryTile';
 import { LevelTile } from '../components/learnLevelTile';
 import '../styles/Learn.css';
+import { useLearningStats } from '../contexts/learningStatsContext';
 
 const categories = [
-  { id: 'alphabets', name: 'Alphabets'},
-  { id: 'introduce', name: 'Introduce Yourself'},
-  { id: 'feelings', name: 'Feelings' },
-  { id: 'food', name: 'Food & Drinks'},
+  { id: 'alphabets', name: 'The Alphabet', unlocked: true},
+  { id: 'numbers', name: 'Numbers & Counting', unlocked: false},
+  { id: 'introduce', name: 'Introduce Yourself', unlocked: false},
+  { id: 'family', name: 'Family Members', unlocked: false },
+  { id: 'feelings', name: 'Emotions & Feelings', unlocked: false },
+  { id: 'actions', name: 'Common Actions', unlocked: false },
+  { id: 'questions', name: 'Asking Questions', unlocked: false },
+  { id: 'time', name: 'Time & Days', unlocked: false },
+  { id: 'food', name: 'Food & Drinks', unlocked: false},
+  { id: 'colours', name: 'Colours', unlocked: false },
+  { id: 'things', name: 'Objects & Things', unlocked: false },
+  { id: 'animals', name: 'Animals', unlocked: false },
+  { id: 'seasons', name: 'Weather & Seasons', unlocked: false },
 ];
 
 export function Learn(){
+  const { stats } = useLearningStats();
+  const sectionRefs = categories.map(() => React.createRef());
   const [selectedSection, setSelectedSection] = useState('dashboard');
   const [currentCategory, setCurrentCategory] = useState(null);
   const [unlockedLevels] = useState(10);
   const navigate = useNavigate();
+
+  console.log(stats); 
+  const progressPercent = stats?.progressPercent || 25;
+  const signsLearned = stats?.signsLearned || 15;
+  const lessonsCompleted = stats?.lessonsCompleted || 0;
 
   const goBack = () => {
     setCurrentCategory(null);
@@ -25,9 +42,9 @@ export function Learn(){
 
   return (
     <div className="duo-app">
-      <Sidebar onSelect={goBack} />
+      <Sidebar onSelect={goBack} progressPercent={progressPercent} signsLearned={signsLearned} lessonsCompleted={lessonsCompleted}/>
 
-      <div className="main-content">
+      <div className="learn-main-content">
         {selectedSection === 'dashboard' && !currentCategory && (
           <div className="dashboard">
             <div className="category-tiles">
@@ -35,7 +52,8 @@ export function Learn(){
                 <CategoryTile
                   key={cat.id}
                   name={cat.name}
-                  onClick={() => setCurrentCategory(cat)}
+                  unlocked={cat.unlocked}
+                  onClick={() =>{ if (cat.unlocked) setCurrentCategory(cat);}}
                 />
               ))}
             </div>
@@ -55,6 +73,12 @@ export function Learn(){
                   onClick={() => navigate(`/sign/${String.fromCharCode(65 + i)}`)}
                 />
               ))}
+              <LevelTile
+                  key={'quiz'}
+                  level={'Quiz'} 
+                  unlocked={false}
+                  onClick={() => navigate(`/sign/${String.fromCharCode(65)}`)}
+                />
             </div>
             <br></br>
             <button onClick={goBack} className="back-button">← Back</button>
