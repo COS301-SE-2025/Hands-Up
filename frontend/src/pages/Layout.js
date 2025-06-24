@@ -4,7 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from '../context/authContext.js';
 import "../styles/Layout.css";
 import logo from "../logo2.png";
-import HelpMenu from './Help.js'; 
+import HelpMenu from './help.js'; 
 
 const BACKEND_BASE_URL = "https://localhost:2000"; 
 const NAV_ITEMS = ["Home", "Learn", "Translator"];

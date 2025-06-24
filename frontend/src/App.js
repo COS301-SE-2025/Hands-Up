@@ -6,16 +6,16 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import "./App.css";
 
-import Landing from "./pages/Landing";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
+import Landing from "./pages/landing";
+import Login from "./pages/login";
+import Signup from "./pages/signup";
 
 import Profile from "./pages/userProfile"; 
-import Translator from "./pages/Translator";
-import Learn from "./pages/Learn";
-import Home from "./pages/Home";
-import Help from "./pages/Help";
-import Layout from "./pages/Layout"; 
+import Translator from "./pages/translator";
+import Learn from "./pages/learn";
+import Home from "./pages/home";
+import Help from "./pages/help";
+import Layout from "./pages/layout"; 
 console.log('Layout:', Layout);
 
 
