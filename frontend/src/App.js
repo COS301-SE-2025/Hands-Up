@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { LearningStatsProvider } from "./contexts/learningStatsContext";
 import { AuthProvider } from "./contexts/authContext"; 
-import ProtectedRoute from "./components/protectedRoute"; 
+import { ProtectedRoute } from "./components/protectedRoute"; 
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import "./styles/App.css";
 import { HelpMenu } from "./pages/help";
@@ -29,6 +29,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/reset-password/:token" element={<Login />} />
+            <Route path="/sign/:letter" element = {<SignLearn />} />
            <Route
               path="/userProfile"
               element={

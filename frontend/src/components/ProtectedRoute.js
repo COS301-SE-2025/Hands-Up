@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/authContext'; 
 import PropTypes from 'prop-types';
 
-const ProtectedRoute = ({ children }) => {
+export function ProtectedRoute({ children }){
   const { isLoggedIn, loading } = useAuth();
 
   if (loading) {
@@ -20,5 +20,3 @@ const ProtectedRoute = ({ children }) => {
 ProtectedRoute.propTypes = {
   children: PropTypes.node.isRequired,
 };
-
-export default ProtectedRoute;
