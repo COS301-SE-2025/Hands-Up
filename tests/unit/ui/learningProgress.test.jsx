@@ -7,10 +7,10 @@ import { render, screen } from "@testing-library/react";
 import { jest, expect, it, describe, beforeEach} from '@jest/globals';
 import { LearningStats } from "../../../frontend/src/components/learningStats";
 
-import { useLearningStats } from "../../../frontend/src/context/learningStatsContext";
+import { useLearningStats } from "../../../frontend/src/contexts/learningStatsContext";
 import { useStatUpdater } from "../../../frontend/src/hooks/learningStatsUpdater";
 
-jest.mock("../../../frontend/src/context/learningStatsContext", () => ({
+jest.mock("../../../frontend/src/contexts/learningStatsContext", () => ({
   useLearningStats: jest.fn(),
 }));
 
