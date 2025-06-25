@@ -298,6 +298,7 @@ export function Login() {
                                             disabled={isLoading || isLockedOut}
                                             onClick={handleSubmit}
                                             className="submit-button"
+                                            data-testid="login-button"
                                         >
                                             <div className="submit-button-overlay-1"></div>
                                             <div className="submit-button-overlay-2"></div>
