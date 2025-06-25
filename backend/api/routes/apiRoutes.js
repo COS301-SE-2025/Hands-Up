@@ -103,6 +103,7 @@ router.get("/auth/unique-email/:email", uniqueEmail);
 
 router.post('/auth/reset-password', resetPassword);
 router.post('/auth/confirm-reset-password', confirmPasswordReset);
+router.post('/process-frames', processImage);
 
 // AI Processing routes
 router.post('/process-video', upload.single('video'), processVideo);
