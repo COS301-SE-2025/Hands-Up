@@ -10,11 +10,13 @@
 tests/coverage/
 
 #datasets
-ai_model/data
+ai_model/letters
+ai_model/words_model/words
+ai_model/words_model/words-subset
+ai_model/words_model/tmkdt_words
 ai_model/video_data
 ai_model2/dataset
 ai_model2/processed_dataset
-
 
 # misc
 /backend/api/.env
