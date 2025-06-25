@@ -6,8 +6,8 @@ import mediapipe as mp
 from collections import deque
 import time
 
-model = tf.keras.models.load_model('gesture_lstm_model.keras')
-with open('label_encoder.pkl', 'rb') as f:
+model = tf.keras.models.load_model('words_model/wordsModel.keras')
+with open('labelEncoder.pickle', 'rb') as f:
     labelEncoder = pickle.load(f)
 labels = labelEncoder.classes_
 
@@ -85,14 +85,14 @@ while cap.isOpened():
             if confidence >= 0.8:
                 prediction = labels[classIndex]
             else:
-                prediction = "Uncertain"
+                prediction = "cannot predict"
 
             collecting = False
 
     if prediction and not collecting:
         cv2.putText(img, f'Prediction: {prediction}', (10, 80), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
 
-    cv2.imshow("Sign Language Interpreter", img)
+    cv2.imshow("Words Interpreter", img)
 
 cap.release()
 cv2.destroyAllWindows()

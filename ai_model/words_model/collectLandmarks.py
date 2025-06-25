@@ -3,16 +3,16 @@ import numpy as np
 import cv2
 import mediapipe as mp
 
-actions = ['hello', 'howareyou', 'my', 'name', 'goodbye']  
+actions = ['A', 'B', 'C']
 noSequences = 30
 sequenceLength = 30
 startFolder = 0
 
-dataPath = os.path.join('tmkdt_words')  
+DATADIR = os.path.join('tmkdt_words')  
 
 for action in actions:
     for sequence in range(startFolder, startFolder + noSequences):
-        os.makedirs(os.path.join(dataPath, action, str(sequence)), exist_ok=True)
+        os.makedirs(os.path.join(DATADIR, action, str(sequence)), exist_ok=True)
 
 def mediapipeDetection(image, model):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -66,7 +66,7 @@ with mp.solutions.holistic.Holistic(min_detection_confidence=0.5, min_tracking_c
                     cv2.imshow('OpenCV Feed', image)
 
                 keypoints = extractKeypoints(results)
-                np.save(os.path.join(dataPath, action, str(sequence), str(frameNum)), keypoints)
+                np.save(os.path.join(DATADIR, action, str(sequence), str(frameNum)), keypoints)
 
                 if cv2.waitKey(10) & 0xFF == ord('q'):
                     break

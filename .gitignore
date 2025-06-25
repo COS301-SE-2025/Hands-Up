@@ -18,6 +18,9 @@ ai_model/video_data
 ai_model2/dataset
 ai_model2/processed_dataset
 
+#uploads
+/**/uploads
+
 # misc
 /backend/api/.env
 /backend/database/.env

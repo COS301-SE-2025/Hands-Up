@@ -10,14 +10,14 @@ from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.utils import to_categorical
 from sklearn.metrics import accuracy_score
 
-dataPath = os.path.join('tmkdt_words')
+DATADIR = os.path.join('tmkdt_words')
 actions = ['my', 'name', 'howareyou', 'goodbye', 'hello']
 sequenceLength = 30
 
 x, y = [], []
 
 for action in actions:
-    actionPath = os.path.join(dataPath, action)
+    actionPath = os.path.join(DATADIR, action)
     
     for sequence in os.listdir(actionPath):
         sequencePath = os.path.join(actionPath, sequence)
@@ -44,7 +44,7 @@ labelEncoder = LabelEncoder()
 yInt = labelEncoder.fit_transform(y)
 yCategorical = to_categorical(yInt)
 
-with open("label_encoder.pkl", "wb") as f:
+with open("labelEncoder.pickle", "wb") as f:
     pickle.dump(labelEncoder, f)
 
 print("Label mapping:")
@@ -72,7 +72,7 @@ model.fit(XTrain, yTrain, epochs=50, callbacks=[tbCallback])
 
 model.summary()
 
-model.save('gesture_lstm_model.keras')
+model.save('wordsModel.keras')
 
 yPred = model.predict(XTest)
 predictedInts = np.argmax(yPred, axis=1)
