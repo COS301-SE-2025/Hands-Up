@@ -7,6 +7,7 @@ const Lock = () => React.createElement('svg', { 'data-testid': 'LockIcon' });
 const ArrowRight = () => React.createElement('svg', { 'data-testid': 'ArrowRightIcon' });
 const ArrowLeft = () => React.createElement('svg', { 'data-testid': 'ArrowLeftIcon' });
 const CheckCircle = () => React.createElement('svg', { 'data-testid': 'CheckCircleIcon' });
+const User = () => React.createElement('svg', { 'data-testid': 'UserIcon' });
 
 module.exports = {
   Eye,
@@ -16,4 +17,5 @@ module.exports = {
   ArrowRight,
   ArrowLeft,
   CheckCircle,
+  User,
 };
