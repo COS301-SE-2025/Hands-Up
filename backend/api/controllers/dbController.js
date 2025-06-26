@@ -26,92 +26,91 @@ const createEmailTransporter = () => {
 };
 
 export const learningProgress = async (req, res) => {
-  const username = req.params.username;
+    const username = req.params.username;
 
-  if (req.method === 'GET') {
-    try {
-      if (!username) {
-        return res.status(400).json({
-          status: "error",
-          message: 'Username is required',
-        });
-      }
+    if (req.method === 'GET') {
+        try {
+            if (!username) {
+                return res.status(400).json({ status: "error", message: 'Username is required' });
+            }
+            const result = await pool.query(
+                `SELECT "lessonsCompleted", "signsLearned", streak, "currentLevel"
+                 FROM learn
+                 JOIN users ON learn."userID"= users."userID"
+                 WHERE users.username = $1`,
+                [username]
+            );
 
-      const result = await pool.query(
-        `SELECT "lessonsCompleted", "signsLearned", streak, "currentLevel" FROM learn JOIN users ON learn."userID"= users."userID" WHERE users.username = $1`,
-        [username]
-      );
+            if (result.rowCount === 0) {
+                return res.status(200).json({ status: "success", message: 'No learning progress found for this user.', data: [] });
+            }
 
-      if (result.rowCount === 0) {
-        return res.status(404).json({
-          status: "error",
-          message: 'User not found',
-        });
-      }
+            res.status(200).json({
+                status: "success",
+                message: 'Learning progress retrieved successfully',
+                data: result.rows,
+            });
 
-      res.status(200).json({
-        status: "success",
-        message: 'Learning progress retrieved successfully',
-        data: result.rows,
-      });
+        } catch (err) {
+            console.error('DB GET error (learningProgress):', err);
+            res.status(500).json({ status: "error", message: 'Internal Server Error' });
+        }
+    } else if (req.method === 'PUT') {
+        if (!req.user || req.user.username !== req.params.username) {
+            console.warn(`Unauthorized attempt to update progress for ${req.params.username} by user ${req.user ? req.user.username : 'N/A'}`);
+            return res.status(403).json({ status: "error", message: 'Forbidden: You can only update your own progress.' });
+        }
+       
 
-    } catch (err) {
-      console.error('DB error:', err);
-      res.status(500).json({
-        status: "error",
-        message: 'Internal Server Error',
-      });
+        try {
+            const progressData = req.body;
+            console.log("Backend received progressData for update:", progressData); // Debugging line
+
+            if (!username || !progressData) {
+                return res.status(400).json({ status: "error", message: 'Username and progress data are required' });
+            }
+       const {
+                lessonsCompleted = 0,
+                signsLearned = 0,
+                streak = 0,
+                currentLevel = 'Bronze' 
+            } = progressData;
+
+            if (typeof lessonsCompleted !== 'number' || typeof signsLearned !== 'number' || typeof streak !== 'number') {
+                return res.status(400).json({ status: "error", message: 'lessonsCompleted, signsLearned, and streak must be numbers.' });
+            }
+           
+            const result = await pool.query(
+                `UPDATE learn SET
+                    "lessonsCompleted" = $1,
+                    "signsLearned" = $2,
+                    streak = $3,
+                    "currentLevel" = $4
+                FROM users
+                WHERE learn."userID" = users."userID" AND users.username = $5`,
+                [
+                    lessonsCompleted,
+                    signsLearned,
+                    streak,
+                    currentLevel,
+                    username
+                ]
+            );
+
+            if (result.rowCount === 0) {
+               return res.status(404).json({ status: "error", message: 'User learning record not found or no changes applied.' });
+            }
+
+            res.status(200).json({ status: "success", message: 'Learning progress updated successfully' });
+
+        } catch (err) {
+            console.error('DB PUT error (learningProgress):', err);
+            res.status(500).json({ status: "error", message: 'Internal Server Error' });
+        }
     }
-  } else if (req.method === 'PUT') {
-    if (req.user && req.user.username !== req.params.username) {
-        return res.status(403).json({
-            status: "error",
-            message: 'Forbidden: You can only update your own progress.',
-        });
-    }
-
-    try {
-      const progressData = req.body;
-
-      if (!username || !progressData) {
-        return res.status(400).json({
-          status: "error",
-          message: 'Username and progress data are required',
-        });
-      }
-
-      const result = await pool.query(
-        `UPDATE learn SET "lessonsCompleted" = $1, "signsLearned" = $2, streak = $3
-          FROM users WHERE learn."userID" = users."userID" AND users.username = $4`,
-        [
-          progressData.lessonsCompleted,
-          progressData.signsLearned,
-          progressData.streak,
-          username
-        ]
-      );
-
-      if (result.rowCount === 0) {
-        return res.status(404).json({
-          status: "error",
-          message: 'User not found or no progress updated',
-        });
-      }
-
-      res.status(200).json({
-        status: "success",
-        message: 'Learning progress updated successfully',
-      });
-
-    } catch (err) {
-      console.error('DB error:', err);
-      res.status(500).json({
-        status: "error",
-        message: 'Internal Server Error',
-      });
-    }
-  }
+    
 };
+
 
 export const signUpUser = async (req, res) => {
   try {
@@ -234,7 +233,7 @@ export const loginUser = async (req, res) => {
 
     res.cookie('sessionId', sessionId, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', 
+      secure: true, 
       sameSite: 'Lax',
       maxAge: 1000 * 60 * 60 * 24,
       path: '/',
@@ -266,7 +265,7 @@ export const logoutUser = async (req, res) => {
 
   res.clearCookie('sessionId', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: true,
     sameSite: 'Lax',
     path: '/',
   });
@@ -283,13 +282,13 @@ export const authenticateUser = async (req, res, next) => {
     const sessionData = activeSessions.get(sessionId);
   
     if (!sessionData) {
-   res.clearCookie('sessionId', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Lax', path: '/' });
+   res.clearCookie('sessionId', { httpOnly: true, secure: true, sameSite: 'Lax', path: '/' });
       return res.status(401).json({ message: 'Unauthorized: Session invalid or expired.' });
     }
 
     if (Date.now() > sessionData.expires) {
     activeSessions.delete(sessionId);
-      res.clearCookie('sessionId', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Lax', path: '/' });
+      res.clearCookie('sessionId', { httpOnly: true, secure: true, sameSite: 'Lax', path: '/' });
       return res.status(401).json({ message: 'Unauthorized: Session invalid or expired.' });
     }
 
@@ -304,7 +303,7 @@ export const authenticateUser = async (req, res, next) => {
 
     if (!user) {
      activeSessions.delete(sessionId);
-      res.clearCookie('sessionId', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Lax', path: '/' });
+      res.clearCookie('sessionId', { httpOnly: true, secure: true, sameSite: 'Lax', path: '/' });
       return res.status(401).json({ message: 'Unauthorized: User not found.' });
     }
 

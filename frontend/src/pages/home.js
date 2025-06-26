@@ -36,9 +36,24 @@ export function Home(){
     const practiseDays = stats?.streak || 0;
     const currentLevel = stats?.currentLevel || "Bronze";
 
-    const TOTAL_LESSONS = 30;
+    const TOTAL_LEVELS = 12;
+    const LESSONS_PER_LEVEL = 30;
+    const TOTAL_LESSONS = TOTAL_LEVELS * LESSONS_PER_LEVEL; 
+    const TOTAL_SIGNS = 26;
+
+
     const calcLessonsCompleted = Math.min(lessonsCompleted, TOTAL_LESSONS);
-    const completionPercentage = Math.min(100, Math.round((calcLessonsCompleted / TOTAL_LESSONS) * 100));
+     const calcSignsLearned = Math.min(signsLearned, TOTAL_SIGNS);
+
+
+    const lessonProgress = (calcLessonsCompleted +calcSignsLearned)/ (TOTAL_LESSONS+TOTAL_SIGNS) * 100;
+
+    
+    const completionPercentage = Math.min(100, Math.round(
+     lessonProgress));
+
+     const currentLevelNumber = Math.min(TOTAL_LEVELS, Math.floor(calcLessonsCompleted / LESSONS_PER_LEVEL) + 1);
+
 
     useEffect(() => {
         const randomIndex = Math.floor(Math.random() * signsOfTheDayData.length);
@@ -112,7 +127,7 @@ export function Home(){
                                 <p className="progress-text">
                                     <span className="progress-highlight">{completionPercentage}%</span> Completed
                                 </p>
-                                <p className="progress-details">{calcLessonsCompleted} of {TOTAL_LESSONS} lessons</p>
+                                <p className="progress-details">{calcLessonsCompleted + calcSignsLearned}  of {TOTAL_LESSONS+TOTAL_SIGNS} lessons</p>
                                 <Link to="/learn" className="btn-secondary small-btn">Continue Learning <i className="fas fa-arrow-right"></i></Link>
                             </div>
 

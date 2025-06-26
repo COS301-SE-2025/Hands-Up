@@ -12,9 +12,26 @@ export function LearningStats(){
       currentLevel = "Bronze",
     } = stats || {};
 
-    const TOTAL_LESSONS = 30;
+    const TOTAL_LEVELS = 12;
+    const LESSONS_PER_LEVEL = 30;
+    const TOTAL_LESSONS = TOTAL_LEVELS * LESSONS_PER_LEVEL; 
+    const TOTAL_SIGNS = 26; 
+
     const calcLessonsCompleted = Math.min(lessonsCompleted, TOTAL_LESSONS);
-    const progressPercent = Math.min(100, Math.round((calcLessonsCompleted / TOTAL_LESSONS) * 100));
+    const calcSignsLearned = Math.min(signsLearned, TOTAL_SIGNS);
+
+   const LESSON_WEIGHT = 0.7; 
+    const SIGN_WEIGHT = 0.3;   
+
+    const lessonProgress = (calcLessonsCompleted / TOTAL_LESSONS) * 100;
+    const signProgress = (calcSignsLearned / TOTAL_SIGNS) * 100;
+    
+    const progressPercent = Math.min(100, Math.round(
+      (lessonProgress * LESSON_WEIGHT) + (signProgress * SIGN_WEIGHT)
+    ));
+
+    const currentLevelNumber = Math.min(TOTAL_LEVELS, Math.floor(calcLessonsCompleted / LESSONS_PER_LEVEL) + 1);
+    const lessonsInCurrentLevel = calcLessonsCompleted % LESSONS_PER_LEVEL;
 
   return (
     <section className="learning-progress">
@@ -22,7 +39,9 @@ export function LearningStats(){
 
       <div className="progress-bar-wrapper" aria-label="Learning progress bar">
         <div className="progress-header">
-          <span className="progress-status">In Progress</span>
+          <span className="progress-status">
+            {progressPercent === 100 ? "Complete" : "In Progress"}
+          </span>
           <span className="progress-percent">{progressPercent}%</span>
         </div>
         <div
@@ -44,7 +63,7 @@ export function LearningStats(){
           <p className="stat-label">Lessons Completed</p>
         </div>
         <div className="stat-card">
-          <p className="stat-value">{signsLearned}</p>
+          <p className="stat-value">{calcSignsLearned}/{TOTAL_SIGNS}</p>
           <p className="stat-label">Signs Learned</p>
         </div>
         <div className="stat-card">
@@ -52,11 +71,17 @@ export function LearningStats(){
           <p className="stat-label">Practice Days</p>
         </div>
         <div className="stat-card">
-          <p className="stat-value">{currentLevel}</p>
+          <p className="stat-value">
+            Level {currentLevelNumber} ({lessonsInCurrentLevel}/{LESSONS_PER_LEVEL})
+          </p>
           <p className="stat-label">Current Level</p>
         </div>
+      </div>
+
+      <div className="progress-breakdown" style={{ marginTop: '1rem', fontSize: '0.9em', color: '#666' }}>
+        <div>Lesson Progress: {Math.round(lessonProgress)}%</div>
+        <div>Sign Progress: {Math.round(signProgress)}%</div>
       </div>
     </section>
   );
 }
-
