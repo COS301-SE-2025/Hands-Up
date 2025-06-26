@@ -37,6 +37,12 @@ app.use((req, res, next) => {
     next();
 });
 
+// Health check endpoint (add before apiRoutes)
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
+// API routes
 app.use('/handsUPApi', apiRoutes);
 
 try {

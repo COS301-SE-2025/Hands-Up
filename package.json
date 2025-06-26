@@ -13,7 +13,14 @@
     "ui": "cd frontend && npm i && npm start",
     "start": "concurrently \"npm run database\" \"npm run api\" \"npm run ui\"",
     "test-coverage": "node --no-warnings --experimental-vm-modules --experimental-require-module ./node_modules/jest/bin/jest.js --passWithNoTests --coverage",
-    "lint": "eslint . --ext .js --fix"
+    "lint": "eslint . --ext .js --fix",
+    "cypress:run": "cypress run",
+    "db:setup": "cd backend/database && docker-compose up -d --build",
+    "db:migrate": "cd backend/database && docker-compose run flyway migrate",
+    "services": "concurrently \"npm run api\" \"npm run ui\"",
+    "wait-and-test": "wait-on https://localhost:2000/health --timeout 60000 && npm run cypress:run",
+    "test:integration": "npm run db:setup && concurrently --kill-others --success first \"npm run services\" \"npm run wait-and-test\""
+ 
   },
   "main": "index.js",
   "devDependencies": {
@@ -36,7 +43,9 @@
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8.5.6",
+    "start-server-and-test": "^2.0.12",
     "tailwindcss": "^4.1.10",
+    "wait-on": "^8.0.3",
     "webpack": "^5.99.9"
   },
   "dependencies": {
