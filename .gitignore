@@ -19,6 +19,8 @@
 /ai_model/notebook/training_history.png
 /ai_model/notebook/performance_history.png
 
+/frontend/localhost+2-key.pem
+/frontend/localhost+2.pem
 /.pnp
 .pnp.js
 
