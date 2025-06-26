@@ -270,6 +270,7 @@ export function Login() {
                                     placeholder="••••••••"
                                     className="text-input"
                                     disabled={isLockedOut}
+                                    autocomplete="off"
                                      />
                                   <button
                                     type="button"
