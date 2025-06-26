@@ -24,4 +24,4 @@ the values can be found on the drive-> SPRINT 2-> DB Passwords
       2. choco install mkcert
       3. mkcert -install
       4. mkcert localhost 127.0.0.1 ::1
-## Then move the certificate files(you can find them in the file explorer in same folder as the one in powershell) to the frontend and backend directory of your project.
+## Then move the certificate files(you can find them in the file explorer in same folder as the one in powershell) to the frontend and backend api directory of your project.

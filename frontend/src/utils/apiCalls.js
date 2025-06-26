@@ -47,29 +47,20 @@ export const processImage = async (image) => {
 
 
 export const getLearningProgress = async (username) => {
-   try {
-        const response = await fetch(`http://localhost:2000/handsUPApi/learning/progress/${username}`);
-        const data = await response.json();
-        if (!response.ok) {
-            const error = new Error(data.message || 'An unknown error occurred');
-            if (data.attemptsLeft !== undefined) {
-                error.attemptsLeft = data.attemptsLeft;
-            }
-            if (data.locked !== undefined) {
-                error.locked = data.locked;
-            }
-            if (data.timeLeft !== undefined) {
-                error.timeLeft = data.timeLeft;
-            }
-
-            throw error;
-        }
-        return data;
+    try {
+        const response = await fetch(`${API_BASE_URL_LEARNING}/progress/${username}`, {
+            method: 'GET',
+            credentials: 'include', 
+        });
+        
+        return handleApiResponse(response);
     } catch (error) {
-        console.error("Error fetching learning progress:", error);
-        return error;
+        console.error('Error fetching learning progress:', error.message);
+        throw error;
     }
-}
+};
+
+
 
 
 export const signup = async ({ name, surname, username, email, password }) => {
