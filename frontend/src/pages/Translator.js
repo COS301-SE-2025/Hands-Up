@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import signLanguageAPI from '../utils/apiCalls'; // Import the API service
-import '../styles/translator.css';
+import '../styles/Translator.css';
 
 export default function Translator() {
   const videoRef = useRef(null);
