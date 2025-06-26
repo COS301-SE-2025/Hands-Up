@@ -57,6 +57,10 @@ Thus, the system focuses on three core functionalities:
 <!-- 🐛 Issues -->
 ![GitHub issues](https://img.shields.io/github/issues/COS301-SE-2025/Hands-Up)
 
+![Build](https://img.shields.io/github/actions/workflow/status/COS301-SE-2025/Hands-Up/build.yml)
+
+![Tests](https://img.shields.io/github/actions/workflow/status/COS301-SE-2025/Hands-Up/test.yml)
+
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/COS301-SE-2025/Hands-Up)
 
 [![Coverage](https://img.shields.io/codecov/c/github/COS301-SE-2025/Hands-Up?logo=codecov)](https://codecov.io/gh/COS301-SE-2025/Hands-Up)
