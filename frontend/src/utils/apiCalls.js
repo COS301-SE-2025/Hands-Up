@@ -42,6 +42,7 @@ export const translateSequence = async (blobs) => {
                 const errorJson = JSON.parse(errorBody);
                 errorMessage = errorJson.message || errorJson.error || errorMessage;
             } catch (e) {
+                console.log(e);
                 errorMessage = `${errorMessage} - ${errorBody}`;
             }
             throw new Error(`Failed to process frames: ${errorMessage}`);
