@@ -16,7 +16,7 @@ import {
 
 import { resetPassword, confirmPasswordReset } from '../controllers/dbController.js';
 import{ processVideo }from '../controllers/modelController.js'
-import{ processImage }from '../controllers/modelController2.js'
+// import{ processImage }from '../controllers/modelController2.js'
 import multer from 'multer';
 import fs from 'fs';
 // import crypto from 'crypto';
@@ -105,7 +105,7 @@ router.get("/auth/unique-email/:email", uniqueEmail);
 
 router.post('/auth/reset-password', resetPassword);
 router.post('/auth/confirm-reset-password', confirmPasswordReset);
-router.post('/sign/processFrames', upload.array('frames'), processImage);
+// router.post('/sign/processFrames', upload.array('frames'), processImage);
 
 // AI Processing routes
 router.post('/process-video', upload.single('video'), processVideo);
