@@ -23,8 +23,8 @@
     "services:ci": "concurrently \"npm run api:ci\" \"npm run ui:ci\"",
     "api:ci": "cd backend/api && npm i && node $(ls *.js | head -1)",
     "ui:ci": "cd frontend && npm i && HTTPS=false SSL_CRT_FILE= SSL_KEY_FILE= npm start",
-    "wait-and-test": "wait-on http://localhost:3000 http://localhost:2000/health --timeout 80000 && npm run cypress:run",
-    "wait-and-test:ci": "wait-on http://localhost:3000 http://localhost:2000/health --timeout 80000 && npm run cypress:run",
+    "wait-and-test": "wait-on https://localhost:3000 https://localhost:2000/health --timeout 80000 && npm run cypress:run",
+    "wait-and-test:ci": "wait-on https://localhost:3000 https://localhost:2000/health --timeout 80000 --insecure && npm run cypress:run",
     "test:integration": "npm run db:setup && concurrently --kill-others --success first \"npm run services\" \"npm run wait-and-test\"",
     "test:integration:ci": "npm run db:setup && concurrently --kill-others --success first \"npm run services:ci\" \"npm run wait-and-test:ci\""
   },
