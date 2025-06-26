@@ -12,6 +12,12 @@
 /ai_model/notebook/processed_dataset
 /backend/uploads
 /ai_model/notebook/translation_output.json
+/ai_model/notebook/super_augmented_dataset
+/ai_model/notebook/filteredProcessed_data
+/ai_model/notebook/filtered_dataset
+/ai_model/notebook/learnedWords
+/ai_model/notebook/training_history.png
+/ai_model/notebook/performance_history.png
 
 /.pnp
 .pnp.js
