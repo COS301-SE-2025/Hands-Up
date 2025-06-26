@@ -19,4 +19,7 @@ export default {
     '\\.(png|jpg|jpeg|gif|svg|mp4)$': '<rootDir>/tests/mocks/fileMock.cjs',
     '^lucide-react$': '<rootDir>/tests/mocks/lucideReactMock.cjs', 
   },
+  transformIgnorePatterns: [
+    "/node_modules/(?!uuid)"  // 👈 tell Jest NOT to ignore uuid
+  ],
 }
