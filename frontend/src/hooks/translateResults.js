@@ -4,7 +4,6 @@ import {SignLanguageAPI, translateSequence } from '../utils/apiCalls';
 import { v4 as uuidv4 } from 'uuid';
 
 export function useTranslator() {
-    // State and Ref declarations (keep these at the top)
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
     const [result, setResult] = useState("");
@@ -15,14 +14,27 @@ export function useTranslator() {
     const [captureHistory, setCaptureHistory] = useState([]);
     const [capturedBlob, setCapturedBlob] = useState(null);
     const [autoCaptureEnabled, setAutoCaptureEnabled] = useState(false);
-    // const [setLandmarkFrames] = useState([]);
     const [landmarkFrames, setLandmarkFrames] = useState([]);
     const [isProcessingSequence, setIsProcessingSequence] = useState(false);
     const [fingerspellingMode, setFingerspellingMode] = useState(false);
 
-    // --- Function Definitions (MUST COME BEFORE useEffects that use them) ---
+    
+    const stopRecording = useCallback(() => {
+        setRecording(false);
+        // setAutoCaptureEnabled(false);
+        setLandmarkFrames([]);
+    }, [setRecording, setLandmarkFrames]);
 
-    // Define sendSequenceToBackend first, as captureImageFromVideo depends on it
+    const startRecording = useCallback(async () => {
+        if (recording) {
+            stopRecording();
+            setCapturedImage(null);
+        } else {
+            setAutoCaptureEnabled(true);
+            setRecording(true);
+        }
+    }, [recording, stopRecording, setCapturedImage, setAutoCaptureEnabled, setRecording]);
+
     const sendSequenceToBackend = useCallback(async (blobs) => {
         if (!Array.isArray(blobs)) {
             console.error("Expected array of blobs, got:", blobs);
@@ -39,6 +51,7 @@ export function useTranslator() {
             } else {
                 setConfidence("0.0%");
             }
+            setLandmarkFrames([]);
         } catch (err) {
             console.error("Failed to send frame sequence:", err);
             setResult("Error translating sign.");
@@ -46,10 +59,8 @@ export function useTranslator() {
         } finally {
             setIsProcessingSequence(false);
         }
-    }, [setResult, setIsProcessingSequence, setConfidence]);
+    }, [setResult, setIsProcessingSequence, setConfidence, setLandmarkFrames]); 
 
-
-    // Define captureImageFromVideo after its dependencies (like sendSequenceToBackend)
     const captureImageFromVideo = useCallback(() => {
         const video = videoRef.current;
         const canvas = canvasRef.current;
@@ -92,8 +103,9 @@ export function useTranslator() {
 
                         if (updated.length === 30) {
                             setIsProcessingSequence(true);
-                            sendSequenceToBackend(updated);
                             setResult("processing...");
+                            sendSequenceToBackend(updated);
+                            stopRecording();
                             return [];
                         }
 
@@ -115,17 +127,22 @@ export function useTranslator() {
         setLandmarkFrames,
         isProcessingSequence,
         autoCaptureEnabled,
-        sendSequenceToBackend
+        sendSequenceToBackend,
+        stopRecording 
     ]);
 
+    useEffect(() => {
+        if (!isProcessingSequence && !recording) {
+            if (autoCaptureEnabled) { 
+                startRecording();
+            }
+        }
+    }, [isProcessingSequence, recording, autoCaptureEnabled, startRecording]);
 
-    // --- useEffect Hooks (can now safely use the functions defined above) ---
-
-    // Effect for auto-capture interval
     useEffect(() => {
         let intervalId;
         if (autoCaptureEnabled && videoRef.current) {
-            const intervalTime = fingerspellingMode ? 2000 : 100;
+            const intervalTime = fingerspellingMode ? 2500 : 100;
             intervalId = setInterval(() => {
                 captureImageFromVideo();
             }, intervalTime);
@@ -133,7 +150,6 @@ export function useTranslator() {
         return () => clearInterval(intervalId);
     }, [autoCaptureEnabled, fingerspellingMode, captureImageFromVideo, videoRef]);
 
-    // Effect for camera access
     useEffect(() => {
         const enableCamera = async () => {
             try {
@@ -154,25 +170,6 @@ export function useTranslator() {
             }
         };
     }, [setResult]);
-
-
-    // --- Other functions and return statement ---
-
-    const startRecording = () => {
-        if (recording) {
-            stopRecording();
-            setCapturedImage(null);
-        } else {
-            setAutoCaptureEnabled(true);
-            setRecording(true);
-        }
-    };
-
-    const stopRecording = () => {
-        setRecording(false);
-        setAutoCaptureEnabled(false);
-        setLandmarkFrames([]);
-    };
 
     const handleFileUpload = async (e) => {
         const file = e.target.files?.[0];
