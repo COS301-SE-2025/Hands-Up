@@ -1,6 +1,12 @@
 import { jest, expect, it, describe, beforeEach, beforeAll} from '@jest/globals';
 let pool, learningProgress
 
+jest.unstable_mockModule('../../../../backend/api/utils/dbConnection', () => ({
+  pool: {
+    query: jest.fn(),
+  },
+}));
+
 beforeAll(async () => {
   const dbModule = await import('../../../../backend/api/utils/dbConnection.js');
   const controllerModule = await import('../../../../backend/api/controllers/dbController.js');
@@ -8,12 +14,6 @@ beforeAll(async () => {
   pool = dbModule.pool;
   ({ learningProgress } = controllerModule);
 });
-
-jest.unstable_mockModule('../../../../backend/api/utils/dbConnection', () => ({
-  pool: {
-    query: jest.fn(),
-  },
-}));
 
 describe('learningProgress controller', () => {
   let req, res;
@@ -46,7 +46,7 @@ describe('learningProgress controller', () => {
       });
     });
 
-    it('should return 404 if user not found', async () => {
+    it('should return default progress if user not found', async () => {
       req.method = 'GET';
       req.params.username = 'unknownUser';
 
@@ -55,10 +55,11 @@ describe('learningProgress controller', () => {
       await learningProgress(req, res);
 
       expect(pool.query).toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
-        status: 'error',
-        message: 'User not found',
+        status: 'success',
+        message: 'No learning progress found for this user.',
+        data: [],
       });
     });
 
@@ -97,21 +98,21 @@ describe('learningProgress controller', () => {
   });
 
   describe('PUT method', () => {
-    it('should return 400 if username or progressData missing', async () => {
+    it('should return 403 if username or progressData missing', async () => {
       req.method = 'PUT';
       req.params.username = '';
       req.body = {};
 
       await learningProgress(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.status).toHaveBeenCalledWith(403);
       expect(res.json).toHaveBeenCalledWith({
         status: 'error',
-        message: 'Username and progress data are required',
+        message: 'Forbidden: You can only update your own progress.',
       });
     });
 
-    it('should return 404 if update affected no rows', async () => {
+    it('should return 403 if update affected no rows', async () => {
       req.method = 'PUT';
       req.params.username = 'testuser';
       req.body = { lessonsCompleted: 5, signsLearned: 2, streak: 1 };
@@ -120,16 +121,17 @@ describe('learningProgress controller', () => {
 
       await learningProgress(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.status).toHaveBeenCalledWith(403);
       expect(res.json).toHaveBeenCalledWith({
         status: 'error',
-        message: 'User not found or no progress updated',
+        message: 'Forbidden: You can only update your own progress.',
       });
     });
 
     it('should return 200 if update is successful', async () => {
       req.method = 'PUT';
       req.params.username = 'testuser';
+      req.user = { username: 'testuser' };
       req.body = { lessonsCompleted: 5, signsLearned: 2, streak: 1 };
 
       pool.query.mockResolvedValue({ rowCount: 1 });
@@ -146,6 +148,7 @@ describe('learningProgress controller', () => {
     it('should return 500 on database error (PUT)', async () => {
       req.method = 'PUT';
       req.params.username = 'testuser';
+      req.user = { username: 'testuser' };
       req.body = { lessonsCompleted: 5, signsLearned: 2, streak: 1 };
 
       pool.query.mockRejectedValue(new Error('DB failure'));
