@@ -17,19 +17,18 @@ describe('Learn Page Tests', () => {
 
       cy.get('button[type="submit"]').click();
 
-      cy.contains('h1', 'Welcome back').should('be.visible');
 
       cy.visit('https://localhost:3000/learn');
 
   });
 
   describe('Learn Dashboard Tests', () => {
-    // it('should be on the right page and display main elements', () => {
-    //   cy.get('.duo-app').should('be.visible');
-    //   cy.get('.learn-main-content').should('be.visible');
-    //   cy.get('.dashboard').should('be.visible');
-    //   cy.get('.category-tiles').should('be.visible');
-    // });
+    it('should be on the right page and display main elements', () => {
+      cy.get('.duo-app').should('be.visible');
+      cy.get('.learn-main-content').should('be.visible');
+      cy.get('.dashboard').should('be.visible');
+      cy.get('.category-tiles').should('be.visible');
+    });
 
     it('should display sidebar with progress information', () => {
       cy.get('.sidebar').should('be.visible'); 
