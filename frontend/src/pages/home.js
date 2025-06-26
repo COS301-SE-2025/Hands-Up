@@ -52,9 +52,7 @@ export function Home(){
     const completionPercentage = Math.min(100, Math.round(
      lessonProgress));
 
-     const currentLevelNumber = Math.min(TOTAL_LEVELS, Math.floor(calcLessonsCompleted / LESSONS_PER_LEVEL) + 1);
-
-
+    
     useEffect(() => {
         const randomIndex = Math.floor(Math.random() * signsOfTheDayData.length);
         setSignOfTheDay(signsOfTheDayData[randomIndex]);

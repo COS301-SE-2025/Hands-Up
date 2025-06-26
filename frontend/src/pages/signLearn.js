@@ -19,7 +19,6 @@ export function SignLearn() {
     const canvasRef = useRef(null);
     const [landmarks, setLandmarks] = useState([]);
     const [frameIndex, setFrameIndex] = useState(0);
-    const [isAnimating, setIsAnimating] = useState(true);
     const [loading, setLoading] = useState(true);
 
     const { updateStats, stats } = useLearningStats();
@@ -254,7 +253,7 @@ export function SignLearn() {
                 ctx.stroke();
             });
 
-            if (isAnimating && landmarks.length > 1) {
+            if ( landmarks.length > 1) {
                 setTimeout(() => {
                     setFrameIndex((prev) => (prev + 1) % landmarks.length);
                 }, 30);
@@ -262,23 +261,9 @@ export function SignLearn() {
         }
 
         drawFrame();
-    }, [landmarks, frameIndex, isAnimating]);
+    }, [landmarks, frameIndex]);
 
-    const toggleAnimation = () => {
-        setIsAnimating(!isAnimating);
-    };
 
-    const nextFrame = () => {
-        if (landmarks.length > 0) {
-            setFrameIndex((prev) => (prev + 1) % landmarks.length);
-        }
-    };
-
-    const prevFrame = () => {
-        if (landmarks.length > 0) {
-            setFrameIndex((prev) => (prev - 1 + landmarks.length) % landmarks.length);
-        }
-    };
 
     if (loading) {
         return (
@@ -320,7 +305,7 @@ export function SignLearn() {
                     color: '#dc3545',
                     marginTop: '20px'
                 }}>
-                    No landmark data found for letter "{letter}"
+                    No landmark data found for letter &quot{letter}&quot
                 </div>
             </div>
         );
