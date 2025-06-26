@@ -84,5 +84,23 @@ jobs:
       - name: Install Cypress
         run: npx cypress install
 
+      # Start database and wait for it to be ready
+      - name: Start database
+        run: |
+          cd backend/database
+          docker-compose up -d --build
+          echo "Waiting for database to be ready..."
+          sleep 10
+          
+      # Run database migrations if needed
+      - name: Run database migrations
+        run: npm run db:migrate
+
+      # Verify database is accessible
+      - name: Check database connection
+        run: |
+          # Try to connect to the database to verify it's running
+          docker-compose -f backend/database/docker-compose.yml exec -T db pg_isready -h localhost -p 5432 || echo "Database not ready yet"
+          
       - name: Start services and run Cypress tests
         run: npm run test:integration
