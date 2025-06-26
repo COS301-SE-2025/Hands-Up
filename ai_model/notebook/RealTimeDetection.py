@@ -1,131 +1,136 @@
-import os
 import cv2
 import numpy as np
 import mediapipe as mp
 from tensorflow.keras.models import load_model
+import os
+import pickle
+import time
 
-PROCESSED_PATH = 'processed_dataset'
-print(cv2.__version__)
-# Load your trained model
-model = load_model('action_model.h5')
-
-# Define the actions your model predicts
-actions = sorted([folder for folder in os.listdir(PROCESSED_PATH) if os.path.isdir(os.path.join(PROCESSED_PATH, folder))])
-# MediaPipe holistic model setup
+# Mediapipe setup
 mp_holistic = mp.solutions.holistic
 mp_drawing = mp.solutions.drawing_utils
 
-# Colors for visualization (BGR format)
-colors = [(16,117,245), (117,245,16), (245,117,16)]  # Adjusted BGR for OpenCV
+# Configuration
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(SCRIPT_DIR, 'action_model.h5')
+NORMALIZATION_PARAMS_PATH = os.path.join(SCRIPT_DIR, 'normalization_params.npy')
+LABEL_MAP_PATH = os.path.join(SCRIPT_DIR, 'label_map.pkl')
+SEQUENCE_LENGTH = 30  # Number of frames needed for prediction
+PREDICTION_DELAY = 2  # Seconds to wait between predictions
 
-def mediapipe_detection(image, model):
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    image.flags.writeable = False
-    results = model.process(image)
-    image.flags.writeable = True
-    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-    return image, results
+# Global variables
+model = None
+X_mean, X_std = 0, 1
+actions = []
+label_map = {}
+reversed_label_map = {}
 
-def draw_styled_landmarks(image, results):
-    # Draw face mesh
-    if results.face_landmarks:
-        mp_drawing.draw_landmarks(
-            image, results.face_landmarks, mp_holistic.FACEMESH_TESSELATION,
-            mp_drawing.DrawingSpec(color=(80,110,10), thickness=1, circle_radius=1),
-            mp_drawing.DrawingSpec(color=(80,256,121), thickness=1, circle_radius=1)
-        )
-    # Draw pose landmarks
-    if results.pose_landmarks:
-        mp_drawing.draw_landmarks(
-            image, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS,
-            mp_drawing.DrawingSpec(color=(80,22,10), thickness=2, circle_radius=4),
-            mp_drawing.DrawingSpec(color=(80,44,121), thickness=2, circle_radius=2)
-        )
-    # Draw left hand landmarks
-    if results.left_hand_landmarks:
-        mp_drawing.draw_landmarks(
-            image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS,
-            mp_drawing.DrawingSpec(color=(121,22,76), thickness=2, circle_radius=4),
-            mp_drawing.DrawingSpec(color=(121,44,250), thickness=2, circle_radius=2)
-        )
-    # Draw right hand landmarks
-    if results.right_hand_landmarks:
-        mp_drawing.draw_landmarks(
-            image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS,
-            mp_drawing.DrawingSpec(color=(245,117,66), thickness=2, circle_radius=4),
-            mp_drawing.DrawingSpec(color=(245,66,230), thickness=2, circle_radius=2)
-        )
+def load_model_and_assets():
+    global model, X_mean, X_std, actions, label_map, reversed_label_map
+    try:
+        model = load_model(MODEL_PATH)
+        X_mean, X_std = np.load(NORMALIZATION_PARAMS_PATH)
+        with open(LABEL_MAP_PATH, 'rb') as f:
+            label_map = pickle.load(f)
+        actions = sorted(list(label_map.keys()))
+        reversed_label_map = {v: k for k, v in label_map.items()}
+    except Exception as e:
+        print(f"Error loading assets: {e}")
+        raise
 
 def extract_keypoints(results):
-    # Extract pose landmarks
-    pose = np.array([[lm.x, lm.y, lm.z, lm.visibility] for lm in results.pose_landmarks.landmark]).flatten() if results.pose_landmarks else np.zeros(33*4)
-    # Extract face landmarks
-    face = np.array([[lm.x, lm.y, lm.z] for lm in results.face_landmarks.landmark]).flatten() if results.face_landmarks else np.zeros(468*3)
-    # Extract left hand landmarks
-    lh = np.array([[lm.x, lm.y, lm.z] for lm in results.left_hand_landmarks.landmark]).flatten() if results.left_hand_landmarks else np.zeros(21*3)
-    # Extract right hand landmarks
-    rh = np.array([[lm.x, lm.y, lm.z] for lm in results.right_hand_landmarks.landmark]).flatten() if results.right_hand_landmarks else np.zeros(21*3)
+    pose = np.array([[res.x, res.y, res.z, res.visibility] 
+                    for res in results.pose_landmarks.landmark]).flatten() \
+                    if results.pose_landmarks else np.zeros(33*4)
+    face = np.array([[res.x, res.y, res.z] 
+                    for res in results.face_landmarks.landmark]).flatten() \
+                    if results.face_landmarks else np.zeros(468*3)
+    lh = np.array([[res.x, res.y, res.z] 
+                  for res in results.left_hand_landmarks.landmark]).flatten() \
+                  if results.left_hand_landmarks else np.zeros(21*3)
+    rh = np.array([[res.x, res.y, res.z] 
+                  for res in results.right_hand_landmarks.landmark]).flatten() \
+                  if results.right_hand_landmarks else np.zeros(21*3)
     return np.concatenate([pose, face, lh, rh])
 
-def hands_detected(results):
-    """Check if at least one hand is detected"""
-    return results.left_hand_landmarks is not None or results.right_hand_landmarks is not None
+def predict_sequence(keypoint_sequence):
+    input_data = np.expand_dims(keypoint_sequence, axis=0)
+    input_data_norm = (input_data - X_mean) / (X_std + 1e-8)
+    predictions = model.predict(input_data_norm, verbose=0)[0]
+    predicted_idx = np.argmax(predictions)
+    return reversed_label_map.get(predicted_idx, "UNKNOWN"), float(predictions[predicted_idx])
+
+def draw_loading_bar(image, progress):
+    bar_width = 200
+    bar_height = 20
+    x, y = 50, 50
+    cv2.rectangle(image, (x, y), (x + bar_width, y + bar_height), (100, 100, 100), 2)
+    cv2.rectangle(image, (x, y), (x + int(bar_width * progress), y + bar_height), (0, 255, 0), -1)
+    cv2.putText(image, "Processing...", (x, y - 10), 
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
 
 def main():
+    load_model_and_assets()
+    
     sequence = []
     sentence = []
-    predictions = []
-    threshold = 0.5
-
+    last_prediction_time = 0
+    
     cap = cv2.VideoCapture(0)
     with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
         while cap.isOpened():
             ret, frame = cap.read()
             if not ret:
-                print("Ignoring empty camera frame.")
                 continue
-
-            image, results = mediapipe_detection(frame, holistic)
-            draw_styled_landmarks(image, results)
-
-            # Only process if hands are detected
-            if hands_detected(results):
+                
+            # Process frame
+            image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            image.flags.writeable = False
+            results = holistic.process(image)
+            image.flags.writeable = True
+            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+            
+            # Draw landmarks
+            mp_drawing.draw_landmarks(image, results.face_landmarks, mp_holistic.FACEMESH_TESSELATION)
+            mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS)
+            mp_drawing.draw_landmarks(image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
+            mp_drawing.draw_landmarks(image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
+            
+            # Only collect frames when hands are visible
+            if results.left_hand_landmarks or results.right_hand_landmarks:
                 keypoints = extract_keypoints(results)
                 sequence.append(keypoints)
-                sequence = sequence[-30:]  # Keep only last 30 frames
-
-                if len(sequence) == 30:
-                    res = model.predict(np.expand_dims(sequence, axis=0))[0]
-                    predicted_action = actions[np.argmax(res)]
-                    predictions.append(np.argmax(res))
-
-                    # Only append to sentence if consistent prediction for last 10 frames & above threshold
-                    if np.unique(predictions[-10:])[0] == np.argmax(res):
-                        if res[np.argmax(res)] > threshold:
-                            if len(sentence) > 0:
-                                if predicted_action != sentence[-1]:
-                                    sentence.append(predicted_action)
-                            else:
-                                sentence.append(predicted_action)
-
-                    if len(sentence) > 5:
-                        sentence = sentence[-5:]
+                sequence = sequence[-SEQUENCE_LENGTH:]
+                
+                # Show progress bar
+                progress = len(sequence) / SEQUENCE_LENGTH
+                draw_loading_bar(image, progress)
+                
+                # Make prediction when we have enough frames
+                current_time = time.time()
+                if len(sequence) == SEQUENCE_LENGTH and current_time - last_prediction_time > PREDICTION_DELAY:
+                    action, confidence = predict_sequence(np.array(sequence))
+                    if confidence > 0.7:  # Confidence threshold
+                        sentence.append(action)
+                        if len(sentence) > 5:
+                            sentence = sentence[-5:]
+                    last_prediction_time = current_time
+                    sequence = []  # Reset for next prediction
             else:
-                # Clear sequence when no hands are detected
-                sequence = []
-
-            # Display predicted sentence
-            cv2.rectangle(image, (0,0), (640, 40), (245, 117, 16), -1)
-            cv2.putText(image, ' '.join(sentence), (3,30), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-
-            cv2.imshow('OpenCV Feed', image)
-
+                sequence = []  # Reset if hands disappear
+            
+            # Display results
+            cv2.rectangle(image, (0, 0), (640, 40), (245, 117, 16), -1)
+            cv2.putText(image, ' '.join(sentence), (3, 30), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+            
+            cv2.imshow('Sign Language Recognition', image)
+            
             if cv2.waitKey(10) & 0xFF == ord('q'):
                 break
-
+                
     cap.release()
     cv2.destroyAllWindows()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
