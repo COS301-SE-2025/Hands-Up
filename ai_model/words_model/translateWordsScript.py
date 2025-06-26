@@ -66,7 +66,7 @@ def process_frames(frames):
         else:
             prediction = "uncertain"
         sequence.clear()
-
+    
         message = {
             "prediction": prediction,
             "confidence": confidence
