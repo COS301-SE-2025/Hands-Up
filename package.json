@@ -9,8 +9,10 @@
   },
   "scripts": {
     "database": "cd backend/database && docker-compose up -d --build && docker-compose run flyway migrate",
-    "api": "cd backend/api && npm i && node handsUP",
-    "ui": "cd frontend && npm i && npm start",
+    "api": "cd backend/api && npm i && node handsUP.js",
+    "api:dev": "cd backend/api && npm i && node server.js",
+    "ui": "cd frontend && npm i && HTTPS=false npm start",
+    "ui:dev": "cd frontend && npm i && npm start",
     "start": "concurrently \"npm run database\" \"npm run api\" \"npm run ui\"",
     "test-coverage": "node --no-warnings --experimental-vm-modules --experimental-require-module ./node_modules/jest/bin/jest.js --passWithNoTests --coverage",
     "lint": "eslint . --ext .js --fix",
@@ -18,8 +20,13 @@
     "db:setup": "cd backend/database && docker-compose up -d --build",
     "db:migrate": "cd backend/database && docker-compose run flyway migrate",
     "services": "concurrently \"npm run api\" \"npm run ui\"",
-    "wait-and-test": "wait-on https://localhost:3000 https://localhost:2000/health --timeout 80000 && npm run cypress:run",
-    "test:integration": "npm run db:setup && concurrently --kill-others --success first \"npm run services\" \"npm run wait-and-test\""
+    "services:ci": "concurrently \"npm run api:ci\" \"npm run ui:ci\"",
+    "api:ci": "cd backend/api && npm i && node $(ls *.js | head -1)",
+    "ui:ci": "cd frontend && npm i && HTTPS=false SSL_CRT_FILE= SSL_KEY_FILE= npm start",
+    "wait-and-test": "wait-on http://localhost:3000 http://localhost:2000/health --timeout 80000 && npm run cypress:run",
+    "wait-and-test:ci": "wait-on http://localhost:3000 http://localhost:2000/health --timeout 80000 && npm run cypress:run",
+    "test:integration": "npm run db:setup && concurrently --kill-others --success first \"npm run services\" \"npm run wait-and-test\"",
+    "test:integration:ci": "npm run db:setup && concurrently --kill-others --success first \"npm run services:ci\" \"npm run wait-and-test:ci\""
   },
   "main": "index.js",
   "devDependencies": {

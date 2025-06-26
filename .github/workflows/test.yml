@@ -23,10 +23,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: pre-start
 
-    # strategy:
-    #   matrix:
-    #     folder: [frontend, backend]
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -87,6 +83,17 @@ jobs:
         run: |
           echo "CI=true" >> $GITHUB_ENV
           echo "HTTPS=false" >> $GITHUB_ENV
+          echo "SSL_CRT_FILE=" >> $GITHUB_ENV
+          echo "SSL_KEY_FILE=" >> $GITHUB_ENV
+
+      - name: Check backend entry point
+        run: |
+          echo "Checking for backend entry point..."
+          ls -la backend/api/
+          if [ ! -f "backend/api/handsUP.js" ] && [ ! -f "backend/api/handsUP" ]; then
+            echo "handsUP entry point not found. Available files:"
+            find backend/api -name "*.js" -type f
+          fi
 
       - name: Start services and run Cypress tests
         run: npm run test:integration
