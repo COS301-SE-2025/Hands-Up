@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
-from controllers.modelControllers import detectFromImage
-from controllers.modelController2 import detectFromFrames
+from controllers.lettersController import detectFromImage
+from controllers.wordsController import detectFromFrames
 import tempfile
 import os
 

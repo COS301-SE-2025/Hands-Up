@@ -9,6 +9,9 @@
 # testing
 tests/coverage/
 
+#python cache
+**/pycache/
+
 #datasets
 ai_model/letters
 ai_model/words_model/words

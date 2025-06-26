@@ -65,7 +65,7 @@ def detectFromFrames(frames):
             yPred = model.predict(inputData, verbose=0)
             classIndex = np.argmax(yPred)
             confidence = float(np.max(yPred))  
-            if confidence >= 0.7:
+            if confidence >= 0.8:
                 prediction = labels[classIndex]
             else:
                 prediction = "uncertain"

@@ -7,7 +7,7 @@ import tensorflow as tf
 import mediapipe as mp
 from collections import deque
 import os
-import json # Import the json module
+import json 
 
 model_path = os.path.join(os.path.dirname(__file__), 'wordsModel.keras')
 labelEncodePath = os.path.join(os.path.dirname(__file__), 'labelEncoder.pickle')
@@ -60,7 +60,7 @@ def process_frames(frames):
         inputData = np.expand_dims(sequence, axis=0)
         yPred = model.predict(inputData, verbose=0)
         classIndex = np.argmax(yPred)
-        confidence = float(np.max(yPred))  # convert numpy float to native float
+        confidence = float(np.max(yPred)) 
         if confidence >= 0.8:
             prediction = labels[classIndex]
         else:
@@ -73,7 +73,7 @@ def process_frames(frames):
         }
     else:
         message = {
-            "prediction": "unknown sign",
+            "prediction": "no sign detected",
             "confidence": 0.0
         }
 
