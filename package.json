@@ -20,7 +20,6 @@
     "services": "concurrently \"npm run api\" \"npm run ui\"",
     "wait-and-test": "wait-on https://localhost:2000/health --timeout 60000 && npm run cypress:run",
     "test:integration": "npm run db:setup && concurrently --kill-others --success first \"npm run services\" \"npm run wait-and-test\""
- 
   },
   "main": "index.js",
   "devDependencies": {
@@ -64,7 +63,6 @@
     "multer": "^2.0.1",
     "nodemailer": "^7.0.3",
     "prop-types": "^15.8.1",
-
     "react-circular-progressbar": "^2.2.0",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.6.2"

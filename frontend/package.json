@@ -13,6 +13,7 @@
     "@testing-library/user-event": "^13.5.0",
     "aos": "^2.3.4",
     "axios": "^1.10.0",
+    "cookie-parser": "^1.4.7",
     "d3-polygon": "^3.0.1",
     "lucide-react": "^0.511.0",
     "prop-types": "^15.8.1",
