@@ -70,11 +70,17 @@ def detectFromFrames(frames):
             else:
                 prediction = "uncertain"
             sequence.clear()
-
-            message = {
-                "prediction": prediction,
+            
+            if prediction == "none":
+                message = {
+                "prediction": "no sign detected",
                 "confidence": confidence
-            }
+                }
+            else:
+                message = {
+                    "prediction": prediction,
+                    "confidence": confidence
+                }
         else:
             message = {
                 "prediction": "unknown sign",
