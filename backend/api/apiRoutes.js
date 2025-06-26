@@ -1,6 +1,6 @@
-// routes.js (or your main routes file)
 import { Router } from 'express';
 import { learningProgress, loginUser, signUpUser, getUserData, uniqueUsername, uniqueEmail, updateUserDetails, updateUserPassword } from './controllers/dbController.js';
+// Note: testPython, processSign, processVideo, healthCheck will be imported from the updated Controller.js
 import { testPython, processSign, processVideo, healthCheck } from './controllers/Controller.js';
 import multer from 'multer';
 import fs from 'fs';
@@ -30,14 +30,14 @@ const storage = multer.diskStorage({
 });
 
 // Configure multer with file size limits and file type validation
-const upload = multer({ 
+const upload = multer({
   storage,
   limits: {
     fileSize: 50 * 1024 * 1024, // 50MB limit
   },
   fileFilter: (req, file, cb) => {
     console.log(` File upload: ${file.originalname}, mimetype: ${file.mimetype}`);
-    
+
     if (file.fieldname === 'image') {
       // Accept image files
       if (file.mimetype.startsWith('image/')) {
@@ -73,7 +73,7 @@ router.use((req, res, next) => {
 // ROUTES ONLY - Business logic in Controller.js
 // ========================================
 
-// Database routes
+// Database routes (remain unchanged)
 router.get("/learning/progress/:username", learningProgress);
 router.put("/learning/progress/:username", learningProgress);
 router.post("/auth/signup", signUpUser);
@@ -84,13 +84,13 @@ router.get("/auth/unique-email/:email", uniqueEmail);
 router.put('/user/:id/details', updateUserDetails);
 router.put('/user/:id/password', updateUserPassword);
 
-// AI Processing routes
-router.get('/test-python', testPython);
-router.post('/process-sign', upload.single('image'), processSign);
-router.post('/process-video', upload.single('video'), processVideo);
+// AI Processing routes (remain unchanged in terms of middleware)
+router.get('/test-python', testPython); // Now tests Flask connection
+router.post('/process-sign', upload.single('image'), processSign); // Multer still handles file upload to Node.js temp
+router.post('/process-video', upload.single('video'), processVideo); // Multer still handles file upload to Node.js temp
 router.get('/health', healthCheck);
 
-// Error handling middleware for multer errors
+// Error handling middleware for multer errors (remains the same as it's for Node.js file upload)
 router.use((error, req, res, next) => {
   if (error instanceof multer.MulterError) {
     if (error.code === 'LIMIT_FILE_SIZE') {
@@ -104,15 +104,26 @@ router.use((error, req, res, next) => {
       details: error.message
     });
   }
-  
+
   if (error.message.includes('Only image files') || error.message.includes('Only video files')) {
     return res.status(400).json({
       error: 'Invalid file type',
       details: error.message
     });
   }
-  
-  next(error);
+
+  // Generic error handler for other errors, including those passed from controller
+  // This will catch errors thrown by axios if the Flask server is unreachable/returns non-2xx
+  console.error("Caught error in API routes:", error);
+  // If the error has a status and data from a Flask response, try to use it
+  const status = error.response?.status || 500;
+  const message = error.response?.data?.error || error.message || "An unexpected error occurred.";
+  const details = error.response?.data?.details || error.stack;
+
+  res.status(status).json({
+    error: message,
+    details: details
+  });
 });
 
 export default router;
