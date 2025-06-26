@@ -21,9 +21,9 @@ export function useTranslator() {
     
     const stopRecording = useCallback(() => {
         setRecording(false);
-        // setAutoCaptureEnabled(false);
+        setAutoCaptureEnabled(false);
         setLandmarkFrames([]);
-    }, [setRecording, setLandmarkFrames]);
+    }, [setRecording, setLandmarkFrames, setAutoCaptureEnabled]);
 
     const startRecording = useCallback(async () => {
         if (recording) {
