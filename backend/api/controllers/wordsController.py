@@ -83,7 +83,7 @@ def detectFromFrames(frames):
 
         return message
 
-def read_frames_from_stdin():
+def readFramesFromStdin():
     frame_count_bytes = sys.stdin.buffer.read(4)
     frame_count = struct.unpack('<I', frame_count_bytes)[0]
 

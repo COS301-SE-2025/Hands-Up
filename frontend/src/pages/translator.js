@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {useTranslator} from '../hooks/translateResults';
 import {renderMediaPreview} from '../components/mediaPreview';
 import {renderHistoryItem} from '../components/historyItem';
+import {FingerspellingToggle} from '../components/fingerSpellingToggle'
 import '../styles/translator.css';
 
 export function Translator(){
@@ -75,15 +76,11 @@ export function Translator(){
             </div>
 
             <div className="recognizer-controls">
-              <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
-              <input 
-                type="checkbox" 
-                id="fingerspelling-toggle" 
-                checked={fingerspellingMode} 
-                onChange={(e) => setFingerspellingMode(e.target.checked)} 
-                style={{ marginRight: '8px' }}
-              />
-              <label htmlFor="fingerspelling-toggle">Fingerspelling Mode</label>
+              <div>
+                <FingerspellingToggle 
+                  fingerspellingMode={fingerspellingMode} 
+                  setFingerspellingMode={setFingerspellingMode} 
+                />
             </div>
               <button onClick={() => setResult("")} className="recognizer-control-button recognizer-capture-button">
                 <i></i> Clear Results
@@ -225,7 +222,7 @@ export function Translator(){
                 </li>
                 <li className="recognizer-tip-item">
                   <i className="fas fa-clock recognizer-tip-icon"></i>
-                  <span>Hold the sign steady for 1-2 seconds</span>
+                  <span>Hold the sign steady for 2 seconds</span>
                 </li>
                 <li className="recognizer-tip-item">
                   <i className="fas fa-adjust recognizer-tip-icon"></i>
