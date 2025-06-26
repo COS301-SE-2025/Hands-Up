@@ -6,7 +6,7 @@ const API_BASE_URL = "https://localhost:2000/handsUPApi";
 export const handleApiResponse = async (response) => {
     const data = await response.json();
     if (!response.ok) {
-        const error = new Error(data.message || 'An unknown error occurred');
+        const error = new Error(data.error || 'An unknown error occurred');
         if (data.attemptsLeft !== undefined) {
             error.attemptsLeft = data.attemptsLeft;
         }

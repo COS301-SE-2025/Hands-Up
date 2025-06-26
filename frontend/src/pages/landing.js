@@ -39,7 +39,7 @@ export function Landing(){
 
       <header className="landing-header">
         <div className="landing-header-left">
-          <img src={logo} alt="Hands Up Logo" className="landing-logo" />
+          <img src={logo} alt="Hands UP Logo" className="landing-logo" />
           <h1>Hands UP</h1>
         </div>
 
@@ -59,7 +59,7 @@ export function Landing(){
         <div className="hero-div">
           <img src={phil} alt="Phil" className="side-image left-image" />
           <div>
-            <h1 className="hero-div-h1">Welcome to Hands Up</h1>
+            <h1 className="hero-div-h1">Welcome to Hands UP</h1>
             <p className="hero-div-p">Empowering Communication <br></br> One Sign at a Time.</p>
             <div className="hero-buttons">
               <button className="hero-button" onClick={goToTranslator}>Start Translating</button>

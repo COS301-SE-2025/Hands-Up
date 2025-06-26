@@ -44,6 +44,7 @@ describe('Signup API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockUserData),
+        credentials: 'include',
       }
     );
     expect(result).toEqual(mockResponse);
@@ -78,6 +79,7 @@ describe('Signup API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockUserData),
+        credentials: 'include',
       }
     );
   });
@@ -107,6 +109,7 @@ describe('Signup API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockUserData),
+        credentials: 'include',
       }
     );
   });
@@ -136,6 +139,7 @@ describe('Signup API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockUserData),
+        credentials: 'include',
       }
     );
   });
@@ -165,6 +169,7 @@ describe('Signup API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockUserData),
+        credentials: 'include',
       }
     );
   });
@@ -193,6 +198,7 @@ describe('Signup API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockUserData),
+        credentials: 'include',
       }
     );
   });
@@ -221,6 +227,7 @@ describe('Signup API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockUserData),
+        credentials: 'include',
       }
     );
   });
@@ -249,6 +256,7 @@ describe('Signup API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockUserData),
+        credentials: 'include',
       }
     );
   });
@@ -272,6 +280,7 @@ describe('Signup API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockUserData),
+        credentials: 'include',
       }
     );
   });
@@ -301,6 +310,7 @@ describe('Signup API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockUserData),
+        credentials: 'include',
       }
     );
   });
@@ -336,6 +346,7 @@ describe('Signup API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockUserData),
+        credentials: 'include',
       }
     );
     expect(result).toEqual(mockResponse);
@@ -363,6 +374,7 @@ describe('Signup API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockUserData),
+        credentials: 'include',
       }
     );
   });
@@ -392,6 +404,7 @@ describe('Signup API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockUserData),
+        credentials: 'include',
       }
     );
   });
@@ -427,6 +440,7 @@ describe('Signup API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockUserData),
+        credentials: 'include',
       }
     );
     expect(result).toEqual(mockResponse);
@@ -463,6 +477,7 @@ describe('Signup API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockUserData),
+        credentials: 'include',
       }
     );
     expect(result).toEqual(mockResponse);
@@ -499,6 +514,7 @@ describe('Signup API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockUserData),
+        credentials: 'include',
       }
     );
     expect(result).toEqual(mockResponse);
@@ -535,6 +551,7 @@ describe('Signup API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockUserData),
+        credentials: 'include',
       }
     );
     expect(result).toEqual(mockResponse);
@@ -572,6 +589,7 @@ describe('Signup API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockUserData),
+        credentials: 'include',
       }
     );
     expect(result).toEqual(mockResponse);
@@ -602,6 +620,7 @@ describe('Signup API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockUserData),
+        credentials: 'include',
       }
     );
   });
@@ -633,6 +652,7 @@ describe('Signup API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockUserData),
+        credentials: 'include',
       }
     );
   });
@@ -651,7 +671,7 @@ describe('Signup API', () => {
       json: jest.fn().mockResolvedValueOnce({}),
     });
 
-    await expect(signup(mockUserData)).rejects.toThrow('Signup failed');
+    await expect(signup(mockUserData)).rejects.toThrow('An unknown error occurred');
 
     expect(fetch).toHaveBeenCalledWith(
       'https://localhost:2000/handsUPApi/auth/signup',
@@ -659,6 +679,7 @@ describe('Signup API', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mockUserData),
+        credentials: 'include',
       }
     );
   });

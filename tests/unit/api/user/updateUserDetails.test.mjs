@@ -98,6 +98,7 @@ describe('User details update functions', () => {
   describe('updateUserDetails', () => {
     it('should update user and return 200 if successful', async () => {
       req.params.id = '1';
+      req.user = { id: 1 };
       req.body = {
         name: 'Jane',
         surname: 'Doe',
@@ -126,6 +127,7 @@ describe('User details update functions', () => {
 
     it('should return 404 if no user is updated', async () => {
       req.params.id = '99';
+      req.user = { id: 99 };
       req.body = {
         name: 'Ghost',
         surname: 'User',
@@ -142,6 +144,15 @@ describe('User details update functions', () => {
     });
 
     it('should return 500 on DB error', async () => {
+      req.params.id = '1';
+      req.user = { id: 1 };
+      req.body = {
+        name: 'Jane',
+        surname: 'Doe',
+        username: 'janedoe',
+        email: 'jane@example.com',
+      };
+
       pool.query.mockRejectedValue(new Error('DB failure'));
 
       await updateUserDetails(req, res);
@@ -154,6 +165,7 @@ describe('User details update functions', () => {
   describe('updateUserPassword', () => {
     it('should update password and return 200 if successful', async () => {
       req.params.id = '1';
+      req.user = { id: 1 };
       req.body = {
         name: 'Jane',
         surname: 'Doe',
@@ -176,13 +188,14 @@ describe('User details update functions', () => {
 
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
-        message: 'User updated successfully.',
+        message: 'User password updated successfully.',
         user: mockUser,
       });
     });
 
     it('should return 404 if no user is updated', async () => {
       req.params.id = '99';
+      req.user = { id: 99 };
       req.body = {
         name: 'Ghost',
         surname: 'User',
@@ -200,6 +213,16 @@ describe('User details update functions', () => {
     });
 
     it('should return 500 on DB error', async () => {
+      req.params.id = '1';
+      req.user = { id: 1 };
+      req.body = {
+        name: 'Jane',
+        surname: 'Doe',
+        username: 'janedoe',
+        email: 'jane@example.com',
+        password: 'newpass123',
+      };
+
       pool.query.mockRejectedValue(new Error('DB failure'));
 
       await updateUserPassword(req, res);
