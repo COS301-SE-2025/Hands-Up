@@ -85,6 +85,20 @@ jobs:
           echo "HTTPS=false" >> $GITHUB_ENV
           echo "SSL_CRT_FILE=" >> $GITHUB_ENV
           echo "SSL_KEY_FILE=" >> $GITHUB_ENV
+          echo "DB_HOST=localhost" >> $GITHUB_ENV
+          echo "DB_PORT=5432" >> $GITHUB_ENV
+          echo "DB_USER=postgres" >> $GITHUB_ENV
+          echo "DB_PASS=password" >> $GITHUB_ENV
+          echo "DB_NAME=handsup" >> $GITHUB_ENV
+
+      - name: Wait for database to be ready
+        run: |
+          echo "Checking if database is accessible..."
+          docker ps
+          echo "Attempting to connect to database..."
+          timeout 60 bash -c 'until docker exec HandsUp_DB pg_isready -h localhost -U postgres; do sleep 2; done' || echo "Database not ready via docker exec"
+          echo "Checking if port 5432 is accessible from host..."
+          nc -zv localhost 5432 || echo "Port 5432 not accessible from host"
 
       - name: Check backend entry point
         run: |
@@ -96,4 +110,4 @@ jobs:
           fi
 
       - name: Start services and run Cypress tests
-        run: npm run test:integration
+        run: npm run test:integration:ci
