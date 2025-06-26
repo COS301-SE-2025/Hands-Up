@@ -196,11 +196,11 @@ Thus, the system focuses on three core functionalities:
 
 | Team Member         | Contributions                                                                                         |
 |--------------------|-------------------------------------------------------------------------------------------------------|
-| Karabo Serothoane  | - Set up database on Docker  <br> - Set up GitHub Actions  <br> - Set up testing environment  <br> - Implemented learning progress use case and testing |
-| Thendo Mbedzi      | - Designed and implemented all pages for UI  <br> - Created and applied the app theme  <br> - Created wireframes and mockups for documentation |
-| Tambi Chirima      | - Set up GitHub organisation and management  <br> - Initialised GitHub structure (mono-repo)  <br> - Implemented visual input use case and testing |
-| Driya Govender     | - Set up GitHub Wiki  <br> - Implemented update user details use case and testing |
-| Mutarisi Chibaya   | - Designed the architecture of the system  <br> - Developed and tested backend endpoints for login and sign up |
+| Karabo Serothoane  | - Set up database on Docker  <br> - Set up GitHub Actions  <br> - Set up testing environment  <br> - Implemented learning progress use case and testing <br> - Developed the Alphabet AI model with real-time translation support <br> - Created and animated the lessons on the Learn page <br> - Improved code maintainability and structure |
+| Thendo Mbedzi      | - Designed and implemented all pages for UI  <br> - Created and applied the app theme  <br> - Created wireframes and mockups for documentation <br> - Redesigned the UI with an improved interface <br> - Refined existing hand animation on the Learn page <br> - Implemented the security quality requirements |
+| Tambi Chirima      | - Set up GitHub organisation and management  <br> - Initialised GitHub structure (mono-repo)  <br> - Implemented visual input use case and testing <br> - Created the Help page <br> - Developed integration tests and automation scripts <br> - Implemented Continuous Integration (CI) support |
+| Driya Govender     | - Set up GitHub Wiki  <br> - Implemented update user details use case and testing <br> - Designed and implemented the Landing page <br> - Improved test coverage by adding and updating unit tests |
+| Mutarisi Chibaya   | - Designed the architecture of the system  <br> - Developed and tested backend endpoints for login and sign up <br> - Developed and fine-tuned an LSTM-based neural network for ASL word translation |
 
 </div>
 <h2>All team members contributed towards documentation</h2>
