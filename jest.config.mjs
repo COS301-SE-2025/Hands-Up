@@ -1,8 +1,6 @@
 export default {
   testEnvironment: 'node',
   setupFilesAfterEnv: ['<rootDir>/tests/setupJest.js'],
-  // roots: ['<rootDir>/tests/unit/api'], 
-  // roots: ['<rootDir>/tests/unit/ui'],
   roots: ['<rootDir>/tests/unit/api'] ['<rootDir>/tests/unit/ui'],
   testMatch: ['**/?(*.)+(spec|test).[jt]s?(x)', '**/?(*.)+(spec|test).mjs'],
   collectCoverageFrom: [

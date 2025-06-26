@@ -168,6 +168,7 @@ export function Translator(){
 
               <div className="recognizer-audio-controls">
                 <button 
+                  aria-label='Volume Up'
                   className="recognizer-speak-button" 
                   disabled={speakDisabled}
                 >
