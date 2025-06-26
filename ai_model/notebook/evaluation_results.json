@@ -1,0 +1,30 @@
+{
+  "overall_accuracy": 1.0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1_score": 1.0,
+  "action_accuracies": {
+    "accident": 1.0,
+    "alone": 1.0,
+    "animal": 1.0,
+    "apple": 1.0,
+    "appointment": 1.0
+  },
+  "total_samples": 109,
+  "learned_actions": [
+    "accident",
+    "alone",
+    "animal",
+    "apple",
+    "appointment"
+  ],
+  "action_counts": {
+    "accident": 21,
+    "alone": 22,
+    "animal": 22,
+    "apple": 22,
+    "appointment": 22
+  },
+  "below_threshold": false,
+  "low_performance_count": 0
+}

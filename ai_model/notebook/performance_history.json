@@ -1,0 +1,72 @@
+{
+  "history": [
+    {
+      "timestamp": "2025-06-25T12:42:00",
+      "overall_accuracy": 0.7973856209150327,
+      "precision": 0.8038165465616446,
+      "recall": 0.7973856209150327,
+      "f1_score": 0.7971009088819394,
+      "action_accuracies": {
+        "accident": 0.8095238095238095,
+        "alone": 0.7727272727272727,
+        "animal": 0.9090909090909091,
+        "apple": 1.0,
+        "appointment": 1.0,
+        "argue": 0.45454545454545453,
+        "balance": 0.6363636363636364
+      },
+      "total_samples": 153,
+      "improvement_triggered": false
+    },
+    {
+      "timestamp": "2025-06-25T12:59:37",
+      "overall_accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "action_accuracies": {
+        "accident": 1.0,
+        "alone": 1.0,
+        "animal": 1.0,
+        "apple": 1.0,
+        "appointment": 1.0
+      },
+      "total_samples": 109,
+      "improvement_triggered": false
+    },
+    {
+      "timestamp": "2025-06-25T13:01:21",
+      "overall_accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "action_accuracies": {
+        "accident": 1.0,
+        "alone": 1.0,
+        "animal": 1.0,
+        "apple": 1.0,
+        "appointment": 1.0
+      },
+      "total_samples": 109,
+      "improvement_triggered": false
+    },
+    {
+      "timestamp": "2025-06-25T13:02:13",
+      "overall_accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "action_accuracies": {
+        "accident": 1.0,
+        "alone": 1.0,
+        "animal": 1.0,
+        "apple": 1.0,
+        "appointment": 1.0
+      },
+      "total_samples": 109,
+      "improvement_triggered": false
+    }
+  ],
+  "low_performance_count": 0,
+  "last_updated": "2025-06-25T13:02:13"
+}
