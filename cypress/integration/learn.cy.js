@@ -1,7 +1,7 @@
 /* global describe, it, cy, beforeEach */
 describe('Learn Page Tests', () => {
   beforeEach(() => {
-    cy.visit('https://localhost:3000/signup');
+    cy.visit('http://localhost:3000/signup');
     const uniqueId = Date.now();
       const testEmail = `testuser${uniqueId}@example.com`;
       const testUsername = `testuser${uniqueId}`;
@@ -19,7 +19,7 @@ describe('Learn Page Tests', () => {
 
       cy.contains('h1', 'Welcome back').should('be.visible');
 
-      cy.visit('https://localhost:3000/learn');
+      cy.visit('http://localhost:3000/learn');
 
   });
 
@@ -132,7 +132,7 @@ describe('Learn Page Tests', () => {
   describe('Navigation Tests', () => {
 
     it('should handle direct navigation to category levels', () => {
-      cy.visit('https://localhost:3000/learn');
+      cy.visit('http://localhost:3000/learn');
       cy.contains('The Alphabet').click();
       cy.reload();
     });

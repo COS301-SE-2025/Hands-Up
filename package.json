@@ -18,7 +18,7 @@
     "db:setup": "cd backend/database && docker-compose up -d --build",
     "db:migrate": "cd backend/database && docker-compose run flyway migrate",
     "services": "concurrently \"npm run api\" \"npm run ui\"",
-    "wait-and-test": "wait-on https://localhost:2000/health --timeout 60000 && npm run cypress:run",
+    "wait-and-test": "wait-on http://localhost:2000/health --timeout 60000 && npm run cypress:run",
     "test:integration": "npm run db:setup && concurrently --kill-others --success first \"npm run services\" \"npm run wait-and-test\""
  
   },

@@ -1,7 +1,7 @@
 /* global describe, it, cy, before*/
 describe('Home Page', () => {
     before('visit the demo site', () => {
-    cy.visit('https://localhost:3000/signup');
+    cy.visit('http://localhost:3000/signup');
   });
 
   it('should successfully sign up with valid credentials and accepted terms', () => {
