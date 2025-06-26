@@ -83,5 +83,10 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      - name: Set CI environment variables
+        run: |
+          echo "CI=true" >> $GITHUB_ENV
+          echo "HTTPS=false" >> $GITHUB_ENV
+
       - name: Start services and run Cypress tests
         run: npm run test:integration
