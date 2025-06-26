@@ -16,16 +16,18 @@ export function useTranslator() {
     const [autoCaptureEnabled, setAutoCaptureEnabled] = useState(false);
     const [landmarkFrames, setLandmarkFrames] = useState([]);
     const [isProcessingSequence, setIsProcessingSequence] = useState(false);
+    const [fingerspellingMode, setFingerspellingMode] = useState(false);
 
     useEffect(() => {
       let intervalId;
       if (autoCaptureEnabled && videoRef.current) {
+        const intervalTime = fingerspellingMode ? 2000 : 100;
         intervalId = setInterval(() => {
           captureImageFromVideo(); 
-        }, 100); 
+        }, intervalTime); 
       }
       return () => clearInterval(intervalId);
-    }, [autoCaptureEnabled]);
+    }, [autoCaptureEnabled, fingerspellingMode]);
 
     useEffect(() => {
       const enableCamera = async () => {
@@ -100,7 +102,7 @@ export function useTranslator() {
           canvas.height = video.videoHeight;
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-          canvas.toBlob((blob) => {
+          canvas.toBlob(async (blob) => {
               const url = URL.createObjectURL(blob);
               setCapturedImage(url);
               setCapturedType('image');
@@ -110,23 +112,33 @@ export function useTranslator() {
                   ...prev.slice(0, 4)
               ]);
 
-              setLandmarkFrames(prevFrames => {
-                  const safePrev = Array.isArray(prevFrames) ? prevFrames : [];
-                  if (isProcessingSequence || !autoCaptureEnabled) {
-                      return safePrev; 
-                  }
+            if (fingerspellingMode) {
+            const sign = await processImage(blob);
+            setResult(prev => {
+              if (sign.phrase === 'SPACE') return prev + ' ';
+              if (sign.phrase === 'DEL') return prev.slice(0, -1);
+              if (sign.phrase === 'Nothing detected') return prev;
+              return prev + sign.phrase;
+            });
+            setConfidence((sign.confidence * 100).toFixed(2) + '%');
+          } else {
+            setLandmarkFrames(prevFrames => {
+              const safePrev = Array.isArray(prevFrames) ? prevFrames : [];
+              if (isProcessingSequence || !autoCaptureEnabled) return safePrev;
 
-                  const updated = [...safePrev, blob];
+              const updated = [...safePrev, blob];
 
-                  if (updated.length === 30) {
-                      setIsProcessingSequence(true); 
-                      sendSequenceToBackend(updated);
-                      setResult("Processing...");
-                      return []; 
-                  }
-                  return updated;
-              });
-          }, 'image/jpeg', 0.8);
+              if (updated.length === 30) {
+                setIsProcessingSequence(true); 
+                sendSequenceToBackend(updated);
+                setResult("Processing...");
+                return [];
+              }
+
+              return updated;
+            });
+          }
+        }, 'image/jpeg', 0.8);
       }
   };
 
@@ -223,7 +235,9 @@ export function useTranslator() {
     startRecording,
     setRecording,
     handleFileUpload,
-    setResult
+    setResult,
+    fingerspellingMode,
+    setFingerspellingMode
   };
 }
 

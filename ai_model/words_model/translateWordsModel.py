@@ -11,7 +11,7 @@ from tensorflow.keras.utils import to_categorical
 from sklearn.metrics import accuracy_score
 
 DATADIR = os.path.join('tmkdt_words')
-actions = ['my', 'name', 'howareyou', 'goodbye', 'hello']
+actions = ['my', 'how are you', 'hello', 'age', 'good', 'man', 'woman', 'goodbye', 'yes']
 sequenceLength = 30
 
 x, y = [], []
@@ -30,8 +30,9 @@ for action in actions:
         for frame in frames[:sequenceLength]:
             framePath = os.path.join(sequencePath, frame)
             keypoints = np.load(framePath)
+            keypoints = keypoints[-126:]  
             sequenceData.append(keypoints)
-
+            
         x.append(sequenceData)
         y.append(action)
 
@@ -68,7 +69,7 @@ model = Sequential([
 
 model.compile(optimizer='Adam', loss='categorical_crossentropy', metrics=['categorical_accuracy'])
 
-model.fit(XTrain, yTrain, epochs=50, callbacks=[tbCallback])
+model.fit(XTrain, yTrain, epochs=100, callbacks=[tbCallback])
 
 model.summary()
 

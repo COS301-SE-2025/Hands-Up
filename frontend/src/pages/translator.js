@@ -21,7 +21,9 @@ export function Translator(){
     capturedBlob,
     startRecording,
     handleFileUpload,
-    setResult
+    setResult,
+    fingerspellingMode,
+    setFingerspellingMode
   } = useTranslator();
 
   return (
@@ -73,6 +75,16 @@ export function Translator(){
             </div>
 
             <div className="recognizer-controls">
+              <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
+              <input 
+                type="checkbox" 
+                id="fingerspelling-toggle" 
+                checked={fingerspellingMode} 
+                onChange={(e) => setFingerspellingMode(e.target.checked)} 
+                style={{ marginRight: '8px' }}
+              />
+              <label htmlFor="fingerspelling-toggle">Fingerspelling Mode</label>
+            </div>
               <button onClick={() => setResult("")} className="recognizer-control-button recognizer-capture-button">
                 <i></i> Clear Results
               </button>

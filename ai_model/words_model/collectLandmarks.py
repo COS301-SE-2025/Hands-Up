@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 import mediapipe as mp
 
-actions = ['A', 'B', 'C']
+actions = ['my', 'name', 'how are you', 'hello', 'age', 'good', 'man', 'woman', 'goodbye', 'yes']
 noSequences = 30
 sequenceLength = 30
 startFolder = 0
@@ -32,15 +32,12 @@ def drawStyledLandmarks(image, results):
         mpDrawing.draw_landmarks(image, results.left_hand_landmarks, mp.solutions.holistic.HAND_CONNECTIONS)
     if results.right_hand_landmarks:
         mpDrawing.draw_landmarks(image, results.right_hand_landmarks, mp.solutions.holistic.HAND_CONNECTIONS)
-    if results.face_landmarks:
-        mpDrawing.draw_landmarks(image, results.face_landmarks, mp.solutions.holistic.FACEMESH_CONTOURS)
 
 def extractKeypoints(results):
     pose = np.array([[res.x, res.y, res.z, res.visibility] for res in results.pose_landmarks.landmark]).flatten() if results.pose_landmarks else np.zeros(33*4)
-    face = np.array([[res.x, res.y, res.z] for res in results.face_landmarks.landmark]).flatten() if results.face_landmarks else np.zeros(468*3)
     lh = np.array([[res.x, res.y, res.z] for res in results.left_hand_landmarks.landmark]).flatten() if results.left_hand_landmarks else np.zeros(21*3)
     rh = np.array([[res.x, res.y, res.z] for res in results.right_hand_landmarks.landmark]).flatten() if results.right_hand_landmarks else np.zeros(21*3)
-    return np.concatenate([pose, face, lh, rh])
+    return np.concatenate([pose, lh, rh])
 
 
 cap = cv2.VideoCapture(0)
@@ -56,13 +53,11 @@ with mp.solutions.holistic.Holistic(min_detection_confidence=0.5, min_tracking_c
                 drawStyledLandmarks(image, results)
 
                 if frameNum == 0:
-                    cv2.putText(image, 'STARTING COLLECTION', (120,200),
-                                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 4, cv2.LINE_AA)
+                    cv2.putText(image, 'STARTING COLLECTION', (120,200), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 4, cv2.LINE_AA)
                     cv2.imshow('OpenCV Feed', image)
                     cv2.waitKey(1000)  
                 else:
-                    cv2.putText(image, f'Collecting {action}, Video #{sequence}', (10, 30),
-                                 cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,0,255), 2, cv2.LINE_AA)
+                    cv2.putText(image, f'Collecting {action}, Video #{sequence}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,0,255), 2, cv2.LINE_AA)
                     cv2.imshow('OpenCV Feed', image)
 
                 keypoints = extractKeypoints(results)
