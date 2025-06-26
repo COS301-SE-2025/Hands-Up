@@ -1,9 +1,10 @@
 from flask import Blueprint, request, jsonify
-from controllers.modelControllers import detectFromImage
+from controllers.lettersController import detectFromImage
+from controllers.wordsController import detectFromFrames
 import tempfile
 import os
 
-api_blueprint = Blueprint('/sign', __name__)
+api_blueprint = Blueprint('sign', __name__, url_prefix='/sign')
 
 @api_blueprint.route('/sign/processImage', methods=['POST'])
 def process_image():
@@ -20,3 +21,20 @@ def process_image():
     os.remove(image_path)
 
     return jsonify(result)
+
+@api_blueprint.route("/sign/processFrames", methods=["POST"])
+def process_frames():
+    files = request.files.getlist("frames")
+    if not files:
+        return jsonify({"error": "No frames provided"}), 400
+
+    frames = []
+    for file in sorted(files, key=lambda f: f.filename):  
+        frames.append(file.read())
+
+    try:
+        result = detectFromFrames(frames)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+

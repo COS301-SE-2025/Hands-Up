@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { 
   HelpCircle, 
-  Search, 
   Video, 
   MessageCircle, 
   Phone, 
-  PlayCircle,
   Camera,
   User,
   GraduationCap,
@@ -14,18 +12,19 @@ import {
   Home,
   Book,
   X,
-  Menu // Add Menu icon for hamburger toggle
+  Menu
 } from 'lucide-react';
 import '../styles/help.css';
 
 export function HelpMenu(){
   const [isOpen, setIsOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  //const [searchQuery, setSearchQuery] = useState('');
+  //const [searchResults, setSearchResults] = useState([]);
   const [activeSection, setActiveSection] = useState('getting-started');
   const [expandedSection, setExpandedSection] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarVisible, setSidebarVisible] = useState(false);
-
+  
   // Check if we're in mobile/half-screen mode
   useEffect(() => {
     const checkScreenSize = () => {
@@ -48,6 +47,9 @@ export function HelpMenu(){
 
   const setActiveContent = (sectionId) => {
     setActiveSection(sectionId);
+    // Clear search when switching sections
+    //setSearchQuery('');
+    //setSearchResults([]);
     // Hide sidebar after selecting content in mobile
     if (isMobile) {
       setSidebarVisible(false);
@@ -73,57 +75,62 @@ export function HelpMenu(){
     }
   };
 
-  const helpSections = [
-    {
-      id: 'getting-started',
-      title: 'Getting Started',
-      icon: <PlayCircle className="help-icon" />,
-      items: [
-        { id: 'welcome', title: 'Welcome and Overview' },
-        { id: 'create-account', title: 'Creating your first account' },
-        { id: 'interface', title: 'Understanding the interface' },
-        { id: 'setup-camera', title: 'Setting up your camera' },
-        { id: 'first-translation', title: 'Your first translation' }
-      ]
-    },
-    {
-      id: 'learning',
-      title: 'Learning Mode',
-      icon: <GraduationCap className="help-icon" />,
-      items: [
-        { id: 'curriculum', title: 'Accessing the curriculum' },
-        { id: 'progress', title: 'Tracking your progress' },
-        { id: 'xp-streaks', title: 'Understanding XP and streaks' },
-        { id: 'lesson-structure', title: 'Lesson structure and feedback' },
-        { id: 'practice', title: 'Practice exercises' }
-      ]
-    },
-    {
-      id: 'translation',
-      title: 'Video Translation',
-      icon: <Camera className="help-icon" />,
-      items: [
-        { id: 'camera-input', title: 'Using camera input' },
-        { id: 'upload-videos', title: 'Uploading videos/images' },
-        { id: 'realtime-tips', title: 'Real-time translation tips' },
-        { id: 'improve-accuracy', title: 'Improving accuracy' },
-        { id: 'supported-languages', title: 'Supported sign languages' }
-      ]
-    },
-    {
-      id: 'profile',
-      title: 'Profile & Settings',
-      icon: <User className="help-icon" />,
-      items: [
-        { id: 'personal-details', title: 'Updating personal details' },
-        { id: 'account-settings', title: 'Managing account settings' },
-        { id: 'preferences', title: 'Changing preferences' },
-        { id: 'password-reset', title: 'Password reset' },
-        { id: 'privacy-settings', title: 'Privacy settings' }
-      ]
-    }
-  ];
+  // FAQ section data
+  const faqData = {
+    title: 'Frequently Asked Questions',
+    sections: [
+      {
+        id: 'faq-general',
+        title: 'General Questions',
+        content: (
+          <div className="faq-container">
+            <div className="faq-item">
+              <h5>How do I get started with Hands UP?</h5>
+              <p>Simply create an account, set up your camera, and begin with our Getting Started guide. The app will walk you through your first translation and lesson.</p>
+            </div>
+            <div className="faq-item">
+              <h5>Is Hands UP free to use?</h5>
+              <p>Yes, Hands UP offers a comprehensive free tier with access to basic lessons and translation features. Premium features are available with a subscription.</p>
+            </div>
+            <div className="faq-item">
+              <h5>What sign languages are supported?</h5>
+              <p>Currently, we support American Sign Language (ASL) with plans to add more sign languages in future updates.</p>
+            </div>
+            <div className="faq-item">
+              <h5>Do I need special equipment to use the app?</h5>
+              <p>You only need a device with a camera (smartphone, tablet, or computer with webcam). No special equipment is required.</p>
+            </div>
+            <div className="faq-item">
+              <h5>How accurate is the sign language translation?</h5>
+              <p>Our AI translation accuracy continues to improve with regular updates. Accuracy is best with clear lighting and proper camera positioning.</p>
+            </div>
+            <div className="faq-item">
+              <h5>Can I use the app offline?</h5>
+              <p>Some lessons can be accessed offline once downloaded, but real-time translation requires an internet connection.</p>
+            </div>
+            <div className="faq-item">
+              <h5>How do I reset my password?</h5>
+              <p>Go to your Profile settings and select &quot;Password Reset&quot; or use the forgot password link on the login page.</p>
+            </div>
+            <div className="faq-item">
+              <h5>Why isn&apos;t my camera working?</h5>
+              <p>Ensure you&apos;ve granted camera permissions to the app in your browser settings. Check our Camera Setup guide for detailed troubleshooting.</p>
+            </div>
+            <div className="faq-item">
+              <h5>How do streaks and XP work?</h5>
+              <p>You earn XP by completing lessons and using translation features. Streaks track consecutive days of app usage to encourage regular practice.</p>
+            </div>
+            <div className="faq-item">
+              <h5>Can I delete my account and data?</h5>
+              <p>Yes, you can permanently delete your account and all associated data from the Profile settings page.</p>
+            </div>
+          </div>
+        )
+      }
+    ]
+  };
 
+  // Content data
   const contentData = {
     'getting-started': {
       title: 'Getting Started',
@@ -154,7 +161,7 @@ export function HelpMenu(){
                   <div className="help-quick-start-card orange">
                     <User className="help-quick-start-icon" />
                     <h4 className="help-quick-start-title">Profile Settings</h4>
-                    <p className="help-quick-start-text">Manage your account and preferences</p>
+                    <p className="help-quick-start-text">Manage your account </p>
                   </div>
                 </div>
               <p>Hands UP is an AI-powered sign language learning platform that combines interactive lessons with real-time translation technology. Whether you&apos;re a complete beginner or looking to improve your signing skills, our app provides a comprehensive learning experience.</p>
@@ -170,19 +177,18 @@ export function HelpMenu(){
         },
         {
           id: 'create-account',
-          title: 'Creating Your First Account',
+          title: 'Updating Account',
           content: (
             <div>
               <h4>Setting Up Your Account</h4>
-              <p>Getting started with Hands UP is quick and easy:</p>
+              <p>Updating your account is quick and easy:</p>
               <ol>
-                <li><strong>Sign Up:</strong> Click the &quot;Sign Up&quot; button on the welcome screen</li>
-                <li><strong>Enter Details:</strong> Provide your email, create a secure password</li>
-                <li><strong>Verify Email:</strong> Check your inbox and click the verification link</li>
-                <li><strong>Complete Profile:</strong> Add your name and learning preferences</li>
-                <li><strong>Choose Goals:</strong> Select your learning objectives and preferred pace</li>
+                <li><strong>Access Profile Page:</strong> Click the &quot;Profile icon ( by default it should be the Initials of your firstName and lastName ) &quot; button on the nav bar</li>
+                <li><strong>Edit Details:</strong> Here you can edit any of your details including First Name , Last Name, UserName, Email, New Password, add profile picture. Remember to press the Save Changes button once done.  </li>
+                <li><strong>View Terms and Conditions:</strong> Here you can view all our terms and conditions and see if you are pleased with them.</li>
+                <li><strong>Logout:</strong> Here you can logout of the app and it automatically logs out once the button is pressed</li>
+                <li><strong>Delete Account:</strong> This allows you to delete your account. This is a permenant change and removes this from your account from the database. After pressing proceed, the will be a confirmation procedure where you will need to type DELETE to confirm this. </li>
               </ol>
-              <p><strong>Tip:</strong> Enable notifications to stay motivated with daily reminders!</p>
             </div>
           )
         },
@@ -202,10 +208,11 @@ export function HelpMenu(){
               </ul>
               <h5>Dashboard Elements:</h5>
               <ul>
-                <li><strong>Progress Ring:</strong> Shows your overall completion percentage</li>
+                <li><strong>Progress Bar:</strong> Shows your overall completion percentage</li>
+                <li><strong>Lessons Completed:</strong> Displays the number of different lessons completed</li>
+                <li><strong>Signs Learned:</strong> Displays the number of SIGNS learned</li>
                 <li><strong>Streak Counter:</strong> Displays consecutive days of learning</li>
-                <li><strong>XP Bar:</strong> Your experience points and level progress</li>
-                <li><strong>Quick Actions:</strong> Fast access to common features</li>
+                <li><strong>Level:</strong> Your overall progress made will affect the level you are ie Beginner Bronze, Intermediate Silver, Advanced Gold</li>
               </ul>
             </div>
           )
@@ -230,32 +237,6 @@ export function HelpMenu(){
                 <li><strong>Position:</strong> Keep your hands clearly visible within the camera frame</li>
                 <li><strong>Distance:</strong> Sit 2-3 feet away from the camera</li>
                 <li><strong>Stability:</strong> Use a stable surface or phone stand</li>
-              </ul>
-            </div>
-          )
-        },
-        {
-          id: 'first-translation',
-          title: 'Your First Translation',
-          content: (
-            <div>
-              <h4>Making Your First Translation</h4>
-              <p>Ready to try sign language translation? Follow these steps:</p>
-              <h5>Step-by-Step Guide:</h5>
-              <ol>
-                <li><strong>Navigate:</strong> Go to the &quot;Translate&quot; section</li>
-                <li><strong>Camera Check:</strong> Ensure your camera is working and properly positioned</li>
-                <li><strong>Start Simple:</strong> Begin with basic signs like &quot;Hello&quot; or &quot;Thank you&quot;</li>
-                <li><strong>Sign Clearly:</strong> Make deliberate, clear movements</li>
-                <li><strong>Read Results:</strong> The translation will appear in real-time</li>
-                <li><strong>Practice:</strong> Try different signs and phrases</li>
-              </ol>
-              <h5>Tips for Success:</h5>
-              <ul>
-                <li>Start with fingerspelling (A-Z) to test accuracy</li>
-                <li>Use proper ASL handshapes and movements</li>
-                <li>Take your time - accuracy improves with practice</li>
-                <li>Check the supported signs list for reference</li>
               </ul>
             </div>
           )
@@ -311,9 +292,9 @@ export function HelpMenu(){
               <h4>Camera-Based Translation</h4>
               <p>Learn how to use your camera effectively for real-time translation:</p>
               <ul>
-                <li><strong>Live Feed:</strong> Real-time sign recognition</li>
-                <li><strong>Recording:</strong> Save and replay your signing sessions</li>
-                <li><strong>Frame Rate:</strong> Optimal camera settings for accuracy</li>
+                <li><strong>Capture Sign:</strong> Allows you to take a picture </li>
+                <li><strong>Record Sequence:</strong> This will start real time translation</li>
+                <li><strong>Upload Sign:</strong> This will ask you to find a picture/video to upload from your pc that needs to be translated</li>
               </ul>
             </div>
           )
@@ -339,7 +320,8 @@ export function HelpMenu(){
           )
         }
       ]
-    }
+    },
+    'faq': faqData
   };
 
   const HelpButton = () => (
@@ -352,6 +334,53 @@ export function HelpMenu(){
     </button>
   );
 
+  // Local search function - only searches within the current active section
+  // const performLocalSearch = (query) => {
+  //   if (!query || query.trim() === "") {
+  //     //setSearchResults([]);
+  //     return;
+  //   }
+
+  //   const results = [];
+  //   const currentContent = contentData[activeSection];
+    
+  //   if (currentContent) {
+  //     currentContent.sections.forEach((section) => {
+  //       // Search in title
+  //       const titleMatch = section.title.toLowerCase().includes(query.toLowerCase());
+        
+  //       // Extract text content for searching
+  //       let contentText = "";
+  //       if (typeof section.content === "string") {
+  //         contentText = section.content;
+  //       } else if (React.isValidElement(section.content)) {
+  //         // Simple text extraction from React elements
+  //         const extractText = (element) => {
+  //           if (typeof element === "string") return element;
+  //           if (Array.isArray(element)) return element.map(extractText).join(" ");
+  //           if (React.isValidElement(element)) {
+  //             return extractText(element.props.children);
+  //           }
+  //           return "";
+  //         };
+  //         contentText = extractText(section.content);
+  //       }
+        
+  //       const contentMatch = contentText.toLowerCase().includes(query.toLowerCase());
+        
+  //       if (titleMatch || contentMatch) {
+  //         results.push({
+  //           id: section.id,
+  //           title: section.title,
+  //           snippet: contentText.substring(0, 100) + "..." // Show a snippet
+  //         });
+  //       }
+  //     });
+  //   }
+    
+  //   setSearchResults(results);
+  // };
+
   const renderMainContent = () => {
     const currentContent = contentData[activeSection];
     if (!currentContent) return null;
@@ -360,6 +389,43 @@ export function HelpMenu(){
       <div className="help-content-inner">
         <div className="help-content-header">
           <h2 className="help-content-title">{currentContent.title}</h2>
+          {/* Local search bar */}
+          {/* <div className="help-search-container help-search-main">
+            <Search className="help-search-icon" />
+            <input
+              type="text"
+              placeholder={`Search in ${currentContent.title}...`}
+              value={searchQuery}
+              onChange={(e) => {
+                //setSearchQuery(e.target.value);
+                //performLocalSearch(e.target.value);
+              }}
+              className="help-search-input"
+            />
+            {searchResults.length > 0 && (
+              <div className="help-search-results">
+                {searchResults.map((result, index) => (
+                  <div
+                    key={index}
+                    className="help-search-result-item"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSearchResults([]);
+                      setTimeout(() => {
+                        const el = document.getElementById(result.id);
+                        if (el) {
+                          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                      }, 100);
+                    }}
+                  >
+                    <span className="help-search-result-title">{result.title}</span>
+                    <span className="help-search-result-snippet">{result.snippet}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div> */}
         </div>
         
         <div className="help-content-sections">
@@ -373,26 +439,91 @@ export function HelpMenu(){
           ))}
         </div>
 
+        {/* Support section */}
         <div className="help-support">
-          <h3 className="help-support-title">Need More Help?</h3>
-          <div className="help-support-buttons">
-            <button className="help-support-button green">
-              <MessageCircle className="help-support-icon" />
-              <span>Live Chat Support</span>
-            </button>
-            <button className="help-support-button blue">
-              <Phone className="help-support-icon" />
-              <span>Contact Support</span>
-            </button>
-            <button className="help-support-button purple">
-              <Video className="help-support-icon" />
-              <span>Video Tutorials</span>
-            </button>
+          <div className="help-contact-section">
+            <h3 className="help-support-title">Need More Help?</h3>
+            <div className="help-contact-info">
+              <div className="help-contact-item">
+                <MessageCircle className="help-contact-icon" />
+                <div className="help-contact-details">
+                  <span className="help-contact-label">Email Support</span>
+                  <span className="help-contact-value">support@handsup.com</span>
+                </div>
+              </div>
+              <div className="help-contact-item">
+                <Phone className="help-contact-icon" />
+                <div className="help-contact-details">
+                  <span className="help-contact-label">Phone Support</span>
+                  <span className="help-contact-value">+1 (555) 123-4567</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="help-video-section">
+            <h3 className="help-video-title">Video Tutorial</h3>
+            <div className="help-video-container">
+              <div className="help-video-placeholder">
+                <Video className="help-video-icon" />
+                <span className="help-video-text">Complete App Tutorial</span>
+                <p className="help-video-description">Watch our comprehensive guide on how to use all features of Hands UP</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     );
   };
+
+  // Define helpSections for sidebar navigation
+  const helpSections = [
+    {
+      id: 'getting-started',
+      title: 'Getting Started',
+      icon: <Home className="help-section-icon" />,
+      items: contentData['getting-started'].sections.map(section => ({
+        id: section.id,
+        title: section.title
+      }))
+    },
+    {
+      id: 'learning',
+      title: 'Learning Mode',
+      icon: <GraduationCap className="help-section-icon" />,
+      items: contentData['learning'].sections.map(section => ({
+        id: section.id,
+        title: section.title
+      }))
+    },
+    {
+      id: 'translation',
+      title: 'Video Translation',
+      icon: <Camera className="help-section-icon" />,
+      items: contentData['translation'].sections.map(section => ({
+        id: section.id,
+        title: section.title
+      }))
+    },
+    {
+      id: 'profile',
+      title: 'Profile & Settings',
+      icon: <User className="help-section-icon" />,
+      items: contentData['profile'].sections.map(section => ({
+        id: section.id,
+        title: section.title
+      }))
+    },
+    {
+      id: 'faq',
+      title: 'FAQ',
+      icon: <HelpCircle className="help-section-icon" />,
+      items: contentData['faq'].sections.map(section => ({
+        id: section.id,
+        title: section.title
+      }))
+    }
+  ];
 
   const HelpModal = () => (
     <div className="help-modal-overlay">
@@ -402,6 +533,7 @@ export function HelpMenu(){
           {/* Mobile Sidebar Toggle Button */}
           {isMobile && (
             <button
+              type="button"
               onClick={toggleSidebar}
               className="help-sidebar-toggle"
               aria-label="Toggle navigation menu"
@@ -421,6 +553,7 @@ export function HelpMenu(){
               </div>
             </div>
             <button
+              type="button"
               onClick={() => setIsOpen(false)}
               className="help-modal-close"
             >
@@ -441,24 +574,12 @@ export function HelpMenu(){
           {/* Sidebar */}
           <div className={`help-sidebar ${isMobile && sidebarVisible ? 'active' : ''}`}>
             <div className="help-sidebar-content">
-              {/* Search Bar */}
-              <div className="help-search-container">
-                <Search className="help-search-icon" />
-                <input
-                  type="text"
-                  placeholder="Search help topics..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="help-search-input"
-                />
-              </div>
-
-              {/* Help Sections Navigation */}
               <div className="help-sections">
                 <h3 className="help-sections-title">Help Topics</h3>
                 {helpSections.map((section) => (
                   <div key={section.id} className="help-section">
                     <button
+                    type="button"
                       onClick={() => {
                         setActiveContent(section.id);
                         toggleSection(section.id);
@@ -478,6 +599,7 @@ export function HelpMenu(){
                       <div className="help-section-items">
                         {section.items.map((item, index) => (
                           <button
+                          type="button"
                             key={index}
                             className="help-section-item"
                             onClick={() => handleSectionItemClick(item.id)}

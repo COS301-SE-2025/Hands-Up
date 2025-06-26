@@ -9,12 +9,19 @@
 # testing
 tests/coverage/
 
+#python cache
+**/pycache/
+
 #datasets
-ai_model/data
+ai_model/letters
+ai_model/words_model/tmkdt_words
+ai_model/words_model/words
 ai_model/video_data
 ai_model2/dataset
 ai_model2/processed_dataset
 
+#uploads
+backend/api/uploads
 
 # misc
 /backend/api/.env

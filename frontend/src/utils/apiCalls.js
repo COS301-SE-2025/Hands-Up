@@ -22,6 +22,41 @@ export const handleApiResponse = async (response) => {
     return data;
 };
 
+export const translateSequence = async (blobs) => {
+
+    const formData = new FormData();
+    blobs.forEach((blob, i) => {
+        formData.append('frames', blob, `frame${i}.jpg`);
+    });
+
+    try {
+        const response = await fetch('http://127.0.0.1:5000/handsUPApi/sign/processFrames', {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const errorBody = await response.text();
+            let errorMessage = `HTTP error! Status: ${response.status}`;
+            try {
+                const errorJson = JSON.parse(errorBody);
+                errorMessage = errorJson.message || errorJson.error || errorMessage;
+            } catch (e) {
+                console.log(e);
+                errorMessage = `${errorMessage} - ${errorBody}`;
+            }
+            throw new Error(`Failed to process frames: ${errorMessage}`);
+        }
+
+        const data = await response.json();
+        console.log("Prediction result:", data);
+        return data;
+    } catch (err) {
+        console.error("Error during fetch or response processing:", err);
+        throw err;
+    }
+};
+
 export const processImage = async (image) => {
   console.log("Processing captured image...");
 

@@ -15,10 +15,11 @@ import {
 } from '../controllers/dbController.js';
 
 import { resetPassword, confirmPasswordReset } from '../controllers/dbController.js';
-import{processVideo}from '../controllers/modelController.js'
+import{ processVideo }from '../controllers/modelController.js'
+// import{ processImage }from '../controllers/modelController2.js'
 import multer from 'multer';
 import fs from 'fs';
-import crypto from 'crypto';
+// import crypto from 'crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -32,27 +33,28 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 // Multer storage setup to preserve original file extension
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadsDir);
-  },
-  filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname);
-    const uniqueName = crypto.randomBytes(16).toString("hex") + ext;
-    cb(null, uniqueName);
-  }
-});
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, uploadsDir);
+//   },
+//   filename: function (req, file, cb) {
+//     const ext = path.extname(file.originalname);
+//     const uniqueName = crypto.randomBytes(16).toString("hex") + ext;
+//     cb(null, uniqueName);
+//   }
+// });
 
 // Configure multer with file size limits and file type validation
 const upload = multer({ 
-  storage,
+  storage: multer.memoryStorage(),
   limits: {
     fileSize: 50 * 1024 * 1024, // 50MB limit
   },
+  files: 50,
   fileFilter: (req, file, cb) => {
     console.log(` File upload: ${file.originalname}, mimetype: ${file.mimetype}`);
     
-    if (file.fieldname === 'image') {
+    if (file.fieldname === 'image'|| file.fieldname === 'frames') {
       // Accept image files
       if (file.mimetype.startsWith('image/')) {
         cb(null, true);
@@ -103,6 +105,7 @@ router.get("/auth/unique-email/:email", uniqueEmail);
 
 router.post('/auth/reset-password', resetPassword);
 router.post('/auth/confirm-reset-password', confirmPasswordReset);
+// router.post('/sign/processFrames', upload.array('frames'), processImage);
 
 // AI Processing routes
 router.post('/process-video', upload.single('video'), processVideo);

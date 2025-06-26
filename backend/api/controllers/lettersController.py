@@ -1,10 +1,14 @@
+import sys
+import struct
 import cv2
 import numpy as np
+import pickle
 import tensorflow as tf
 import mediapipe as mp
-import pickle
 import collections
+from collections import deque
 import time
+import os
 
 model = tf.keras.models.load_model('../../ai_model/models/detectLettersModel.keras')
 with open('../../ai_model/models/labelEncoder.pickle', 'rb') as f:
@@ -158,3 +162,4 @@ def detectFromImage(imageIn):
             return {'phrase': 'Nothing detected', 'confidence': 0.0}
     else:
         return {'phrase': 'Nothing detected', 'confidence': 0.0}
+
