@@ -506,7 +506,7 @@ export function UserProfile() {
                             {deleteStep === 1 && (
                                 <>
                                     <p className="warning-message">
-                                        <span className="material-icons">warning</span> Deleting your account is a permanent action. All your data will be irreversibly removed.
+                                        <span className="material-icons"></span> Deleting your account is a permanent action. All your data will be irreversibly removed.
                                     </p>
                                     <p>Are you absolutely sure you want to delete your account? This will:</p>
                                     <ul className="deletion-list">
