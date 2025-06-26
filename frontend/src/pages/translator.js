@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {useTranslator} from '../hooks/translateResults';
 import {renderMediaPreview} from '../components/mediaPreview';
 import {renderHistoryItem} from '../components/historyItem';
@@ -7,7 +7,6 @@ import '../styles/translator.css';
 
 export function Translator(){
 
-  const [speakDisabled] = useState(true);
   const [audioProgressWidth] = useState(0);
 
   const {
@@ -26,6 +25,36 @@ export function Translator(){
     fingerspellingMode,
     setFingerspellingMode
   } = useTranslator();
+
+  const speakDisabled = result === "";
+  const [availableVoices, setAvailableVoices] = useState([]);
+
+  useEffect(() => {
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      setAvailableVoices(voices);
+    };
+
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    loadVoices(); 
+
+    return () => {
+      window.speechSynthesis.onvoiceschanged = null;
+    };
+  }, []);
+
+  const speak = () => {
+    const preferredVoice = availableVoices.find((voice) => voice.name === 'Microsoft Zira - English (United States)');
+
+    const text = result.replace('Detected: ', '').replace('Detected phrase: ', '').replace('API Result: ', '');
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+    }
+
+    window.speechSynthesis.speak(utterance);
+  };
 
   return (
     <div className="recognizer-container">
@@ -180,6 +209,7 @@ export function Translator(){
                   aria-label='Volume Up'
                   className="recognizer-speak-button" 
                   disabled={speakDisabled}
+                  onClick={speak} 
                 >
                   <i className="fas fa-volume-up"></i>
                 </button>
