@@ -9,7 +9,7 @@
   },
   "scripts": {
     "database": "cd backend/database && docker-compose up -d --build && docker-compose run flyway migrate",
-    "api": "cd backend/api && npm i && node handsUP.js",
+    "api": "cd backend/api && npm i && node handsUp.js",
     "api:dev": "cd backend/api && npm i && node server.js",
     "ui": "cd frontend && npm i && HTTPS=false npm start",
     "ui:dev": "cd frontend && npm i && npm start",
