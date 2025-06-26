@@ -27,13 +27,28 @@ export function Learn(){
   // const sectionRefs = categories.map(() => React.createRef());
   const [selectedSection, setSelectedSection] = useState('dashboard');
   const [currentCategory, setCurrentCategory] = useState(null);
-  const [unlockedLevels] = useState(10);
+  const [unlockedLevels] = useState(27);
   const navigate = useNavigate();
 
   console.log(stats); 
-  const progressPercent = stats?.progressPercent || 25;
-  const signsLearned = stats?.signsLearned || 15;
+
   const lessonsCompleted = stats?.lessonsCompleted || 0;
+  const signsLearned = stats?.signsLearned || 0;
+
+   const TOTAL_LEVELS = 12;
+  const LESSONS_PER_LEVEL = 30;
+  const TOTAL_LESSONS = TOTAL_LEVELS * LESSONS_PER_LEVEL; 
+  const TOTAL_SIGNS = 26;
+
+     const calcLessonsCompleted = Math.min(lessonsCompleted, TOTAL_LESSONS);
+     const calcSignsLearned = Math.min(signsLearned, TOTAL_SIGNS);
+
+
+    const lessonProgress = (calcLessonsCompleted +calcSignsLearned)/ (TOTAL_LESSONS+TOTAL_SIGNS) * 100;
+
+  
+    const progressPercent = Math.min(100, Math.round(
+     lessonProgress));
 
   const goBack = () => {
     setCurrentCategory(null);
@@ -76,7 +91,7 @@ export function Learn(){
               <LevelTile
                   key={'quiz'}
                   level={'Quiz'} 
-                  unlocked={false}
+                  unlocked={signsLearned >=10 } 
                   onClick={() => navigate(`/sign/${String.fromCharCode(65)}`)}
                 />
             </div>

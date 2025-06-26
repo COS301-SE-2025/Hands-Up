@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
+import session from 'express-session';
 import apiRoutes from './routes/apiRoutes.js';
 import dotenv from 'dotenv';
 import https from 'https';
@@ -27,6 +28,18 @@ app.use(bodyParser.json({ limit: '100mb' }));
 app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }));
 app.use(express.json());
 app.use(cookieParser());
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'a_strong_secret_key_for_sessions', 
+    resave: false, 
+    saveUninitialized: false, 
+    cookie: {
+        secure: true, 
+        httpOnly: true, 
+        maxAge: 24 * 60 * 60 * 1000, 
+        sameSite: 'lax', 
+    },
+   
+}));
 
 app.use('/uploads', express.static('uploads'));
 app.use((req, res, next) => {
@@ -37,6 +50,12 @@ app.use((req, res, next) => {
     next();
 });
 
+// Health check endpoint (add before apiRoutes)
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
+// API routes
 app.use('/handsUPApi', apiRoutes);
 
 try {

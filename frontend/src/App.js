@@ -15,6 +15,8 @@ import { Learn } from "./pages/learn";
 import { SignLearn } from "./pages/signLearn";
 import { Home} from "./pages/home";
 import { Layout } from "./pages/layout"; 
+import ErrorBoundary from "./components/errorBoundary";
+import ErrorFallback from "./components/errorFallback";
 
 
 function App() {
@@ -26,17 +28,26 @@ function App() {
           <Routes>
             <Route path="/" element={<Landing/>} />
             <Route path="/landing" element={<Landing/>} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={
+              <ErrorBoundary fallback={<ErrorFallback errorName="Login" />}>
+                <Login />
+              </ErrorBoundary>
+            } />
+            <Route path="/signup" element={<ErrorBoundary fallback={<ErrorFallback errorName="Signup" />}>
+                <Signup />
+              </ErrorBoundary>
+            } />
             <Route path="/reset-password/:token" element={<Login />} />
             <Route path="/sign/:letter" element = {<SignLearn />} />
            <Route
               path="/userProfile"
               element={
                 <ProtectedRoute>
-                  <Layout> 
-                       <UserProfile />
+                  <ErrorBoundary fallback={<ErrorFallback errorName="userProfile" />}>
+                  <Layout>
+                    <UserProfile />
                   </Layout>
+                </ErrorBoundary>
                 </ProtectedRoute>
               }
             />
@@ -44,9 +55,11 @@ function App() {
               path="/translator"
               element={
                 <ProtectedRoute>
+                  <ErrorBoundary fallback={<ErrorFallback errorName="Translator" />}>
                   <Layout>
                     <Translator />
                   </Layout>
+                </ErrorBoundary>
                 </ProtectedRoute>
               }
             />
@@ -54,9 +67,11 @@ function App() {
               path="/learn"
               element={
                 <ProtectedRoute>
+                  <ErrorBoundary fallback={<ErrorFallback errorName="Learn" />}>
                   <Layout>
                     <Learn />
                   </Layout>
+                </ErrorBoundary>
                 </ProtectedRoute>
               }
             />
@@ -64,9 +79,11 @@ function App() {
               path="/home"
               element={
                 <ProtectedRoute>
+                   <ErrorBoundary fallback={<ErrorFallback errorName="Home" />}>
                   <Layout>
                     <Home />
                   </Layout>
+                </ErrorBoundary>
                 </ProtectedRoute>
               }
             />
@@ -74,9 +91,11 @@ function App() {
               path="/help"
               element={
                 <ProtectedRoute>
+                  <ErrorBoundary fallback={<ErrorFallback errorName="Help" />}>
                   <Layout>
-                    <HelpMenu/>
+                    <HelpMenu />
                   </Layout>
+                </ErrorBoundary>
                 </ProtectedRoute>
               }
             />
@@ -84,9 +103,12 @@ function App() {
               path="/signLearn"
               element={
                 <ProtectedRoute>
+                  <ErrorBoundary fallback={<ErrorFallback errorName="Help" />}>
                   <Layout>
                     <SignLearn />
                   </Layout>
+                </ErrorBoundary>
+
                 </ProtectedRoute>
               }
             />
