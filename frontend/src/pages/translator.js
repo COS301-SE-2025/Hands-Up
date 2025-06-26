@@ -119,7 +119,7 @@ export function Translator(){
                 className={`recognizer-control-button ${recording ? 'recognizer-stop-button' : 'recognizer-record-button'}`}
               >
                 <i className={`fas ${recording ? 'fa-stop' : 'fa-video'}`}></i> 
-                {recording ? 'Stop Recording' : 'Record Sequence'}
+                {recording ? 'Stop Signing' : 'Start Signing'}
               </button>
               <label className="recognizer-control-button recognizer-upload-button">
                 <i className="fas fa-upload"></i> Upload Sign
