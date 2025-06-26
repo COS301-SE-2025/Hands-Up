@@ -33,7 +33,4 @@ describe('Home Page', () => {
       cy.contains('.sign-of-the-day-section a', 'Explore More Signs').should('be.visible').and('have.attr', 'href', '/learnVideo');
     });
 
-
-
-
 });
