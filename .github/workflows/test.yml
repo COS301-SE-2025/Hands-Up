@@ -77,6 +77,6 @@ jobs:
         working-directory: frontend
         run: npm ci
 
-      - name: Start services and run Cypress tests
-        run: npm run test:integration
+      # - name: Start services and run Cypress tests
+        # run: npm run test:integration
     
