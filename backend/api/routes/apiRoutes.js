@@ -13,44 +13,35 @@ import {
     deleteUserAccount,
     uploadUserAvatar,
     resetPassword,
-    confirmPasswordReset // Added from the first snippet
+    confirmPasswordReset
 } from '../controllers/dbController.js';
 
 import {
     testPython,
     processSign,
-    processVideo, // Using processVideo from modelController.js as it's the AI processing one
+    processVideo,
     healthCheck
 } from '../controllers/modelController.js';
 
 import multer from 'multer';
-// fs, crypto, path, fileURLToPath, __filename, __dirname, and uploadsDir are not needed
-// when using multer.memoryStorage(), as files are not written to disk.
-// import fs from 'fs';
-// import crypto from 'crypto';
-// import path from 'path';
-// import { fileURLToPath } from 'url';
 
 const router = Router();
 
 // Multer storage setup to use memory storage
 const upload = multer({
-    storage: multer.memoryStorage(), // Store files in memory
+    storage: multer.memoryStorage(),
     limits: {
-        fileSize: 50 * 1024 * 1024, // 50MB limit
+        fileSize: 50 * 1024 * 1024, // 50MB limit for file uploads
     },
-    // No 'files' property needed; Multer handles multiple files via array/any/fields methods
     fileFilter: (req, file, cb) => {
         console.log(` File upload: ${file.originalname}, mimetype: ${file.mimetype}`);
 
-        // Handle 'image' or 'frames' field names for image files
-        if (file.fieldname === 'image' || file.fieldname === 'frames') {
+        if (file.fieldname === 'image' || file.fieldname === 'frames' || file.fieldname === 'avatar') {
             if (file.mimetype.startsWith('image/')) {
                 cb(null, true);
             } else {
-                cb(new Error('Only image files are allowed for image processing'), false);
+                cb(new Error('Only image files are allowed for image processing or avatars'), false);
             }
-        // Handle 'video' field name for video files
         } else if (file.fieldname === 'video') {
             if (file.mimetype.startsWith('video/')) {
                 cb(null, true);
@@ -58,7 +49,6 @@ const upload = multer({
                 cb(new Error('Only video files are allowed for video processing'), false);
             }
         } else {
-            // Reject any other unexpected field names
             cb(new Error('Unexpected field name'), false);
         }
     }
@@ -69,7 +59,7 @@ router.use((req, res, next) => {
     console.log(` ${new Date().toISOString()} - ${req.method} ${req.path}`);
     if (req.file) {
         console.log(` File: ${req.file.originalname} (${req.file.size} bytes)`);
-    } else if (req.files && Array.isArray(req.files)) { // Handle array of files (e.g., 'frames')
+    } else if (req.files && Array.isArray(req.files)) {
         req.files.forEach(file => {
             console.log(` File (array): ${file.originalname} (${file.size} bytes)`);
         });
@@ -84,35 +74,52 @@ router.use((req, res, next) => {
 // Authentication Routes
 router.post("/auth/signup", signUpUser);
 router.post("/auth/login", loginUser);
-router.post("/auth/logout", logoutUser); // Requires authentication
+router.post("/auth/logout", authenticateUser, logoutUser);
 router.post('/auth/reset-password', resetPassword);
 router.post('/auth/confirm-reset-password', confirmPasswordReset);
 
-// User Profile and Management Routes (most require authentication)
-router.get("/user/me", authenticateUser, getUserData); // Get current authenticated user's data
+// User Profile and Management Routes
+router.get("/user/me", authenticateUser, getUserData);
 router.put('/user/:id/details', authenticateUser, updateUserDetails);
 router.put('/user/:id/password', authenticateUser, updateUserPassword);
-router.put('/user/:id/avatar', authenticateUser, uploadUserAvatar); // Upload user avatar, requires authentication
-router.delete('/user/:id', authenticateUser, deleteUserAccount); // Delete user account, requires authentication
+router.put('/user/:id/avatar', authenticateUser, upload.single('avatar'), uploadUserAvatar);
+router.delete('/user/:id', authenticateUser, deleteUserAccount);
 
-// Learning Progress Routes (require authentication)
+// Learning Progress Routes
 router.get("/learning/progress/:username", authenticateUser, learningProgress);
 router.put("/learning/progress/:username", authenticateUser, learningProgress);
 
-// Uniqueness Checks (do not require authentication)
+// Uniqueness Checks
 router.get("/auth/unique-username/:username", uniqueUsername);
 router.get("/auth/unique-email/:email", uniqueEmail);
 
 // AI Processing Routes
-router.get('/test-python', testPython); // Route to test connection with Python/Flask backend
-router.post('/process-sign', upload.single('image'), processSign); // Process single image for sign recognition
-router.post('/process-video', upload.single('video'), processVideo); // Process single video
-// router.post('/sign/processFrames', upload.array('frames'), processImage); // Uncomment if processImage is integrated for frames
-router.get('/health', healthCheck); // Health check for the service
+router.get('/test-python', testPython);
+router.post(
+    '/process-sign',
+    upload.single('image'),
+    processSign
+);
+router.post(
+    '/process-video',
+    upload.single('video'),
+    (req, res, next) => {
+        // This console log will fire when the /process-video route is reached,
+        // after multer has processed the file (if successful).
+        console.log('>>> Route /process-video reached in routes.js <<<');
+        if (req.file) {
+            console.log(`Video file received: ${req.file.originalname}`);
+        } else {
+            console.log('No video file attached to request (or multer failed).');
+        }
+        next(); // Pass control to the next middleware/controller function (processVideo)
+    },
+    processVideo
+);
+router.get('/health', healthCheck);
 
-// Error handling middleware for Multer and other errors
+// Error handling middleware
 router.use((error, req, res, next) => {
-    // Handle Multer-specific errors (e.g., file size limit)
     if (error instanceof multer.MulterError) {
         if (error.code === 'LIMIT_FILE_SIZE') {
             return res.status(400).json({
@@ -126,22 +133,18 @@ router.use((error, req, res, next) => {
         });
     }
 
-    // Handle custom file type validation errors
-    if (error.message.includes('Only image files') || error.message.includes('Only video files')) {
+    if (error.message.includes('Only image files') || error.message.includes('Only video files') || error.message.includes('Unexpected field name')) {
         return res.status(400).json({
-            error: 'Invalid file type',
+            error: 'Invalid file or field type',
             details: error.message
         });
     }
 
-    // Generic error handler for all other errors, including those from controller functions
-    // and network errors (e.g., if the Flask server is unreachable or returns non-2xx)
     console.error("Caught error in API routes:", error);
 
-    // Attempt to extract status and message from Axios response if available
     const status = error.response?.status || 500;
     const message = error.response?.data?.error || error.message || "An unexpected error occurred.";
-    const details = error.response?.data?.details || error.stack; // Include stack trace for debugging
+    const details = error.response?.data?.details || error.stack;
 
     res.status(status).json({
         error: message,
