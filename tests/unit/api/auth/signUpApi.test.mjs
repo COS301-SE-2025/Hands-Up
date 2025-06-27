@@ -39,7 +39,7 @@ describe('Signup API', () => {
     const result = await signup(mockUserData);
 
     expect(fetch).toHaveBeenCalledWith(
-      'https://localhost:2000/handsUPApi/auth/signup',
+      'http://localhost:2000/handsUPApi/auth/signup',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -74,7 +74,7 @@ describe('Signup API', () => {
     await expect(signup(mockUserData)).rejects.toThrow('email already exists');
 
     expect(fetch).toHaveBeenCalledWith(
-      'https://localhost:2000/handsUPApi/auth/signup',
+      'http://localhost:2000/handsUPApi/auth/signup',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -104,7 +104,7 @@ describe('Signup API', () => {
     await expect(signup(mockUserData)).rejects.toThrow('username already exists');
 
     expect(fetch).toHaveBeenCalledWith(
-      'https://localhost:2000/handsUPApi/auth/signup',
+      'http://localhost:2000/handsUPApi/auth/signup',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -134,7 +134,7 @@ describe('Signup API', () => {
     await expect(signup(mockUserData)).rejects.toThrow('All fields are required');
 
     expect(fetch).toHaveBeenCalledWith(
-      'https://localhost:2000/handsUPApi/auth/signup',
+      'http://localhost:2000/handsUPApi/auth/signup',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -164,7 +164,7 @@ describe('Signup API', () => {
     await expect(signup(mockUserData)).rejects.toThrow('All fields are required');
 
     expect(fetch).toHaveBeenCalledWith(
-      'https://localhost:2000/handsUPApi/auth/signup',
+      'http://localhost:2000/handsUPApi/auth/signup',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -193,7 +193,7 @@ describe('Signup API', () => {
     await expect(signup(mockUserData)).rejects.toThrow('All fields are required');
 
     expect(fetch).toHaveBeenCalledWith(
-      'https://localhost:2000/handsUPApi/auth/signup',
+      'http://localhost:2000/handsUPApi/auth/signup',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -222,7 +222,7 @@ describe('Signup API', () => {
     await expect(signup(mockUserData)).rejects.toThrow('All fields are required');
 
     expect(fetch).toHaveBeenCalledWith(
-      'https://localhost:2000/handsUPApi/auth/signup',
+      'http://localhost:2000/handsUPApi/auth/signup',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -251,7 +251,7 @@ describe('Signup API', () => {
     await expect(signup(mockUserData)).rejects.toThrow('All fields are required');
 
     expect(fetch).toHaveBeenCalledWith(
-      'https://localhost:2000/handsUPApi/auth/signup',
+      'http://localhost:2000/handsUPApi/auth/signup',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -275,7 +275,7 @@ describe('Signup API', () => {
     await expect(signup(mockUserData)).rejects.toThrow('Network error');
 
     expect(fetch).toHaveBeenCalledWith(
-      'https://localhost:2000/handsUPApi/auth/signup',
+      'http://localhost:2000/handsUPApi/auth/signup',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -305,7 +305,7 @@ describe('Signup API', () => {
     await expect(signup(mockUserData)).rejects.toThrow('All fields are required');
 
     expect(fetch).toHaveBeenCalledWith(
-      'https://localhost:2000/handsUPApi/auth/signup',
+      'http://localhost:2000/handsUPApi/auth/signup',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -341,7 +341,7 @@ describe('Signup API', () => {
     const result = await signup(mockUserData);
 
     expect(fetch).toHaveBeenCalledWith(
-      'https://localhost:2000/handsUPApi/auth/signup',
+      'http://localhost:2000/handsUPApi/auth/signup',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -369,7 +369,7 @@ describe('Signup API', () => {
     await expect(signup(mockUserData)).rejects.toThrow('Invalid JSON');
 
     expect(fetch).toHaveBeenCalledWith(
-      'https://localhost:2000/handsUPApi/auth/signup',
+      'http://localhost:2000/handsUPApi/auth/signup',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -399,7 +399,7 @@ describe('Signup API', () => {
     await expect(signup(mockUserData)).rejects.toThrow('Service Unavailable');
 
     expect(fetch).toHaveBeenCalledWith(
-      'https://localhost:2000/handsUPApi/auth/signup',
+      'http://localhost:2000/handsUPApi/auth/signup',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -435,7 +435,7 @@ describe('Signup API', () => {
     const result = await signup(mockUserData);
 
     expect(fetch).toHaveBeenCalledWith(
-      'https://localhost:2000/handsUPApi/auth/signup',
+      'http://localhost:2000/handsUPApi/auth/signup',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -472,7 +472,7 @@ describe('Signup API', () => {
     const result = await signup(mockUserData);
 
     expect(fetch).toHaveBeenCalledWith(
-      'https://localhost:2000/handsUPApi/auth/signup',
+      'http://localhost:2000/handsUPApi/auth/signup',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -509,7 +509,7 @@ describe('Signup API', () => {
     const result = await signup(mockUserData);
 
     expect(fetch).toHaveBeenCalledWith(
-      'https://localhost:2000/handsUPApi/auth/signup',
+      'http://localhost:2000/handsUPApi/auth/signup',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -546,7 +546,7 @@ describe('Signup API', () => {
     const result = await signup(mockUserData);
 
     expect(fetch).toHaveBeenCalledWith(
-      'https://localhost:2000/handsUPApi/auth/signup',
+      'http://localhost:2000/handsUPApi/auth/signup',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -584,7 +584,7 @@ describe('Signup API', () => {
     const result = await signup(mockUserData);
 
     expect(fetch).toHaveBeenCalledWith(
-      'https://localhost:2000/handsUPApi/auth/signup',
+      'http://localhost:2000/handsUPApi/auth/signup',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -615,7 +615,7 @@ describe('Signup API', () => {
     await expect(signup(mockUserData)).rejects.toThrow('Too Many Requests');
 
     expect(fetch).toHaveBeenCalledWith(
-      'https://localhost:2000/handsUPApi/auth/signup',
+      'http://localhost:2000/handsUPApi/auth/signup',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -647,7 +647,7 @@ describe('Signup API', () => {
     await expect(signup(mockUserData)).rejects.toThrow('All fields are required');
 
     expect(fetch).toHaveBeenCalledWith(
-      'https://localhost:2000/handsUPApi/auth/signup',
+      'http://localhost:2000/handsUPApi/auth/signup',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -674,7 +674,7 @@ describe('Signup API', () => {
     await expect(signup(mockUserData)).rejects.toThrow('An unknown error occurred');
 
     expect(fetch).toHaveBeenCalledWith(
-      'https://localhost:2000/handsUPApi/auth/signup',
+      'http://localhost:2000/handsUPApi/auth/signup',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

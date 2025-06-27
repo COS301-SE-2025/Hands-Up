@@ -1,7 +1,7 @@
 /* global describe, it, cy, before, beforeEach */
 describe('Landing Page', () => {
   before('visit the demo site', () => {
-    cy.visit('https://localhost:3000');
+    cy.visit('http://localhost:3000');
   });
 
   it('should display the correct page title', () => {
@@ -10,8 +10,8 @@ describe('Landing Page', () => {
 
   describe('SignUp Tests', () => {
     beforeEach(() => {
-      cy.visit('https://localhost:3000/signup');
-      cy.intercept('POST', 'https://localhost:2000/handsUPApi/signup').as('signupApi');
+      cy.visit('http://localhost:3000/signup');
+      cy.intercept('POST', 'http://localhost:2000/handsUPApi/signup').as('signupApi');
     });
 
     it('should be on the right page', () => {
@@ -58,7 +58,7 @@ describe('Landing Page', () => {
 
   describe('Login Page tests', () => {
     beforeEach(() => {
-      cy.visit('https://localhost:3000/login');
+      cy.visit('http://localhost:3000/login');
     });
 
     it('should display the correct page title', () => {
