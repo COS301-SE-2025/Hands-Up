@@ -5,7 +5,7 @@ import axios from 'axios'; // You'll need to install axios: npm install axios
 import FormData from 'form-data'; // You'll need to install form-data: npm install form-data
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+
 
 // --- Configuration for Flask Server ---
 const FLASK_BASE_URL = 'http://localhost:6000'; // IMPORTANT: Change this to your Flask server's URL

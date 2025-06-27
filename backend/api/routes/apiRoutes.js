@@ -119,7 +119,7 @@ router.post(
 router.get('/health', healthCheck);
 
 // Error handling middleware
-router.use((error, req, res, next) => {
+router.use((error,  res) => {
     if (error instanceof multer.MulterError) {
         if (error.code === 'LIMIT_FILE_SIZE') {
             return res.status(400).json({
