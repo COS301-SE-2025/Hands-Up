@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { processImage} from '../utils/apiCalls';
-import {SignLanguageAPI, translateSequence } from '../utils/apiCalls';
+import { translateSequence } from '../utils/apiCalls';
+import SignLanguageAPI  from '../utils/apiCalls';
 import { v4 as uuidv4 } from 'uuid';
 
 export function useTranslator() {
@@ -194,9 +195,10 @@ export function useTranslator() {
 
         if (isVideo) {
             const videoResult = await SignLanguageAPI.processVideo(file);
+            
             setResult(videoResult.phrase !== "Nothing detected" ? videoResult.phrase : "No sign detected");
-            if (videoResult.frames?.length > 0) {
-                const avg = videoResult.frames.reduce((a, f) => a + f.confidence, 0) / videoResult.frames.length;
+            if (videoResult.confidence> 0) {
+                const avg = videoResult.confidence*100;
                 setConfidence(avg.toFixed(2) + "%");
             } else {
                 setConfidence("0%");
