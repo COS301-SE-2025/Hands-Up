@@ -298,7 +298,7 @@ export const resetPassword = async (email) => {
 
 // signLanguageAPI.js
 class SignLanguageAPI {
-  constructor(baseURL = 'https://localhost:2000/handsUPApi') {
+  constructor(baseURL = 'http://localhost:2000/handsUPApi') {
     this.baseURL = baseURL;
   }
 
