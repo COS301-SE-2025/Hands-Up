@@ -26,7 +26,7 @@ Thus, the system focuses on three core functionalities:
 | Demo # | Video Link                                                                 | SRS Link |
 |--------|----------------------------------------------------------------------------|------------------|
 | 1      | [Demo 1 Video](https://drive.google.com/file/d/1mFRqv6zRN1a6LuKWWXX5wu1XCvTVVWZ7/view) | [Demo 1 SRS](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_1) |
-| 2      | [Demo 2 Video] | [Demo 2 SRS](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2) |
+| 2      | [Demo 2 Video](https://drive.google.com/file/d/1JdpGGRkO_d-04IrgbtnfarugVtxaAQ4w/view?usp=drive_link) | [Demo 2 SRS](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2) |
 | 3      | [Demo 3 Video] | [Demo 3 SRS] |
 | 4      | [Demo 4 Video] | [Demo 4 SRS] |
 
