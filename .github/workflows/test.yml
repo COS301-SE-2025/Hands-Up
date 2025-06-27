@@ -87,10 +87,6 @@ jobs:
 
       # Start database and wait for it to be ready
       - name: Start database
-        env:
-          DB_USER: testuser
-          DB_PASS: testpass
-          DB_NAME: testdb
         run: |
           cd backend/database
           docker-compose up -d --build
@@ -99,10 +95,6 @@ jobs:
           
       # Run database migrations if needed
       - name: Run database migrations
-        env:
-          DB_USER: testuser
-          DB_PASS: testpass
-          DB_NAME: testdb
         run: npm run db:migrate
 
       # Verify database is accessible
@@ -112,8 +104,4 @@ jobs:
           docker-compose -f backend/database/docker-compose.yml ps
           
       - name: Start services and run Cypress tests
-        env:
-          DB_USER: testuser
-          DB_PASS: testpass
-          DB_NAME: testdb
         run: npm run test:integration
