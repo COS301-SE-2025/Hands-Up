@@ -97,7 +97,7 @@ jobs:
       - name: Start database
         run: |
           cd backend/database
-          docker-compose up -d postgres
+          docker-compose --env-file ../../.env up -d postgres
           echo "Waiting for PostgreSQL to be ready..."
           sleep 20
           
@@ -109,8 +109,7 @@ jobs:
           docker-compose exec -T postgres pg_isready -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }}
           
           echo "Running Flyway migration..."
-          DB_USER=${{ secrets.DB_USER }} DB_PASS=${{ secrets.DB_PASS }} DB_NAME=${{ secrets.DB_NAME }} docker-compose run --rm flyway
-
+          docker-compose --env-file ../../.env run --rm flyway
       # Debug database connection
       - name: Debug database connection
         run: |
