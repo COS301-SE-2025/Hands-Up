@@ -298,7 +298,7 @@ export const resetPassword = async (email) => {
 
 // signLanguageAPI.js
 class SignLanguageAPI {
-  constructor(baseURL = 'http://localhost:2000/handsUPApi') {
+  constructor(baseURL = 'https://localhost:2000/handsUPApi') {
     this.baseURL = baseURL;
   }
 
@@ -308,25 +308,29 @@ class SignLanguageAPI {
    * @returns {Promise<Object>} - API response with phrase detection results
    */
   async processVideo(videoBlob) {
+    // Add this console.log to confirm the method is entered
+    console.log('--- Entering SignLanguageAPI.processVideo ---');
+    console.log('Video blob received:', videoBlob);
+
     try {
       const formData = new FormData();
       formData.append('video', videoBlob, 'sign.webm');
-      
+
       const response = await fetch(`${this.baseURL}/process-video`, {
         method: 'POST',
         body: formData
       });
-      
+      console.log("we are now here");
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      
+
       if (data.error) {
         throw new Error(data.error);
       }
-      
+
       return {
         success: true,
         phrase: data.phrase,
@@ -354,6 +358,7 @@ class SignLanguageAPI {
     if (type === 'video') {
       return await this.processVideo(mediaBlob);
     } else {
+      // Assuming you have a processImage method
       return await this.processImage(mediaBlob);
     }
   }
@@ -382,6 +387,9 @@ class SignLanguageAPI {
     try {
       const response = await fetch(`${this.baseURL}/health`, {
         method: 'GET',
+        // Note: 'timeout' option is not standard in Fetch API, it's typically handled
+        // via a custom AbortController for fetch requests.
+        // For now, it's left as is, but be aware it might not function as expected.
         timeout: 5000
       });
       return response.ok;
