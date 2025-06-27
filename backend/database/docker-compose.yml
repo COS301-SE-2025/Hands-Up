@@ -13,15 +13,22 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   flyway:
     image: flyway/flyway:11
     container_name: flyway_migration
     restart: on-failure
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     volumes:
       - ./sql:/flyway/sql
-    command: -url=jdbc:postgresql://postgres:5432/${DB_NAME} -user=${DB_USER} -password=${DB_PASS} -connectRetries=10 migrate
+    command: -url=jdbc:postgresql://postgres:5432/${DB_NAME} -user=${DB_USER} -password=${DB_PASS} -connectRetries=30 migrate
+
 volumes:
   pgdata:

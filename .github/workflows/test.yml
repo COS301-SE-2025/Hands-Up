@@ -53,7 +53,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: test-codebase
 
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -98,21 +97,29 @@ jobs:
       - name: Start database
         run: |
           cd backend/database
-          docker-compose up -d --build
-          echo "Waiting for database to be ready..."
-          sleep 15
+          docker-compose up -d postgres
+          echo "Waiting for PostgreSQL to be ready..."
+          sleep 20
           
-      # Run database migrations if needed
+      # Run database migrations with explicit wait and connection test
       - name: Run database migrations
         run: |
           cd backend/database
-          DB_USER=${{ secrets.DB_USER }} DB_PASS=${{ secrets.DB_PASS }} DB_NAME=${{ secrets.DB_NAME }} docker-compose run flyway migrate
+          echo "Checking if database is ready..."
+          docker-compose exec -T postgres pg_isready -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }}
+          
+          echo "Running Flyway migration..."
+          DB_USER=${{ secrets.DB_USER }} DB_PASS=${{ secrets.DB_PASS }} DB_NAME=${{ secrets.DB_NAME }} docker-compose run --rm flyway
 
-      # Verify database is accessible
-      - name: Check database connection
+      # Debug database connection
+      - name: Debug database connection
         run: |
-          # Try to connect to the database to verify it's running
-          docker-compose -f backend/database/docker-compose.yml ps
+          cd backend/database
+          echo "Checking docker-compose services..."
+          docker-compose ps
+          
+          echo "Checking database logs..."
+          docker-compose logs postgres
           
       - name: Start services and run Cypress tests
         run: npm run test:integration
