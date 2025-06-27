@@ -11,7 +11,7 @@ import cv2 # Used by Detection.py for video processing; ensure it's installed
 # Assuming this flask_app.py is in 'Hands-Up/backend/'
 # and Detection.py is in 'Hands-Up/ai_model/notebook/'
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-DETECTION_SCRIPT_DIR = os.path.join(SCRIPT_DIR,'..','..', '..', 'ai_model', 'notebook') # Adjust if your structure differs
+DETECTION_SCRIPT_DIR = os.path.join(SCRIPT_DIR,'..','..', '..', 'ai_model2', 'models') # Adjust if your structure differs
 
 # Add the directory containing Detection.py to the Python path
 if DETECTION_SCRIPT_DIR not in sys.path:
@@ -190,4 +190,4 @@ if __name__ == '__main__':
     # When running directly, start the Flask development server.
     # Set debug=True for development to get auto-reloads and debugger.
     # Set debug=False for production.
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='0.0.0.0', port=6000, debug=False)
