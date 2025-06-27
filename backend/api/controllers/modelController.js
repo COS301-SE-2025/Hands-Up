@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // --- Configuration for Flask Server ---
-const FLASK_BASE_URL = 'http://localhost:5000'; // IMPORTANT: Change this to your Flask server's URL
+const FLASK_BASE_URL = 'http://localhost:6000'; // IMPORTANT: Change this to your Flask server's URL
 // If Flask is running on a different machine or port, update this.
 // For production, this should be an environment variable.
 
@@ -142,16 +142,20 @@ export const processSign = async (req, res) => {
 export const processVideo = async (req, res) => {
     console.log(' VIDEO PROCESSING ENDPOINT HIT!');
 
-    if (!req.file) {
-        return res.status(400).json({ error: 'No video file provided', success: false });
+    // Multer places the file buffer in req.file.buffer when using memoryStorage()
+    if (!req.file || !req.file.buffer) {
+        return res.status(400).json({ error: 'No video file provided or file buffer missing', success: false });
     }
 
-    console.log(` Processing video: ${req.file.filename} (${req.file.size} bytes)`);
-    const filePath = req.file.path; // Multer saves the file to this path
+    console.log(` Processing video: ${req.file.originalname} (${req.file.size} bytes)`);
+    // const filePath = req.file.path; // This will be undefined with memoryStorage()
 
     try {
         const formData = new FormData();
-        formData.append('video', fs.createReadStream(filePath), {
+        // Append the file buffer directly to FormData
+        // Use req.file.originalname for the filename in FormData
+        // Use req.file.mimetype for the content type
+        formData.append('video', req.file.buffer, {
             filename: req.file.originalname,
             contentType: req.file.mimetype,
         });
@@ -165,15 +169,20 @@ export const processVideo = async (req, res) => {
         }
 
         console.log(` Sending video to Flask for processing: ${FLASK_BASE_URL}/process-video`);
+
+        // Ensure you have an instance of the 'form-data' library if using Node.js,
+        // as the native FormData in Node.js might not have getHeaders() directly.
+        // Axios typically handles FormData correctly, but if getHeaders() is an issue,
+        // you might need a wrapper like 'form-data'.
         const pythonResponse = await axios.post(`${FLASK_BASE_URL}/process-video`, formData, {
-            headers: formData.getHeaders(),
+            headers: formData.getHeaders(), // This line assumes 'form-data' package or a compatible environment
             maxBodyLength: Infinity,
             maxContentLength: Infinity,
-            timeout: 180000 // 3 minute timeout for video processing (matches your Python)
+            timeout: 180000 // 3 minute timeout for video processing
         });
 
-        // Clean up uploaded file on Node.js side
-        cleanupFile(filePath);
+        // No need to cleanupFile as it was never written to disk
+        // cleanupFile(filePath);
 
         // Flask response is expected to be in the format: { phrase: "...", confidence: ..., success: true/false }
         console.log(` Video processing result from Flask:`, pythonResponse.data);
@@ -182,8 +191,8 @@ export const processVideo = async (req, res) => {
     } catch (error) {
         console.error(' Video processing error:', error.message);
 
-        // Clean up uploaded file on error
-        cleanupFile(filePath);
+        // No need to cleanupFile on error either
+        // cleanupFile(filePath);
 
         let errorMessage = 'Error processing video with AI server.';
         if (error.response) {
@@ -213,7 +222,6 @@ export const processVideo = async (req, res) => {
         }
     }
 };
-
 /**
  * Health check controller (remains the same)
  */
