@@ -19,6 +19,7 @@ ai_model/words_model/words
 ai_model/video_data
 ai_model2/dataset
 ai_model2/processed_dataset
+ai_model2/models/__pycache__
 
 #uploads
 backend/api/uploads
