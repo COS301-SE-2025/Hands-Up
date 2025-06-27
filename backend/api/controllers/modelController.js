@@ -26,7 +26,7 @@ export function cleanupFile(filePath) {
 /**
  * Test endpoint controller to verify Python Flask server connectivity
  */
-export const testPython = async (req, res) => {
+export const testPython = async ( res) => {
     try {
         console.log(` Testing Flask server at: ${FLASK_BASE_URL}/health`);
         const response = await axios.get(`${FLASK_BASE_URL}/health`, { timeout: 5000 }); // 5 second timeout
