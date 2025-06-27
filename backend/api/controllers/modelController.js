@@ -23,6 +23,35 @@ export function cleanupFile(filePath) {
     }
 }
 
+/**
+ * Test endpoint controller to verify Python Flask server connectivity
+ */
+export const testPython = async (req, res) => {
+    try {
+        console.log(` Testing Flask server at: ${FLASK_BASE_URL}/health`);
+        const response = await axios.get(`${FLASK_BASE_URL}/health`, { timeout: 5000 }); // 5 second timeout
+
+        return res.json({
+            success: true,
+            message: 'Flask AI server is reachable and healthy',
+            flaskStatus: response.data
+        });
+
+    } catch (error) {
+        console.error(' Flask server test failed:', error.message);
+        let errorMessage = 'Failed to connect to Flask AI server.';
+        if (error.code === 'ECONNREFUSED') {
+            errorMessage = 'Flask AI server is not running or not accessible. Make sure your Flask app is started.';
+        } else if (error.code === 'ETIMEDOUT') {
+             errorMessage = 'Connection to Flask AI server timed out.';
+        }
+        return res.status(500).json({
+            error: errorMessage,
+            details: error.message,
+            success: false
+        });
+    }
+};
 
 /**
  * Image processing controller
