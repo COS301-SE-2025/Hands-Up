@@ -1,0 +1,38 @@
+.error-fallback {
+  text-align: center;
+  margin-top: 10vh;
+  color: #333;
+  padding: 2rem;
+  background: #fff3cd;
+  border: 1px solid #ffeeba;
+  border-radius: 8px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.error-icon {
+  font-size: 3rem;
+  color: #ffc107;
+  margin-bottom: 1rem;
+}
+
+.retry-button {
+  margin-top: 1.5rem;
+  background-color: #ffc107;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.retry-button:hover {
+  background-color: #e0a800;
+}
+
+.error-link {
+  color: #007bff;
+  text-decoration: underline;
+}

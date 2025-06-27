@@ -1,10 +1,9 @@
 import React from "react";
-import { useLearningStats } from "../context/learningStatsContext";
+import { useLearningStats } from "../contexts/learningStatsContext";
 
-export function LearningStats() {
+export function LearningStats(){
     const statsContext = useLearningStats() || {};
     const { stats } = statsContext;
-    // const handleUpdate = useStatUpdater();
 
     const {
       lessonsCompleted = 0,
@@ -13,10 +12,20 @@ export function LearningStats() {
       currentLevel = "Bronze",
     } = stats || {};
 
-    const TOTAL_LESSONS = 30;
-    const calcLessonsCompleted = Math.min(lessonsCompleted, TOTAL_LESSONS);
-    const progressPercent = Math.min(100, Math.round((calcLessonsCompleted / TOTAL_LESSONS) * 100));
+    const TOTAL_LEVELS = 12;
+  const LESSONS_PER_LEVEL = 30;
+  const TOTAL_LESSONS = TOTAL_LEVELS * LESSONS_PER_LEVEL; 
+  const TOTAL_SIGNS = 26;
 
+     const calcLessonsCompleted = Math.min(lessonsCompleted, TOTAL_LESSONS);
+     const calcSignsLearned = Math.min(signsLearned, TOTAL_SIGNS);
+
+
+    const lessonProgress = (calcLessonsCompleted +calcSignsLearned)/ (TOTAL_LESSONS+TOTAL_SIGNS) * 100;
+
+  
+    const progressPercent = Math.min(100, Math.round(
+     lessonProgress));
   return (
     <section className="learning-progress">
       <h3>Learning Progress</h3>
@@ -60,3 +69,4 @@ export function LearningStats() {
     </section>
   );
 }
+
