@@ -1,7 +1,7 @@
-const API_BASE_URL_AUTH = 'https://localhost:2000/handsUPApi/auth';
-const API_BASE_URL_USER = 'https://localhost:2000/handsUPApi/user';
-const API_BASE_URL_LEARNING = 'https://localhost:2000/handsUPApi/learning';
-const API_BASE_URL = "https://localhost:2000/handsUPApi";
+const API_BASE_URL_AUTH = 'http://localhost:2000/handsUPApi/auth';
+const API_BASE_URL_USER = 'http://localhost:2000/handsUPApi/user';
+const API_BASE_URL_LEARNING = 'http://localhost:2000/handsUPApi/learning';
+const API_BASE_URL = "http://localhost:2000/handsUPApi";
 
 export const handleApiResponse = async (response) => {
     const data = await response.json();

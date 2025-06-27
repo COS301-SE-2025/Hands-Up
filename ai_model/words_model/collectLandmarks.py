@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 import mediapipe as mp
 
-actions = ['my', 'name', 'how are you', 'hello', 'age', 'good', 'man', 'woman', 'goodbye', 'yes']
+actions = ['none']
 noSequences = 30
 sequenceLength = 30
 startFolder = 0

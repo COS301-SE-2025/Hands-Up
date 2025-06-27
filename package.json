@@ -15,11 +15,11 @@
     "test-coverage": "node --no-warnings --experimental-vm-modules --experimental-require-module ./node_modules/jest/bin/jest.js --passWithNoTests --coverage",
     "lint": "eslint . --ext .js --fix",
     "cypress:run": "cypress run",
-    "db:setup": "cd backend/database && docker-compose up -d --build",
-    "db:migrate": "cd backend/database && docker-compose run flyway migrate",
+    "db:setup": "cd backend/database && docker-compose up -d --build && sleep 15",
+    "db:migrate": "cd backend/database && docker-compose --env-file ../../.env run flyway migrate",
     "services": "concurrently \"npm run api\" \"npm run ui\"",
-    "wait-and-test": "wait-on https://localhost:2000/health --timeout 60000 && npm run cypress:run",
-    "test:integration": "npm run db:setup && concurrently --kill-others --success first \"npm run services\" \"npm run wait-and-test\""
+    "wait-and-test": "wait-on http://localhost:2000/health --timeout 90000 && npm run cypress:run",
+    "test:integration": "npm run db:setup && npm run db:migrate && concurrently --kill-others --success first \"npm run services\" \"npm run wait-and-test\""
   },
   "main": "index.js",
   "devDependencies": {

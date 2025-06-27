@@ -4,8 +4,8 @@ describe('Overall Application Tests', () => {
   // Signup Tests
   describe('SignUp Tests', () => {
     beforeEach(() => {
-      cy.visit('https://localhost:3000/signup');
-      cy.intercept('POST', 'https://localhost:2000/handsUPApi/signup').as('signupApi');
+      cy.visit('http://localhost:3000/signup');
+      cy.intercept('POST', 'http://localhost:2000/handsUPApi/signup').as('signupApi');
     });
 
     it('should be on the right page', () => {
@@ -31,7 +31,7 @@ describe('Overall Application Tests', () => {
 
         cy.contains('Your journey to mastering sign language starts here. Connect, learn, and translate with ease.').should('be.visible');
       
-        cy.visit('https://localhost:3000/translator');
+        cy.visit('http://localhost:3000/translator');
 
         cy.contains('h2', 'Sign Language Recognizer').should('be.visible');
         cy.get('.recognizer-banner').should('be.visible');

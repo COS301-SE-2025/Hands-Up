@@ -11,7 +11,8 @@ from tensorflow.keras.utils import to_categorical
 from sklearn.metrics import accuracy_score
 
 DATADIR = os.path.join('tmkdt_words')
-actions = ['my', 'how are you', 'hello', 'age', 'good', 'man', 'woman', 'goodbye', 'yes']
+# actions = ['none', 'my', 'name','how are you', 'hello', 'age', 'good', 'man', 'woman', 'goodbye', 'yes']
+actions = ['none', 'my', 'name','how are you', 'hello', 'age']
 sequenceLength = 30
 
 x, y = [], []

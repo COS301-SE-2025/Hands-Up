@@ -1,7 +1,7 @@
 /* global describe, it, cy, before*/
 describe('Home Page', () => {
     before('visit the demo site', () => {
-    cy.visit('https://localhost:3000/signup');
+    cy.visit('http://localhost:3000/signup');
   });
 
   it('should successfully sign up with valid credentials and accepted terms', () => {
@@ -32,8 +32,5 @@ describe('Home Page', () => {
       cy.get('.sign-of-the-day-section .sign-description p').should('not.be.empty');
       cy.contains('.sign-of-the-day-section a', 'Explore More Signs').should('be.visible').and('have.attr', 'href', '/learnVideo');
     });
-
-
-
 
 });

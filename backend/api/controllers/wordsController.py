@@ -70,11 +70,17 @@ def detectFromFrames(frames):
             else:
                 prediction = "uncertain"
             sequence.clear()
-
-            message = {
-                "prediction": prediction,
+            
+            if prediction == "none":
+                message = {
+                "prediction": "no sign detected",
                 "confidence": confidence
-            }
+                }
+            else:
+                message = {
+                    "prediction": prediction,
+                    "confidence": confidence
+                }
         else:
             message = {
                 "prediction": "unknown sign",
@@ -83,7 +89,7 @@ def detectFromFrames(frames):
 
         return message
 
-def read_frames_from_stdin():
+def readFramesFromStdin():
     frame_count_bytes = sys.stdin.buffer.read(4)
     frame_count = struct.unpack('<I', frame_count_bytes)[0]
 
