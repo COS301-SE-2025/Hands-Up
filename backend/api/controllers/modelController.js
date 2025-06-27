@@ -1,276 +1,203 @@
-// Controller.js
 import fs from 'fs';
-import { spawn } from 'child_process';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import axios from 'axios'; // You'll need to install axios: npm install axios
+import FormData from 'form-data'; // You'll need to install form-data: npm install form-data
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
-/**
- * Enhanced function to run Python scripts with better error handling
- * @param {string} scriptPath - Path to the Python script
- * @param {Array} args - Arguments to pass to the script
- * @param {number} timeout - Timeout in milliseconds (default: 2 minutes)
- * @returns {Promise} - Promise that resolves with the script output
- */
-export function runPythonScript(scriptPath, args, timeout = 120000) {
-  return new Promise((resolve, reject) => {
-    console.log(` Running Python script: ${scriptPath} ${args.join(' ')}`);
-    
-    const process = spawn('python', [scriptPath, ...args], {
-      stdio: ['pipe', 'pipe', 'pipe'],
-      timeout: timeout
-    });
-
-    let stdout = '';
-    let stderr = '';
-    let isResolved = false;
-
-    // Handle stdout
-    process.stdout.on('data', (data) => {
-      const output = data.toString();
-      stdout += output;
-      console.log(` STDOUT: ${output.trim()}`);
-    });
-
-    // Handle stderr
-    process.stderr.on('data', (data) => {
-      const error = data.toString();
-      stderr += error;
-      console.log(` STDERR: ${error.trim()}`);
-    });
-
-    // Handle process completion
-    process.on('close', (code) => {
-      if (isResolved) return;
-      isResolved = true;
-      
-      console.log(` Process exited with code: ${code}`);
-      
-      if (code !== 0) {
-        reject(new Error(`Python script failed with code ${code}. STDERR: ${stderr.trim()}`));
-      } else {
-        // Try to extract JSON from stdout
-        const lines = stdout.trim().split('\n');
-        let jsonResult = null;
-        
-        // Look for JSON in the last few lines
-        for (let i = lines.length - 1; i >= Math.max(0, lines.length - 5); i--) {
-          try {
-            const line = lines[i].trim();
-            if (line.startsWith('{') && line.endsWith('}')) {
-              jsonResult = JSON.parse(line);
-              break;
-            }
-          } catch (e) {
-            console.log(e);
-            continue;
-          }
-        }
-        
-        if (jsonResult) {
-          resolve(jsonResult);
-        } else {
-          reject(new Error(`No valid JSON found in output. STDOUT: ${stdout.trim()}`));
-        }
-      }
-    });
-
-    // Handle process errors
-    process.on('error', (error) => {
-      if (isResolved) return;
-      isResolved = true;
-      console.error(` Process error: ${error.message}`);
-      reject(new Error(`Failed to start Python process: ${error.message}`));
-    });
-
-    // Handle timeout
-    setTimeout(() => {
-      if (!isResolved) {
-        isResolved = true;
-        process.kill('SIGKILL');
-        reject(new Error('Python script timed out'));
-      }
-    }, timeout);
-  });
-}
+// --- Configuration for Flask Server ---
+const FLASK_BASE_URL = 'http://localhost:6000'; // IMPORTANT: Change this to your Flask server's URL
+// If Flask is running on a different machine or port, update this.
+// For production, this should be an environment variable.
 
 /**
- * Clean up uploaded file
+ * Clean up uploaded file (still needed on Node.js side if using Multer)
  * @param {string} filePath - Path to the file to clean up
  */
 export function cleanupFile(filePath) {
-  try {
-    if (filePath && fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-      console.log(` Cleaned up file: ${filePath}`);
+    try {
+        if (filePath && fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+            console.log(` Cleaned up file: ${filePath}`);
+        }
+    } catch (cleanupError) {
+        console.warn(` Could not clean up file: ${cleanupError.message}`);
     }
-  } catch (cleanupError) {
-    console.warn(` Could not clean up file: ${cleanupError.message}`);
-  }
 }
 
-/**
- * Get the path to the Detection.py script
- * @returns {string} - Path to the Detection.py script
- */
-export function getDetectionScriptPath() {
-  return path.join(__dirname, '../../../ai_model2/models/Detection.py');
-}
-
-/**
- * Test endpoint controller to verify Python script connectivity
- */
-export const testPython = async (req, res) => {
-  try {
-    const scriptPath = getDetectionScriptPath();
-    console.log(` Testing Python script at: ${scriptPath}`);
-    
-    // Check if script exists
-    if (!fs.existsSync(scriptPath)) {
-      return res.status(404).json({ 
-        error: 'Python script not found',
-        path: scriptPath 
-      });
-    }
-    
-    const result = await runPythonScript(scriptPath, ['--test']);
-    return res.json({
-      success: true,
-      result: result,
-      message: 'Python script is working correctly'
-    });
-    
-  } catch (error) {
-    console.error(' Python test failed:', error);
-    return res.status(500).json({
-      error: 'Python script test failed',
-      details: error.message
-    });
-  }
-};
 
 /**
  * Image processing controller
  */
 export const processSign = async (req, res) => {
-  console.log(' IMAGE PROCESSING ENDPOINT HIT!');
-  
-  if (!req.file) {
-    return res.status(400).json({ error: 'No image file provided' });
-  }
+    console.log(' IMAGE PROCESSING ENDPOINT HIT!');
 
-  console.log(` Processing image: ${req.file.filename} (${req.file.size} bytes)`);
-
-  try {
-    const scriptPath = getDetectionScriptPath();
-    
-    // Verify script exists
-    if (!fs.existsSync(scriptPath)) {
-      throw new Error(`Detection script not found at: ${scriptPath}`);
+    if (!req.file) {
+        return res.status(400).json({ error: 'No image file provided', success: false });
     }
-    
-    const args = ['--image', req.file.path];
-    console.log(` Running detection with args: ${args.join(' ')}`);
 
-    const jsonResult = await runPythonScript(scriptPath, args);
-    
-    // Clean up uploaded file
-    cleanupFile(req.file.path);
+    console.log(` Processing image: ${req.file.filename} (${req.file.size} bytes)`);
+    const filePath = req.file.path; // Multer saves the file to this path
 
-    // Format response according to API expectations
-    const response = {
-      sign: jsonResult.action || jsonResult.sign || null,
-      confidence: jsonResult.confidence || 0,
-      success: true
-    };
+    try {
+        const formData = new FormData();
+        formData.append('image', fs.createReadStream(filePath), {
+            filename: req.file.originalname,
+            contentType: req.file.mimetype,
+        });
 
-    console.log(` Image processing result:`, response);
-    return res.json(response);
+        // Add min_confidence if you want to pass it for image processing as well
+        if (req.body.min_confidence) {
+            formData.append('min_confidence', req.body.min_confidence);
+        }
 
-  } catch (error) {
-    console.error(' Image processing error:', error);
-    
-    // Clean up uploaded file on error
-    cleanupFile(req.file?.path);
-    
-    return res.status(500).json({
-      error: 'Error processing image',
-      details: error.message,
-      success: false
-    });
-  }
+        console.log(` Sending image to Flask for processing: ${FLASK_BASE_URL}/process-image`);
+        const pythonResponse = await axios.post(`${FLASK_BASE_URL}/process-image`, formData, {
+            headers: formData.getHeaders(),
+            maxBodyLength: Infinity, // Important for large files
+            maxContentLength: Infinity, // Important for large files
+            timeout: 60000 // 60 second timeout for image processing
+        });
+
+        // Clean up uploaded file on Node.js side
+        cleanupFile(filePath);
+
+        // Flask response is expected to be in the format: { sign: "...", confidence: ..., success: true/false }
+        console.log(` Image processing result from Flask:`, pythonResponse.data);
+        return res.json(pythonResponse.data); // Forward Flask's response directly
+
+    } catch (error) {
+        console.error(' Image processing error:', error.message);
+
+        // Clean up uploaded file on error
+        cleanupFile(filePath);
+
+        let errorMessage = 'Error processing image with AI server.';
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.error(' Flask response data:', error.response.data);
+            console.error(' Flask response status:', error.response.status);
+            errorMessage = error.response.data.error || 'AI server returned an error.';
+            return res.status(error.response.status).json({
+                error: errorMessage,
+                details: error.response.data.details || error.message,
+                success: false
+            });
+        } else if (error.request) {
+            // The request was made but no response was received
+            console.error(' No response from Flask server:', error.request);
+            errorMessage = 'No response from AI server. It might be down or timed out.';
+            return res.status(504).json({ // Gateway Timeout
+                error: errorMessage,
+                details: error.message,
+                success: false
+            });
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.error(' Axios request setup error:', error.message);
+            return res.status(500).json({
+                error: 'Failed to send request to AI server.',
+                details: error.message,
+                success: false
+            });
+        }
+    }
 };
 
 /**
  * Video processing controller
  */
 export const processVideo = async (req, res) => {
-  console.log(' VIDEO PROCESSING ENDPOINT HIT!');
-  
-  if (!req.file) {
-    return res.status(400).json({ error: 'No video file provided' });
-  }
+    console.log(' VIDEO PROCESSING ENDPOINT HIT!');
 
-  console.log(` Processing video: ${req.file.filename} (${req.file.size} bytes)`);
-
-  try {
-    const scriptPath = getDetectionScriptPath();
-    
-    // Verify script exists
-    if (!fs.existsSync(scriptPath)) {
-      throw new Error(`Detection script not found at: ${scriptPath}`);
+    // Multer places the file buffer in req.file.buffer when using memoryStorage()
+    if (!req.file || !req.file.buffer) {
+        return res.status(400).json({ error: 'No video file provided or file buffer missing', success: false });
     }
-    
-    const args = ['--video', req.file.path];
-    
-    // Add minimum confidence if provided
-    if (req.body.min_confidence) {
-      const minConf = parseFloat(req.body.min_confidence);
-      if (!isNaN(minConf) && minConf >= 0 && minConf <= 1) {
-        args.push('--min_confidence', minConf.toString());
-      }
+
+    console.log(` Processing video: ${req.file.originalname} (${req.file.size} bytes)`);
+    // const filePath = req.file.path; // This will be undefined with memoryStorage()
+
+    try {
+        const formData = new FormData();
+        // Append the file buffer directly to FormData
+        // Use req.file.originalname for the filename in FormData
+        // Use req.file.mimetype for the content type
+        formData.append('video', req.file.buffer, {
+            filename: req.file.originalname,
+            contentType: req.file.mimetype,
+        });
+
+        // Add minimum confidence if provided by the client
+        if (req.body.min_confidence) {
+            const minConf = parseFloat(req.body.min_confidence);
+            if (!isNaN(minConf) && minConf >= 0 && minConf <= 1) {
+                formData.append('min_confidence', minConf.toString());
+            }
+        }
+
+        console.log(` Sending video to Flask for processing: ${FLASK_BASE_URL}/process-video`);
+
+        // Ensure you have an instance of the 'form-data' library if using Node.js,
+        // as the native FormData in Node.js might not have getHeaders() directly.
+        // Axios typically handles FormData correctly, but if getHeaders() is an issue,
+        // you might need a wrapper like 'form-data'.
+        const pythonResponse = await axios.post(`${FLASK_BASE_URL}/process-video`, formData, {
+            headers: formData.getHeaders(), // This line assumes 'form-data' package or a compatible environment
+            maxBodyLength: Infinity,
+            maxContentLength: Infinity,
+            timeout: 180000 // 3 minute timeout for video processing
+        });
+
+        // No need to cleanupFile as it was never written to disk
+        // cleanupFile(filePath);
+
+        // Flask response is expected to be in the format: { phrase: "...", confidence: ..., success: true/false }
+        console.log(` Video processing result from Flask:`, pythonResponse.data);
+        return res.json(pythonResponse.data); // Forward Flask's response directly
+
+    } catch (error) {
+        console.error(' Video processing error:', error.message);
+
+        // No need to cleanupFile on error either
+        // cleanupFile(filePath);
+
+        let errorMessage = 'Error processing video with AI server.';
+        if (error.response) {
+            console.error(' Flask response data:', error.response.data);
+            console.error(' Flask response status:', error.response.status);
+            errorMessage = error.response.data.error || 'AI server returned an error.';
+            return res.status(error.response.status).json({
+                error: errorMessage,
+                details: error.response.data.details || error.message,
+                success: false
+            });
+        } else if (error.request) {
+            console.error(' No response from Flask server:', error.request);
+            errorMessage = 'No response from AI server. It might be down or timed out.';
+            return res.status(504).json({ // Gateway Timeout
+                error: errorMessage,
+                details: error.message,
+                success: false
+            });
+        } else {
+            console.error(' Axios request setup error:', error.message);
+            return res.status(500).json({
+                error: 'Failed to send request to AI server.',
+                details: error.message,
+                success: false
+            });
+        }
     }
-    
-    console.log(` Running detection with args: ${args.join(' ')}`);
-
-    const jsonResult = await runPythonScript(scriptPath, args, 180000); // 3 minute timeout for videos
-    
-    // Clean up uploaded file
-    cleanupFile(req.file.path);
-
-    // Format response according to API expectations
-    const response = {
-      phrase: jsonResult.action || jsonResult.phrase || null,
-      confidence: jsonResult.confidence || 0,
-      success: true
-    };
-
-    console.log(` Video processing result:`, response);
-    return res.json(response);
-
-  } catch (error) {
-    console.error(' Video processing error:', error);
-    
-    // Clean up uploaded file on error
-    cleanupFile(req.file?.path);
-    
-    return res.status(500).json({
-      error: 'Error processing video',
-      details: error.message,
-      success: false
-    });
-  }
 };
-
 /**
- * Health check controller
+ * Health check controller (remains the same)
  */
 export const healthCheck = (req, res) => {
-  res.json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime()
-  });
+    res.json({
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        // Add a note about Flask if you want
+        message: "Node.js backend is healthy. AI processing handled by a separate Flask server."
+    });
 };
