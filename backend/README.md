@@ -25,3 +25,10 @@ the values can be found on the drive-> SPRINT 2-> DB Passwords
       3. mkcert -install
       4. mkcert localhost 127.0.0.1 ::1
 ## Then move the certificate files(you can find them in the file explorer in same folder as the one in powershell) to the frontend and backend api directory of your project.
+
+
+## How to run the models
+2 models the need to be run:
+1) Go navigate to api/controllers/ readme for steps
+2) go to the api readme for steps 
+
