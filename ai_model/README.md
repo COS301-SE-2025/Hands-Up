@@ -9,6 +9,7 @@
 6. python3 -m pip install python-dotenv
 7. python3 -m pip install flask-cors
 8. python3 -m pip install collections
+9. pip install pytest
 
 ## To run
 python3 alphabetDetection.py

@@ -1,12 +1,18 @@
 <p align="center">
-  <img src="diagrams/Hands UP.png" width="300" height="200" style="display: inline-block;">
-  <img src="diagrams/TMKDT.png" width="300" height="200" style="display: inline-block; margin-right: 20px;">
+  <img src="diagrams/Hands UP x TMKDT.png" width="550" height="200" style="display: inline-block;">
 </p>
-  
-<h1 align="center">Hands UP by TMKDT</h1>
 
-## Project Description 
+<div align="center">
+  <span style="font-size:2em; font-weight:bold;">Hands UP by TMKDT</span><br>
+  <span style="font-size:1.2em;">A Capstone Project for EPI-USE Africa</span>
+</div>
+<hr>
 
+<div style="height: 20px;"></div>
+
+<div align="Center">
+<h2 >Project Description </h2>
+</div>
 Hands UP is an innovative application that bridges the communication gap between signers and non-signers. Using advanced AI technology, the application detects and translates sign language in real-time through the device's camera, converting signs into both text and spoken language without significant delays. Beyond translation, it also serves as an interactive learning platform with structured lessons and immediate feedback on signing accuracy.
 
 Thus, the system focuses on three core functionalities: 
@@ -14,66 +20,73 @@ Thus, the system focuses on three core functionalities:
 2. Interactive learning with AI-powered feedback 
 3. Progress tracking for users
 
- <div align="Center">
-<h2 >Demo Videos</h2>
+<div align="Center">
+<h2 >Demo Videos & System Requirement Specifications</h2>
 
-| Demo # | Video Link                                                                 |
-|--------|----------------------------------------------------------------------------|
-| 1      | [Demo 1 Video](https://drive.google.com/file/d/1mFRqv6zRN1a6LuKWWXX5wu1XCvTVVWZ7/view) |
-| 2      | [Demo 2 Video] |
-| 3      | [Demo 3 Video] |
-| 4      | [Demo 4 Video] |
+| Demo # | Video Link                                                                 | SRS Link |
+|--------|----------------------------------------------------------------------------|------------------|
+| 1      | [Demo 1 Video](https://drive.google.com/file/d/1mFRqv6zRN1a6LuKWWXX5wu1XCvTVVWZ7/view) | [Demo 1 SRS](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_1) |
+| 2      | [Demo 2 Video](https://drive.google.com/file/d/1JdpGGRkO_d-04IrgbtnfarugVtxaAQ4w/view?usp=drive_link) | [Demo 2 SRS](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2) |
+| 3      | [Demo 3 Video] | [Demo 3 SRS] |
+| 4      | [Demo 4 Video] | [Demo 4 SRS] |
 
 </div>
 
- <div align="Center">
-<h2 >Links to SRS Document and SubParts</h2>
+<div align="Center">
+<h2 >Links to Current SRS Document and Sections</h2>
 
 | Resource                          | Description                             |
 |-----------------------------------|-----------------------------------------|
-| [SRS Document](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS)                | Outlines the system's functional and non-functional requirements |
-| [Domain Model](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS#domain-model)                | Visual representation of key entities and their relationships |
-| [Use Case Diagram](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS#use-case-diagram)           | Overview of system interactions with external actors          |
-| [Functional Requirements](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS#functional-requirements)    | Core functionalities the system must perform                  |
-| [Architectural Requirements](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS#architectural-requirements) | High-level design constraints and objectives                  |
-| [Architectural Patterns](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS#architectural-patterns)      | Chosen architectural solutions and justifications             |
-| [Design Patterns](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS#design-patterns)            | Reusable solutions to common software design problems         |
-| [Constraints](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS#constraints)                | Technical, business, or environmental limitations             |
-| [Service Contracts](https://docs.google.com/document/d/14V-21fzAjwRsA2nPEop3hE1Vkl4h4Zx2k93k3Eh4bT0/edit?tab=t.0#bookmark=id.iixpcq5t2vzu)         | Defined inputs, outputs, and behaviors of services            |
-| [Technology Requirements](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS#technology-requirements)   | Platforms, tools, and languages required for implementation   |
+| [SRS Document](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2) | Outlines the system's functional and non-functional requirements |
+| [Domain Model](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2#domain-model) | Visual representation of key entities and their relationships |
+| [Use Case Diagram](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2#use-case-diagram) | Overview of system interactions with external actors |
+| [Functional Requirements](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2#functional-requirements) | Core functionalities the system must perform |
+| [Architectural Requirements](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2#architectural-requirements) | High-level design constraints and objectives |
+| [Technology Choices](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2#technology-choices) | Platforms, tools and languages required for implementation |
+| [Service Contracts](https://github.com/COS301-SE-2025/Hands-Up/wiki/Service_Contracts_2) | Defined inputs, outputs and behaviors of services |
+| [Contributions](#contributions) | Outlines each member's individual responsibilities. |
+<!-- | [Architectural Patterns](#) | Chosen architectural solutions and justifications | -->
+<!-- | [Design Patterns](#) | Reusable solutions to common software design problems | -->
+<!-- | [Constraints](#) | Technical, business or environmental limitations | -->
+
 </div>
 
 <h2 align="center">Badges </h2>
- <div align="Center">
-
-
-
+<div align="Center">
 
 <!-- 🐛 Issues -->
 ![GitHub issues](https://img.shields.io/github/issues/COS301-SE-2025/Hands-Up)
 
+![Build](https://img.shields.io/github/actions/workflow/status/COS301-SE-2025/Hands-Up/build.yml)
+
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/COS301-SE-2025/Hands-Up)
 
-[![Coverage](https://img.shields.io/codecov/c/github/COS301-SE-2025/Hands-Up?logo=codecov)](https://codecov.io/gh/COS301-SE-2025/Hands-Up)
+![Contributors](https://img.shields.io/github/contributors/COS301-SE-2025/Hands-Up)
 
- <h2 align="center">Technologies </h2>
- <div align="Center">
+![Last Commit](https://img.shields.io/github/last-commit/COS301-SE-2025/Hands-Up)
 
-<p>Artificial Intelligence & Machine Learning</p>
-<img src="https://skillicons.dev/icons?i=python,opencv"/>
+<h2 align="center">Technologies </h2>
+<div align="Center">
 
- <p>Frontend</p>
-  <img src="https://skillicons.dev/icons?i=react,html,css,js,vue,flutter"/>
+  <p>Artificial Intelligence & Machine Learning</p>
+    <img src="https://skillicons.dev/icons?i=python,opencv,tensorflow"/>
+
+  <p>Frontend</p>
+    <img src="https://skillicons.dev/icons?i=react,html,css,js"/>
+
   <p>Backend</p>
-    <img src="https://skillicons.dev/icons?i=nodejs,azure,aws,firebase,gcp"/>
-<p>Project Management & Deployment</p>
-   <img src="https://skillicons.dev/icons?i=git,githubactions,npm,docker"/>
-<p>Testing</p>
+    <img src="https://skillicons.dev/icons?i=nodejs,aws,firebase"/>
+
+  <p>Testing</p>
     <img src="https://skillicons.dev/icons?i=cypress,jest"/>
     <img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Selenium_Logo.png" alt="Selenium" width="40"/>
 
+  <p>Project Management & Deployment</p>
+    <img src="https://skillicons.dev/icons?i=git,githubactions,npm,docker"/>
+
   </div>
   <br>
+
 <h1 align="center">Meet The Team</h1>
 
 <table border="0" cellpadding="15" cellspacing="0" style="width: 100%;">
@@ -182,49 +195,16 @@ Thus, the system focuses on three core functionalities:
   </tr>
 </table>
 
-<h1 align="center">Contributions</h1>
+<h1 align="center" id="contributions">Contributions</h1>
+<div align="center">
 
-<h2>Karabo Serothoane</h2>
-<p>
-  <ul style="margin-left: 0;">
-    <li>Set up database on Docker</li>
-    <li>Set up GitHub Actions</li>
-    <li>Set up testing environment</li>
-    <li>Implemented learning progress use case and testing</li>
-  </ul>
-</p>
+| Team Member         | Contributions                                                                                         |
+|--------------------|-------------------------------------------------------------------------------------------------------|
+| Karabo Serothoane  | - Set up database on Docker  <br> - Set up GitHub Actions  <br> - Set up testing environment  <br> - Implemented learning progress use case and testing <br> - Developed the Alphabet AI model with real-time translation support <br> - Created and animated the lessons on the Learn page <br> - Improved code maintainability and structure |
+| Thendo Mbedzi      | - Designed and implemented all pages for UI  <br> - Created and applied the app theme  <br> - Created wireframes and mockups for documentation <br> - Redesigned the UI with an improved interface <br> - Refined existing hand animation on the Learn page <br> - Implemented the security quality requirements |
+| Tambi Chirima      | - Set up GitHub organisation and management  <br> - Initialised GitHub structure (mono-repo)  <br> - Implemented visual input use case and testing <br> - Created the Help page <br> - Developed integration tests and automation scripts <br> - Implemented Continuous Integration (CI) support |
+| Driya Govender     | - Set up GitHub Wiki  <br> - Implemented update user details use case and testing <br> - Designed and implemented the Landing page <br> - Improved test coverage by adding and updating unit tests |
+| Mutarisi Chibaya   | - Designed the architecture of the system  <br> - Developed and tested backend endpoints for login and sign up <br> - Developed and fine-tuned an LSTM-based neural network for ASL word translation |
 
-<h2>Thendo Mbedzi</h2>
-<p>
-  <ul style="margin-left: 0;">
-    <li>Designed and implemented all pages for UI</li>
-    <li>Created and applied the app theme</li>
-    <li>Created wireframes and mockups for documentation</li>
-  </ul>
-</p>
-
-<h2>Tambi Chirima</h2>
-<p>
-  <ul style="margin-left: 0;">
-    <li>Set up GitHub organisation and management</li>
-    <li>Initialised GitHub structure (mono-repo)</li>
-    <li>Implemented visual input use case and testing</li>
-  </ul>
-</p>
-
-<h2>Driya Govender</h2>
-<p>
-  <ul style="margin-left: 0;">
-    <li>Set up GitHub Wiki</li>
-    <li>Implemented update user details use case and testing</li>
-  </ul>
-</p>
-
-<h2>Mutarisi Chibaya</h2>
-<p>
-  <ul style="margin-left: 0;">
-    <li>Designed the architecture of the system</li>
-    <li>Developed and tested backend endpoints for login and sign up</li>
-  </ul>
-</p>
+</div>
 <h2>All team members contributed towards documentation</h2>

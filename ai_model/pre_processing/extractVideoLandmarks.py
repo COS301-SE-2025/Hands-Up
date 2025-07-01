@@ -45,13 +45,6 @@ def extractLandmarksFromVideo(videoPath, letter, outputDir='landmarks'):
     print(f"Saved landmarks to {outputPath}")
 
 def processAllVideosInDirectory(videoDirectory, outputDirectory='landmarks'):
-    """
-    Processes all video files in a given directory to extract hand landmarks.
-
-    Args:
-        videoDirectory (str): The path to the directory containing video files.
-        outputDirectory (str): The directory where JSON landmark files will be saved.
-    """
     if not os.path.isdir(videoDirectory):
         print(f"Error: Video directory '{videoDirectory}' not found.")
         return
@@ -68,7 +61,12 @@ def processAllVideosInDirectory(videoDirectory, outputDirectory='landmarks'):
             print(f"Skipping non-video file: {filename}")
 
 if __name__ == "__main__":
+<<<<<<< HEAD
     videoInputDirectory = "../video_data" '
     landmarkOutputDirectory = "../processed_data/landmarks" 
+=======
+    videoInputDirectory = "../video_data" 
+    landmarkOutputDirectory = "../processed_data/landmarks"
+>>>>>>> d4b3d9b80cc1a7921929b3c508f8ca04f190f480
     
     processAllVideosInDirectory(videoInputDirectory, landmarkOutputDirectory)

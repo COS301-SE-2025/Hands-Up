@@ -2,6 +2,11 @@
   "name": "handsUP-Api",
   "version": "1.0.0",
   "type": "module",
+  "eslintConfig": {
+    "env": {
+      "node": true
+    }
+  },
   "scripts": {
     "start": "echo 'No app yet...'",
     "test-coverage": "echo 'No tests yet...'",
@@ -15,6 +20,7 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.0",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",

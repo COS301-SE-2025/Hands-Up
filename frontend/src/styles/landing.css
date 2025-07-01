@@ -1,0 +1,538 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend&display=swap');
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+.landing-container {
+  font-family: 'Poppins', sans-serif;
+  animation: fadeIn 1s ease-in;
+  position: relative;
+  min-height: 100%;
+  max-width: 100%;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.landing-header {
+  position: fixed;
+  z-index: 100;
+  width: 100%;
+  height: 70px;
+  top: 0;
+  background: linear-gradient(to bottom, white 0%, white 90%, rgba(255, 255, 255, 0) 100%);
+  color: rgb(80, 80, 80);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1rem;
+}
+
+.landing-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0; 
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.8rem;
+  color: black;
+}
+
+.landing-logo {
+  width: 60px; 
+  height: auto;
+  z-index: 100;
+  transition: transform 0.3s ease; 
+}
+
+.landing-logo:hover {
+  transform: rotate(10deg);
+}
+
+.landing-nav-center {
+  display: flex;
+  gap: 1rem;
+  margin-top: auto;
+  margin-right: 1rem;
+}
+
+.landing-nav-link {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  transition: all 0.3s ease; 
+  font-size: 1rem;
+  padding: 0.4rem 0.8rem;   
+  border-radius: 0.5rem;   
+}
+
+.landing-nav-link:hover {
+  background-color: #ffe44d; 
+  border-radius: 0.5rem;                
+}
+
+.landing-header-right {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-button {
+  padding: 0.5rem 1rem;       
+  font-size: 1rem;         
+  border: none;
+  border-radius: 0.5rem;
+  background-color: #7ED957;  
+  color: white;
+  box-shadow: 0 4px #7ED957;  
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  font-weight: 500;
+}
+
+.nav-button:hover {
+  box-shadow: 0 2px #7ED957;
+  transform: translateY(2px);
+}
+
+.nav-button:active {
+  box-shadow: 0 0 #7ED957;
+  transform: translateY(4px);
+}
+
+.nav-button.login {
+  background-color: transparent;
+  color: black;
+  border: 1.5px solid #7ED957;
+  box-shadow: 0 4px #58983D;
+}
+
+.nav-button.login:hover {
+  background-color: rgba(78, 122, 81, 0.1);
+  box-shadow: 0 2px #3a5d3d;
+}
+
+.nav-button.signup {
+  background-color: #7ed957a5;
+  color: black;
+  padding: 0.6rem 1.2rem; 
+  border: 1.5px solid #58983D;
+  box-shadow: 0 4px #58983D;
+  transform: none; 
+}
+
+.nav-button.signup:hover {
+  box-shadow: 0 2px #3a5d3d;
+  transform: translateY(2px);
+}
+
+/* hero section */
+.hero-container {
+  position: relative;
+  margin-top: 70px;
+  width: 100%;
+  min-height: 36vh; 
+  min-height: 35svh;
+}
+
+.hero-div {
+  position: relative; 
+  width: 100%;
+  min-height: 30vh;
+  height: auto;
+  background-image: linear-gradient(90deg, #FFC542, #bdd957, #7ED957);
+  padding: 1rem;
+  text-align: center;
+}
+
+.hero-div-h1 {
+  font-family: 'Lexend', sans-serif;
+  font-size: 3rem;
+  color: #333;
+  margin: 2rem 0 1rem 0;
+}
+
+.hero-div-p {
+  font-family: 'Lexend', sans-serif;
+  font-size: 2rem;
+  color: #333;
+  margin: 0;
+}
+
+.hero-buttons {
+  margin-top: 4%;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.hero-button {
+  width: 200px;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  background-color: transparent;
+  border: 2px solid white;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.hero-button:hover {
+  background-color: whitesmoke;
+}
+
+.side-image {
+  position: absolute;
+  width: auto;
+}
+
+.left-image {
+  left: 0;
+  bottom: 0;
+  max-height: 80%;
+}
+
+.right-image {
+  right: 1%;
+  bottom: 0;
+  max-height: 86%;
+}
+
+@keyframes jump {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-12px); }
+  100% { transform: translateY(0); }
+}
+
+.side-image:hover {
+  animation: jump 0.8s ease-in-out;
+}
+
+/* about section */
+.about-section {
+  position: relative;
+  margin-top: 10vh;
+  width: 80%;
+  min-height: auto;
+  left: 10%;
+  padding: 1rem 2rem;
+  text-align: center;
+  background-color: #2E2E2E;
+  border-radius: 1rem;
+  border: 10px solid #8B5E3C; 
+  box-shadow: 0 0 12px rgb(0, 0, 0);
+  color: white;  
+  font-family: 'Lexend', sans-serif;
+}
+
+.about-heading {
+  font-size: 2.5rem;
+}
+
+.about-container {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.about {
+  max-width: 95%;
+  font-size: 1rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: transform 0.5s, box-shadow 0.5s;
+}
+
+/* features section */
+.landing-features-section {
+  position: relative; 
+  width: 100%;
+  height: auto;
+  margin-top: 5vh;
+  padding: 2rem 2rem;
+  text-align: center;
+  background-color: white;
+  color: black;
+}
+
+.landing-features-heading {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  font-family: 'Lexend', sans-serif;
+}
+
+.landing-features-container {
+  display: flex;
+  justify-content: center;
+  gap: 3.3%;
+  flex-wrap: wrap;
+}
+
+.landing-feature-card {
+  width: 30%;
+  height: 250px;
+  perspective: 1000px;
+  cursor: pointer;
+  margin-top: 5vh;
+}
+
+.card-inner {
+  width: 100%;
+  height: 95%;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+  position: relative;
+}
+
+.landing-feature-card:hover .card-inner {
+  transform: rotateY(180deg);
+}
+
+.card-front,
+.card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 1rem;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  backface-visibility: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Poppins', sans-serif;
+  padding: 1rem;
+}
+
+.card-front {
+  background-color: #FFC542;
+  display: flex;
+  flex-direction: column;
+}
+
+.landing-feature-icon {
+  color: #1d1d1d;
+  font-size: 100px;
+  margin-bottom: 10px;
+}
+
+.card-front p {
+  color: black !important;
+  font-size: 1rem !important;
+}
+
+.card-back {
+  background-color: #FFC542;
+  transform: rotateY(180deg);
+}
+
+.card-back p {
+  color: #333333 !important;
+  font-size: 1rem !important;
+}
+
+.one-front {
+  background-color: #7ED957; 
+}
+
+.two-front {
+  background-color: #4A90E2;
+}
+
+/* help section */
+.help-section {
+  padding: 2rem;
+  background-color: #ffc64222; 
+  margin-top: 5vh;
+  width: 100%;
+  position: relative;
+}
+
+.help-heading {
+  margin: 0 auto 1rem auto;
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  font-family: 'Lexend', sans-serif;
+}
+
+.help-container {
+  width: 100%;
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.download-info, .tutorial-video {
+  flex: 1;
+  min-width: 300px;
+  width: 45%;
+  text-align: center;
+}
+
+.download-info h3, .tutorial-video h3 {
+  font-family: 'Lexend', sans-serif;
+  margin: 1rem 0;
+}
+
+.download-info p, .tutorial-video p {
+  margin: 0 auto 1.5rem auto;
+  text-align: center;
+}
+
+.device-image {
+  width: 80%;
+  height: auto;
+  display: block;
+  margin: 0 auto 1rem auto; 
+}
+
+.download-button {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: #ffd700; 
+  color: #333;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.download-button:hover {
+  transform: scale(1.05);
+}
+
+.tutorial-video iframe {
+  width: 70%;
+  height: auto;
+  aspect-ratio: 16/9;
+  border-radius: 0.5rem;  
+}
+
+/* footer */
+.landing-footer {
+  margin-top: 2vh;
+  text-align: center;
+  padding: 1rem;
+  background-color: white; 
+  color: black;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 0.9rem;
+}
+
+.error-message {
+  color: red;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 1000px) {
+  .side-image {
+    display: none;
+  }
+}
+
+@media (max-width: 540px) {
+  .landing-logo {
+    width: 40px;
+  }
+
+  .landing-header-left {
+    font-size: 0.5rem;
+  }
+
+  .landing-nav-center {
+    display: none;
+  }
+
+  .nav-button {
+    font-size: 0.5rem;
+  }
+
+  .hero-container {
+    min-height: 30vh;
+    min-height: 30svh;
+  }
+
+  .hero-div-h1 {
+    font-size: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  .hero-div-p {
+    font-size: 1rem;
+  }
+
+  .hero-button {
+    width: 150px;
+    font-size: 0.8rem;
+  }
+
+  .side-image {
+    display: none;
+  }
+
+  .about-section {
+    margin-top: 5vh;
+  }
+
+  .about-heading {
+    font-size: 1.5rem;
+  }
+
+  .about {
+    font-size: 0.75rem;
+    padding: 0.5rem;
+  }
+
+  .landing-features-heading {
+    font-size: 1.5rem;
+  }
+
+  .landing-feature-card {
+    width: 47.5%;
+  }
+  
+  .landing-feature-icon {
+    font-size: 50px;
+  }
+
+  .card-front p {
+    font-size: 0.7rem !important;
+  }
+
+  .card-back p {
+    font-size: 0.7rem !important;
+  }
+
+  .help-section {
+    margin-top:  2.5vh;
+  }
+
+  .help-heading {
+    font-size: 1.5rem;
+  }
+
+  .download-info h3, .tutorial-video h3 {
+    font-size: 1rem;
+  }
+
+  .download-info p, .tutorial-video p {
+    font-size: 0.8rem;
+  }
+
+  .landing-footer {
+    font-size: 0.5rem;
+  }
+}
