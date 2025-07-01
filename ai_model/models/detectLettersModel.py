@@ -4,6 +4,7 @@ import tensorflow as tf
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score
 
+#process first data set
 dataDictTrain = pickle.load(open('../processed_data/trainData.pickle', 'rb'))
 
 cleanedData = []
@@ -13,7 +14,7 @@ for i, item in enumerate(dataDictTrain['data']):
         cleanedData.append(np.array(item, dtype=np.float32))
         cleanedLabels.append(dataDictTrain['labels'][i])
 
-xTrain = np.stack(cleanedData)
+xTrain = np.array(cleanedData)
 yTrainRaw = np.array(cleanedLabels)
 
 dataDictTest = pickle.load(open('../processed_data/testData.pickle', 'rb'))
@@ -29,6 +30,26 @@ labelEncoder.fit(yTrainRaw)
 yTrainEncoded = labelEncoder.transform(yTrainRaw)
 yTestEncoded = labelEncoder.transform(yTestRaw)
 
+#second data set for finetuning
+dataDictTrain2 = pickle.load(open('../processed_data/trainData3.pickle', 'rb'))
+
+cleanedData2 = []
+cleanedLabels2 = []
+for i, item in enumerate(dataDictTrain2['data']):
+    if isinstance(item, (np.ndarray, list)) and len(item) == 42:
+        cleanedData2.append(np.array(item, dtype=np.float32))
+        cleanedLabels2.append(dataDictTrain2['labels'][i])
+
+xTrain2 = np.stack(cleanedData2)
+yTrainRaw2= np.array(cleanedLabels2)
+
+xTrain2 = xTrain2.reshape(-1, 42, 1)
+
+labelEncoder2 = LabelEncoder()
+labelEncoder2.fit(yTrainRaw2)
+
+yTrainEncoded2 = labelEncoder2.transform(yTrainRaw2)
+
 model = tf.keras.models.Sequential([
     tf.keras.layers.Conv1D(32, kernel_size=3, activation='relu', input_shape=(42, 1)),
     tf.keras.layers.MaxPooling1D(pool_size=2),
@@ -39,7 +60,8 @@ model = tf.keras.models.Sequential([
 ])
 
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-model.fit(xTrain, yTrainEncoded, epochs=15, batch_size=32, validation_split=0)
+model.fit(xTrain, yTrainEncoded, epochs=30, batch_size=32, validation_split=0.2)
+model.fit(xTrain2, yTrainEncoded2, epochs=20, batch_size=32, validation_split=0.2)
 
 testLoss, testAccuracy = model.evaluate(xTest, yTestEncoded)
 print(f"\nTest accuracy: {testAccuracy * 100:.2f}%")
