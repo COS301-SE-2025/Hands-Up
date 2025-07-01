@@ -6,6 +6,8 @@ import os
 
 api_blueprint = Blueprint('sign', __name__, url_prefix='/sign')
 
+
+#recieves an image, saves it temporarily, and passes its path to detect from image the deletes teh temp file 
 @api_blueprint.route('/sign/processImage', methods=['POST'])
 def process_image():
     if 'image' not in request.files:
@@ -22,6 +24,7 @@ def process_image():
 
     return jsonify(result)
 
+#recieves multiple frames reads them in order and pasesses them to detectFromFrames
 @api_blueprint.route("/sign/processFrames", methods=["POST"])
 def process_frames():
     files = request.files.getlist("frames")
