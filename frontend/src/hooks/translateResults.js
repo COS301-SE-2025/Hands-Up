@@ -88,6 +88,7 @@ export function useTranslator() {
 
                 if (fingerspellingMode) {
                     const sign = await processImage(blob);
+                    console.log(sign);
                     setResult(prev => {
                         if (sign.phrase === 'SPACE') return prev + ' ';
                         if (sign.phrase === 'DEL') return prev.slice(0, -1);
