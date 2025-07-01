@@ -31,6 +31,7 @@ for dir in os.listdir(DATADIR):
             print("Failed to load:", imgPath)
             continue  
 
+        img = cv2.imread(imgPath) # this iwwill read image and save to img variable
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         results = hands.process(imgRGB)
