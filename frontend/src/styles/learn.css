@@ -80,7 +80,7 @@
   text-align: center;
   font-size: 2rem;
   font-weight: 600;
-  color: #4e7a51;
+  color: #2f9736;
 }
 
 .summary-progress-value {
@@ -136,7 +136,7 @@
 }
 
 .category-tile.unlocked {
-  background-color: #ffeb3bc3;
+  background-color: #ffe44d;
   color: #333;
 }
 
@@ -181,8 +181,8 @@
 }
 
 .level-card.unlocked {
-  background-color: #7ED957;
-  color:#ffc61a;
+  background-image: linear-gradient(to right, #2da335, #7ED957);
+  color:#ffffff;
 }
 
 .level-card.locked {

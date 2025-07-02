@@ -84,18 +84,9 @@ export function SignLearn() {
         loadData();
     }, [letter, updateStats, stats, getNextLetter]); 
 
-<<<<<<< HEAD
-      ctx.strokeStyle = getShadedColor(start);
-      ctx.lineWidth = 20 - start.z * 4;
-      ctx.lineCap = 'round';
-      ctx.shadowColor = 'rgba(0,0,0,0.12)';
-      ctx.shadowBlur = 10;
-      ctx.stroke();
-=======
     useEffect(() => {
         const canvas = canvasRef.current;
         const ctx = canvas?.getContext('2d');
->>>>>>> d4b3d9b80cc1a7921929b3c508f8ca04f190f480
 
         function drawFrame() {
             if (!ctx || landmarks.length === 0) return;

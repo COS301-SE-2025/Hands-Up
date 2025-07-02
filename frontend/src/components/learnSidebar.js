@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from 'react';
-<<<<<<< HEAD
-import '../styles/Learn.css';
-=======
 import '../styles/learn.css';
->>>>>>> d4b3d9b80cc1a7921929b3c508f8ca04f190f480
 import PropTypes from "prop-types";
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
@@ -80,8 +76,4 @@ Sidebar.propTypes = {
   progressPercent: PropTypes.number.isRequired,
   signsLearned: PropTypes.number.isRequired,
   lessonsCompleted: PropTypes.number.isRequired,
-<<<<<<< HEAD
 };
-=======
-};
->>>>>>> d4b3d9b80cc1a7921929b3c508f8ca04f190f480
