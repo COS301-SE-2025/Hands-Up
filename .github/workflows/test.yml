@@ -48,71 +48,71 @@ jobs:
         working-directory: ./
         run: npm run test-coverage
    
-  # test-integration:
-  #   name: Run Cypress Integration Tests
-  #   runs-on: ubuntu-latest
-  #   needs: test-codebase
+  test-integration:
+    name: Run Cypress Integration Tests
+    runs-on: ubuntu-latest
+    needs: test-codebase
 
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  #     - name: Set up Node
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: '22'
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
-  #     # Install docker-compose
-  #     - name: Install docker-compose
-  #       run: |
-  #         sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-  #         sudo chmod +x /usr/local/bin/docker-compose
-  #         docker-compose --version
+      # Install docker-compose
+      - name: Install docker-compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose --version
 
-  #     - name: Install root dependencies
-  #       run: npm ci
+      - name: Install root dependencies
+        run: npm ci
 
-      # - name: Install backend dependencies
-      #   working-directory: backend/api
-      #   run: npm ci
+      - name: Install backend dependencies
+        working-directory: backend/api
+        run: npm ci
 
-      # - name: Install frontend dependencies
-      #   working-directory: frontend
-      #   run: npm ci
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
 
-      # # Install Cypress binary explicitly
-      # - name: Install Cypress
-      #   run: npx cypress install
+      # Install Cypress binary explicitly
+      - name: Install Cypress
+        run: npx cypress install
 
-      # # Create .env file with secrets
-      # - name: Create .env file
-      #   run: |
-      #     echo "DB_USER=${{ secrets.DB_USER }}" > .env
-      #     echo "DB_PASS=${{ secrets.DB_PASS }}" >> .env
-      #     echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
-      #     echo "DB_HOST=localhost" >> .env
-      #     echo "DB_PORT=5432" >> .env
+      # Create .env file with secrets
+      - name: Create .env file
+        run: |
+          echo "DB_USER=${{ secrets.DB_USER }}" > .env
+          echo "DB_PASS=${{ secrets.DB_PASS }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "DB_HOST=localhost" >> .env
+          echo "DB_PORT=5432" >> .env
 
-      # # Start database and wait for it to be ready
-      # - name: Start database
-      #   run: |
-      #     cd backend/database
-      #     docker-compose up -d --build
-      #     echo "Waiting for database to be ready..."
-      #     sleep 15
+      # Start database and wait for it to be ready
+      - name: Start database
+        run: |
+          cd backend/database
+          docker-compose up -d --build
+          echo "Waiting for database to be ready..."
+          sleep 15
           
-      # # Run database migrations if needed
-      # - name: Run database migrations
-      #   run: |
-      #     cd backend/database
-      #     DB_USER=${{ secrets.DB_USER }} DB_PASS=${{ secrets.DB_PASS }} DB_NAME=${{ secrets.DB_NAME }} docker-compose run flyway migrate
+      # Run database migrations if needed
+      - name: Run database migrations
+        run: |
+          cd backend/database
+          DB_USER=${{ secrets.DB_USER }} DB_PASS=${{ secrets.DB_PASS }} DB_NAME=${{ secrets.DB_NAME }} docker-compose run flyway migrate
 
-      # # Verify database is accessible
-      # - name: Check database connection
-      #   run: |
-      #     # Try to connect to the database to verify it's running
-      #     docker-compose -f backend/database/docker-compose.yml ps
+      # Verify database is accessible
+      - name: Check database connection
+        run: |
+          # Try to connect to the database to verify it's running
+          docker-compose -f backend/database/docker-compose.yml ps
           
-      # - name: Start services and run Cypress tests
-      #   run: npm run test:integration
+      - name: Start services and run Cypress tests
+        run: npm run test:integration
