@@ -1,7 +1,7 @@
 name: Test Code
 on:
   push:
-    branches: [main, dev]
+    branches: [test/automated]
   pull_request:
     branches: [main, dev]
     
