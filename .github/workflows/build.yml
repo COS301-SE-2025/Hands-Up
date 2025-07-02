@@ -2,7 +2,7 @@ name: Build Codebase
 
 on:
   push:
-    branches: [main, dev]
+    branches: [main, dev, test/automated]
   pull_request:
     branches: [main, dev]
 
