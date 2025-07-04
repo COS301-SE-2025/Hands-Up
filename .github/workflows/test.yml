@@ -1,91 +1,52 @@
-name: Test Code
+name: Integration Tests
+
 on:
-  push:
-    branches: [test/automated]
   pull_request:
     branches: [main, dev]
-    
+  push:
+    branches: [main, dev, test/automated]
+
 permissions:
   contents: read
 
 jobs:
-  pre-start:
+  run-cypress-tests:
+    name: Cypress Integration Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-
+    
+    env:
+      # Database environment variables
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASS: ${{ secrets.DB_PASS }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_HOST: localhost
+      DB_PORT: 5432
+      
+      # API environment variables (if needed)
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      API_PORT: 2000
+      
+      # Frontend environment variables (if any)
+      REACT_APP_API_URL: http://localhost:2000
+      REACT_APP_TESTING_ENVIRONMENT: true
+      
     steps:
-      - name: Starting Job
-        run: |
-          echo "Beginning to test ${{ github.repository }}"
-
-  test-codebase:
-    name: Test Codebase
-    runs-on: ubuntu-latest
-    needs: pre-start
-
-    steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Node
+      - name: Set up Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: 22
 
-      - name: Install dependencies for test
-        working-directory: ./
-        run: npm ci
-
-      - name: Install dependencies for backend
-        working-directory: backend/api
-        run: npm ci
-
-      - name: Install dependencies for frontend
-        working-directory: frontend
-        run: npm ci
-
-      - name: Run Tests
-        working-directory: ./
-        run: npm run test-coverage
-   
-  test-integration:
-    name: Run Cypress Integration Tests
-    runs-on: ubuntu-latest
-    needs: test-codebase
-
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      # Install docker-compose
+      # Install docker-compose for database
       - name: Install docker-compose
         run: |
           sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
           docker-compose --version
 
-      - name: Install root dependencies
-        run: npm ci
-
-      - name: Install backend dependencies
-        working-directory: backend/api
-        run: npm ci
-
-      - name: Install frontend dependencies
-        working-directory: frontend
-        run: npm ci
-
-      # Install Cypress binary explicitly
-      - name: Install Cypress
-        run: npx cypress install
-
-      # Create .env file with secrets
+      # Create .env file for database
       - name: Create .env file
         run: |
           echo "DB_USER=${{ secrets.DB_USER }}" > .env
@@ -94,25 +55,94 @@ jobs:
           echo "DB_HOST=localhost" >> .env
           echo "DB_PORT=5432" >> .env
 
-      # Start database and wait for it to be ready
+      # Start database
       - name: Start database
         run: |
           cd backend/database
           docker-compose up -d --build
           echo "Waiting for database to be ready..."
-          sleep 15
-          
-      # Run database migrations if needed
+          sleep 30
+
+      # Wait for database to be healthy
+      - name: Wait for database to be ready
+        run: |
+          timeout 60 bash -c 'until docker-compose -f backend/database/docker-compose.yml exec -T db pg_isready -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }}; do sleep 2; done'
+
+      # Run database migrations
       - name: Run database migrations
         run: |
           cd backend/database
-          DB_USER=${{ secrets.DB_USER }} DB_PASS=${{ secrets.DB_PASS }} DB_NAME=${{ secrets.DB_NAME }} docker-compose run flyway migrate
+          docker-compose run --rm \
+            -e DB_USER=${{ secrets.DB_USER }} \
+            -e DB_PASS=${{ secrets.DB_PASS }} \
+            -e DB_NAME=${{ secrets.DB_NAME }} \
+            -e DB_HOST=db \
+            -e DB_PORT=5432 \
+            flyway migrate
 
-      # Verify database is accessible
-      - name: Check database connection
+      # Install backend dependencies
+      - name: Install backend dependencies
         run: |
-          # Try to connect to the database to verify it's running
-          docker-compose -f backend/database/docker-compose.yml ps
-          
-      - name: Start services and run Cypress tests
-        run: npm run integration
+          cd backend/api
+          npm ci
+
+      # Install frontend dependencies
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      # Install root dependencies (for Cypress)
+      - name: Install root dependencies
+        run: npm ci
+
+      # Start backend API
+      - name: Start backend API
+        run: |
+          cd backend/api
+          node handsUP &
+          echo "Backend API started"
+        env:
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASS: ${{ secrets.DB_PASS }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_HOST: localhost
+          DB_PORT: 5432
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
+      # Start frontend application
+      - name: Start frontend application
+        run: |
+          cd frontend
+          npm start &
+          echo "Frontend started"
+        env:
+          REACT_APP_API_URL: http://localhost:2000
+          REACT_APP_TESTING_ENVIRONMENT: true
+
+      # Wait for both services to be ready
+      - name: Wait for services to be ready
+        run: |
+          npx wait-on http://localhost:3000 http://localhost:2000/health --timeout 120000
+          echo "All services are ready"
+
+      # Run Cypress tests
+      - name: Run Cypress tests
+        run: |
+          npx cypress run
+        env:
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASS: ${{ secrets.DB_PASS }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          REACT_APP_API_URL: http://localhost:2000
+
+      # Optional: Upload Cypress videos/screenshots on failure
+      - name: Upload Cypress artifacts
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: cypress-artifacts
+          path: |
+            cypress/videos
+            cypress/screenshots
+          retention-days: 7
