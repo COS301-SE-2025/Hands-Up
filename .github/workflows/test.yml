@@ -54,8 +54,6 @@ jobs:
         run: |
           cd backend/database
           docker-compose up -d --build
-        # The `sleep 30` below is good as a preliminary wait, but not a guarantee.
-        # The `Wait for database to be ready` step is crucial.
 
       # Enhanced database health check using pg_isready
       - name: Wait for PostgreSQL database to be ready
@@ -81,7 +79,6 @@ jobs:
 
       # Run migrations with explicit error handling for skipping
       - name: Run database migrations (and skip on failure)
-        # Use a separate shell block to control `set -e`
         run: |
           cd backend/database
           echo "Attempting to run migrations..."
@@ -135,9 +132,9 @@ jobs:
           if [ -f "handsUp.js" ]; then
             node handsUp.js > ../../backend.log 2>&1 & disown
             echo "Backend API started with handsUp.js"
-          elif [ -f "handsUp.js" ]; then
-            node handsUp.js > ../../backend.log 2>&1 & disown
-            echo "Backend API started with handsUp.js"
+          elif [ -f "handsUP.js" ]; then
+            node handsUP.js > ../../backend.log 2>&1 & disown
+            echo "Backend API started with handsUP.js"
           elif [ -f "index.js" ]; then
             node index.js > ../../backend.log 2>&1 & disown
             echo "Backend API started with index.js"
@@ -167,8 +164,50 @@ jobs:
       - name: Wait for application services to be ready
         run: |
           echo "Waiting for http://localhost:3000 (frontend) and http://localhost:2000/health (backend API)..."
-          npx wait-on http://localhost:3000 http://localhost:2000/health --timeout 240000 # Increased timeout for robustness
-          echo "All services are ready."
+          npx wait-on http://localhost:3000 http://localhost:2000/health --timeout 300000 --interval 2000 --verbose
+          echo "Basic health checks passed, now performing detailed readiness checks..."
+
+      - name: Verify application is fully ready
+        run: |
+          echo "Performing detailed readiness checks..."
+          
+          # Check if frontend is serving the expected content
+          echo "Checking frontend content..."
+          for i in {1..30}; do
+            if curl -s http://localhost:3000 | grep -q "Your journey to mastering sign language starts here"; then
+              echo "✅ Frontend is serving expected content!"
+              break
+            fi
+            echo "Waiting for frontend to fully load... (attempt $i/30)"
+            sleep 3
+          done
+          
+          # Verify frontend one more time
+          if ! curl -s http://localhost:3000 | grep -q "Your journey to mastering sign language starts here"; then
+            echo "❌ Frontend is not serving expected content after all attempts"
+            echo "=== Frontend response ==="
+            curl -s http://localhost:3000 | head -50
+            echo "=== End frontend response ==="
+            exit 1
+          fi
+          
+          # Check backend API endpoints
+          echo "Checking backend API endpoints..."
+          for i in {1..15}; do
+            if curl -s http://localhost:2000/health | grep -q "OK\|healthy\|success" 2>/dev/null || [ $? -eq 0 ]; then
+              echo "✅ Backend API is responding!"
+              break
+            fi
+            echo "Waiting for backend API... (attempt $i/15)"
+            sleep 2
+          done
+          
+          echo "✅ All services are fully ready!"
+
+      - name: Additional stabilization wait
+        run: |
+          echo "Giving services additional time to stabilize..."
+          sleep 10
 
       - name: Show service logs if wait failed
         if: failure()
@@ -187,6 +226,8 @@ jobs:
           fi
           echo "=== Running processes ==="
           ps aux | grep -E "(node|npm)" | grep -v grep
+          echo "=== Port usage ==="
+          netstat -tulpn | grep -E ":3000|:2000"
 
       - name: Run Cypress tests
         run: npx cypress run
