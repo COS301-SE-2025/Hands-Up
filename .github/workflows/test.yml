@@ -1,5 +1,3 @@
-# Solution 1: Updated GitHub Actions Workflow with Error Handling
-
 name: Integration Tests
 
 on:
@@ -15,18 +13,18 @@ jobs:
   run-cypress-tests:
     name: Cypress Integration Tests
     runs-on: ubuntu-latest
-    
+
     env:
       DB_USER: ${{ secrets.DB_USER }}
       DB_PASS: ${{ secrets.DB_PASS }}
       DB_NAME: ${{ secrets.DB_NAME }}
-      DB_HOST: localhost
+      DB_HOST: localhost # This is for the API and frontend to connect to the host machine's exposed port
       DB_PORT: 5432
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       API_PORT: 2000
       REACT_APP_API_URL: http://localhost:2000
       REACT_APP_TESTING_ENVIRONMENT: true
-      
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,49 +40,61 @@ jobs:
           sudo chmod +x /usr/local/bin/docker-compose
           docker-compose --version
 
-      - name: Create .env file
+      - name: Create .env file (for local testing/debugging, though direct env injection is better for CI)
         run: |
           echo "DB_USER=${{ secrets.DB_USER }}" > .env
           echo "DB_PASS=${{ secrets.DB_PASS }}" >> .env
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
           echo "DB_HOST=localhost" >> .env
           echo "DB_PORT=5432" >> .env
+        working-directory: backend/database # Create .env in the correct directory for docker-compose to pick up
 
-      # Start database with better error handling
-      - name: Start database
+      # Start database services in detached mode
+      - name: Start database services
         run: |
           cd backend/database
           docker-compose up -d --build
-          echo "Waiting for database to be ready..."
-          sleep 30
+        # The `sleep 30` below is good as a preliminary wait, but not a guarantee.
+        # The `Wait for database to be ready` step is crucial.
 
-      # Enhanced database health check
-      - name: Wait for database to be ready
+      # Enhanced database health check using pg_isready
+      - name: Wait for PostgreSQL database to be ready
         run: |
-          echo "Checking database health..."
+          cd backend/database
+          echo "Checking PostgreSQL database health..."
+          # This loop attempts to connect to the database inside the container
+          # using pg_isready for up to 60 seconds (30 * 2 seconds sleep).
+          # It uses the service name 'postgres' for connection within the Docker network.
           for i in {1..30}; do
-            if docker-compose -f backend/database/docker-compose.yml exec -T db pg_isready -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }}; then
-              echo "Database is ready!"
+            if docker-compose exec -T postgres pg_isready -h localhost -p 5432 -U "${{ secrets.DB_USER }}" -d "${{ secrets.DB_NAME }}"; then
+              echo "✅ PostgreSQL database is ready!"
               break
             fi
-            echo "Waiting for database... (attempt $i/30)"
+            echo "Waiting for PostgreSQL database... (attempt $i/30)"
             sleep 2
           done
+          # Fail the step if the database is still not ready after all attempts
+          if ! docker-compose exec -T postgres pg_isready -h localhost -p 5432 -U "${{ secrets.DB_USER }}" -d "${{ secrets.DB_NAME }}"; then
+            echo "❌ PostgreSQL database did not become ready in time."
+            exit 1
+          fi
 
-      # Run migrations with better error handling and skip on failure
-      - name: Run database migrations
+      # Run migrations with explicit error handling for skipping
+      - name: Run database migrations (and skip on failure)
+        # Use a separate shell block to control `set -e`
         run: |
           cd backend/database
           echo "Attempting to run migrations..."
-          set +e  # Don't exit on error
+          set +e  # Temporarily disable exit on error for this block
           
-          # Try to run migrations
+          # Pass environment variables directly to the `docker-compose run` command
+          # This ensures Flyway has the correct credentials.
+          # Use `postgres` as the host for Flyway, as it's connecting to the service name
+          # within the Docker Compose network.
           docker-compose run --rm \
-            -e DB_USER=${{ secrets.DB_USER }} \
-            -e DB_PASS=${{ secrets.DB_PASS }} \
-            -e DB_NAME=${{ secrets.DB_NAME }} \
-            -e DB_HOST=db \
-            -e DB_PORT=5432 \
+            -e FLYWAY_URL="jdbc:postgresql://postgres:5432/${{ secrets.DB_NAME }}" \
+            -e FLYWAY_USER="${{ secrets.DB_USER }}" \
+            -e FLYWAY_PASSWORD="${{ secrets.DB_PASS }}" \
             flyway migrate
           
           MIGRATION_EXIT_CODE=$?
@@ -92,20 +102,17 @@ jobs:
           if [ $MIGRATION_EXIT_CODE -eq 0 ]; then
             echo "✅ Migrations completed successfully"
           else
-            echo "⚠️  Migrations failed, but continuing with tests..."
-            echo "This might be expected if database is already up to date"
+            echo "⚠️ Migrations failed (exit code $MIGRATION_EXIT_CODE), but continuing with tests."
+            echo "This might be expected if the database is already up to date or for specific testing scenarios."
           fi
           
-          set -e  # Re-enable exit on error
-
-      # Alternative: Skip migrations entirely in CI
-      - name: Skip migrations in CI (Alternative approach)
-        run: |
-          echo "Skipping migrations in CI environment"
-          echo "Database should be initialized separately or use test fixtures"
+          set -e  # Re-enable exit on error for subsequent commands in this step
 
       # Install dependencies
-      - name: Install backend dependencies
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install backend API dependencies
         run: |
           cd backend/api
           npm ci
@@ -115,52 +122,39 @@ jobs:
           cd frontend
           npm ci
 
-      - name: Install root dependencies
-        run: npm ci
-
-      # Start services with error handling
-      - name: Start backend API
+      # Start services in the background and use `wait-on`
+      - name: Start services (backend API and frontend)
         run: |
+          # Start backend API
           cd backend/api
-          # Check if we can connect to database first
-          if ! docker-compose -f ../database/docker-compose.yml exec -T db pg_isready -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }}; then
-            echo "⚠️  Database not ready, starting API anyway..."
-          fi
-          
-          node handsUP &
-          echo "Backend API started"
+          node handsUP & disown
+          echo "Backend API started in background."
+
+          # Start frontend application
+          cd ../../frontend
+          npm start & disown
+          echo "Frontend started in background."
         env:
+          # Ensure these are correctly set for your application processes
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASS: ${{ secrets.DB_PASS }}
           DB_NAME: ${{ secrets.DB_NAME }}
-          DB_HOST: localhost
+          DB_HOST: localhost # Your Node.js API connects to the host's exposed port 5432
           DB_PORT: 5432
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-
-      - name: Start frontend application
-        run: |
-          cd frontend
-          npm start &
-          echo "Frontend started"
-        env:
           REACT_APP_API_URL: http://localhost:2000
           REACT_APP_TESTING_ENVIRONMENT: true
 
-      - name: Wait for services to be ready
+      - name: Wait for application services to be ready
         run: |
-          echo "Waiting for services to be ready..."
-          npx wait-on http://localhost:3000 http://localhost:2000/health --timeout 120000 || {
-            echo "⚠️  Services not ready, checking what's running..."
-            curl -f http://localhost:3000 || echo "Frontend not responding"
-            curl -f http://localhost:2000/health || echo "Backend not responding"
-            exit 1
-          }
-          echo "All services are ready"
+          echo "Waiting for http://localhost:3000 (frontend) and http://localhost:2000/health (backend API)..."
+          npx wait-on http://localhost:3000 http://localhost:2000/health --timeout 240000 # Increased timeout for robustness
+          echo "All services are ready."
 
       - name: Run Cypress tests
-        run: |
-          npx cypress run
+        run: npx cypress run
         env:
+          # These envs are for Cypress itself if it needs them, or your frontend if it re-reads them
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASS: ${{ secrets.DB_PASS }}
           DB_NAME: ${{ secrets.DB_NAME }}
