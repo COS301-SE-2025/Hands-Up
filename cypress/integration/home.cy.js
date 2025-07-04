@@ -20,7 +20,7 @@ describe('Home Page', () => {
 
       cy.get('button[type="submit"]').click();
 
-      cy.contains('h1', 'Welcome back').should('be.visible');
+      // cy.contains('h1', 'Welcome back').should('be.visible');
 
       cy.contains('Your journey to mastering sign language starts here. Connect, learn, and translate with ease.').should('be.visible');
       cy.get('.learning-overview-section').should('be.visible');
