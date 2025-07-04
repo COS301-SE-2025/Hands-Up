@@ -12,7 +12,7 @@
     "database:migrate": "cd backend/database && docker-compose run --rm flyway migrate || echo 'Migration failed, continuing...'",
     "database:with-migration": "npm run database && sleep 15 && npm run database:migrate",
     "database:reset": "cd backend/database && docker-compose down -v && docker-compose up -d --build && sleep 15 && npm run database:migrate",
-    "api": "cd backend/api && npm i && node handsUP",
+    "api": "cd backend/api && npm i && node handsUP.js",
     "ui": "cd frontend && npm i && npm start",
     "start": "concurrently \"npm run database:with-migration\" \"npm run api\" \"npm run ui\"",
     "start:no-migration": "concurrently \"npm run database\" \"npm run api\" \"npm run ui\"",
