@@ -125,14 +125,31 @@ jobs:
       # Start services in the background and use `wait-on`
       - name: Start services (backend API and frontend)
         run: |
+          # Debug: List files in backend/api
+          echo "Files in backend/api directory:"
+          ls -la backend/api/
+          
           # Start backend API
           cd backend/api
-          node handsUP & disown
-          echo "Backend API started in background."
+          echo "Starting backend API..."
+          if [ -f "handsUP.js" ]; then
+            node handsUP.js > ../../backend.log 2>&1 & disown
+            echo "Backend API started with handsUP.js"
+          elif [ -f "handsUP" ]; then
+            node handsUP > ../../backend.log 2>&1 & disown
+            echo "Backend API started with handsUP"
+          elif [ -f "index.js" ]; then
+            node index.js > ../../backend.log 2>&1 & disown
+            echo "Backend API started with index.js"
+          else
+            echo "Error: Could not find main backend file"
+            exit 1
+          fi
 
           # Start frontend application
           cd ../../frontend
-          npm start & disown
+          echo "Starting frontend..."
+          npm start > ../frontend.log 2>&1 & disown
           echo "Frontend started in background."
         env:
           # Ensure these are correctly set for your application processes
@@ -150,6 +167,24 @@ jobs:
           echo "Waiting for http://localhost:3000 (frontend) and http://localhost:2000/health (backend API)..."
           npx wait-on http://localhost:3000 http://localhost:2000/health --timeout 240000 # Increased timeout for robustness
           echo "All services are ready."
+
+      - name: Show service logs if wait failed
+        if: failure()
+        run: |
+          echo "=== Backend API logs ==="
+          if [ -f "backend.log" ]; then
+            cat backend.log
+          else
+            echo "No backend.log found"
+          fi
+          echo "=== Frontend logs ==="
+          if [ -f "frontend.log" ]; then
+            tail -n 50 frontend.log
+          else
+            echo "No frontend.log found"
+          fi
+          echo "=== Running processes ==="
+          ps aux | grep -E "(node|npm)" | grep -v grep
 
       - name: Run Cypress tests
         run: npx cypress run
