@@ -115,4 +115,4 @@ jobs:
           docker-compose -f backend/database/docker-compose.yml ps
           
       - name: Start services and run Cypress tests
-        run: npm run test:integration
+        run: npm run integration
