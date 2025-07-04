@@ -132,17 +132,19 @@ jobs:
           # Start backend API
           cd backend/api
           echo "Starting backend API..."
-          if [ -f "handsUP.js" ]; then
+          if [ -f "handsUp.js" ]; then
+            node handsUp.js > ../../backend.log 2>&1 & disown
+            echo "Backend API started with handsUp.js"
+          elif [ -f "handsUP.js" ]; then
             node handsUP.js > ../../backend.log 2>&1 & disown
             echo "Backend API started with handsUP.js"
-          elif [ -f "handsUP" ]; then
-            node handsUP > ../../backend.log 2>&1 & disown
-            echo "Backend API started with handsUP"
           elif [ -f "index.js" ]; then
             node index.js > ../../backend.log 2>&1 & disown
             echo "Backend API started with index.js"
           else
             echo "Error: Could not find main backend file"
+            echo "Available files:"
+            ls -la
             exit 1
           fi
 
