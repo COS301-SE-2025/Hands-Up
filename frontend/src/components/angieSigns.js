@@ -1,0 +1,80 @@
+import React, { useRef, useEffect } from 'react';
+import { useGLTF } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
+import * as THREE from 'three';
+
+export function AnimatedAngie({ landmarks, replay }) {
+  const { scene } = useGLTF('/models/angie.glb');
+  const bones = useRef({}); 
+
+  const animationProgress = useRef(0); // 0 to 1
+  const animationDuration = 3; // seconds
+  const clock = useRef(new THREE.Clock());
+
+  useEffect(() => {
+    if (!scene) return;
+
+    scene.traverse((obj) => {
+      if (obj.isBone && obj.name.startsWith('mixamorig')) {
+        bones.current[obj.name] = obj;
+      }
+    });
+
+    // scene.traverse((obj) => obj.isBone && console.log(obj.name));
+
+    const upperArmL = bones.current['mixamorigLeftArm'];
+    const upperArmR = bones.current['mixamorigRightArm'];
+    const foreArmR = bones.current['mixamorigRightForeArm'];
+    const handR = bones.current['mixamorigRightHand'];
+
+    if (upperArmL) {
+      upperArmL.rotation.x = 1.1;
+    }
+
+    if (upperArmR) {
+      upperArmR.rotation.x = 0.9;
+      upperArmR.rotation.z = -0.3;    
+    }
+
+    if (foreArmR) {
+      foreArmR.rotation.x = 0.5;
+      foreArmR.rotation.z = -2.5; 
+      // foreArmR.rotation.y = -2;    
+    }
+
+    if (handR) {
+      // handR.rotation.x = -0.3;        
+      handR.rotation.y = -1.5;
+      // handR.rotation.z = -0.5; 
+    }
+
+    clock.current.start();
+
+  }, [scene]);
+
+  useEffect(() => {
+      animationProgress.current = 0;
+      clock.current.elapsedTime = 0;
+  }, [replay]);
+
+  useFrame(() => {
+    const delta = clock.current.getDelta(); // time since last frame
+    animationProgress.current = Math.min(animationProgress.current + delta / animationDuration, 1);
+
+    for (const boneName in landmarks) {
+      console.log(boneName)
+      const bone = bones.current[boneName];
+      if (!bone) continue;
+
+      const { start, end } = landmarks[boneName];
+
+      const x = THREE.MathUtils.lerp(start[0], end[0], animationProgress.current);
+      const y = THREE.MathUtils.lerp(start[1], end[1], animationProgress.current);
+      const z = THREE.MathUtils.lerp(start[2], end[2], animationProgress.current);
+
+      bone.rotation.set(x, y, z);
+    }
+  });
+
+  return <primitive object={scene} scale={2} position={[0, -1.5, 0]} />;
+}
