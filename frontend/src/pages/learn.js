@@ -95,6 +95,7 @@ export function Learn(){
           
           </div>
         )}
+        {/* <img src={trophy} alt="direction" style={{ width: 125, height: 125 }} /> */}
 
         {currentCategory && (
           <div className="category-levels">

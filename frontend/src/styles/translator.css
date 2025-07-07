@@ -61,7 +61,7 @@
 
 .recognizer-banner 
 {
-  background:#7ED957;
+  background:#2da335;
   color: white;
   padding: 0.75rem;
   border-radius: 0.75rem;
@@ -90,7 +90,7 @@
   height: 20rem;
   background-color: #f3f4f6;
   object-fit: cover;
-  border: 4px solid #AAD576;
+  border: 4px solid #2da335;
 }
 
 .recognizer-camera-controls 
@@ -195,7 +195,7 @@
 .recognizer-capture-button,
 .recognizer-record-button 
 {
-  background-color: #7ED957;
+  background-color: #2da335;
   color: white;
 }
 
