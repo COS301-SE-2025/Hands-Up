@@ -3,6 +3,9 @@ import numpy as np
 import tensorflow as tf
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score
+from tensorflow.keras.callbacks import EarlyStopping
+
+early_stop = EarlyStopping(patience=2, restore_best_weights=True)
 
 #process first data set
 dataDictTrain = pickle.load(open('../processed_data/trainData.pickle', 'rb'))
@@ -61,7 +64,15 @@ model = tf.keras.models.Sequential([
 
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 model.fit(xTrain, yTrainEncoded, epochs=15, batch_size=32, validation_split=0.2)
-model.fit(xTrain2, yTrainEncoded2, epochs=4, batch_size=32, validation_split=0.2)
+
+for layer in model.layers[:-2]:
+    layer.trainable = False
+
+model.compile(optimizer=tf.keras.optimizers.Adam(1e-5),loss='sparse_categorical_crossentropy',metrics=['accuracy'])
+
+yTrainEncoded2 = labelEncoder2.transform(yTrainRaw2)
+
+model.fit(xTrain2, yTrainEncoded2, epochs=10, batch_size=32, validation_split=0.2, callbacks = [early_stop])
 
 testLoss, testAccuracy = model.evaluate(xTest, yTestEncoded)
 print(f"\nTest accuracy: {testAccuracy * 100:.2f}%")

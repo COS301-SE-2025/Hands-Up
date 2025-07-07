@@ -22,11 +22,13 @@ model2 = tf.keras.models.load_model('../../ai_model/alphabet_model/JZModel.keras
 with open('../../ai_model/alphabet_model/labelEncoder.pickle', 'rb') as f:
     labelEncoder2 = pickle.load(f)
 
-sequence = deque(maxlen=15)
+sequenceNum = 20
 hands = mp.solutions.hands.Hands(static_image_mode=True)
 
 def detectFromImage(sequenceList):
-    if len(sequenceList) != 15:
+    print("In function")
+
+    if len(sequenceList) != sequenceNum:
         return {'letter': '', 'confidence': 0.0}
 
     processed_sequence = []
@@ -34,15 +36,15 @@ def detectFromImage(sequenceList):
     for imagePath in sequenceList:
         image = cv2.imread(imagePath)
         if image is None:
-            continue  # Skip invalid or unreadable images
+            continue 
 
         imgRGB = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         results = hands.process(imgRGB)
 
         if not results.multi_hand_landmarks:
-            continue  # No hand found in frame
+            continue  
 
-        handLandmarks = results.multi_hand_landmarks[0]  # Only use the first detected hand
+        handLandmarks = results.multi_hand_landmarks[0]  
 
         xList, yList = [], []
         dataAux2 = []
@@ -54,49 +56,57 @@ def detectFromImage(sequenceList):
         for lm in handLandmarks.landmark:
             dataAux2.append(lm.x - min(xList))
             dataAux2.append(lm.y - min(yList))
-            dataAux2.append(0)  # Dummy Z for compatibility
+            dataAux2.append(0) 
 
         processed_sequence.append(dataAux2)
 
-    if len(processed_sequence) != 15:
-        return {'letter': '', 'confidence': 0.0}  # Incomplete data after filtering
+    if len(processed_sequence) != sequenceNum:
+        print("incomplete sequence: ", len(processed_sequence))
+        return {'letter': '', 'confidence': 0.0}
 
-    # Model inference for dynamic signs (J/Z)
-    inputData2 = np.array(processed_sequence, dtype=np.float32).reshape(1, 15, 63)
+        # for i in range(sequenceNum - len(processed_sequence)):
+        #     processed_sequence.append(0)
+
+    inputData2 = np.array(processed_sequence, dtype=np.float32).reshape(1, sequenceNum, 63)
     prediction2 = model2.predict(inputData2, verbose=0)
     index2 = np.argmax(prediction2, axis=1)[0]
     confidence2 = float(np.max(prediction2))
     label2 = labelEncoder2.inverse_transform([index2])[0]
 
-    # Optionally: Use static model for fallback if confidence is low
-    fallback_frame = cv2.imread(sequenceList[-1])  # last frame
-    if fallback_frame is not None:
-        imgRGB = cv2.cvtColor(fallback_frame, cv2.COLOR_BGR2RGB)
-        results = hands.process(imgRGB)
-        if results.multi_hand_landmarks:
-            handLandmarks = results.multi_hand_landmarks[0]
-            xList, yList = [], []
-            dataAux = []
+    print(label2, " at ", confidence2)
 
-            for lm in handLandmarks.landmark:
-                xList.append(lm.x)
-                yList.append(lm.y)
+    if label2 != 'Z':
 
-            for lm in handLandmarks.landmark:
-                dataAux.append(lm.x - min(xList))
-                dataAux.append(lm.y - min(yList))
+        fallback_frame = cv2.imread(sequenceList[-1])  
+        if fallback_frame is not None:
+            imgRGB = cv2.cvtColor(fallback_frame, cv2.COLOR_BGR2RGB)
+            results = hands.process(imgRGB)
+            if results.multi_hand_landmarks:
+                handLandmarks = results.multi_hand_landmarks[0]
+                xList, yList = [], []
+                dataAux = []
 
-            inputData1 = np.array(dataAux, dtype=np.float32).reshape(1, 42, 1)
-            prediction1 = model.predict(inputData1, verbose=0)
-            index1 = np.argmax(prediction1, axis=1)[0]
-            confidence1 = float(np.max(prediction1))
-            label1 = labelEncoder.inverse_transform([index1])[0]
+                for lm in handLandmarks.landmark:
+                    xList.append(lm.x)
+                    yList.append(lm.y)
 
-            print(confidence2)
+                for lm in handLandmarks.landmark:
+                    dataAux.append(lm.x - min(xList))
+                    dataAux.append(lm.y - min(yList))
 
-            if confidence2 >= 0.5:
-                return {'letter': label2, 'confidence': confidence2}
-            else:
-                return {'letter': label1, 'confidence': confidence1}
+                inputData1 = np.array(dataAux, dtype=np.float32).reshape(1, 42, 1)
+                prediction1 = model.predict(inputData1, verbose=0)
+                index1 = np.argmax(prediction1, axis=1)[0]
+                confidence1 = float(np.max(prediction1))
+                label1 = labelEncoder.inverse_transform([index1])[0]
 
-    return {'letter': label2 if confidence2 >= 0.7 else '', 'confidence': confidence2 if confidence2 >= 0.7 else 0.0}
+                if label2=='J' and label1!='I':
+                    return {'letter': label2, 'confidence': confidence2}
+                elif label1==label2:
+                    return {'letter': label2, 'confidence': confidence2}
+                else:
+                    return {'letter': '', 'confidence': 0.0}            
+    else:
+        return {'letter': label2, 'confidence': confidence2}
+
+    return {'letter': '', 'confidence': 0.0}
