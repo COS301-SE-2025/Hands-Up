@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { processImage} from '../utils/apiCalls';
-import { translateSequence } from '../utils/apiCalls';
 import SignLanguageAPI  from '../utils/apiCalls';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -16,8 +15,8 @@ export function useTranslator() {
     const [capturedBlob, setCapturedBlob] = useState(null);
     const [autoCaptureEnabled, setAutoCaptureEnabled] = useState(false);
     const [landmarkFrames, setLandmarkFrames] = useState([]);
-    // const [isProcessingSequence, setIsProcessingSequence] = useState(false);
     const [fingerspellingMode, setFingerspellingMode] = useState(false);
+    const processingRef = useRef(false);
     const sequenceNum = 20
     
     const stopRecording = useCallback(() => {
@@ -37,33 +36,30 @@ export function useTranslator() {
     }, [recording, stopRecording, setCapturedImage, setAutoCaptureEnabled, setRecording]);
 
     const sendSequenceToBackend = useCallback(async (blobs) => {
-        if (!Array.isArray(blobs) || blobs.length !== sequenceNum) return;
+        if (!Array.isArray(blobs) || blobs.length !== sequenceNum || processingRef.current) return;
+
+        processingRef.current = true;
 
         try {
-
-            // let response = ""
-
             const formData = new FormData();
             blobs.forEach((blob, i) => {
                 formData.append('frames', blob, `frame${i}.jpg`);
             });
 
             const response = await processImage(formData);
-            
+
             setResult(prev => {
                 if (response.letter === 'SPACE') return prev + ' ';
                 if (response.letter === 'DEL') return prev.slice(0, -1);
                 return prev + response.letter;
             });
             setConfidence((response.confidence * 100).toFixed(2) + "%");
-            
-
         } catch (err) {
             console.error("Error during sequence detection:", err);
             setResult("Error translating sign.");
             setConfidence("0%");
         } finally {
-            // setIsProcessingSequence(false);
+            processingRef.current = false;
             setLandmarkFrames([]);
         }
     }, [setResult, setConfidence]);
@@ -100,7 +96,7 @@ export function useTranslator() {
                         if (updated.length === sequenceNum) {
                             sendSequenceToBackend(updated);
                             setLandmarkFrames([]);
-                            stopRecording();
+                            // stopRecording();
                             return [];
                         }
 
@@ -117,9 +113,6 @@ export function useTranslator() {
         setCapturedType,
         setCapturedBlob,
         setCaptureHistory,
-        setResult,
-        setConfidence,
-        autoCaptureEnabled,
         setLandmarkFrames,
         sendSequenceToBackend,
         stopRecording 
@@ -132,7 +125,7 @@ export function useTranslator() {
         if (autoCaptureEnabled && fingerspellingMode && videoRef.current) {
             intervalId = setInterval(() => {
                 captureImageFromVideo();
-            }, 50); // every 50ms 
+            }, 50); 
         }
 
         return () => clearInterval(intervalId);

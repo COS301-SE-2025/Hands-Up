@@ -26,7 +26,6 @@ sequenceNum = 20
 hands = mp.solutions.hands.Hands(static_image_mode=True)
 
 def detectFromImage(sequenceList):
-    print("In function")
 
     if len(sequenceList) != sequenceNum:
         return {'letter': '', 'confidence': 0.0}
@@ -60,22 +59,23 @@ def detectFromImage(sequenceList):
 
         processed_sequence.append(dataAux2)
 
+    confidence2 = 0.0
+    label2 = ""
+    fallback_frame = cv2.imread(sequenceList[-1])  
+
     if len(processed_sequence) != sequenceNum:
         print("incomplete sequence: ", len(processed_sequence))
-        # return {'letter': '', 'confidence': 0.0}
-
         for i in range(sequenceNum - len(processed_sequence)):
             processed_sequence.append([0.0] * 63)
+       
 
     inputData2 = np.array(processed_sequence, dtype=np.float32).reshape(1, sequenceNum, 63)
     prediction2 = model2.predict(inputData2, verbose=0)
     index2 = np.argmax(prediction2, axis=1)[0]
     confidence2 = float(np.max(prediction2))
     label2 = labelEncoder2.inverse_transform([index2])[0]
-
     print(label2, " at ", confidence2)
 
-    fallback_frame = cv2.imread(sequenceList[-1])  
     if fallback_frame is not None:
         imgRGB = cv2.cvtColor(fallback_frame, cv2.COLOR_BGR2RGB)
         results = hands.process(imgRGB)
@@ -100,11 +100,13 @@ def detectFromImage(sequenceList):
 
             print(label1, " at ", confidence1)
 
-            # if label2=='J' and label1!='I':
-            #     return {'letter': label2, 'confidence': confidence2}
-            if confidence2 > 0.5 and confidence1 < 0.9:
+            if label1==label2:
                 return {'letter': label2, 'confidence': confidence2}
+            # elif label2=="Z" and label1=="L":
+            #     return {'letter': label2, 'confidence': confidence2}
+            # elif label2=="J" and label1=="I":
+            #     return {'letter': label2, 'confidence': confidence2}
             else:
                 return {'letter': label1, 'confidence': confidence1}        
-        
-    return {'letter': '', 'confidence': 0.0}
+    else:   
+        return {'letter': label2, 'confidence': confidence2}

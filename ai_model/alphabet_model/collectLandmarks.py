@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 import mediapipe as mp
 
-actions = ['Z']
+actions = ['J']
 noSequences = 30
 sequenceLength = 20
 startFolder = 0
