@@ -3,9 +3,9 @@ import numpy as np
 import cv2
 import mediapipe as mp
 
-actions = ['J','Z']
+actions = ['C','D','E','F','G','H','I','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y']
 noSequences = 30
-sequenceLength = 15
+sequenceLength = 20
 startFolder = 0
 
 DATADIR = os.path.join('J_Z')  

@@ -11,8 +11,8 @@ from tensorflow.keras.utils import to_categorical
 from sklearn.metrics import accuracy_score
 
 DATADIR = os.path.join('J_Z')
-actions = ['J','Z']
-sequenceLength = 15
+actions = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+sequenceLength = 20
 
 x, y = [], []
 
@@ -69,7 +69,7 @@ model = Sequential([
 
 model.compile(optimizer='Adam', loss='categorical_crossentropy', metrics=['categorical_accuracy'])
 
-model.fit(XTrain, yTrain, epochs=10)
+model.fit(XTrain, yTrain, epochs=30)
 
 model.summary()
 
