@@ -11,7 +11,7 @@ mp_drawing = mp.solutions.drawing_utils
 # Parameters
 SEQUENCE_LENGTH = 30
 DATASET_PATH = 'dataset'
-OUTPUT_PATH = 'processed_dataset'
+OUTPUT_PATH = 'processed_data2'
 
 if not os.path.exists(OUTPUT_PATH):
     os.makedirs(OUTPUT_PATH)
@@ -26,16 +26,25 @@ for action in os.listdir(DATASET_PATH):
 
     output_action_path = os.path.join(OUTPUT_PATH, action)
     os.makedirs(output_action_path, exist_ok=True)
-    
+
     print(f"Processing action: {action}")
-    
+
     for video_name in os.listdir(action_path):
         if not video_name.endswith(('.mp4', '.avi', '.mov')):
             continue
 
+        # Construct the expected .npy filename
+        expected_npy_name = os.path.splitext(video_name)[0] + ".npy"
+        expected_npy_path = os.path.join(output_action_path, expected_npy_name)
+
+        # Skip if the .npy file already exists
+        if os.path.exists(expected_npy_path):
+            print(f"⏩ Skipping {video_name} - already processed.")
+            continue
+
         cap = cv2.VideoCapture(os.path.join(action_path, video_name))
         sequence = []
-        
+
         with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
             frame_count = 0
             while cap.isOpened():
@@ -48,11 +57,11 @@ for action in os.listdir(DATASET_PATH):
                 results = holistic.process(image)
 
                 keypoints = extract_keypoints(results)
-                
+
                 # DEBUG: Check if keypoints are extracted properly
                 if len(keypoints) == 0 or np.all(keypoints == 0):
                     print(f"WARNING: No keypoints detected in frame {frame_count} of {video_name}")
-                
+
                 sequence.append(keypoints)
                 frame_count += 1
 
@@ -63,16 +72,14 @@ for action in os.listdir(DATASET_PATH):
 
         if len(sequence) == SEQUENCE_LENGTH:
             sequence_np = np.array(sequence)
-            
+
             # DEBUG: Check sequence statistics
             print(f"Sequence shape: {sequence_np.shape}")
             print(f"Sequence min/max: {sequence_np.min():.4f}/{sequence_np.max():.4f}")
             print(f"Sequence mean: {sequence_np.mean():.4f}")
-            
-            save_name = os.path.splitext(video_name)[0] + ".npy"
-            save_path = os.path.join(output_action_path, save_name)
-            np.save(save_path, sequence_np)
-            print(f"✅ Saved: {save_path}")
+
+            np.save(expected_npy_path, sequence_np)
+            print(f"✅ Saved: {expected_npy_path}")
         else:
             print(f"⛔ Skipped {video_name} — only {len(sequence)} frames")
 
