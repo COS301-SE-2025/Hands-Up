@@ -18,7 +18,7 @@ export function useTranslator() {
     const [landmarkFrames, setLandmarkFrames] = useState([]);
     // const [isProcessingSequence, setIsProcessingSequence] = useState(false);
     const [fingerspellingMode, setFingerspellingMode] = useState(false);
-
+    const sequenceNum = 20
     
     const stopRecording = useCallback(() => {
         setRecording(false);
@@ -37,7 +37,7 @@ export function useTranslator() {
     }, [recording, stopRecording, setCapturedImage, setAutoCaptureEnabled, setRecording]);
 
     const sendSequenceToBackend = useCallback(async (blobs) => {
-        if (!Array.isArray(blobs) || blobs.length !== 15) return;
+        if (!Array.isArray(blobs) || blobs.length !== sequenceNum) return;
 
         try {
 
@@ -97,7 +97,7 @@ export function useTranslator() {
                     setLandmarkFrames(prevFrames => {
                         const updated = [...prevFrames, blob];
 
-                        if (updated.length === 15) {
+                        if (updated.length === sequenceNum) {
                             sendSequenceToBackend(updated);
                             setLandmarkFrames([]);
                             stopRecording();

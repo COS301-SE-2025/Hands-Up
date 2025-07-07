@@ -58,7 +58,7 @@ export const translateSequence = async (blobs) => {
 };
 
 export const processImage = async (formData) => {
-//   console.log("Processing captured image...");
+  console.log("Processing captured image...");
 
 //   const formData = new FormData();
 //   formData.append('image', image, 'sign.jpg');
