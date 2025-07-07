@@ -57,12 +57,12 @@ export const translateSequence = async (blobs) => {
     }
 };
 
-export const processImage = async (image) => {
-  console.log("Processing captured image...");
+export const processImage = async (formData) => {
+//   console.log("Processing captured image...");
 
-  const formData = new FormData();
-  formData.append('image', image, 'sign.jpg');
-  console.log(image);
+//   const formData = new FormData();
+//   formData.append('image', image, 'sign.jpg');
+//   console.log(image);
 
   try {
     const response = await fetch('http://127.0.0.1:5000/handsUPApi/sign/processImage', {
