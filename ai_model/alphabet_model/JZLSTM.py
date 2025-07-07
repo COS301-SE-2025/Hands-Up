@@ -11,7 +11,7 @@ from tensorflow.keras.utils import to_categorical
 from sklearn.metrics import accuracy_score
 
 DATADIR = os.path.join('J_Z')
-actions = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+actions = ['J','Z']
 sequenceLength = 20
 
 x, y = [], []

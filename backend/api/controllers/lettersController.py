@@ -62,10 +62,10 @@ def detectFromImage(sequenceList):
 
     if len(processed_sequence) != sequenceNum:
         print("incomplete sequence: ", len(processed_sequence))
-        return {'letter': '', 'confidence': 0.0}
+        # return {'letter': '', 'confidence': 0.0}
 
-        # for i in range(sequenceNum - len(processed_sequence)):
-        #     processed_sequence.append(0)
+        for i in range(sequenceNum - len(processed_sequence)):
+            processed_sequence.append([0.0] * 63)
 
     inputData2 = np.array(processed_sequence, dtype=np.float32).reshape(1, sequenceNum, 63)
     prediction2 = model2.predict(inputData2, verbose=0)
@@ -75,38 +75,36 @@ def detectFromImage(sequenceList):
 
     print(label2, " at ", confidence2)
 
-    if label2 != 'Z':
+    fallback_frame = cv2.imread(sequenceList[-1])  
+    if fallback_frame is not None:
+        imgRGB = cv2.cvtColor(fallback_frame, cv2.COLOR_BGR2RGB)
+        results = hands.process(imgRGB)
+        if results.multi_hand_landmarks:
+            handLandmarks = results.multi_hand_landmarks[0]
+            xList, yList = [], []
+            dataAux = []
 
-        fallback_frame = cv2.imread(sequenceList[-1])  
-        if fallback_frame is not None:
-            imgRGB = cv2.cvtColor(fallback_frame, cv2.COLOR_BGR2RGB)
-            results = hands.process(imgRGB)
-            if results.multi_hand_landmarks:
-                handLandmarks = results.multi_hand_landmarks[0]
-                xList, yList = [], []
-                dataAux = []
+            for lm in handLandmarks.landmark:
+                xList.append(lm.x)
+                yList.append(lm.y)
 
-                for lm in handLandmarks.landmark:
-                    xList.append(lm.x)
-                    yList.append(lm.y)
+            for lm in handLandmarks.landmark:
+                dataAux.append(lm.x - min(xList))
+                dataAux.append(lm.y - min(yList))
 
-                for lm in handLandmarks.landmark:
-                    dataAux.append(lm.x - min(xList))
-                    dataAux.append(lm.y - min(yList))
+            inputData1 = np.array(dataAux, dtype=np.float32).reshape(1, 42, 1)
+            prediction1 = model.predict(inputData1, verbose=0)
+            index1 = np.argmax(prediction1, axis=1)[0]
+            confidence1 = float(np.max(prediction1))
+            label1 = labelEncoder.inverse_transform([index1])[0]
 
-                inputData1 = np.array(dataAux, dtype=np.float32).reshape(1, 42, 1)
-                prediction1 = model.predict(inputData1, verbose=0)
-                index1 = np.argmax(prediction1, axis=1)[0]
-                confidence1 = float(np.max(prediction1))
-                label1 = labelEncoder.inverse_transform([index1])[0]
+            print(label1, " at ", confidence1)
 
-                if label2=='J' and label1!='I':
-                    return {'letter': label2, 'confidence': confidence2}
-                elif label1==label2:
-                    return {'letter': label2, 'confidence': confidence2}
-                else:
-                    return {'letter': '', 'confidence': 0.0}            
-    else:
-        return {'letter': label2, 'confidence': confidence2}
-
+            # if label2=='J' and label1!='I':
+            #     return {'letter': label2, 'confidence': confidence2}
+            if confidence2 > 0.5 and confidence1 < 0.9:
+                return {'letter': label2, 'confidence': confidence2}
+            else:
+                return {'letter': label1, 'confidence': confidence1}        
+        
     return {'letter': '', 'confidence': 0.0}
