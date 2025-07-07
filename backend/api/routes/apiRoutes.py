@@ -8,19 +8,27 @@ api_blueprint = Blueprint('sign', __name__, url_prefix='/sign')
 
 @api_blueprint.route('/sign/processImage', methods=['POST'])
 def process_image():
-    if 'image' not in request.files:
-        return jsonify({'error': 'No image uploaded'}), 400
+    files = request.files.getlist('frames')
+    
+    if len(files) != 15:
+        return jsonify({'error': 'Exactly 15 frames required'}), 400
 
-    image_file = request.files['image']
+    temp_dir = tempfile.mkdtemp()
+    paths = []
 
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as tmp:
-        image_path = tmp.name
-        image_file.save(image_path)
+    try:
+        for i, file in enumerate(files):
+            path = os.path.join(temp_dir, f'frame_{i}.jpg')
+            file.save(path)
+            paths.append(path)
 
-    result = detectFromImage(image_path)
-    os.remove(image_path)
-
-    return jsonify(result)
+        result = detectFromImage(paths)
+        return jsonify(result)
+    finally:
+        # Clean up all files
+        for path in paths:
+            os.remove(path)
+        os.rmdir(temp_dir)
 
 @api_blueprint.route("/sign/processFrames", methods=["POST"])
 def process_frames():

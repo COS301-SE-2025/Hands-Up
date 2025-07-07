@@ -14,8 +14,9 @@ tests/coverage/
 
 #datasets
 ai_model/letters
-ai_model/letters2
-ai_model/letters3
+ai_model/letters_fine_tune
+ai_model/alphabet_model/letters
+ai_model/alphabet_model/J_Z/
 ai_model/processed_data/trainData2.pickle
 ai_model/words_model/tmkdt_words
 ai_model/words_model/words
