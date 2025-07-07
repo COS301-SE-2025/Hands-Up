@@ -329,6 +329,78 @@ export const getLearningProgress = async (username) => {
     }
 };
 
+
+export const confirmPasswordReset = async (email, token, newPassword, confirmNewPassword) => {
+    const response = await fetch(`${API_BASE_URL}/auth/confirm-reset-password`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, token, newPassword, confirmationPassword: confirmNewPassword }),
+    });
+    return handleApiResponse(response);
+};
+export const login = async (credentials) => {
+    try {
+        const response = await fetch(`${API_BASE_URL_AUTH}/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(credentials),
+            credentials: 'include',
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            const error = new Error(data.error || 'Login failed');
+            
+            error.type = 'LOGIN_ERROR';
+            error.persistent = true; 
+            
+            if (data.attemptsLeft !== undefined) {
+                error.attemptsLeft = data.attemptsLeft;
+                error.showAttemptsLeft = true;
+            }
+            
+            if (data.locked !== undefined) {
+                error.locked = data.locked;
+                error.severity = 'high';
+            }
+            
+            if (data.timeLeft !== undefined) {
+                error.timeLeft = data.timeLeft;
+                error.showTimeLeft = true;
+            }
+            
+            if (data.error?.toLowerCase().includes('password')) {
+                error.field = 'password';
+            } else if (data.error?.toLowerCase().includes('username') || 
+                       data.error?.toLowerCase().includes('email')) {
+                error.field = 'username';
+            }
+            
+            throw error;
+        }
+        
+        return data;
+    } catch (error) {
+        console.error('Login error:', error);
+        
+        if (error.type === 'LOGIN_ERROR') {
+            throw error;
+        }
+        
+        const networkError = new Error(error.message || 'Network error occurred');
+        networkError.type = 'NETWORK_ERROR';
+        networkError.persistent = true;
+        networkError.severity = 'medium';
+        
+        throw networkError;
+    }
+};
+
 export const signup = async ({ name, surname, username, email, password }) => {
     try {
         const response = await fetch(`${API_BASE_URL_AUTH}/signup`, {
@@ -345,39 +417,119 @@ export const signup = async ({ name, surname, username, email, password }) => {
             }),
             credentials: 'include',
         });
-        return handleApiResponse(response);
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            const error = new Error(data.error || 'Signup failed');
+            error.type = 'SIGNUP_ERROR';
+            error.persistent = true;
+            
+            if (data.error?.toLowerCase().includes('username')) {
+                error.field = 'username';
+            } else if (data.error?.toLowerCase().includes('email')) {
+                error.field = 'email';
+            } else if (data.error?.toLowerCase().includes('password')) {
+                error.field = 'password';
+            }
+            
+            throw error;
+        }
+        
+        return data;
     } catch (error) {
         console.error("[API_CALLS - signup] Network or unexpected error:", error);
-        throw error;
+        
+        if (error.type === 'SIGNUP_ERROR') {
+            throw error;
+        }
+        
+        const networkError = new Error(error.message || 'Network error occurred');
+        networkError.type = 'NETWORK_ERROR';
+        networkError.persistent = true;
+        
+        throw networkError;
     }
 };
 
-export const confirmPasswordReset = async (email, token, newPassword, confirmNewPassword) => {
-    const response = await fetch(`${API_BASE_URL}/auth/confirm-reset-password`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, token, newPassword, confirmationPassword: confirmNewPassword }),
-    });
-    return handleApiResponse(response);
-};
-
-export const login = async (credentials) => {
+export const resetPassword = async (email) => {
+    console.log("[API_CALLS - resetPassword] Sending password reset request for:", email);
+    
     try {
-        const response = await fetch(`${API_BASE_URL_AUTH}/login`, {
+        const response = await fetch(`${API_BASE_URL_AUTH}/reset-password`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(credentials),
             credentials: 'include',
+            body: JSON.stringify({ email }),
         });
-        return handleApiResponse(response);
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            const error = new Error(data.error || 'Password reset failed');
+            error.type = 'PASSWORD_RESET_ERROR';
+            error.persistent = true;
+            
+            if (data.error?.toLowerCase().includes('email')) {
+                error.field = 'email';
+            }
+            
+            throw error;
+        }
+        
+        return data;
     } catch (error) {
-        console.error('Login error:', error);
-        throw error;
+        console.error("Error in resetPassword:", error);
+        
+        if (error.type === 'PASSWORD_RESET_ERROR') {
+            throw error;
+        }
+        
+        const networkError = new Error(error.message || 'Network error occurred');
+        networkError.type = 'NETWORK_ERROR';
+        networkError.persistent = true;
+        
+        throw networkError;
     }
+};
+
+export const createPersistentError = (message, type = 'GENERAL_ERROR', options = {}) => {
+    const error = new Error(message);
+    error.type = type;
+    error.persistent = true;
+    error.timestamp = Date.now();
+    
+    Object.assign(error, options);
+    
+    return error;
+};
+
+export const formatErrorForDisplay = (error) => {
+    if (!error) return null;
+    
+    let displayMessage = error.message;
+    if (error.showAttemptsLeft && error.attemptsLeft !== undefined) {
+        displayMessage += ` (${error.attemptsLeft} attempts remaining)`;
+    }
+    
+    if (error.locked) {
+        displayMessage += ` Account locked.`;
+    }
+    
+    if (error.showTimeLeft && error.timeLeft !== undefined) {
+        displayMessage += ` Try again in ${error.timeLeft} minutes.`;
+    }
+    
+    return {
+        message: displayMessage,
+        type: error.type,
+        severity: error.severity || 'medium',
+        field: error.field,
+        persistent: error.persistent || false,
+        timestamp: error.timestamp
+    };
 };
 
 export const logout = async () => {
@@ -491,29 +643,27 @@ export const deleteUserAccount = async (userID) => {
     }
 };
 
-export const resetPassword = async (email) => {
-    console.log("[API_CALLS - resetPassword] Sending password reset request for:", email);
+// export const resetPassword = async (email) => {
+//     console.log("[API_CALLS - resetPassword] Sending password reset request for:", email);
     
-    try {
-        const response = await fetch(`${API_BASE_URL_AUTH}/reset-password`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify({ email }),
-        });
-        return handleApiResponse(response);
-    } catch (error) {
-        console.error("Error in resetPassword:", error);
-        throw error;
-    }
-};
+//     try {
+//         const response = await fetch(`${API_BASE_URL_AUTH}/reset-password`, {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//             },
+//             credentials: 'include',
+//             body: JSON.stringify({ email }),
+//         });
+//         return handleApiResponse(response);
+//     } catch (error) {
+//         console.error("Error in resetPassword:", error);
+//         throw error;
+//     }
+// };
 
-// Create and export a singleton instance
+
 const signLanguageAPI = new SignLanguageAPI();
 
 export default signLanguageAPI;
-
-// Also export the class for custom instances
 export { SignLanguageAPI };
