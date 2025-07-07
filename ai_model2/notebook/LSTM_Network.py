@@ -3,41 +3,44 @@ import numpy as np
 import pickle
 import random
 import time
-from sklearn.metrics import multilabel_confusion_matrix, accuracy_score
+from sklearn.metrics import multilabel_confusion_matrix, accuracy_score, classification_report # Added classification_report
 
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import LSTM, Dense, Dropout, BatchNormalization
 from tensorflow.keras.callbacks import TensorBoard, EarlyStopping, ReduceLROnPlateau
 from tensorflow.keras.optimizers import Adam
-
-# Assuming Preprocess_Data.py is in the same directory or accessible via PYTHONPATH
-# You would need to ensure Preprocess_Data.py is available and contains the load_data function.
-# For example, a minimal Preprocess_Data.py might look like this:
+import tensorflow as tf # Import tensorflow to set global seed
 
 from Preprocess_Data import load_data 
 
 # --- Configuration Constants ---
-PROCESSED_PATH = 'super_augmented_dataset' # Base path for your processed keypoint data
-MODEL_PATH = 'action_model.h5'             # Path to save/load the trained model
+PROCESSED_PATH = 'D:\\capstone\\testData' # Base path for your processed keypoint data
+MODEL_PATH = 'action_model.h5'  # Path to save/load the trained model
 NORMALIZATION_PARAMS_PATH = 'normalization_params.npy' # Path for saving/loading normalization parameters
-LABEL_MAP_PATH = 'label_map.pkl'           # Path for saving/loading the action-label mapping
+LABEL_MAP_PATH = 'label_map.pkl'  # Path for saving/loading the action-label mapping
 
-TARGET_ACCURACY_THRESHOLD = 0.85           # 85% accuracy threshold as requested
-INCREMENTAL_EPOCHS = 30                    # Number of epochs for incremental training
-BATCH_SIZE = 32                            # Training batch size
-PATIENCE_EARLY_STOPPING = 10               # Patience for EarlyStopping callback
-PATIENCE_REDUCE_LR = 5                     # Patience for ReduceLROnPlateau callback
-MIN_LR = 1e-7                              # Minimum learning rate
-LR_FACTOR = 0.5                            # Factor by which the learning rate will be reduced
-NEW_ACTIONS_PER_STEP_MIN = 1               # Minimum new actions to add per step
-NEW_ACTIONS_PER_STEP_MAX = 3               # Maximum new actions to add per step
-INITIAL_LEARNING_RATE = 0.001              # Initial learning rate for Adam optimizer
-INITIAL_ACTIONS_COUNT = 5                  # Start with 5 actions as requested
+TARGET_ACCURACY_THRESHOLD = 0.85 # 85% accuracy threshold as requested
+INCREMENTAL_EPOCHS = 30 # Number of epochs for incremental training
+BATCH_SIZE = 32 # Training batch size
+PATIENCE_EARLY_STOPPING = 10 # Patience for EarlyStopping callback
+PATIENCE_REDUCE_LR = 5  # Patience for ReduceLROnPlateau callback
+MIN_LR = 1e-7 # Minimum learning rate
+LR_FACTOR = 0.5 # Factor by which the learning rate will be reduced
+NEW_ACTIONS_PER_STEP_MIN = 1 # Minimum new actions to add per step
+NEW_ACTIONS_PER_STEP_MAX = 3  # Maximum new actions to add per step
+INITIAL_LEARNING_RATE = 0.001 # Initial learning rate for Adam optimizer
+INITIAL_ACTIONS_COUNT = 5# Start with 5 actions as requested
+
+# --- Reproducibility: Set random seeds ---
+random.seed(42)
+np.random.seed(42)
+tf.random.set_seed(42)
+
 
 # --- Model Architecture Definition ---
 def build_model(input_shape, num_classes):
     """
-    Builds the LSTM model architecture.
+    Builds the LSTM model architecture with increased capacity.
     
     Args:
         input_shape (tuple): Shape of the input data (sequence_length, num_features).
@@ -47,34 +50,31 @@ def build_model(input_shape, num_classes):
         tensorflow.keras.Model: Compiled Keras Sequential model.
     """
     model = Sequential([
-        # First LSTM layer: 64 units, returns sequences for the next LSTM layer
-        # Uses tanh activation, suitable for LSTM gates, and takes the input shape.
-        LSTM(64, return_sequences=True, activation='tanh', input_shape=input_shape, name='lstm_1'),
+        # First LSTM layer: Increased from 64 to 128 units
+        LSTM(128, return_sequences=True, activation='tanh', input_shape=input_shape, name='lstm_1'),
         Dropout(0.2, name='dropout_1'), # Dropout for regularization
         BatchNormalization(name='batch_norm_1'), # Batch Normalization for stability and speed
 
-        # Second LSTM layer: 128 units, returns sequences for the subsequent LSTM layer
-        LSTM(128, return_sequences=True, activation='tanh', name='lstm_2'),
+        # Second LSTM layer: Increased from 128 to 256 units
+        LSTM(256, return_sequences=True, activation='tanh', name='lstm_2'),
         Dropout(0.2, name='dropout_2'),
         BatchNormalization(name='batch_norm_2'),
         
-        # Third LSTM layer: 64 units, does not return sequences as it's the last LSTM layer
-        # Its output will be fed into the Dense layers.
-        LSTM(64, return_sequences=False, activation='tanh', name='lstm_3'),
+        # Third LSTM layer: Increased from 64 to 128 units
+        LSTM(128, return_sequences=False, activation='tanh', name='lstm_3'),
         Dropout(0.3, name='dropout_3'),
         BatchNormalization(name='batch_norm_3'),
         
-        # First Dense layer: 64 units, ReLU activation for non-linearity
-        Dense(64, activation='relu', name='dense_1'),
+        # First Dense layer: Increased from 64 to 128 units
+        Dense(128, activation='relu', name='dense_1'),
         Dropout(0.4, name='dropout_4'),
         BatchNormalization(name='batch_norm_4'),
         
-        # Second Dense layer: 32 units, ReLU activation
-        Dense(32, activation='relu', name='dense_2'),
+        # Second Dense layer: Increased from 32 to 64 units
+        Dense(64, activation='relu', name='dense_2'),
         Dropout(0.3, name='dropout_5'),
         
         # Output Dense layer: 'num_classes' units, softmax activation for multi-class classification.
-        # Softmax ensures that the outputs are probabilities summing to 1.
         Dense(num_classes, activation='softmax', name='output_dense')
     ])
     return model
@@ -82,7 +82,7 @@ def build_model(input_shape, num_classes):
 def evaluate_model_accuracy(model, X_test_norm, y_test, actions, label_map):
     """
     Evaluates the model using multilabel confusion matrix and accuracy score.
-    Prints per-class confusion matrices and sample predictions for qualitative assessment.
+    Prints per-class confusion matrices, sample predictions, and a classification report.
     
     Args:
         model: Trained Keras model.
@@ -119,6 +119,16 @@ def evaluate_model_accuracy(model, X_test_norm, y_test, actions, label_map):
     
     print(f"\n✅ Accuracy Score: {acc_score:.4f}") # Updated print format
     
+    # --- Added Classification Report for more detailed metrics ---
+    print("\n✅ Classification Report:")
+    # Ensure target_names align with the order of indices used by y_true_indices/y_pred_indices
+    # This means sorting actions based on their index in the label_map for consistency.
+    sorted_actions_by_index = sorted(label_map.items(), key=lambda item: item[1])
+    target_names = [item[0] for item in sorted_actions_by_index]
+    
+    print(classification_report(y_true_indices, y_pred_indices, target_names=target_names))
+    # -----------------------------------------------------------
+
     # Show sample predictions for debugging and qualitative analysis (retained for usefulness)
     print("\n--- Sample Predictions ---")
     # Create a reversed label map to convert indices back to action names
@@ -191,7 +201,7 @@ def run_incremental_learning():
     
     # Initialize variables for the current state of the learning process
     current_actions = [] # List of actions currently being trained on
-    model = None         # The Keras model
+    model = None  # The Keras model
     X_mean, X_std = None, None # Normalization parameters
     
     # Try to load existing state from previous runs (model, label map, normalization params)
@@ -208,10 +218,21 @@ def run_incremental_learning():
             # Load the normalization parameters
             X_mean, X_std = np.load(NORMALIZATION_PARAMS_PATH)
             print(f"✅ Loaded existing state with {len(current_actions)} actions: {current_actions}")
+
+            # --- Explicitly load the model after successful state loading ---
+            try:
+                model = load_model(MODEL_PATH)
+                print("✅ Loaded existing model.")
+            except Exception as e:
+                print(f"⚠️ Error loading existing model from {MODEL_PATH}: {e}")
+                print("Starting model training from scratch.")
+                model = None # Ensure model is None if loading fails
+                current_actions = [] # Reset to trigger fresh start
+            # ------------------------------------------------------------------
             
         except Exception as e:
             # If loading fails, print an error and start fresh
-            print(f"⚠️ Error loading existing state: {e}")
+            print(f"⚠️ Error loading existing state (label map or normalization params): {e}")
             print("Starting fresh...")
             current_actions = [] # Reset to empty to trigger fresh start
     
@@ -260,8 +281,6 @@ def run_incremental_learning():
         num_classes = len(label_map)
         
         # --- Handle model creation/adaptation for each iteration ---
-        # Get the number of output classes from the current model's last layer's units
-        # This is more robust as Dense layers always have a 'units' attribute after initialization.
         current_model_num_classes = model.layers[-1].units if model and isinstance(model.layers[-1], Dense) else 0
 
         # Check if model needs to be built or adapted based on the number of classes
@@ -271,6 +290,8 @@ def run_incremental_learning():
                 old_model = model # Store reference to the existing model before creating a new one
                 model = build_model(input_shape, num_classes) # Build a new model with the correct output size
                 transfer_weights_to_new_model(old_model, model) # Transfer weights from the old model
+                del old_model # Explicitly delete old model to free memory
+                tf.keras.backend.clear_session() # Clear Keras session for a clean graph
             else: # This branch is for the very first time building the model (model is None)
                 model = build_model(input_shape, num_classes)
                 print("🏗️ Built new model from scratch.")
