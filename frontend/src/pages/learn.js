@@ -6,6 +6,13 @@ import { LevelTile } from '../components/learnLevelTile';
 import '../styles/learn.css';
 import { useLearningStats } from '../contexts/learningStatsContext';
 
+// Define your list of colors
+const COLORS = [
+  'Red', 'Blue', 'Green', 'Yellow', 'Black', 'White', 'Pink', 'Purple',
+  'Orange', 'Brown', 'Grey', 'Cyan', 'Magenta', 'Lime', 'Gold', 'Silver'
+  // Add more colors as needed
+];
+
 export function Learn(){
   const { stats } = useLearningStats();
   const [selectedSection, setSelectedSection] = useState('dashboard');
@@ -18,14 +25,14 @@ export function Learn(){
   const lessonsCompleted = stats?.lessonsCompleted || 0;
   const signsLearned = stats?.signsLearned || 0;
   const quizzesCompleted = stats?.quizzesCompleted || 0;
-
-  const unlockedCategories = stats?.unlockedCategories ? [...stats.unlockedCategories, 'numbers'] : ['alphabets', 'numbers'];
-  
+  const unlockedCategories = stats?.unlockedCategories
+    ? [...stats.unlockedCategories, 'numbers', 'colours'] 
+    : ['alphabets', 'numbers', 'colours']; 
 
 
   const categories = [
     { id: 'alphabets', name: 'The Alphabet', unlocked: unlockedCategories.includes('alphabets')},
-    { id: 'numbers', name: 'Numbers & Counting', unlocked: unlockedCategories.includes('numbers')}, 
+    { id: 'numbers', name: 'Numbers & Counting', unlocked: unlockedCategories.includes('numbers')},
     { id: 'introduce', name: 'Introduce Yourself', unlocked: unlockedCategories.includes('introduce')},
     { id: 'family', name: 'Family Members', unlocked: unlockedCategories.includes('family') },
     { id: 'feelings', name: 'Emotions & Feelings', unlocked: unlockedCategories.includes('feelings') },
@@ -33,7 +40,7 @@ export function Learn(){
     { id: 'questions', name: 'Asking Questions', unlocked: unlockedCategories.includes('questions') },
     { id: 'time', name: 'Time & Days', unlocked: unlockedCategories.includes('time') },
     { id: 'food', name: 'Food & Drinks', unlocked: unlockedCategories.includes('food')},
-    { id: 'colours', name: 'Colours', unlocked: unlockedCategories.includes('colours') },
+    { id: 'colours', name: 'Colours', unlocked: unlockedCategories.includes('colours') }, 
     { id: 'things', name: 'Objects & Things', unlocked: unlockedCategories.includes('things') },
     { id: 'animals', name: 'Animals', unlocked: unlockedCategories.includes('animals') },
     { id: 'seasons', name: 'Weather & Seasons', unlocked: unlockedCategories.includes('seasons') },
@@ -65,6 +72,8 @@ export function Learn(){
         return '/numbers-quiz';
       case 'introduce':
         return '/introduce-quiz';
+      case 'colours': 
+        return '/colours-quiz';
       default:
         return '/quiz';
     }
@@ -93,11 +102,8 @@ export function Learn(){
                 />
               ))}
             </div>
-
-
           </div>
         )}
-        {/* <img src={trophy} alt="direction" style={{ width: 125, height: 125 }} /> */}
 
         {currentCategory && (
           <div className="category-levels">
@@ -105,7 +111,6 @@ export function Learn(){
             <div className="stepping-poles">
 
               {currentCategory.id === 'alphabets' ? (
-
                 <>
                   {[...Array(26)].map((_, i) => (
                     <LevelTile
@@ -129,9 +134,7 @@ export function Learn(){
                   />
                 </>
               ) : currentCategory.id === 'numbers' ? (
-
                 <>
-                 
                   {[...Array(20)].map((_, i) => (
                     <LevelTile
                       key={i + 1}
@@ -153,8 +156,30 @@ export function Learn(){
                     }}
                   />
                 </>
-              ) : (
-
+              ) : currentCategory.id === 'colours' ? ( 
+                <>
+                  {COLORS.map((color, i) => (
+                    <LevelTile
+                      key={color} 
+                      level={color}
+                      unlocked={true}
+                      onClick={() => navigate(`/colour/${color.toLowerCase()}`)} 
+                    />
+                  ))}
+                  <LevelTile
+                    key={'colours-quiz'}
+                    level={'Quiz'}
+                    unlocked={true}
+                    onClick={() => navigate(getQuizRoute(currentCategory.id))}
+                    style={{
+                      backgroundColor: '#ffc107',
+                      color: '#fff',
+                      fontWeight: 'bold',
+                      fontSize: '14px'
+                    }}
+                  />
+                </>
+              ) : ( 
                 <>
                   {[...Array(5)].map((_, i) => (
                     <LevelTile
@@ -179,8 +204,6 @@ export function Learn(){
                 </>
               )}
             </div>
-
-
 
             <button onClick={goBack} className="back-button">← Back</button>
           </div>
