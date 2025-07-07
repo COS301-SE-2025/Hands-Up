@@ -115,7 +115,6 @@ export function useTranslator() {
         setCaptureHistory,
         setLandmarkFrames,
         sendSequenceToBackend,
-        stopRecording 
     ]);
 
 
