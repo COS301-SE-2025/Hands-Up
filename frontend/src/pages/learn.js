@@ -6,11 +6,10 @@ import { LevelTile } from '../components/learnLevelTile';
 import '../styles/learn.css';
 import { useLearningStats } from '../contexts/learningStatsContext';
 
-// Define your list of colors
 const COLORS = [
   'Red', 'Blue', 'Green', 'Yellow', 'Black', 'White', 'Pink', 'Purple',
   'Orange', 'Brown', 'Grey', 'Cyan', 'Magenta', 'Lime', 'Gold', 'Silver'
-  // Add more colors as needed
+  // maybe add more colors
 ];
 
 export function Learn(){
@@ -156,14 +155,22 @@ export function Learn(){
                     }}
                   />
                 </>
-              ) : currentCategory.id === 'colours' ? ( 
+              ) : currentCategory.id === 'colours' ? (
                 <>
                   {COLORS.map((color, i) => (
                     <LevelTile
-                      key={color} 
+                      key={color}
                       level={color}
                       unlocked={true}
-                      onClick={() => navigate(`/colour/${color.toLowerCase()}`)} 
+                      className="color-tile"
+                      style={{
+                        '--color-bg': color.toLowerCase(),
+                        '--color-text': ['Black', 'Navy', 'Purple', 'Brown', 'Grey'].includes(color) ? '#fff' : '#333',
+                        backgroundColor: color.toLowerCase(),
+                        backgroundImage: 'none',
+                        color: ['Black', 'Navy', 'Purple', 'Brown', 'Grey'].includes(color) ? '#fff' : '#333'
+                      }}
+                      onClick={() => navigate(`/colour/${color.toLowerCase()}`)}
                     />
                   ))}
                   <LevelTile
@@ -172,14 +179,17 @@ export function Learn(){
                     unlocked={true}
                     onClick={() => navigate(getQuizRoute(currentCategory.id))}
                     style={{
-                      backgroundColor: '#ffc107',
+                      background: 'linear-gradient(45deg,rgb(255, 63, 63), #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3)',
+                      backgroundSize: '200% 200%',
+                      animation: 'rainbow 3s ease infinite',
                       color: '#fff',
                       fontWeight: 'bold',
-                      fontSize: '14px'
+                      fontSize: '14px',
+                      textShadow: '1px 1px 2px rgba(0,0,0,0.7)'
                     }}
                   />
                 </>
-              ) : ( 
+              ) : (
                 <>
                   {[...Array(5)].map((_, i) => (
                     <LevelTile
