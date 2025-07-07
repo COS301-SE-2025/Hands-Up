@@ -31,7 +31,7 @@ yTrainEncoded = labelEncoder.transform(yTrainRaw)
 yTestEncoded = labelEncoder.transform(yTestRaw)
 
 #second data set for finetuning
-dataDictTrain2 = pickle.load(open('../processed_data/trainData3.pickle', 'rb'))
+dataDictTrain2 = pickle.load(open('../processed_data/fineTuneData.pickle', 'rb'))
 
 cleanedData2 = []
 cleanedLabels2 = []
@@ -60,8 +60,8 @@ model = tf.keras.models.Sequential([
 ])
 
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-model.fit(xTrain, yTrainEncoded, epochs=30, batch_size=32, validation_split=0.2)
-model.fit(xTrain2, yTrainEncoded2, epochs=20, batch_size=32, validation_split=0.2)
+model.fit(xTrain, yTrainEncoded, epochs=15, batch_size=32, validation_split=0.2)
+model.fit(xTrain2, yTrainEncoded2, epochs=4, batch_size=32, validation_split=0.2)
 
 testLoss, testAccuracy = model.evaluate(xTest, yTestEncoded)
 print(f"\nTest accuracy: {testAccuracy * 100:.2f}%")
