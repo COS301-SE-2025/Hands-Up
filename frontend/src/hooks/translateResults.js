@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { processImage} from '../utils/apiCalls';
-import { translateSequence } from '../utils/apiCalls';
 import SignLanguageAPI  from '../utils/apiCalls';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -16,9 +15,9 @@ export function useTranslator() {
     const [capturedBlob, setCapturedBlob] = useState(null);
     const [autoCaptureEnabled, setAutoCaptureEnabled] = useState(false);
     const [landmarkFrames, setLandmarkFrames] = useState([]);
-    const [isProcessingSequence, setIsProcessingSequence] = useState(false);
     const [fingerspellingMode, setFingerspellingMode] = useState(false);
-
+    const processingRef = useRef(false);
+    const sequenceNum = 20
     
     const stopRecording = useCallback(() => {
         setRecording(false);
@@ -37,30 +36,34 @@ export function useTranslator() {
     }, [recording, stopRecording, setCapturedImage, setAutoCaptureEnabled, setRecording]);
 
     const sendSequenceToBackend = useCallback(async (blobs) => {
-        if (!Array.isArray(blobs)) {
-            console.error("Expected array of blobs, got:", blobs);
-            return;
-        }
+        if (!Array.isArray(blobs) || blobs.length !== sequenceNum || processingRef.current) return;
+
+        processingRef.current = true;
 
         try {
-            const response = await translateSequence(blobs);
-            console.log("frontend result: ", response);
-            setResult(response.prediction);
-            setIsProcessingSequence(false);
-            if (typeof response.confidence === 'number') {
-                setConfidence((response.confidence * 100).toFixed(2) + '%');
-            } else {
-                setConfidence("0.0%");
-            }
-            setLandmarkFrames([]);
+            const formData = new FormData();
+            blobs.forEach((blob, i) => {
+                formData.append('frames', blob, `frame${i}.jpg`);
+            });
+
+            const response = await processImage(formData);
+
+            setResult(prev => {
+                if (response.letter === 'SPACE') return prev + ' ';
+                if (response.letter === 'DEL') return prev.slice(0, -1);
+                return prev + response.letter;
+            });
+            setConfidence((response.confidence * 100).toFixed(2) + "%");
         } catch (err) {
-            console.error("Failed to send frame sequence:", err);
+            console.error("Error during sequence detection:", err);
             setResult("Error translating sign.");
             setConfidence("0%");
         } finally {
-            setIsProcessingSequence(false);
+            processingRef.current = false;
+            setLandmarkFrames([]);
         }
-    }, [setResult, setIsProcessingSequence, setConfidence, setLandmarkFrames]); 
+    }, [setResult, setConfidence]);
+
 
     const captureImageFromVideo = useCallback(() => {
         const video = videoRef.current;
@@ -87,26 +90,13 @@ export function useTranslator() {
                 ]);
 
                 if (fingerspellingMode) {
-                    const sign = await processImage(blob);
-                    setResult(prev => {
-                        if (sign.phrase === 'SPACE') return prev + ' ';
-                        if (sign.phrase === 'DEL') return prev.slice(0, -1);
-                        if (sign.phrase === 'Nothing detected') return prev;
-                        return prev + sign.phrase;
-                    });
-                    setConfidence((sign.confidence * 100).toFixed(2) + '%');
-                } else {
                     setLandmarkFrames(prevFrames => {
-                        const safePrev = Array.isArray(prevFrames) ? prevFrames : [];
-                        if (isProcessingSequence || !autoCaptureEnabled) return safePrev;
+                        const updated = [...prevFrames, blob];
 
-                        const updated = [...safePrev, blob];
-
-                        if (updated.length === 30) {
-                            setIsProcessingSequence(true);
-                            setResult("processing...");
+                        if (updated.length === sequenceNum) {
                             sendSequenceToBackend(updated);
-                            stopRecording();
+                            setLandmarkFrames([]);
+                            // stopRecording();
                             return [];
                         }
 
@@ -123,31 +113,22 @@ export function useTranslator() {
         setCapturedType,
         setCapturedBlob,
         setCaptureHistory,
-        setResult,
-        setConfidence,
         setLandmarkFrames,
-        isProcessingSequence,
-        autoCaptureEnabled,
         sendSequenceToBackend,
-        stopRecording 
     ]);
 
-    useEffect(() => {
-        if (!isProcessingSequence && !recording && !fingerspellingMode) {
-                startRecording();
-        }
-    }, [isProcessingSequence, recording, fingerspellingMode, startRecording]);
 
-    useEffect(() => {
+   useEffect(() => {
         let intervalId;
-        if (autoCaptureEnabled && videoRef.current) {
-            const intervalTime = fingerspellingMode ? 2500 : 100;
+
+        if (autoCaptureEnabled && fingerspellingMode && videoRef.current) {
             intervalId = setInterval(() => {
                 captureImageFromVideo();
-            }, intervalTime);
+            }, 50); 
         }
+
         return () => clearInterval(intervalId);
-    }, [autoCaptureEnabled, fingerspellingMode, captureImageFromVideo, videoRef]);
+    }, [autoCaptureEnabled, fingerspellingMode, captureImageFromVideo]);
 
     useEffect(() => {
         const enableCamera = async () => {
