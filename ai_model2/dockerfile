@@ -1,0 +1,19 @@
+# Base image with Python and GPU support (if needed)
+FROM python:3.10
+
+# (Optional) Use Nvidia base image if using GPU
+FROM nvidia/cuda:12.2.0-cudnn8-runtime-ubuntu20.04
+
+# Set work directory
+WORKDIR /pre_processing
+
+# Copy files
+COPY /notebook /pre_processing/notebook
+COPY /words /pre_processing/words
+
+# Install dependencies
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+
+# Run training script
+CMD ["python", "generate_sequences.py"]
