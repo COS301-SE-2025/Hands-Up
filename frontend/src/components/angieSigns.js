@@ -7,8 +7,8 @@ export function AnimatedAngie({ landmarks, replay }) {
   const { scene } = useGLTF('/models/angie.glb');
   const bones = useRef({}); 
 
-  const animationProgress = useRef(0); // 0 to 1
-  const animationDuration = 3; // seconds
+  const animationProgress = useRef(0); 
+  const animationDuration = 2.5; // seconds
   const clock = useRef(new THREE.Clock());
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export function AnimatedAngie({ landmarks, replay }) {
 
     if (foreArmR) {
       foreArmR.rotation.x = 0.5;
-      foreArmR.rotation.z = -2.5; 
+      foreArmR.rotation.z = -2.8; 
       // foreArmR.rotation.y = -2;    
     }
 
@@ -62,15 +62,31 @@ export function AnimatedAngie({ landmarks, replay }) {
     animationProgress.current = Math.min(animationProgress.current + delta / animationDuration, 1);
 
     for (const boneName in landmarks) {
-      console.log(boneName)
       const bone = bones.current[boneName];
       if (!bone) continue;
 
-      const { start, end } = landmarks[boneName];
+      // const { start, end } = landmarks[boneName];
 
-      const x = THREE.MathUtils.lerp(start[0], end[0], animationProgress.current);
-      const y = THREE.MathUtils.lerp(start[1], end[1], animationProgress.current);
-      const z = THREE.MathUtils.lerp(start[2], end[2], animationProgress.current);
+      // const x = THREE.MathUtils.lerp(start[0], end[0], animationProgress.current);
+      // const y = THREE.MathUtils.lerp(start[1], end[1], animationProgress.current);
+      // const z = THREE.MathUtils.lerp(start[2], end[2], animationProgress.current);
+
+      // bone.rotation.set(x, y, z);
+      const keyframes = landmarks[boneName].keyframes;
+      if (!keyframes || keyframes.length < 2) continue;
+
+      const totalFrames = keyframes.length - 1;
+      const progress = animationProgress.current * totalFrames;
+
+      const frameIndex = Math.floor(progress);
+      const frameFraction = progress - frameIndex;
+
+      const currentFrame = keyframes[frameIndex];
+      const nextFrame = keyframes[frameIndex + 1] || keyframes[frameIndex];
+
+      const x = THREE.MathUtils.lerp(currentFrame[0], nextFrame[0], frameFraction);
+      const y = THREE.MathUtils.lerp(currentFrame[1], nextFrame[1], frameFraction);
+      const z = THREE.MathUtils.lerp(currentFrame[2], nextFrame[2], frameFraction);
 
       bone.rotation.set(x, y, z);
     }

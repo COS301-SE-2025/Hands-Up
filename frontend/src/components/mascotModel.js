@@ -3,9 +3,8 @@ import { Canvas } from '@react-three/fiber'
 import { useGLTF, useAnimations } from '@react-three/drei'
 
 function Model() {
-
     const group = useRef()
-    const { scene, animations } = useGLTF('/models/Untitled.glb')
+    const { scene, animations } = useGLTF('/models/angie.glb')
     const { actions } = useAnimations(animations, group)
 
     useEffect(() => {

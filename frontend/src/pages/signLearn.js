@@ -69,7 +69,7 @@ export function SignLearn() {
             try {
                 const data = await getLandmarks(letter);
                 setLandmarks(data);
-                console.log(data); 
+                // console.log(data); 
 
                 const learnedSigns = stats?.learnedSigns || []; 
                 if (!learnedSigns.includes(letter.toLowerCase())) {
