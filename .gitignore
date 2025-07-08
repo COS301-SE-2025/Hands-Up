@@ -20,6 +20,9 @@ ai_model/video_data
 ai_model2/dataset
 ai_model2/processed_dataset
 ai_model2/models/__pycache__
+translate/extracted_landmarks
+translate/processed_sequences
+
 
 #uploads
 backend/api/uploads
