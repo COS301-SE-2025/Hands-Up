@@ -4,7 +4,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
 export function AnimatedAngie({ landmarks, replay }) {
-  const { scene } = useGLTF('/models/angie.glb');
+  const { scene } = useGLTF('/models/angieWaving.glb');
   const bones = useRef({}); 
 
   const animationProgress = useRef(0); 

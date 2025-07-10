@@ -4,7 +4,7 @@ import { useGLTF, useAnimations } from '@react-three/drei'
 
 function Model() {
     const group = useRef()
-    const { scene, animations } = useGLTF('/models/angie.glb')
+    const { scene, animations } = useGLTF('/models/angieWaving.glb')
     const { actions } = useAnimations(animations, group)
 
     useEffect(() => {
@@ -14,14 +14,14 @@ function Model() {
         }
     }, [actions])
 
-    return <primitive ref={group} object={scene} scale={1.85} />
+    return <primitive ref={group} object={scene} scale={1.9} />
 }
 
 export default function ModelViewer() {
   return (
     <Canvas camera={{ position: [-0.5, 3, 5] }}>
       <ambientLight />
-      <ambientLight intensity={5} color="white" />
+      <ambientLight intensity={10} color="white" />
       <Model />
     </Canvas>
   )

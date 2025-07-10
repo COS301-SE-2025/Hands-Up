@@ -8,7 +8,6 @@ import '../styles/landing.css';
 import video1 from "../media/landing_video1.mp4";
 import logo from "../media/logo.png";
 import devices from "../media/devices.png";
-// import angie from "../media/angie.png";
 import phil from "../media/phil.png";
 import ModelViewer from '../components/mascotModel'
 
@@ -67,16 +66,8 @@ export function Landing(){
               <button className="hero-button" onClick={goToSignup}>Start Learning</button>
             </div>
           </div>
-          {/* <img src={angie} alt="Angie" className="side-image right-image" /> */}
-          {/* <div style={{ width: 200, height: 300 }}>
-            <Canvas camera={{ position: [0, 1, 2.5] }}>
-              <ambientLight />
-              <directionalLight position={[1, 2, 3]} />
-              <FBXModel path="/models/betaAngie.fbx" scale={0.01} />
-            </Canvas>
-          </div> */}
           <div className="side-image right-image">
-            <div style={{ width: '100%', height: '80vh' }}>
+            <div style={{ width: '100%', height: '85vh' }}>
               <ModelViewer />
             </div>
           </div>
