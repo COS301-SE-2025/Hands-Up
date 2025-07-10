@@ -13,4 +13,5 @@ Author: Karabo
 9. python3 -m pip install datasets
 10. python3 -m pip install transformers
 11. python3 -m  pip install torch torchvision torchaudio
+12. python3 -m  pip install 'accelerate>=0.26.0'
 
