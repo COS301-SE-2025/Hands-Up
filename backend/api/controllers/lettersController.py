@@ -15,10 +15,7 @@ model = tf.keras.models.load_model('../../ai_model/models/detectLettersModel.ker
 with open('../../ai_model/models/labelEncoder.pickle', 'rb') as f:
     labelEncoder = pickle.load(f)
 
-# model2 = hub.load("https://www.kaggle.com/models/sayannath235/american-sign-language/TensorFlow2/american-sign-language/1")
-# labels = [chr(i) for i in range(ord('A'), ord('Z') + 1)] + ['del', 'nothing', 'space']
-
-model2 = tf.keras.models.load_model('../../ai_model/alphabet_model/JZModel.keras')
+model2 = tf.keras.models.load_model('../../ai_model/jz_model/JZModel.keras')
 with open('../../ai_model/alphabet_model/labelEncoder.pickle', 'rb') as f:
     labelEncoder2 = pickle.load(f)
 

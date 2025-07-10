@@ -10,7 +10,7 @@ mp_drawing = mp.solutions.drawing_utils
 
 # Parameters
 SEQUENCE_LENGTH = 30
-DATASET_PATH = '../words/dataset/SL'
+DATASET_PATH = 'dataset'
 OUTPUT_PATH = 'processed_dataset'
 
 if not os.path.exists(OUTPUT_PATH):

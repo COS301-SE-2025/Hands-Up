@@ -1,6 +1,5 @@
 from flask import Blueprint, request, jsonify
 from controllers.lettersController import detectFromImage
-# from controllers.wordsController import detectFromFrames
 import tempfile
 import os
 
@@ -26,7 +25,6 @@ def process_image():
         result = detectFromImage(paths)
         return jsonify(result)
     finally:
-        # Clean up all files
         for path in paths:
             os.remove(path)
         os.rmdir(temp_dir)

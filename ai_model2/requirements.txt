@@ -1,4 +1,0 @@
-numpy
-os
-scikit-learn
-tensorflow
