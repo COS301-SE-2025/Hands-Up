@@ -8,8 +8,7 @@ import '../styles/landing.css';
 import video1 from "../media/landing_video1.mp4";
 import logo from "../media/logo.png";
 import devices from "../media/devices.png";
-import phil from "../media/phil.png";
-import ModelViewer from '../components/mascotModel'
+import ModelViewer from '../components/mascotModelViewer'
 
 export function Landing(){
 
@@ -57,7 +56,11 @@ export function Landing(){
 
       <div className="hero-container">
         <div className="hero-div">
-          <img src={phil} alt="Phil" className="side-image left-image" />
+          <div className="side-image left-image">
+            <div style={{ width: '100%', height: '85vh' }}>
+              <ModelViewer modelPath={'/models/philSalute.glb'}/>
+            </div>
+          </div>
           <div>
             <h1 className="hero-div-h1">Welcome to Hands UP</h1>
             <p className="hero-div-p">Empowering Communication <br></br> One Sign at a Time.</p>
@@ -68,7 +71,7 @@ export function Landing(){
           </div>
           <div className="side-image right-image">
             <div style={{ width: '100%', height: '85vh' }}>
-              <ModelViewer />
+              <ModelViewer modelPath={'/models/angieWaving.glb'}/>
             </div>
           </div>
         </div>
