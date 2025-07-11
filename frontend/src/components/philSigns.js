@@ -5,8 +5,8 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import PropTypes from 'prop-types';
 
-export function AngieSigns({ landmarks, replay }) {
-  const { scene } = useGLTF('/models/angieWaving.glb');
+export function PhilSigns({ landmarks, replay }) {
+  const { scene } = useGLTF('/models/philSalute.glb');
   const bones = useRef({}); 
 
   const animationProgress = useRef(0); 
@@ -17,17 +17,17 @@ export function AngieSigns({ landmarks, replay }) {
     if (!scene) return;
 
     scene.traverse((obj) => {
-      if (obj.isBone && obj.name.startsWith('mixamorig')) {
+      if (obj.isBone && obj.name.startsWith('mixamorig9')) {
         bones.current[obj.name] = obj;
       }
     });
 
     // scene.traverse((obj) => obj.isBone && console.log(obj.name));
 
-    const upperArmL = bones.current['mixamorigLeftArm'];
-    const upperArmR = bones.current['mixamorigRightArm'];
-    const foreArmR = bones.current['mixamorigRightForeArm'];
-    const handR = bones.current['mixamorigRightHand'];
+    const upperArmL = bones.current['mixamorig9LeftArm'];
+    const upperArmR = bones.current['mixamorig9RightArm'];
+    const foreArmR = bones.current['mixamorig9RightForeArm'];
+    const handR = bones.current['mixamorig9RightHand'];
 
     if (upperArmL) {
       upperArmL.rotation.x = 1.1;
@@ -66,7 +66,7 @@ export function AngieSigns({ landmarks, replay }) {
     for (const boneName in landmarks) {
       const bone = bones.current[boneName];
       if (!bone) continue;
-
+      
       const keyframes = landmarks[boneName].keyframes;
       if (!keyframes || keyframes.length < 2) continue;
 
@@ -90,13 +90,13 @@ export function AngieSigns({ landmarks, replay }) {
   return <primitive object={scene} scale={2} position={[0, -1.5, 0]} />;
 }
 
-AngieSigns.propTypes = {
-  landmarks: PropTypes.objectOf(
-    PropTypes.shape({
-      keyframes: PropTypes.arrayOf(
-        PropTypes.arrayOf(PropTypes.number)
-      )
+PhilSigns.propTypes = {
+    landmarks: PropTypes.objectOf(
+        PropTypes.shape({
+            keyframes: PropTypes.arrayOf(
+            PropTypes.arrayOf(PropTypes.number)
+        )
     })
-  ).isRequired,
-  replay: PropTypes.any
+    ).isRequired,
+    replay: PropTypes.any
 };

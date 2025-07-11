@@ -1,7 +1,10 @@
+/* eslint-disable react/no-unknown-property */
+
 import React, { useEffect, useState, useCallback } from 'react'; 
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLearningStats } from '../contexts/learningStatsContext'; 
-import { AnimatedAngie } from '../components/angieSigns';
+// import { AngieSigns } from '../components/angieSigns';
+import { PhilSigns } from '../components/philSigns';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 
@@ -277,9 +280,9 @@ export function SignLearn() {
                 }}>
                 <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
                     <ambientLight intensity={5} />
-                    <directionalLight position={[2, 5, 5]} intensity={2} />
                     <group position={[0, -1.1, 0]}>
-                        <AnimatedAngie landmarks={landmarks} replay={replayKey}/>
+                        {/* <AngieSigns landmarks={landmarks} replay={replayKey}/> */}
+                        <PhilSigns landmarks={landmarks} replay={replayKey}/>
                     </group>
                     <OrbitControls enablePan={false} maxPolarAngle={Math.PI / 2} minDistance={2} maxDistance={3} />
                 </Canvas>
