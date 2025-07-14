@@ -124,7 +124,7 @@ if __name__ == "__main__":
         else:
             print(f"\nVideo ID '00377' not found in processed data (might be missing or not on disk).")
 
-        nslt_json_path = os.path.join(wlasl_dataset_path, 'nslt_100.json')
+        nslt_json_path = os.path.join(wlasl_dataset_path, 'nslt_300.json')
         if os.path.exists(nslt_json_path):
             with open(nslt_json_path, 'r') as f:
                 nslt_100_data = json.load(f)
