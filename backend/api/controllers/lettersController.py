@@ -11,13 +11,17 @@ import os
 import tensorflow_hub as hub
 from collections import deque
 
-model = tf.keras.models.load_model('../../ai_model/models/detectLettersModel.keras')
+lettersModel = tf.keras.models.load_model('../../ai_model/models/detectLettersModel.keras')
 with open('../../ai_model/models/labelEncoder.pickle', 'rb') as f:
     labelEncoder = pickle.load(f)
 
-model2 = tf.keras.models.load_model('../../ai_model/jz_model/JZModel.keras')
+lettersModel2 = tf.keras.models.load_model('../../ai_model/jz_model/JZModel.keras')
 with open('../../ai_model/jz_model/labelEncoder.pickle', 'rb') as f:
     labelEncoder2 = pickle.load(f)
+
+numbersModel = tf.keras.models.load_model('../../ai_model/models/detectNumbersModel.keras')
+with open('../../ai_model/models/numLabelEncoder.pickle', 'rb') as f:
+    numLabelEncoder = pickle.load(f)
 
 sequenceNum = 20
 hands = mp.solutions.hands.Hands(static_image_mode=True)
@@ -61,17 +65,14 @@ def detectFromImage(sequenceList):
     fallback_frame = cv2.imread(sequenceList[-1])  
 
     if len(processed_sequence) != sequenceNum:
-        print("incomplete sequence: ", len(processed_sequence))
-        for i in range(sequenceNum - len(processed_sequence)):
-            processed_sequence.append([0.0] * 63)
+        return {'letter': '', 'confidence': 0.0}
        
-
     inputData2 = np.array(processed_sequence, dtype=np.float32).reshape(1, sequenceNum, 63)
-    prediction2 = model2.predict(inputData2, verbose=0)
+    prediction2 = lettersModel2.predict(inputData2, verbose=0)
     index2 = np.argmax(prediction2, axis=1)[0]
     confidence2 = float(np.max(prediction2))
     label2 = labelEncoder2.inverse_transform([index2])[0]
-    print(label2, " at ", confidence2)
+    print(f'Letters Model 2:{label2} at {confidence2}')
 
     if fallback_frame is not None:
         imgRGB = cv2.cvtColor(fallback_frame, cv2.COLOR_BGR2RGB)
@@ -89,13 +90,21 @@ def detectFromImage(sequenceList):
                 dataAux.append(lm.x - min(xList))
                 dataAux.append(lm.y - min(yList))
 
+            #check in letters model1
             inputData1 = np.array(dataAux, dtype=np.float32).reshape(1, 42, 1)
-            prediction1 = model.predict(inputData1, verbose=0)
+            prediction1 = lettersModel.predict(inputData1, verbose=0)
             index1 = np.argmax(prediction1, axis=1)[0]
             confidence1 = float(np.max(prediction1))
             label1 = labelEncoder.inverse_transform([index1])[0]
 
-            print(label1, " at ", confidence1)
+            print(f'Letters Model 2: {label1} at {confidence1}')
+
+            prediction3 = numbersModel.predict(inputData1, verbose=0)
+            index3 = np.argmax(prediction3, axis=1)[0]
+            confidence3 = float(np.max(prediction3))
+            label3 = numLabelEncoder.inverse_transform([index3])[0]
+
+            print(f'Numbers Model: {label3} at {confidence3}')
 
             if label1==label2:
                 return {'letter': label2, 'confidence': confidence2}
