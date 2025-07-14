@@ -9,6 +9,7 @@ import { useLearningStats } from '../contexts/learningStatsContext';
 const HelpMessage = ({ message, position, onClose }) => {
     if (!message) return null; 
 
+
     let positionClasses = '';
     switch (position) {
         case 'top-right':
@@ -344,6 +345,7 @@ export function Learn() {
                                 setShowHelpMessage(false);
                             }
                         }}
+
                     />
                 )}
             </div>

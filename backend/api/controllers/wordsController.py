@@ -10,8 +10,8 @@ from collections import deque
 import time
 import os
 
-model_path = os.path.join('../../ai_model/words_model/wordsModel.keras')
-labelEncodePath = os.path.join('../../ai_model/words_model/labelEncoder.pickle')
+model_path = os.path.join('../../ai_model/alphabet_model/lettersModel.keras')
+labelEncodePath = os.path.join('../../ai_model/alphabet_model/labelEncoder.pickle')
 
 model = tf.keras.models.load_model(model_path)
 with open(labelEncodePath, 'rb') as f:

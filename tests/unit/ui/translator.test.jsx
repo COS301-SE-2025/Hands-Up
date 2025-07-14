@@ -2,7 +2,7 @@
  * @jest-environment jsdom
 */
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { Translator } from '../../../frontend/src/pages/translator';
 import '@testing-library/jest-dom';
 

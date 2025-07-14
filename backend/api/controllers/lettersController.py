@@ -6,160 +6,107 @@ import pickle
 import tensorflow as tf
 import mediapipe as mp
 import collections
-from collections import deque
 import time
 import os
+import tensorflow_hub as hub
+from collections import deque
 
 model = tf.keras.models.load_model('../../ai_model/models/detectLettersModel.keras')
 with open('../../ai_model/models/labelEncoder.pickle', 'rb') as f:
     labelEncoder = pickle.load(f)
 
-class ZGestureStateMachine:
-    def __init__(self):
-        self.state = 0
-        self.resetTimer()
+# model2 = hub.load("https://www.kaggle.com/models/sayannath235/american-sign-language/TensorFlow2/american-sign-language/1")
+# labels = [chr(i) for i in range(ord('A'), ord('Z') + 1)] + ['del', 'nothing', 'space']
 
-    def resetTimer(self):
-        self.timeInState = 0
-        self.maxTimePerState = 10
+model2 = tf.keras.models.load_model('../../ai_model/alphabet_model/JZModel.keras')
+with open('../../ai_model/alphabet_model/labelEncoder.pickle', 'rb') as f:
+    labelEncoder2 = pickle.load(f)
 
-    def update(self, landmarks):
-        self.timeInState += 1
-        if self.timeInState > self.maxTimePerState:
-            self.state = 0
-            self.resetTimer()
-            return False
+sequenceNum = 20
+hands = mp.solutions.hands.Hands(static_image_mode=True)
 
-        indexTip = landmarks[8]
-        wrist = landmarks[0]
-        dx = indexTip.x - wrist.x
-        dy = indexTip.y - wrist.y
+def detectFromImage(sequenceList):
 
-        direction = self.getDirection(dx, dy)
+    if len(sequenceList) != sequenceNum:
+        return {'letter': '', 'confidence': 0.0}
 
-        if self.state == 0 and direction == "right":
-            self.state = 1
-            self.resetTimer()
-        elif self.state == 1 and direction == "down_right":
-            self.state = 2
-            self.resetTimer()
-        elif self.state == 2 and direction == "right":
-            self.state = 3
-            self.resetTimer()
-            return True
+    processed_sequence = []
 
-        return False
+    for imagePath in sequenceList:
+        image = cv2.imread(imagePath)
+        if image is None:
+            continue 
 
-    def getDirection(self, dx, dy):
-        if abs(dx) > abs(dy):
-            return "right" if dx > 0 else "left"
-        elif abs(dy) > abs(dx):
-            return "down" if dy > 0 else "up"
-        elif dx > 0 and dy > 0:
-            return "down_right"
-        return "unknown"
-
-class JGestureStateMachine:
-    def __init__(self):
-        self.state = 0
-        self.timeInState = 0
-        self.maxTimePerState = 10
-
-    def update(self, landmarks):
-        self.timeInState += 1
-        if self.timeInState > self.maxTimePerState:
-            self.state = 0
-            self.timeInState = 0
-            return False
-
-        pinkyTip = landmarks[20]
-        wrist = landmarks[0]
-
-        dx = pinkyTip.x - wrist.x
-        dy = pinkyTip.y - wrist.y
-
-        direction = self.getDirection(dx, dy)
-
-        if self.state == 0 and direction == "down":
-            self.state = 1
-            self.timeInState = 0
-        elif self.state == 1 and direction == "left":
-            self.state = 2
-            self.timeInState = 0
-            return True
-
-        return False
-
-    def getDirection(self, dx, dy, threshold=0.02):
-        if abs(dy) > abs(dx):
-            return "down"
-        elif abs(dx) > abs(dy):
-            return "left"
-        return "unknown"
-
-
-def detectFromImage(imageIn):
-    predictions = collections.deque(maxlen=15)
-    landmarkBuffer = collections.deque(maxlen=30)
-    zStateMachine = ZGestureStateMachine()
-    jStateMachine = JGestureStateMachine()
-    phrase = ""
-    lastPredictionTime = 0
-    cooldownDuration = 6
-
-    image = cv2.imread(imageIn)
-    imgRGB = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-    with mp.solutions.hands.Hands(static_image_mode=True) as hands:
+        imgRGB = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         results = hands.process(imgRGB)
 
-        currentTime = time.time()
+        if not results.multi_hand_landmarks:
+            continue  
 
+        handLandmarks = results.multi_hand_landmarks[0]  
+
+        xList, yList = [], []
+        dataAux2 = []
+
+        for lm in handLandmarks.landmark:
+            xList.append(lm.x)
+            yList.append(lm.y)
+
+        for lm in handLandmarks.landmark:
+            dataAux2.append(lm.x - min(xList))
+            dataAux2.append(lm.y - min(yList))
+            dataAux2.append(0) 
+
+        processed_sequence.append(dataAux2)
+
+    confidence2 = 0.0
+    label2 = ""
+    fallback_frame = cv2.imread(sequenceList[-1])  
+
+    if len(processed_sequence) != sequenceNum:
+        print("incomplete sequence: ", len(processed_sequence))
+        for i in range(sequenceNum - len(processed_sequence)):
+            processed_sequence.append([0.0] * 63)
+       
+
+    inputData2 = np.array(processed_sequence, dtype=np.float32).reshape(1, sequenceNum, 63)
+    prediction2 = model2.predict(inputData2, verbose=0)
+    index2 = np.argmax(prediction2, axis=1)[0]
+    confidence2 = float(np.max(prediction2))
+    label2 = labelEncoder2.inverse_transform([index2])[0]
+    print(label2, " at ", confidence2)
+
+    if fallback_frame is not None:
+        imgRGB = cv2.cvtColor(fallback_frame, cv2.COLOR_BGR2RGB)
+        results = hands.process(imgRGB)
         if results.multi_hand_landmarks:
-            for handLandmarks in results.multi_hand_landmarks:
-                landmarkBuffer.append(handLandmarks.landmark)
+            handLandmarks = results.multi_hand_landmarks[0]
+            xList, yList = [], []
+            dataAux = []
 
-                if zStateMachine.update(handLandmarks.landmark):
-                    phrase = "Z"
-                    predictions.clear()
-                    lastPredictionTime = currentTime
-                    continue
+            for lm in handLandmarks.landmark:
+                xList.append(lm.x)
+                yList.append(lm.y)
 
-                if jStateMachine.update(handLandmarks.landmark):
-                    phrase = "J"
-                    predictions.clear()
-                    lastPredictionTime = currentTime
-                    continue
+            for lm in handLandmarks.landmark:
+                dataAux.append(lm.x - min(xList))
+                dataAux.append(lm.y - min(yList))
 
-                if currentTime - lastPredictionTime > cooldownDuration:
-                    x_ = [lm.x for lm in handLandmarks.landmark]
-                    y_ = [lm.y for lm in handLandmarks.landmark]
-                    xMin, yMin = min(x_), min(y_)
+            inputData1 = np.array(dataAux, dtype=np.float32).reshape(1, 42, 1)
+            prediction1 = model.predict(inputData1, verbose=0)
+            index1 = np.argmax(prediction1, axis=1)[0]
+            confidence1 = float(np.max(prediction1))
+            label1 = labelEncoder.inverse_transform([index1])[0]
 
-                    dataAux = []
-                    for lm in handLandmarks.landmark:
-                        dataAux.append(lm.x - xMin)
-                        dataAux.append(lm.y - yMin)
+            print(label1, " at ", confidence1)
 
-                    inputData = np.array(dataAux, dtype=np.float32).reshape(1, 42, 1)
-                    prediction = model.predict(inputData, verbose=0)
-                    predictedIndex = np.argmax(prediction, axis=1)[0]
-                    predictedLabel = labelEncoder.inverse_transform([predictedIndex])[0]
-                    confidence = float(np.max(prediction))
-
-                    if confidence > 0.8:
-                        predictions.append(predictedLabel)
-
-                        if len(predictions) == predictions.maxlen:
-                            phrase = max(set(predictions), key=predictions.count)
-                            lastPredictionTime = currentTime
-                            predictions.clear()
-    if predictions:
-        phrase = max(set(predictions), key=predictions.count)
-        if confidence > 0.8:
-            return {'phrase': phrase, 'confidence': confidence}
-        else:
-            return {'phrase': 'Nothing detected', 'confidence': 0.0}
-    else:
-        return {'phrase': 'Nothing detected', 'confidence': 0.0}
-
+            if label1==label2:
+                return {'letter': label2, 'confidence': confidence2}
+            # elif label2=="Z" and label1=="L":
+            #     return {'letter': label2, 'confidence': confidence2}
+            # elif label2=="J" and label1=="I":
+            #     return {'letter': label2, 'confidence': confidence2}
+            else:
+                return {'letter': label1, 'confidence': confidence1}        
+    else:   
+        return {'letter': label2, 'confidence': confidence2}

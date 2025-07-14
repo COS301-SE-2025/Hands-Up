@@ -221,6 +221,7 @@ export const handleApiResponse = async (response) => {
     return data;
 };
 
+
 // Fixed translateSequence function
 export const translateSequence = async (blobs) => {
     console.log('translateSequence called with blobs:', blobs?.length);
@@ -278,6 +279,7 @@ export const processImage = async (image) => {
             method: 'POST',
             body: formData
         });
+
 
         if (!response.ok) {
             const errorText = await response.text();

@@ -42,7 +42,7 @@ describe('Overall Application Tests', () => {
         cy.get('.recognizer-live-indicator span').should('contain', 'Live');
 
         cy.get('.recognizer-control-button').contains('Clear Results').should('be.visible');
-        cy.get('.recognizer-control-button').contains('Record Sequence').should('be.visible');
+        cy.get('.recognizer-control-button').contains('Start Signing').should('be.visible');
         cy.get('.recognizer-control-button').contains('Upload Sign').should('be.visible');
 
         cy.get('.recognizer-results-title').should('contain', 'Translation Results');
@@ -67,19 +67,19 @@ describe('Overall Application Tests', () => {
       cy.contains('button', 'Clear Results').click();
 
       
-         cy.get('.recognizer-record-button').should('be.visible').and('contain', 'Record Sequence');
+         cy.get('.recognizer-record-button').should('be.visible').and('contain', 'Start Signing');
 
       cy.get('.recognizer-record-button').click();
 
 
-      cy.get('.recognizer-stop-button').should('be.visible').and('contain', 'Stop Recording');
+      cy.get('.recognizer-stop-button').should('be.visible').and('contain', 'Stop Signing');
 
 
       cy.get('.recognizer-recording-indicator').should('be.visible').and('contain', 'Recording...');
 
 
       cy.get('.recognizer-stop-button').click();
-      cy.get('.recognizer-record-button').should('be.visible').and('contain', 'Record Sequence');
+      cy.get('.recognizer-record-button').should('be.visible').and('contain', 'Start Signing');
       cy.get('.recognizer-recording-indicator').should('not.exist');
 
        cy.get('.recognizer-speak-button').should('be.disabled');
