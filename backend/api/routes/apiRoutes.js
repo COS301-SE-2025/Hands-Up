@@ -27,14 +27,13 @@ import multer from 'multer';
 
 const router = Router();
 
-// Multer storage setup to use memory storage
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: {
-        fileSize: 50 * 1024 * 1024, // 50MB limit for file uploads
+        fileSize: 50 * 1024 * 1024, 
     },
     fileFilter: (req, file, cb) => {
-        console.log(` File upload: ${file.originalname}, mimetype: ${file.mimetype}`);
+        console.log(` Multer fileFilter: ${file.originalname}, mimetype: ${file.mimetype}, fieldname: ${file.fieldname}`);
 
         if (file.fieldname === 'image' || file.fieldname === 'frames' || file.fieldname === 'avatar') {
             if (file.mimetype.startsWith('image/')) {
@@ -54,14 +53,13 @@ const upload = multer({
     }
 });
 
-// Logger middleware - Logs incoming requests and file details if present
 router.use((req, res, next) => {
     console.log(` ${new Date().toISOString()} - ${req.method} ${req.path}`);
     if (req.file) {
-        console.log(` File: ${req.file.originalname} (${req.file.size} bytes)`);
+        console.log(` File: ${req.file.originalname} (${req.file.size} bytes), field: ${req.file.fieldname}`);
     } else if (req.files && Array.isArray(req.files)) {
         req.files.forEach(file => {
-            console.log(` File (array): ${file.originalname} (${file.size} bytes)`);
+            console.log(` File (array): ${file.originalname} (${file.size} bytes), field: ${file.fieldname}`);
         });
     }
     next();
@@ -82,6 +80,7 @@ router.post('/auth/confirm-reset-password', confirmPasswordReset);
 router.get("/user/me", authenticateUser, getUserData);
 router.put('/user/:id/details', authenticateUser, updateUserDetails);
 router.put('/user/:id/password', authenticateUser, updateUserPassword);
+
 router.put('/user/:id/avatar', authenticateUser, upload.single('avatar'), uploadUserAvatar);
 router.delete('/user/:id', authenticateUser, deleteUserAccount);
 
@@ -104,27 +103,23 @@ router.post(
     '/process-video',
     upload.single('video'),
     (req, res, next) => {
-        // This console log will fire when the /process-video route is reached,
-        // after multer has processed the file (if successful).
         console.log('>>> Route /process-video reached in routes.js <<<');
         if (req.file) {
             console.log(`Video file received: ${req.file.originalname}`);
         } else {
             console.log('No video file attached to request (or multer failed).');
         }
-        next(); // Pass control to the next middleware/controller function (processVideo)
+        next(); 
     },
     processVideo
 );
 router.get('/health', healthCheck);
-
-// Error handling middleware
-router.use((error,  res) => {
+router.use((error, req, res, next) => { 
     if (error instanceof multer.MulterError) {
         if (error.code === 'LIMIT_FILE_SIZE') {
             return res.status(400).json({
                 error: 'File too large',
-                details: 'Maximum file size is 50MB'
+                details: `Maximum file size is ${upload.limits.fileSize / (1024 * 1024)}MB`
             });
         }
         return res.status(400).json({
@@ -142,7 +137,7 @@ router.use((error,  res) => {
 
     console.error("Caught error in API routes:", error);
 
-    const status = error.response?.status || 500;
+    const status = error.response?.status || error.statusCode || 500;
     const message = error.response?.data?.error || error.message || "An unexpected error occurred.";
     const details = error.response?.data?.details || error.stack;
 

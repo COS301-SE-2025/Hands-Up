@@ -11,7 +11,7 @@ import {
     uploadUserAvatar
 } from '../utils/apiCalls.js';
 
-const BACKEND_BASE_URL = "https://localhost:2000"; 
+const BACKEND_BASE_URL = "http://localhost:2000"; 
 
 export function UserProfile() {
     const { currentUser, isLoggedIn, loading: authLoading, logout, updateUser } = useAuth();
@@ -93,6 +93,7 @@ export function UserProfile() {
         }
 
         if (currentUser) {
+   
             setFormData({
                 name: currentUser.name || '',
                 surname: currentUser.surname || '',
@@ -101,9 +102,8 @@ export function UserProfile() {
                 newPassword: '',
                 confirmPassword: ''
             });
-            setAvatarUrl(currentUser.avatarurl
-                ? `${BACKEND_BASE_URL}/${currentUser.avatarurl}`
-                : '');
+            setAvatarUrl(`${BACKEND_BASE_URL}/${currentUser.avatarurl.replace(/^\/+/, '')}`);
+
             setLoading(false);
         } else {
             setError("User data not available after authentication.");
@@ -310,7 +310,6 @@ export function UserProfile() {
             }
         }
 
-        // --- Avatar Update ---
         if (hasAvatarChanged && avatarFile) {
             try {
                 const dataToUpload = new FormData();
@@ -321,7 +320,8 @@ export function UserProfile() {
                 setFormSuccess("Avatar uploaded successfully!");
                 if (newAvatarResult && newAvatarResult.data && newAvatarResult.data.avatarurl) {
                     updateUser({ ...currentUser, avatarurl: newAvatarResult.data.avatarurl });
-                    setAvatarUrl(`${BACKEND_BASE_URL}/${newAvatarResult.data.avatarurl}`);
+                    setAvatarUrl(`${BACKEND_BASE_URL}/${currentUser.avatarurl.replace(/^\/+/, '')}`);
+
                     setAvatarFile(null);
                 }
             } catch (err) {
@@ -341,12 +341,6 @@ export function UserProfile() {
         }
     };
 
-    // const handleResetProgress = () => {
-    //     if (window.confirm("Are you sure you want to reset all your learning progress? This action cannot be undone.")) {
-    //         setFormSuccess("Learning progress reset successfully!");
-    //         console.log("Resetting learning progress...");
-    //     }
-    // };
 
     if (authLoading) return <div className="containerP loading-state">Loading authentication...</div>;
     if (!isLoggedIn) return null;
@@ -379,7 +373,7 @@ export function UserProfile() {
                             ))}
                         </div>
                         <div className="modal-footer">
-                            <button onClick={() => setShowTermsModal(false)} className="btn-sec">Close</button>
+                            <button onClick={() => setShowTermsModal(false)} className="btn-primary">Close</button>
                         </div>
                     </div>
                 </div>
@@ -482,7 +476,7 @@ export function UserProfile() {
                                 <button type="button" onClick={() => setShowEditForm(false)} className="btn-sec">
                                     Cancel
                                 </button>
-                                <button type="submit" className="btn-pri">
+                                <button type="submit" className="btn-primary">
                                     Save Changes
                                 </button>
                             </div>
@@ -578,28 +572,36 @@ export function UserProfile() {
                     </div>
                 </div>
 
-                <div className="profile-options">
-                    <button className="option-button primary-option" onClick={() => setShowEditForm(true)}>
-                        Edit Profile
-                        <span className="arrow-icon">&gt;</span>
-                    </button>
-                    {/* <button className="option-button" onClick={handleResetProgress}>
-                        Reset Learning Progress
-                        <span className="arrow-icon">&gt;</span>
-                    </button> */}
-                    <button className="option-button" onClick={() => setShowTermsModal(true)}>
-                        View Terms and Conditions
-                        <span className="arrow-icon">&gt;</span>
-                    </button>
-                    <button className="option-button" onClick={handleLogout}>
-                        Log Out
-                        <span className="arrow-icon">&gt;</span>
-                    </button>
-                    <button className="option-button danger-option" onClick={handleDeleteAccount}>
-                        Delete Account
-                        <span className="arrow-icon">&gt;</span>
-                    </button>
-                </div>
+                
+            <div className="profile-options">
+                {formSuccess && <div className="success-message">{formSuccess}</div>}
+                {error && <div className="error-message">{error}</div>} 
+                {formErrors.general && <div className="error-message">{formErrors.general}</div>}
+
+                <button className="option-button" onClick={() => setShowEditForm(true)}>
+                     Edit Profile
+                    <span className="arrow-icon">→</span>
+                </button>
+
+              
+
+                <button className="option-button" onClick={() => setShowTermsModal(true)}>
+                    Terms and Conditions
+                    <span className="arrow-icon">→</span>
+                </button>
+
+                  <button className="option-button" onClick={handleLogout}>
+                    Log Out
+                    <span className="arrow-icon">→</span>
+                </button>
+
+                <button className="option-button danger-option" onClick={handleDeleteAccount}>
+                     Delete Account
+                    <span className="arrow-icon">→</span>
+                </button>
+
+              
+            </div>
             </div>
         </>
     );

@@ -1,22 +1,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Lexend&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+body {
+    font-family: 'Inter', sans-serif;
+}
 
 .sign-character {
-  display: flex; 
-  justify-content: center; 
-  align-items: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .sign-canvas {
-  border: 4px solid yellow; 
-  background-color: white; 
-  display: block; 
+    border: 4px solid yellow;
+    background-color: white;
+    display: block;
 }
 
 .sign-display h1 {
     margin-bottom: 20px;
 }
+
 .sign-character {
-    margin-top: 20px; 
+    margin-top: 20px;
 }
 
 .error-message {
@@ -24,177 +31,266 @@
     margin-top: 10px;
     margin-bottom: 10px;
 }
+
 .duo-app {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  font-family: 'Segoe UI', sans-serif;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    font-family: 'Segoe UI', sans-serif;
 }
 
 .sidebar {
-  width: 16%;
-  padding: 20px;
-  height: 100vh;
-  background-color: white;
-  margin-right: 1rem;
-  height: auto;
+    width: 16%;
+    padding: 20px;
+    height: 100vh;
+    background-color: white;
+    margin-right: 1rem;
+    height: auto;
 }
 
 .sidebar-item {
-  font-size: 1.6rem;
-  margin-bottom: 2rem;
-  cursor: pointer;
+    font-size: 1.6rem;
+    margin-bottom: 2rem;
+    cursor: pointer;
 }
 
 .sidebar-item.active {
-  font-weight: bold;
-  color: #333;
-  text-align: center;
-  font-family: 'Lexend', sans-serif;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    font-family: 'Lexend', sans-serif;
 }
 
 .sidebar-summary {
-  margin-top: 30px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 .summary-item {
-  padding: 10px;
-  border-radius: 2rem;
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 0px 4px #ffc61a;
+    padding: 10px;
+    border-radius: 2rem;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 0px 4px #ffc61a;
 }
 
 .summary-title {
-  text-align: center;
-  font-weight: 500;
-  color: #333;
-  margin-bottom: 10px;
+    text-align: center;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 10px;
 }
 
 .summary-value {
-  font-family: 'Poppins', sans-serif;  
-  text-align: center;
-  font-size: 2rem;
-  font-weight: 600;
-  color: #4e7a51;
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 600;
+    color: #2f9736;
 }
 
 .summary-progress-value {
-  width: 70px;
-  height: 70px;
-  margin: 0 auto;
-  transform: scaleX(-1);
+    width: 70px;
+    height: 70px;
+    margin: 0 auto;
+    transform: scaleX(-1);
 }
 
 .CircularProgressbar-text {
-  transform: scaleX(-1);
-  transform-origin: center;
-  font-family: 'Poppins', sans-serif;  
-  font-weight: 400;
+    transform: scaleX(-1);
+    transform-origin: center;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
 }
 
 .learn-main-content {
-  margin-top: 1.5rem;
-  margin-left: 1.5rem;
-  background-color: white;
-  width: 80%;
-  height: 69vh;
-  overflow-y: scroll;
+    margin-top: 1.5rem;
+    margin-left: 1.5rem;
+    background-color: white;
+    width: 80%;
+    height: 69vh;
+    overflow-y: scroll;
+    position: relative;
 }
 
 .category-levels {
-  font-family: 'Lexend', sans-serif;
+    font-family: 'Lexend', sans-serif;
 }
 
 .category-tiles {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  width: 70%;
-  margin: 0 auto;
-  /* margin-left: 7rem; */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 70%;
+    margin: 0 auto;
 }
 
 .category-tile {
-  font-family: 'Lexend', sans-serif;
-  background: #f0f0f0;
-  border-radius: 10px;
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  font-size: 1.4rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+    font-family: 'Lexend', sans-serif;
+    background: #f0f0f0;
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    font-size: 1.4rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    justify-content: space-between;
 }
 
 .category-tile.unlocked {
-  background-color: #ffeb3bc3;
-  color: #333;
+    background-color: #ffe44d;
+    color: #333;
 }
 
 .category-tile.locked {
-  background-color: #f0f0f0; 
-  color: #888;
-  pointer-events: none; 
+    background-color: #f0f0f0;
+    color: #888;
+    pointer-events: none;
 }
 
 .lock-icon {
-  font-size: 20px;
-  color: #555;
+    font-size: 20px;
+    color: #555;
 }
 
 .category-tile:hover {
-  background: #ffeb3b;
+    background: #ffeb3b;
 }
 
 .category-emoji {
-  font-size: 2rem;
-  margin-right: 15px;
+    font-size: 2rem;
+    margin-right: 15px;
 }
 
 .stepping-poles {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 20px;
 }
 
 .level-card {
-  width: 150px;
-  height: 100px;
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #ddd;
-  cursor: pointer;
-  font-weight: bold;
-  transition: transform 0.2s;
+    width: 150px;
+    height: 100px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #ddd;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.2s;
 }
 
 .level-card.unlocked {
-  background-color: #7ED957;
-  color:#ffc61a;
+    background-image: linear-gradient(to right, #2da335, #7ED957);
+    color: #ffffff;
 }
 
 .level-card.locked {
-  background-color: #ccc;
-  cursor: not-allowed;
-  align-items: center;
+    background-color: #ccc;
+    cursor: not-allowed;
+    align-items: center;
 }
 
 .back-button {
-  background: none;
-  border: none;
-  font-size: 1rem;
-  cursor: pointer;
-  margin-bottom: 1rem;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-bottom: 1rem;
+    margin-top: 20px;
+}
+
+.help-message-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.help-message-overlay {
+    position: fixed;
+    top: 0;
+    right: 0;
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 1px solid #c0c0c0;
+    max-width: 400px;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    font-family: 'Inter', sans-serif;
+    animation: fadeInScale 0.3s ease-out;
+    z-index: 9999;
+}
+
+.help-icon {
+    width: 36px;
+    height: 36px;
+    color: #2563eb;
+}
+
+@keyframes rainbow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .duo-app {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        height: auto;
+        padding-bottom: 0;
+        margin-right: 0;
+    }
+    .learn-main-content {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 0;
+        height: auto;
+        padding: 1rem;
+    }
+    .category-tiles {
+        width: 95%;
+    }
+    .help-message-overlay {
+        max-width: 90%;
+        left: 5%;
+        right: 5%;
+        transform: none;
+        padding: 20px;
+    }
+    .help-message-overlay.center {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    .stepping-poles {
+        justify-content: center;
+    }
+    .level-card {
+        width: 120px;
+        height: 80px;
+    }
 }
