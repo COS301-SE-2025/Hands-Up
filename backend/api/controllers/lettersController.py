@@ -16,7 +16,7 @@ with open('../../ai_model/models/labelEncoder.pickle', 'rb') as f:
     labelEncoder = pickle.load(f)
 
 model2 = tf.keras.models.load_model('../../ai_model/jz_model/JZModel.keras')
-with open('../../ai_model/alphabet_model/labelEncoder.pickle', 'rb') as f:
+with open('../../ai_model/jz_model/labelEncoder.pickle', 'rb') as f:
     labelEncoder2 = pickle.load(f)
 
 sequenceNum = 20

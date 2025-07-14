@@ -7,20 +7,25 @@ from tensorflow.keras.callbacks import EarlyStopping
 
 early_stop = EarlyStopping(patience=2, restore_best_weights=True)
 
-#process first data set
 dataDictTrain = pickle.load(open('../processed_data/trainData.pickle', 'rb'))
+numDictTrain = pickle.load(open('../processed_data/numTrainData.pickle', 'rb'))
+
+alphaAndNumData = dataDictTrain['data'] + numDictTrain['data']
+alphaAndNumLabels = dataDictTrain['labels'] + numDictTrain['labels']
 
 cleanedData = []
 cleanedLabels = []
-for i, item in enumerate(dataDictTrain['data']):
+for i, item in enumerate(alphaAndNumData):
     if isinstance(item, (np.ndarray, list)) and len(item) == 42:
         cleanedData.append(np.array(item, dtype=np.float32))
-        cleanedLabels.append(dataDictTrain['labels'][i])
+        cleanedLabels.append(alphaAndNumLabels[i])
 
 xTrain = np.array(cleanedData)
 yTrainRaw = np.array(cleanedLabels)
 
 dataDictTest = pickle.load(open('../processed_data/testData.pickle', 'rb'))
+numDictTest = pickle.load(open('../processed_data/numTestData.pickle', 'rb'))
+
 xTestRaw = np.array(dataDictTest['data'], dtype=np.float32)
 yTestRaw = np.array(dataDictTest['labels'])
 
