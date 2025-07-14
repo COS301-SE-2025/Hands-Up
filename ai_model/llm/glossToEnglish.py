@@ -10,4 +10,4 @@ def translate_gloss(gloss):
     return tokenizer.decode(output_ids[0], skip_special_tokens=True)
 
 #Testing
-print(translate_gloss("MOTHER LOVE GIRL"))
+print(translate_gloss("LIBRARY WHERE"))  # Expected output: "I am tired
