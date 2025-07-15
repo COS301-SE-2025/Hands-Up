@@ -65,10 +65,8 @@ def detectFromImage(sequenceList):
 
     if len(processed_sequence) != sequenceNum:
         print("incomplete sequence: ", len(processed_sequence))
-        for i in range(sequenceNum - len(processed_sequence)):
-            processed_sequence.append([0.0] * 63)
+        return {'letter': '', 'confidence': 0.0}
        
-
     inputData2 = np.array(processed_sequence, dtype=np.float32).reshape(1, sequenceNum, 63)
     prediction2 = model2.predict(inputData2, verbose=0)
     index2 = np.argmax(prediction2, axis=1)[0]
