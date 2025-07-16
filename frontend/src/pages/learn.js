@@ -5,15 +5,16 @@ import { CategoryTile } from '../components/learnCategoryTile';
 import { LevelTile } from '../components/learnLevelTile';
 import '../styles/learn.css';
 import { useLearningStats } from '../contexts/learningStatsContext';
+import ModelViewer from '../components/mascotModelViewer'
 
 
-const HelpMessage = ({ message, position, onClose }) => {
-    if (!message) return null;
+const HelpMessage = ({ message, onClose, position }) => {
+     if (!message) return null;
 
     let positionClasses = '';
     switch (position) {
         case 'top-right':
-            positionClasses = 'top-4 right-4';
+            positionClasses = 'top-3 right-4';
             break;
         case 'top-left':
            positionClasses = 'top-4 left-4';
@@ -25,20 +26,36 @@ const HelpMessage = ({ message, position, onClose }) => {
            positionClasses = 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2';
             break;
         default:
-           positionClasses = 'top-4 right-4';
+           positionClasses = 'top-3 right-4';
     }
 
     return (
-      <div className={`help-message-overlay fixed z-50 p-4 rounded-lg shadow-lg flex items-start ${positionClasses}`}>
-            <div className="help-icon flex-shrink-0 mr-3">
-            </div>
-           <div className="flex-grow">
-                <p className="text-gray-800 text-base mb-3">{message}</p>
+       <div className="help-message-backdrop fixed inset-0 bg-black bg-opacity-50 z-[9998] animate-fadeIn">
+
+            <div className={`help-message-overlay fixed z-[9999] p-6 rounded-2xl shadow-2xl flex flex-col items-center justify-center bg-gradient-to-br from-white to-gray-50 border border-gray-200 ${positionClasses} animate-fadeInScale`}>
+
+                <div className="w-full max-w-[200px] h-[200px] rounded-xl bg-white shadow-md mb-4 flex items-center justify-center">
+                    <ModelViewer modelPath={'/models/angieWaving.glb'} />
+                </div>
+
+                <p className="text-gray-800 text-lg text-center font-medium mb-6 leading-relaxed">
+                    {message}
+                </p>
+
                 <button
                     onClick={onClose}
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                    className="
+                        bg-gradient-to-r from-blue-500 to-blue-700 
+                        hover:from-blue-600 hover:to-blue-800 
+                        text-white font-bold py-3 px-8 rounded-full 
+                        transition duration-300 ease-in-out 
+                        transform hover:scale-105 active:scale-95 
+                        focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-opacity-75
+                        shadow-lg hover:shadow-xl
+                        text-lg tracking-wide
+                    "
                 >
-                    Okay
+                    Okay!
                 </button>
             </div>
         </div>
@@ -78,7 +95,7 @@ const FOOD_DRINKS = ['water', 'bread', 'rice', 'meat', 'fish', 'fruit', 'vegetab
 const OBJECTS_THINGS = ['book', 'pen', 'phone', 'computer', 'table', 'chair', 'car', 'house',
     'bag', 'watch', 'key', 'bottle', 'glass', 'lamp', 'window', 'door', 'picture', 'clock'];
 
-const ANIMALS = ['dog', 'cat', 'bird', 'fish', 'horse', 'cow', 'sheep', 'pig', 'chicken'];
+const ANIMALS = ['dog', 'cat', 'bird', 'fish', 'horse', 'cow', 'animal', 'pig', 'pet'];
 
 const SEASONS_WEATHER = ['spring', 'summer', 'autumn', 'winter', 'sunny', 'rainy', 'cloudy', 'snowy',
     'windy', 'stormy', 'hot', 'cold', 'warm', 'cool', 'foggy', 'hail', 'thunder', 'lightning',
@@ -109,8 +126,8 @@ export function Learn() {
     const quizzesCompleted = stats?.quizzesCompleted || 0;
 
     const unlockedCategories = stats?.unlockedCategories
-        ? [...stats.unlockedCategories, 'numbers', 'colours', 'introduce']
-        : ['alphabets', 'numbers', 'colours', 'introduce'];
+        ? [...stats.unlockedCategories, 'numbers', 'colours', 'introduce', 'family', 'feelings', 'actions', 'questions', 'time', 'food', 'things', 'animals', 'seasons']
+        : ['alphabets', 'numbers', 'colours', 'introduce', 'family', 'feelings', 'actions', 'questions', 'time', 'food', 'things', 'animals', 'seasons'];
 
     const categories = [
         { id: 'alphabets', name: 'The Alphabet', unlocked: unlockedCategories.includes('alphabets') },
@@ -407,7 +424,321 @@ export function Learn() {
                                         }}
                                     />
                                 </>
-                            ) : (
+                            ) :  currentCategory.id === 'family' ? ( 
+                                <>
+                                    {FAMILY_MEMBERS.map((word, i) => (
+                                        <LevelTile
+                                            key={word}
+                                            level={word.charAt(0).toUpperCase() + word.slice(1)} 
+                                            unlocked={true} 
+                                            onClick={() => navigate(`/sign/${word.toLowerCase()}`)}
+                                        />
+                                    ))}
+                                    <LevelTile
+                                        key={'family-quiz'}
+                                        level={'Quiz'}
+                                        unlocked={
+                                            FAMILY_MEMBERS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))
+                                        }
+                                        onClick={() => {
+                                            if (FAMILY_MEMBERS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))) {
+                                                navigate(getQuizRoute(currentCategory.id));
+                                            } else {
+                                                showHelp(
+                                                    `You need to learn all words in the 'Family Member' category to unlock this quiz. Keep practicing!`,
+                                                    'center'
+                                                );
+                                            }
+                                        }}
+                                        style={{
+                                            backgroundColor: FAMILY_MEMBERS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
+                                            color: FAMILY_MEMBERS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
+                                            fontWeight: 'bold',
+                                            fontSize: '14px'
+                                        }}
+                                    />
+                                </>
+                            ):
+                            currentCategory.id === 'feelings' ? ( 
+                                <>
+                                    {EMOTIONS_FEELINGS.map((word, i) => (
+                                        <LevelTile
+                                            key={word}
+                                            level={word.charAt(0).toUpperCase() + word.slice(1)} 
+                                            unlocked={true} 
+                                            onClick={() => navigate(`/sign/${word.toLowerCase()}`)}
+                                        />
+                                    ))}
+                                    <LevelTile
+                                        key={'feelings-quiz'}
+                                        level={'Quiz'}
+                                        unlocked={
+                                            EMOTIONS_FEELINGS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))
+                                        }
+                                        onClick={() => {
+                                            if (EMOTIONS_FEELINGS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))) {
+                                                navigate(getQuizRoute(currentCategory.id));
+                                            } else {
+                                                showHelp(
+                                                    `You need to learn all words in the 'Emotions and Feelings' category to unlock this quiz. Keep practicing!`,
+                                                    'center'
+                                                );
+                                            }
+                                        }}
+                                        style={{
+                                            backgroundColor: EMOTIONS_FEELINGS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
+                                            color: EMOTIONS_FEELINGS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
+                                            fontWeight: 'bold',
+                                            fontSize: '14px'
+                                        }}
+                                    />
+                                </>
+                            ):
+                            currentCategory.id === 'actions' ? ( 
+                                <>
+                                    {COMMON_ACTIONS.map((word, i) => (
+                                        <LevelTile
+                                            key={word}
+                                            level={word.charAt(0).toUpperCase() + word.slice(1)} 
+                                            unlocked={true} 
+                                            onClick={() => navigate(`/sign/${word.toLowerCase()}`)}
+                                        />
+                                    ))}
+                                    <LevelTile
+                                        key={'actions-quiz'}
+                                        level={'Quiz'}
+                                        unlocked={
+                                            COMMON_ACTIONS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))
+                                        }
+                                        onClick={() => {
+                                            if (COMMON_ACTIONS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))) {
+                                                navigate(getQuizRoute(currentCategory.id));
+                                            } else {
+                                                showHelp(
+                                                    `You need to learn all words in the 'Common Actions' category to unlock this quiz. Keep practicing!`,
+                                                    'center'
+                                                );
+                                            }
+                                        }}
+                                        style={{
+                                            backgroundColor: COMMON_ACTIONS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
+                                            color: COMMON_ACTIONS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
+                                            fontWeight: 'bold',
+                                            fontSize: '14px'
+                                        }}
+                                    />
+                                </>
+                            ):
+                            currentCategory.id === 'questions' ? ( 
+                                <>
+                                    {ASKING_QUESTIONS.map((word, i) => (
+                                        <LevelTile
+                                            key={word}
+                                            level={word.charAt(0).toUpperCase() + word.slice(1)} 
+                                            unlocked={true} 
+                                            onClick={() => navigate(`/sign/${word.toLowerCase()}`)}
+                                        />
+                                    ))}
+                                    <LevelTile
+                                        key={'questions-quiz'}
+                                        level={'Quiz'}
+                                        unlocked={
+                                            ASKING_QUESTIONS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))
+                                        }
+                                        onClick={() => {
+                                            if (ASKING_QUESTIONS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))) {
+                                                navigate(getQuizRoute(currentCategory.id));
+                                            } else {
+                                                showHelp(
+                                                    `You need to learn all words in the 'Asking Questions' category to unlock this quiz. Keep practicing!`,
+                                                    'center'
+                                                );
+                                            }
+                                        }}
+                                        style={{
+                                            backgroundColor: ASKING_QUESTIONS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
+                                            color: ASKING_QUESTIONS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
+                                            fontWeight: 'bold',
+                                            fontSize: '14px'
+                                        }}
+                                    />
+                                </>
+                            ): 
+                            currentCategory.id === 'time' ? ( 
+                                <>
+                                    {TIME_DAYS.map((word, i) => (
+                                        <LevelTile
+                                            key={word}
+                                            level={word.charAt(0).toUpperCase() + word.slice(1)} 
+                                            unlocked={true} 
+                                            onClick={() => navigate(`/sign/${word.toLowerCase()}`)}
+                                        />
+                                    ))}
+                                    <LevelTile
+                                        key={'time-quiz'}
+                                        level={'Quiz'}
+                                        unlocked={
+                                            TIME_DAYS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))
+                                        }
+                                        onClick={() => {
+                                            if (TIME_DAYS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))) {
+                                                navigate(getQuizRoute(currentCategory.id));
+                                            } else {
+                                                showHelp(
+                                                    `You need to learn all words in the 'Time and Days' category to unlock this quiz. Keep practicing!`,
+                                                    'center'
+                                                );
+                                            }
+                                        }}
+                                        style={{
+                                            backgroundColor: TIME_DAYS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
+                                            color: TIME_DAYS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
+                                            fontWeight: 'bold',
+                                            fontSize: '14px'
+                                        }}
+                                    />
+                                </>
+                            ):
+                            currentCategory.id === 'food' ? ( 
+                                <>
+                                    {FOOD_DRINKS.map((word, i) => (
+                                        <LevelTile
+                                            key={word}
+                                            level={word.charAt(0).toUpperCase() + word.slice(1)} 
+                                            unlocked={true} 
+                                            onClick={() => navigate(`/sign/${word.toLowerCase()}`)}
+                                        />
+                                    ))}
+                                    <LevelTile
+                                        key={'food-quiz'}
+                                        level={'Quiz'}
+                                        unlocked={
+                                            FOOD_DRINKS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))
+                                        }
+                                        onClick={() => {
+                                            if (FOOD_DRINKS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))) {
+                                                navigate(getQuizRoute(currentCategory.id));
+                                            } else {
+                                                showHelp(
+                                                    `You need to learn all words in the 'Food and Drinks' category to unlock this quiz. Keep practicing!`,
+                                                    'center'
+                                                );
+                                            }
+                                        }}
+                                        style={{
+                                            backgroundColor: FOOD_DRINKS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
+                                            color: FOOD_DRINKS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
+                                            fontWeight: 'bold',
+                                            fontSize: '14px'
+                                        }}
+                                    />
+                                </>
+                            ):
+                            currentCategory.id === 'things' ? ( 
+                                <>
+                                    {OBJECTS_THINGS.map((word, i) => (
+                                        <LevelTile
+                                            key={word}
+                                            level={word.charAt(0).toUpperCase() + word.slice(1)} 
+                                            unlocked={true} 
+                                            onClick={() => navigate(`/sign/${word.toLowerCase()}`)}
+                                        />
+                                    ))}
+                                    <LevelTile
+                                        key={'things-quiz'}
+                                        level={'Quiz'}
+                                        unlocked={
+                                            OBJECTS_THINGS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))
+                                        }
+                                        onClick={() => {
+                                            if (OBJECTS_THINGS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))) {
+                                                navigate(getQuizRoute(currentCategory.id));
+                                            } else {
+                                                showHelp(
+                                                    `You need to learn all words in the 'Object and Things' category to unlock this quiz. Keep practicing!`,
+                                                    'center'
+                                                );
+                                            }
+                                        }}
+                                        style={{
+                                            backgroundColor: OBJECTS_THINGS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
+                                            color: OBJECTS_THINGS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
+                                            fontWeight: 'bold',
+                                            fontSize: '14px'
+                                        }}
+                                    />
+                                </>
+                            ):
+                            currentCategory.id === 'animals' ? ( 
+                                <>
+                                    {ANIMALS.map((word, i) => (
+                                        <LevelTile
+                                            key={word}
+                                            level={word.charAt(0).toUpperCase() + word.slice(1)} 
+                                            unlocked={true} 
+                                            onClick={() => navigate(`/sign/${word.toLowerCase()}`)}
+                                        />
+                                    ))}
+                                    <LevelTile
+                                        key={'actions-quiz'}
+                                        level={'Quiz'}
+                                        unlocked={
+                                            ANIMALS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))
+                                        }
+                                        onClick={() => {
+                                            if (ANIMALS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))) {
+                                                navigate(getQuizRoute(currentCategory.id));
+                                            } else {
+                                                showHelp(
+                                                    `You need to learn all words in the 'Animals' category to unlock this quiz. Keep practicing!`,
+                                                    'center'
+                                                );
+                                            }
+                                        }}
+                                        style={{
+                                            backgroundColor: ANIMALS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
+                                            color: ANIMALS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
+                                            fontWeight: 'bold',
+                                            fontSize: '14px'
+                                        }}
+                                    />
+                                </>
+                            ): currentCategory.id === 'seasons' ? ( 
+                                <>
+                                    {SEASONS_WEATHER.map((word, i) => (
+                                        <LevelTile
+                                            key={word}
+                                            level={word.charAt(0).toUpperCase() + word.slice(1)} 
+                                            unlocked={true} 
+                                            onClick={() => navigate(`/sign/${word.toLowerCase()}`)}
+                                        />
+                                    ))}
+                                    <LevelTile
+                                        key={'seasons-quiz'}
+                                        level={'Quiz'}
+                                        unlocked={
+                                            SEASONS_WEATHER.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))
+                                        }
+                                        onClick={() => {
+                                            if (SEASONS_WEATHER.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))) {
+                                                navigate(getQuizRoute(currentCategory.id));
+                                            } else {
+                                                showHelp(
+                                                    `You need to learn all words in the 'Seasons and Weather' category to unlock this quiz. Keep practicing!`,
+                                                    'center'
+                                                );
+                                            }
+                                        }}
+                                        style={{
+                                            backgroundColor: SEASONS_WEATHER.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
+                                            color: SEASONS_WEATHER.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
+                                            fontWeight: 'bold',
+                                            fontSize: '14px'
+                                        }}
+                                    />
+                                </>
+                            ):
+                            (
                                
                                 <>
                                     {[...Array(5)].map((_, i) => (
