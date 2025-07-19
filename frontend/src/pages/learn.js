@@ -70,7 +70,7 @@ const COLORS = [
 const INTRODUCTION_WORDS = ['hello', 'name', 'my','again', 'goodbye', 'nice', 'meet', 'you', 'this', 'sorry', 'and'];
 
 const FAMILY_MEMBERS = ['brother', 'sister', 'mother','father', 'aunt', 'uncle', 'grandma', 'grandpa', 'child',
-     'siblings', 'parents', 'family', 'son', 'daughter', 'cousin', 'nephew', 'niece','boy','girl','stepmother', 'stepfather', 'stepbrother', 'stepsister'];
+     'siblings','boy','girl',];
 
 const EMOTIONS_FEELINGS = ['happy', 'sad', 'angry', 'excited', 'bored', 'tired', 'scared', 'nervous', 'confused',
     'surprised', 'proud', 'embarrassed', 'disappointed', 'relaxed', 'curious', 'hopeful', 'grateful', 'jealous',
