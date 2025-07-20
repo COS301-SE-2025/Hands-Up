@@ -72,34 +72,26 @@ const INTRODUCTION_WORDS = ['hello', 'name', 'my','again', 'goodbye', 'nice', 'm
 const FAMILY_MEMBERS = ['brother', 'sister', 'mother','father', 'aunt', 'uncle', 'grandma', 'grandpa', 'child',
      'siblings','boy','girl',];
 
-const EMOTIONS_FEELINGS = ['happy', 'sad', 'angry', 'excited', 'bored', 'tired', 'scared', 'nervous', 'confused',
-    'surprised', 'proud', 'embarrassed', 'disappointed', 'relaxed', 'curious', 'hopeful', 'grateful', 'jealous',
-    'lonely', 'ashamed', 'anxious', 'content', 'frustrated', 'overwhelmed'];
+const EMOTIONS_FEELINGS = ['happy', 'sad', 'angry','cry','hurt', 'sorry', 'like', 'love', 'hate', 'feel'];
 
-const COMMON_ACTIONS = ['eat', 'drink', 'sleep', 'walk', 'run', 'sit', 'stand', 'talk', 'listen', 'read',
-    'write', 'play', 'work', 'study', 'watch', 'help', 'clean', 'cook', 'drive', 'travel', 'exercise',
-    'dance', 'sing', 'draw', 'paint', 'build', 'fix', 'shop', 'call', 'text'];
+const COMMON_ACTIONS = ['drive', 'watch', 'sleep', 'walk', 'stand', 'sit', 'give', 'understand', 'go', 'stay',
+    'talk'];
 
-const ASKING_QUESTIONS = ['who', 'what', 'where', 'when', 'why', 'how', 'which', 'whose', 'can', 'could',
-    'will', 'would', 'should', 'may', 'might', 'is', 'are', 'was', 'were', 'do', 'does', 'did', 'has',
-    'have', 'had', 'shall', 'must'];
+const ASKING_QUESTIONS = ['why', 'tell', 'when', 'who', 'which'];
 
-const TIME_DAYS = ['morning', 'afternoon', 'evening', 'night', 'today', 'tomorrow', 'yesterday', 'week',
-    'month', 'year', 'day', 'hour', 'minute', 'second', 'now', 'soon', 'later', 'early', 'late',
-    'schedule', 'time', 'clock', 'calendar', 'date', 'weekend'];
+const TIME_DAYS = ['morning', 'afternoon', 'evening', 'night', 'today', 'tomorrow', 'yesterday', 'year',
+    'now', 'future','Oclock', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-const FOOD_DRINKS = ['water', 'bread', 'rice', 'meat', 'fish', 'fruit', 'vegetable', 'snack', 'dessert',
-    'breakfast', 'lunch', 'dinner', 'meal', 'drink', 'juice', 'soda', 'coffee', 'tea', 'milk',
-    'soup', 'salad', 'sandwich', 'pizza', 'burger', 'cake', 'ice cream', 'chocolate'];
+const FOOD_DRINKS = ['water', 'apple', 'drink', 'cereal', 'eggs', 'eat', 'hungry', 'full', 'cup',
+    'popcorn', 'candy', 'soup','drink', 'juice', 'milk', 'pizza'];
 
-const OBJECTS_THINGS = ['book', 'pen', 'phone', 'computer', 'table', 'chair', 'car', 'house',
-    'bag', 'watch', 'key', 'bottle', 'glass', 'lamp', 'window', 'door', 'picture', 'clock'];
+const OBJECTS_THINGS = ['shower', 'table', 'lights', 'computer', 'hat', 'chair', 'car', 'stove',
+    'ambulance', 'window'];
 
-const ANIMALS = ['dog', 'cat', 'bird', 'fish', 'horse', 'cow', 'animal', 'pig', 'pet'];
+const ANIMALS = ['dog', 'cat', 'bird', 'fish', 'horse', 'cow', 'animal'];
 
-const SEASONS_WEATHER = ['spring', 'summer', 'autumn', 'winter', 'sunny', 'rainy', 'cloudy', 'snowy',
-    'windy', 'stormy', 'hot', 'cold', 'warm', 'cool', 'foggy', 'hail', 'thunder', 'lightning',
-    'weather', 'forecast', 'climate'];
+const SEASONS_WEATHER = ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 'cloudy', 'snow',
+    'wind', 'sunrise', 'hot', 'cold', 'warm', 'cool','weather', 'freeze'];
 
 
 
