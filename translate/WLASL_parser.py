@@ -1,53 +1,60 @@
 import os
 import json
 import pandas as pd
-import cv2 # To verify video integrity later if needed
+import cv2 
 
+# --- CONFIGURATION FOR TARGET WORD LIST ---
+# This is your initial 10-word subset (lowercase recommended for WLASL compatibility)
+TARGET_GLOSS_LIST = [
+    "apple", "black", "blue", "brown", "can", "cat", "chair", "child", "cold", "come"
+]
+TARGET_GLOSS_SET = set(g.lower() for g in TARGET_GLOSS_LIST) # Convert to set of lowercase glosses
 
-# This function will parse the WLASL dataset from the given base data path.
-def parse_wlasl_dataset(base_data_path): # Corrected function name parse_wlasl_dataset
-    videos_dir = os.path.join(base_data_path, 'videos') #gets video
-    wlasl_json_path = os.path.join(base_data_path, 'WLASL_v0.3.json') #gets wlasl json
-    missing_txt_path = os.path.join(base_data_path, 'missing.txt') #gets missing text
-    class_list_path = os.path.join(base_data_path, 'wlasl_class_list.txt') # Corrected filename: wlasl_class_list.txt
+# --- GLOSSES TO EXCLUDE (ALPHABETS) ---
+ALPHABET_GLOSSES = [
+    "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", 
+    "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"
+]
+GLOSSES_TO_EXCLUDE_SET = set(g.lower() for g in ALPHABET_GLOSSES) # Convert to lowercase set for comparison
+# --- END CONFIGURATION ---
 
+def parse_wlasl_dataset(base_data_path):
+    videos_dir = os.path.join(base_data_path, 'videos')
+    wlasl_json_path = os.path.join(base_data_path, 'WLASL_v0.3.json')
+    missing_txt_path = os.path.join(base_data_path, 'missing.txt')
+    class_list_path = os.path.join(base_data_path, 'wlasl_class_list.txt') # For original class list
 
-    print(f"Parsing WLASL dataset from: {base_data_path}") #this gets path directory
+    print(f"Parsing WLASL dataset from: {base_data_path}")
 
-    if not os.path.exists(wlasl_json_path): #this checks if the wlasl json path exists
+    if not os.path.exists(wlasl_json_path):
         print(f"Error: WLASL_v0.3.json not found at {wlasl_json_path}")
         return None
 
-    with open(wlasl_json_path, 'r') as f: #this opens the wlasl json file
+    with open(wlasl_json_path, 'r') as f:
         wlasl_data = json.load(f)
-    print(f"Loaded WLASL_v0.3.json with {len(wlasl_data)} entries (glosses).") # Removed "with" extra word
+    print(f"Loaded WLASL_v0.3.json with {len(wlasl_data)} entries (glosses).")
 
-    missing_video_ids = set() #there seems to be some videos that are missing therefore we need to keep track of them
+    missing_video_ids = set()
     if os.path.exists(missing_txt_path):
         with open(missing_txt_path, 'r') as f:
             for line in f:
                 missing_video_ids.add(line.strip())
-        print(f"Loaded missing.txt with {len(missing_video_ids)} missing video IDs.") # Removed extra space
+        print(f"Loaded missing.txt with {len(missing_video_ids)} missing video IDs.")
     else:
         print(f"Warning: missing.txt not found at {missing_txt_path}. Proceeding without it.")
 
-    gloss_id_map = {} # Corrected variable name: gloss_id_map
-    id_gloss_map = {} # Corrected variable name: id_gloss_map
+    # This gloss_id_map and id_gloss_map is from the original WLASL_v0.3.json,
+    # we will re-map for our target list later.
+    gloss_id_map_orig = {} 
     if os.path.exists(class_list_path):
         with open(class_list_path, 'r') as f:
             for line in f:
                 parts = line.strip().split('\t')
                 if len(parts) == 2:
-                    gloss_id_map[int(parts[0])] = parts[1] # Corrected: gloss_id_map, int(parts[0]), parts[1]
-                    id_gloss_map[parts[1]] = int(parts[0]) # Corrected: int(parts[0]) for the value
-        print(f"Loaded wlasl_class_list.txt with {len(gloss_id_map)} classes.") # Corrected filename print
-
-    else:
-        print(f"Warning: wlasl_class_list.txt not found at {class_list_path}. Gloss names will be used directly from WLASL_v0.3.json.")
-
-    # Process instances and build a DataFrame
+                    gloss_id_map_orig[int(parts[0])] = parts[1]
+            
     data_records = []
-    available_videos_count = 0 # Corrected variable name: available_videos_count
+    available_videos_count = 0
     total_instances = 0
 
     for gloss_entry in wlasl_data:
@@ -57,92 +64,68 @@ def parse_wlasl_dataset(base_data_path): # Corrected function name parse_wlasl_d
             video_id = instance['video_id']
 
             if video_id in missing_video_ids:
-                #print(f"Skipping missing video: {video_id} ({gloss})")
                 continue
+
+            # --- NEW FILTERING: INCLUDE IN TARGET SET AND NOT IN EXCLUDE SET ---
+            gloss_lower = gloss.lower()
+            if gloss_lower not in TARGET_GLOSS_SET:
+                continue # Skip if not in our desired target list
+            if gloss_lower in GLOSSES_TO_EXCLUDE_SET:
+                # print(f"Skipping excluded alphabet gloss: {gloss}") # Uncomment to see what's skipped
+                continue # Skip if it's an alphabet gloss
 
             video_filename = f"{video_id}.mp4"
             video_full_path = os.path.join(videos_dir, video_filename)
 
             if os.path.exists(video_full_path):
-                available_videos_count += 1 # Corrected variable name
+                available_videos_count += 1
                 data_records.append({
                     'gloss': gloss,
-                    'gloss_id': id_gloss_map.get(gloss, -1), # Use mapped ID if available
+                    'gloss_id': gloss_id_map_orig.get(gloss, -1), # Use original ID for now, re-map later
                     'video_id': video_id,
                     'video_path': video_full_path,
                     'signer_id': instance.get('signer_id'),
-                    'split': instance.get('split'), # train, val, test
+                    'split': instance.get('split'),
                     'frame_start': instance.get('frame_start'),
                     'frame_end': instance.get('frame_end'),
                     'fps': instance.get('fps'),
-                    'bbox': instance.get('bbox') # Bounding box for signer, useful but not critical for landmark estimation
+                    'bbox': instance.get('bbox')
                 })
             else:
-                # print(f"Warning: Video file not found on disk: {video_full_path} for gloss '{gloss}' (ID: {video_id})") # Uncomment for verbose
-                pass # Silently skip files not found on disk
+                pass 
+            
     df = pd.DataFrame(data_records)
     print(f"\n--- Parsing Summary ---")
     print(f"Total instances in WLASL_v0.3.json: {total_instances}")
-    # The calculation for skipped instances is tricky without knowing exactly what df['split'].isnull() does
-    # Let's simplify this line for now, or ensure the original logic is sound.
-    # It attempts to count instances that were processed but don't have a 'split', which isn't the same as 'skipped by missing.txt'
-    # A more robust check might involve comparing total_instances with len(df) directly.
-    # For now, let's just make sure the variable names are correct.
-    print(f"Instances skipped due to 'missing.txt' and not found on disk: {total_instances - available_videos_count}") # Simplified for clarity
-
-    print(f"Total *available* and valid video instances found: {available_videos_count}")
-    print(f"DataFrame created with {len(df)} entries.")
-    print(f"Unique glosses (signs) found: {df['gloss'].nunique()}")
-    print(f"Distribution of splits:\n{df['split'].value_counts()}")
-
+    print(f"Instances skipped due to 'missing.txt' and not found on disk: {total_instances - available_videos_count}")
+    print(f"Total *available* and valid video instances found (before target list filter): {available_videos_count}")
+    
     return df
 
 if __name__ == "__main__":
-    # IMPORTANT: Ensure your dataset structure matches.
-    # If your 'videos' folder, 'WLASL_v0.3.json', 'missing.txt', etc., are
-    # directly in the 'translate' folder (where this script is), then '.' is correct.
-    wlasl_dataset_path = "." # This means the script expects files in the same directory as itself.
-
+    wlasl_dataset_path = "." 
     wlasl_df = parse_wlasl_dataset(wlasl_dataset_path)
 
     if wlasl_df is not None:
-        print("\nFirst 5 entries of the processed DataFrame:")
-        print(wlasl_df.head())
-
-        # Example: Find all entries for the gloss "book"
-        book_entries = wlasl_df[wlasl_df['gloss'] == 'book']
-        print(f"\nFound {len(book_entries)} instances for 'book'. Example path:")
-        if not book_entries.empty:
-            print(book_entries.iloc[0]['video_path'])
+        df_filtered_by_glosses = wlasl_df[wlasl_df['gloss'].str.lower().isin(TARGET_GLOSS_SET)].copy()
         
-        # Example: Check for a specific video ID (e.g., 00377, from your example)
-        # You need to make sure 00377.mp4 is actually in your 'videos' folder.
-        specific_video_entry = wlasl_df[wlasl_df['video_id'] == '00377']
-        if not specific_video_entry.empty:
-            print(f"\nFound entry for video ID '00377':")
-            print(specific_video_entry.iloc[0])
-        else:
-            print(f"\nVideo ID '00377' not found in processed data (might be missing or not on disk).")
+        # --- NEW EXCLUSION: Remove alphabet glosses from the final filtered DataFrame ---
+        df_filtered_by_glosses = df_filtered_by_glosses[~df_filtered_by_glosses['gloss'].str.lower().isin(GLOSSES_TO_EXCLUDE_SET)].copy()
 
-        nslt_json_path = os.path.join(wlasl_dataset_path, 'nslt_100.json')
-        if os.path.exists(nslt_json_path):
-            with open(nslt_json_path, 'r') as f:
-                nslt_100_data = json.load(f)
+        # Re-map gloss_ids to be sequential (0 to N-1) for the new, smaller set of classes
+        unique_filtered_glosses = df_filtered_by_glosses['gloss'].unique()
+        new_gloss_to_id = {gloss: i for i, gloss in enumerate(unique_filtered_glosses)}
+        df_filtered_by_glosses['gloss_id'] = df_filtered_by_glosses['gloss'].map(new_gloss_to_id)
 
-            nslt_100_video_ids = set(nslt_100_data.keys())
+        print(f"\n--- Fixed Word List Subset Summary ({len(TARGET_GLOSS_SET)} words requested, {df_filtered_by_glosses['gloss'].nunique()} words after filtering) ---")
+        print(f"Total instances in fixed list subset: {len(df_filtered_by_glosses)}")
+        print(f"Unique glosses in fixed list: {df_filtered_by_glosses['gloss'].nunique()} (Expected: {len(TARGET_GLOSS_SET) - len(GLOSSES_TO_EXCLUDE_SET.intersection(TARGET_GLOSS_SET))})") # Adjusted expected count
+        print(f"Distribution of splits:\n{df_filtered_by_glosses['split'].value_counts()}")
+        print("First 5 entries of Fixed List DataFrame:")
+        print(df_filtered_by_glosses.head())
 
-            df_nslt_100 = wlasl_df[wlasl_df['video_id'].isin(nslt_100_video_ids)].copy()
-
-            print(f"\n--- NSLT 100 Subset Summary ---")
-            print(f"Total instances in NSLT-100 subset: {len(df_nslt_100)}")
-            print(f"Unique glosses (signs) in NSLT-100: {df_nslt_100['gloss'].nunique()}")
-            print(f"Distribution of splits:\n{df_nslt_100['split'].value_counts()}")
-            print("First 5 entries of NSLT-100 DataFrame:")
-            print(df_nslt_100.head())
-
-            # You can save this subset DataFrame for later use
-            df_nslt_100.to_csv('wlasl_nslt_100_processed.csv', index=False)
-            print("\nNSLT-100 processed data saved to 'wlasl_nslt_100_processed.csv'")
-        else:
-            print(f"Warning: {nslt_json_path} not found. Cannot filter for NSLT-100 subset.")
-            print("You can proceed with the full WLASL dataset or manually create a smaller subset for initial development.")
+        output_csv_name = 'wlasl_10_words_processed.csv' # Name for 10 words (will change for increments)
+        df_filtered_by_glosses.to_csv(output_csv_name, index=False)
+        print(f"\nFixed list processed data saved to '{output_csv_name}'")
+    else:
+        print("\nError: Could not parse base WLASL dataset. Cannot filter by fixed list.")

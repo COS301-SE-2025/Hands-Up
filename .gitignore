@@ -53,4 +53,4 @@ venv_signlang
 translate/videos
 translate/extracted_landmarks
 translate/processed_sequences
-
+translate/my_recorded_signs

@@ -6,24 +6,43 @@ import os
 from tqdm import tqdm # For progress bars
 
 # --- Configuration ---
-# Path to your processed WLASL NSLT-100 CSV
-PROCESSED_DATA_CSV = 'wlasl_nslt_100_processed.csv'
+# Path to your combined WLASL + Personal data CSV
+PROCESSED_DATA_CSV = 'wlasl_10_words_combined_processed.csv' # <-- CHANGED THIS LINE
 # Directory to save extracted landmark data
 OUTPUT_LANDMARKS_DIR = 'extracted_landmarks'
 # Whether to visualize the landmarks during extraction (set to False for faster processing)
 VISUALIZE_LANDMARKS = False
 # Max videos to process for quick test (set to None to process all from CSV)
-MAX_VIDEOS_FOR_TEST = None # Start with a small number to test
+MAX_VIDEOS_FOR_TEST = None # Process the full combined dataset
+
 
 # --- Define the expected number of coordinates for each type of landmark (MOVED TO GLOBAL SCOPE) ---
-# These are based on MediaPipe's output structure
 NUM_POSE_COORDS = 33 * 4  # 33 landmarks * (x, y, z, visibility)
 NUM_HAND_COORDS = 21 * 3  # 21 landmarks * (x, y, z)
 NUM_FACE_COORDS = 468 * 3 # 468 landmarks * (x, y, z) - approximate, actual can be slightly less if not all are visible/estimated
 
 
 def extract_landmarks_from_video(video_path, mp_holistic_instance):
-    cap = cv2.VideoCapture(video_path)
+    # --- NEW LOGIC FOR HANDLING .npy VS .mp4 ---
+    is_npy_file = video_path.lower().endswith('.npy')
+
+    if is_npy_file:
+        try:
+            # If it's an NPY, it's already a landmark array. Load directly.
+            landmarks_array = np.load(video_path)
+            # Verify shape for NPY files (Optional, but good for robustness)
+            if landmarks_array.ndim == 2 and landmarks_array.shape[1] == (NUM_POSE_COORDS + 2*NUM_HAND_COORDS + NUM_FACE_COORDS):
+                return landmarks_array
+            else:
+                print(f"Warning: NPY file {video_path} has unexpected shape {landmarks_array.shape}. Skipping.")
+                return None
+        except Exception as e:
+            print(f"Error loading NPY file {video_path}: {e}. Skipping.")
+            return None
+    # --- END NEW LOGIC ---
+
+    # Original logic for .mp4 files (MediaPipe processing)
+    cap = cv2.VideoCapture(video_path) 
     if not cap.isOpened():
         print(f"Error: Could not open video {video_path}")
         return None
@@ -33,7 +52,7 @@ def extract_landmarks_from_video(video_path, mp_holistic_instance):
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
-            break # End of video or error reading frame
+            break 
 
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         image.flags.writeable = False
@@ -42,77 +61,52 @@ def extract_landmarks_from_video(video_path, mp_holistic_instance):
 
         if VISUALIZE_LANDMARKS:
             image.flags.writeable = True
-            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-
-            mp.solutions.drawing_utils.draw_landmarks(
-                image, results.pose_landmarks, mp.solutions.holistic.POSE_CONNECTIONS,
-                mp.solutions.drawing_utils.DrawingSpec(color=(80,22,10), thickness=2, circle_radius=4),
-                mp.solutions.drawing_utils.DrawingSpec(color=(80,44,121), thickness=2, circle_radius=2)
-            )
-            mp.solutions.drawing_utils.draw_landmarks(
-                image, results.left_hand_landmarks, mp.solutions.holistic.HAND_CONNECTIONS,
-                mp.solutions.drawing_utils.DrawingSpec(color=(121,22,76), thickness=2, circle_radius=4),
-                mp.solutions.drawing_utils.DrawingSpec(color=(121,44,250), thickness=2, circle_radius=2)
-            )
-            mp.solutions.drawing_utils.draw_landmarks(
-                image, results.right_hand_landmarks, mp.solutions.holistic.HAND_CONNECTIONS,
-                mp.solutions.drawing_utils.DrawingSpec(color=(245,117,66), thickness=2, circle_radius=4),
-                mp.solutions.drawing_utils.DrawingSpec(color=(245,66,230), thickness=2, circle_radius=2)
-            )
-            mp.solutions.drawing_utils.draw_landmarks(
-                image, results.face_landmarks, mp.solutions.holistic.FACEMESH_CONTOURS, # Changed to FACEMESH_CONTOURS for potentially better rendering
-                mp.solutions.drawing_utils.DrawingSpec(color=(80,110,10), thickness=1, circle_radius=1),
-                mp.solutions.drawing_utils.DrawingSpec(color=(80,256,121), thickness=1, circle_radius=1)
-            )
-            
-            cv2.imshow('MediaPipe Landmarks', image)
-            if cv2.waitKey(1) & 0xFF == 27: # Press 'ESC' to exit visualization
+            frame_copy = cv2.cvtColor(image, cv2.COLOR_RGB2BGR) # Use a copy for drawing
+            mp.solutions.drawing_utils.draw_landmarks(frame_copy, results.pose_landmarks, mp.solutions.holistic.POSE_CONNECTIONS)
+            mp.solutions.drawing_utils.draw_landmarks(frame_copy, results.left_hand_landmarks, mp.solutions.holistic.HAND_CONNECTIONS)
+            mp.solutions.drawing_utils.draw_landmarks(frame_copy, results.right_hand_landmarks, mp.solutions.holistic.HAND_CONNECTIONS)
+            mp.solutions.drawing_utils.draw_landmarks(frame_copy, results.face_landmarks, mp.solutions.holistic.FACEMESH_CONTOURS)
+            cv2.imshow('MediaPipe Landmarks', frame_copy)
+            if cv2.waitKey(1) & 0xFF == 27:
                 break
 
-        # --- Store Landmarks ---
-        # Initialize all landmark lists to zeros of their expected full size
-        pose_coords = [0.0] * NUM_POSE_COORDS
-        left_hand_coords = [0.0] * NUM_HAND_COORDS
-        right_hand_coords = [0.0] * NUM_HAND_COORDS
-        face_coords = [0.0] * NUM_FACE_COORDS
+        # Extract raw landmarks into the flat format
+        current_frame_raw_landmarks_flat = np.zeros(NUM_POSE_COORDS + NUM_HAND_COORDS + NUM_HAND_COORDS + NUM_FACE_COORDS, dtype=np.float32)
+        current_idx = 0
 
-        # Populate if landmarks are detected
         if results.pose_landmarks:
-            current_pose_coords = []
+            pose_lms_flat = []
             for landmark in results.pose_landmarks.landmark:
-                current_pose_coords.extend([landmark.x, landmark.y, landmark.z, landmark.visibility])
-            pose_coords[:len(current_pose_coords)] = current_pose_coords
-        
+                pose_lms_flat.extend([landmark.x, landmark.y, landmark.z, landmark.visibility])
+            current_frame_raw_landmarks_flat[current_idx : current_idx + len(pose_lms_flat)] = pose_lms_flat
+        current_idx += NUM_POSE_COORDS
+
         if results.left_hand_landmarks:
-            current_left_hand_coords = []
+            lh_lms_flat = []
             for landmark in results.left_hand_landmarks.landmark:
-                current_left_hand_coords.extend([landmark.x, landmark.y, landmark.z])
-            left_hand_coords[:len(current_left_hand_coords)] = current_left_hand_coords
+                lh_lms_flat.extend([landmark.x, landmark.y, landmark.z])
+            current_frame_raw_landmarks_flat[current_idx : current_idx + len(lh_lms_flat)] = lh_lms_flat
+        current_idx += NUM_HAND_COORDS
 
         if results.right_hand_landmarks:
-            current_right_hand_coords = []
+            rh_lms_flat = []
             for landmark in results.right_hand_landmarks.landmark:
-                current_right_hand_coords.extend([landmark.x, landmark.y, landmark.z])
-            right_hand_coords[:len(current_right_hand_coords)] = current_right_hand_coords
+                rh_lms_flat.extend([landmark.x, landmark.y, landmark.z])
+            current_frame_raw_landmarks_flat[current_idx : current_idx + len(rh_lms_flat)] = rh_lms_flat
+        current_idx += NUM_HAND_COORDS
 
         if results.face_landmarks:
-            current_face_coords = []
+            face_lms_flat = []
             for landmark in results.face_landmarks.landmark:
-                current_face_coords.extend([landmark.x, landmark.y, landmark.z])
-            face_coords[:len(current_face_coords)] = current_face_coords
+                face_lms_flat.extend([landmark.x, landmark.y, landmark.z])
+            current_frame_raw_landmarks_flat[current_idx : current_idx + len(face_lms_flat)] = face_lms_flat
 
-
-        frame_combined_landmarks = np.array(
-            pose_coords + left_hand_coords + right_hand_coords + face_coords, 
-            dtype=np.float32
-        ).flatten()
-        
-        frame_landmarks_list.append(frame_combined_landmarks)
+        frame_landmarks_list.append(current_frame_raw_landmarks_flat)
 
     cap.release()
     if VISUALIZE_LANDMARKS:
         cv2.destroyAllWindows()
-    
+
     if frame_landmarks_list:
         return np.array(frame_landmarks_list, dtype=np.float32)
     else:
@@ -123,11 +117,11 @@ if __name__ == "__main__":
     os.makedirs(OUTPUT_LANDMARKS_DIR, exist_ok=True)
 
     if not os.path.exists(PROCESSED_DATA_CSV):
-        print(f"Error: Processed data CSV not found at {PROCESSED_DATA_CSV}. Please run wlasl_parser.py first.")
+        print(f"Error: Processed data CSV not found at {PROCESSED_DATA_CSV}. Please run combine_datasets.py first.") # Updated error message
         exit()
-    
-    df_nslt_100 = pd.read_csv(PROCESSED_DATA_CSV)
-    print(f"Loaded {len(df_nslt_100)} video entries from {PROCESSED_DATA_CSV}")
+
+    df_base = pd.read_csv(PROCESSED_DATA_CSV)
+    print(f"Loaded {len(df_base)} video entries from {PROCESSED_DATA_CSV}")
 
     mp_holistic = mp.solutions.holistic.Holistic(
         static_image_mode=False,
@@ -139,12 +133,12 @@ if __name__ == "__main__":
     processed_count = 0
     skipped_count = 0
 
-    for index, row in tqdm(df_nslt_100.iterrows(), total=len(df_nslt_100), desc="Extracting Landmarks"):
+    for index, row in tqdm(df_base.iterrows(), total=len(df_base), desc="Extracting Landmarks"):
         if MAX_VIDEOS_FOR_TEST is not None and processed_count >= MAX_VIDEOS_FOR_TEST:
             print(f"Stopping after {MAX_VIDEOS_FOR_TEST} videos for testing.")
             break
 
-        video_path = row['video_path']
+        video_path = row['video_path'] # This now can be an MP4 or NPY path
         video_id = row['video_id']
         gloss = row['gloss']
 
@@ -173,20 +167,20 @@ if __name__ == "__main__":
     # --- Test a saved landmark file ---
     if processed_count > 0:
         example_video_id = None
-        for _, row in df_nslt_100.iterrows():
+        # Find an example NPY that was just processed or already existed
+        for _, row in df_base.iterrows():
             temp_output_npy_path = os.path.join(OUTPUT_LANDMARKS_DIR, f"{row['video_id']}.npy")
             if os.path.exists(temp_output_npy_path):
                 example_video_id = row['video_id']
                 break
-        
+
         if example_video_id:
             example_npy_path = os.path.join(OUTPUT_LANDMARKS_DIR, f"{example_video_id}.npy")
             loaded_landmarks = np.load(example_npy_path)
             print(f"\nSuccessfully loaded example landmark file: {example_npy_path}")
             print(f"Shape of loaded landmarks (frames, total_coords): {loaded_landmarks.shape}")
             print(f"First few values of the first frame's landmarks:\n{loaded_landmarks[0, :10]}")
-            
-            # These variables are now globally accessible
+
             expected_total_coords = NUM_POSE_COORDS + NUM_HAND_COORDS + NUM_HAND_COORDS + NUM_FACE_COORDS
             print(f"Expected total coordinates per frame: {expected_total_coords}")
             if loaded_landmarks.shape[1] != expected_total_coords:

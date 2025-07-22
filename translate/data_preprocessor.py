@@ -1,42 +1,52 @@
 import os
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
-from tensorflow.keras.utils import to_categorical
+from sklearn.model_selection import train_test_split 
+from tensorflow.keras.utils import to_categorical 
 from tqdm import tqdm
-import random
+import random 
 
 # --- Configuration (match with previous steps) ---
-PROCESSED_DATA_CSV = 'wlasl_nslt_100_processed.csv'
+PROCESSED_DATA_CSV = 'wlasl_10_words_combined_processed.csv' 
 EXTRACTED_LANDMARKS_DIR = 'extracted_landmarks'
 PROCESSED_SEQUENCES_DIR = 'processed_sequences'
 
-SEQUENCE_LENGTH = 60 
+SEQUENCE_LENGTH = 90 # Corrected based on duration analysis
 EXPECTED_COORDS_PER_FRAME = 1662 
 
-NUM_AUGMENTATIONS_PER_TRAIN_VIDEO = 3
-AUG_MAX_ROTATION_DEG = 10
-AUG_MAX_SCALE_FACTOR = 0.1
-AUG_MAX_JITTER_AMOUNT = 0.005
+NUM_AUGMENTATIONS_PER_TRAIN_VIDEO = 5 # Increased augmentation multiplier
+AUG_MAX_ROTATION_DEG = 10 
+AUG_MAX_SCALE_FACTOR = 0.1 
+AUG_MAX_JITTER_AMOUNT = 0.003 # Slightly reduced jitter
 
-# Max videos to process for quick test (set to None to process all from CSV)
-# IMPORTANT: SET THIS TO None AFTER YOUR INITIAL TEST OF 10 VIDEOS
-MAX_VIDEOS_FOR_TEST = None
+MAX_VIDEOS_FOR_TEST = None # Set to None to process the full subset
 
 
 def normalize_landmarks(landmarks_sequence):
     """
     Normalizes a sequence of landmarks (frames, coords) to be translation and scale invariant.
+    Handles single frames (ndim=1) or multiple frames (ndim=2).
     """
     if landmarks_sequence.size == 0:
-        return landmarks_sequence
+        return landmarks_sequence.astype(np.float32)
+
+    if landmarks_sequence.ndim == 1:
+        input_is_single_frame = True
+        landmarks_sequence_2d = np.expand_dims(landmarks_sequence, axis=0)
+    else:
+        input_is_single_frame = False
+        landmarks_sequence_2d = landmarks_sequence
 
     NUM_POSE_COORDS_SINGLE = 33 * 4
     NUM_HAND_COORDS_SINGLE = 21 * 3
     NUM_FACE_COORDS_SINGLE = 468 * 3
 
     normalized_sequences = []
-    for frame_landmarks in landmarks_sequence:
+    for frame_landmarks in landmarks_sequence_2d:
+        if np.all(frame_landmarks == 0):
+            normalized_sequences.append(np.zeros(EXPECTED_COORDS_PER_FRAME, dtype=np.float32))
+            continue 
+
         pose_coords_flat = frame_landmarks[0 : NUM_POSE_COORDS_SINGLE]
         left_hand_coords_flat = frame_landmarks[NUM_POSE_COORDS_SINGLE : NUM_POSE_COORDS_SINGLE + NUM_HAND_COORDS_SINGLE]
         right_hand_coords_flat = frame_landmarks[NUM_POSE_COORDS_SINGLE + NUM_HAND_COORDS_SINGLE : NUM_POSE_COORDS_SINGLE + NUM_HAND_COORDS_SINGLE + NUM_HAND_COORDS_SINGLE]
@@ -58,29 +68,35 @@ def normalize_landmarks(landmarks_sequence):
             lms_array = flat_lms.reshape(-1, coords_per_lm)
             coords_for_mean = lms_array[:, :3] if coords_per_lm == 4 else lms_array
             
-            if not np.all(coords_for_mean == 0):
-                mean_coords = np.mean(coords_for_mean, axis=0)
-                translated_lms = lms_array.copy()
-                translated_lms[:, :3] -= mean_coords
+            if np.all(coords_for_mean == 0):
+                 normalized_frame_parts.append(np.array(original_padded_list_template, dtype=np.float32))
+                 continue
 
-                scale_factor = np.max(np.linalg.norm(translated_lms[:, :3], axis=1))
-                if scale_factor > 1e-6:
-                    translated_lms[:, :3] /= scale_factor
-                
-                normalized_frame_parts.append(translated_lms.flatten())
-            else:
-                normalized_frame_parts.append(np.array(original_padded_list_template, dtype=np.float32))
+            mean_coords = np.mean(coords_for_mean, axis=0)
+            translated_lms = lms_array.copy()
+            translated_lms[:, :3] -= mean_coords
 
+            scale_factor = np.max(np.linalg.norm(translated_lms[:, :3], axis=1))
+            if scale_factor > 1e-6:
+                translated_lms[:, :3] /= scale_factor
+            
+            normalized_frame_parts.append(translated_lms.flatten())
+            
         combined_normalized_frame = np.concatenate(normalized_frame_parts).astype(np.float32)
         
         if len(combined_normalized_frame) < EXPECTED_COORDS_PER_FRAME:
-            combined_normalized_frame = np.pad(combined_normalized_frame, (0, EXPECTED_COORDS_PER_FRAME - len(combined_normalized_frame)), 'constant')
+            combined_normalized_frame = np.pad(combined_normalized_frame, (0, EXPECTED_COORDS_PER_FRAME - len(combined_normalized_frame)), 'constant', constant_values=0.0)
         elif len(combined_normalized_frame) > EXPECTED_COORDS_PER_FRAME:
             combined_normalized_frame = combined_normalized_frame[:EXPECTED_COORDS_PER_FRAME]
 
         normalized_sequences.append(combined_normalized_frame)
             
-    return np.array(normalized_sequences, dtype=np.float32)
+    result_array = np.array(normalized_sequences, dtype=np.float32)
+    
+    if input_is_single_frame:
+        return result_array[0] 
+    else:
+        return result_array 
 
 
 def augment_sequence(sequence, max_rotation_deg, max_scale_factor, max_jitter_amount):
@@ -93,81 +109,67 @@ def augment_sequence(sequence, max_rotation_deg, max_scale_factor, max_jitter_am
     NUM_HAND_COORDS_SINGLE = 21 * 3
     NUM_FACE_COORDS_SINGLE = 468 * 3
 
-    # 1. Random Rotation (around Z-axis for 2D X,Y)
+    # Generate random augmentation parameters
     angle_rad = np.deg2rad(np.random.uniform(-max_rotation_deg, max_rotation_deg))
     cos_val = np.cos(angle_rad)
     sin_val = np.sin(angle_rad)
-
-    temp_sequence = []
-    for frame_lms in augmented_sequence:
-        processed_parts = []
-        current_idx = 0
-
-        pose_lms = frame_lms[current_idx : current_idx + NUM_POSE_COORDS_SINGLE].reshape(-1, 4)
-        current_idx += NUM_POSE_COORDS_SINGLE
-        if pose_lms.size > 0 and not np.all(pose_lms[:,:3] == 0): # Check if not all zeros
-            rotated_xy_pose = pose_lms[:, :2].dot(np.array([[cos_val, -sin_val], [sin_val, cos_val]]))
-            pose_lms[:, :2] = rotated_xy_pose
-        processed_parts.append(pose_lms.flatten())
-
-        left_hand_lms = frame_lms[current_idx : current_idx + NUM_HAND_COORDS_SINGLE].reshape(-1, 3)
-        current_idx += NUM_HAND_COORDS_SINGLE
-        if left_hand_lms.size > 0 and not np.all(left_hand_lms == 0):
-            rotated_xy_lh = left_hand_lms[:, :2].dot(np.array([[cos_val, -sin_val], [sin_val, cos_val]]))
-            left_hand_lms[:, :2] = rotated_xy_lh
-        processed_parts.append(left_hand_lms.flatten())
-
-        right_hand_lms = frame_lms[current_idx : current_idx + NUM_HAND_COORDS_SINGLE].reshape(-1, 3)
-        current_idx += NUM_HAND_COORDS_SINGLE
-        if right_hand_lms.size > 0 and not np.all(right_hand_lms == 0):
-            rotated_xy_rh = right_hand_lms[:, :2].dot(np.array([[cos_val, -sin_val], [sin_val, cos_val]]))
-            right_hand_lms[:, :2] = rotated_xy_rh
-        processed_parts.append(right_hand_lms.flatten())
-
-        face_lms = frame_lms[current_idx : current_idx + NUM_FACE_COORDS_SINGLE].reshape(-1, 3)
-        if face_lms.size > 0 and not np.all(face_lms == 0):
-            rotated_xy_face = face_lms[:, :2].dot(np.array([[cos_val, -sin_val], [sin_val, cos_val]]))
-            face_lms[:, :2] = rotated_xy_face
-        processed_parts.append(face_lms.flatten())
-        
-        temp_sequence.append(np.concatenate(processed_parts))
-    
-    augmented_sequence = np.array(temp_sequence, dtype=np.float32)
-
-    # 2. Random Scaling
     scale = np.random.uniform(1.0 - max_scale_factor, 1.0 + max_scale_factor)
+
+    # 1. Apply rotation and scaling to each frame
     temp_sequence = []
     for frame_lms in augmented_sequence:
         processed_parts = []
         current_idx = 0
-        
+
+        # Process pose landmarks (33 points × 4 coords each)
         pose_lms = frame_lms[current_idx : current_idx + NUM_POSE_COORDS_SINGLE].reshape(-1, 4)
         current_idx += NUM_POSE_COORDS_SINGLE
         if pose_lms.size > 0 and not np.all(pose_lms[:,:3] == 0):
+            # Apply rotation to x,y coordinates
+            rotated_xy_pose = pose_lms[:, :2].dot(np.array([[cos_val, -sin_val], [sin_val, cos_val]]))
+            pose_lms[:, :2] = rotated_xy_pose
+            # Apply scaling to x,y,z coordinates
             pose_lms[:, :3] *= scale
         processed_parts.append(pose_lms.flatten())
 
+        # Process left hand landmarks (21 points × 3 coords each)
         left_hand_lms = frame_lms[current_idx : current_idx + NUM_HAND_COORDS_SINGLE].reshape(-1, 3)
         current_idx += NUM_HAND_COORDS_SINGLE
         if left_hand_lms.size > 0 and not np.all(left_hand_lms == 0):
+            # Apply rotation to x,y coordinates
+            rotated_xy_lh = left_hand_lms[:, :2].dot(np.array([[cos_val, -sin_val], [sin_val, cos_val]]))
+            left_hand_lms[:, :2] = rotated_xy_lh
+            # Apply scaling to all coordinates
             left_hand_lms *= scale
         processed_parts.append(left_hand_lms.flatten())
 
+        # Process right hand landmarks (21 points × 3 coords each)
         right_hand_lms = frame_lms[current_idx : current_idx + NUM_HAND_COORDS_SINGLE].reshape(-1, 3)
         current_idx += NUM_HAND_COORDS_SINGLE
         if right_hand_lms.size > 0 and not np.all(right_hand_lms == 0):
+            # Apply rotation to x,y coordinates
+            rotated_xy_rh = right_hand_lms[:, :2].dot(np.array([[cos_val, -sin_val], [sin_val, cos_val]]))
+            right_hand_lms[:, :2] = rotated_xy_rh
+            # Apply scaling to all coordinates
             right_hand_lms *= scale
         processed_parts.append(right_hand_lms.flatten())
 
+        # Process face landmarks (468 points × 3 coords each)
         face_lms = frame_lms[current_idx : current_idx + NUM_FACE_COORDS_SINGLE].reshape(-1, 3)
         if face_lms.size > 0 and not np.all(face_lms == 0):
+            # Apply rotation to x,y coordinates
+            rotated_xy_face = face_lms[:, :2].dot(np.array([[cos_val, -sin_val], [sin_val, cos_val]]))
+            face_lms[:, :2] = rotated_xy_face
+            # Apply scaling to all coordinates
             face_lms *= scale
         processed_parts.append(face_lms.flatten())
         
         temp_sequence.append(np.concatenate(processed_parts))
+    
+    # Convert to numpy array
     augmented_sequence = np.array(temp_sequence, dtype=np.float32)
 
-    # 3. Random Jitter (Gaussian Noise)
+    # 2. Add random jitter (noise)
     jitter = np.random.normal(loc=0, scale=max_jitter_amount, size=augmented_sequence.shape)
     augmented_sequence += jitter
 
@@ -205,21 +207,22 @@ if __name__ == "__main__":
     os.makedirs(PROCESSED_SEQUENCES_DIR, exist_ok=True)
 
     if not os.path.exists(PROCESSED_DATA_CSV):
-        print(f"Error: Processed data CSV not found at {PROCESSED_DATA_CSV}. Please run wlasl_parser.py first.")
+        print(f"Error: Processed data CSV not found at {PROCESSED_DATA_CSV}. Please run wlasl_parser.py first to create it (for fixed list).")
         exit()
     
-    df_nslt_100 = pd.read_csv(PROCESSED_DATA_CSV)
-    print(f"Loaded {len(df_nslt_100)} video entries from {PROCESSED_DATA_CSV}")
+    df_base = pd.read_csv(PROCESSED_DATA_CSV)
+    print(f"Loaded {len(df_base)} video entries from {PROCESSED_DATA_CSV}")
 
-    unique_glosses = df_nslt_100['gloss'].unique()
+    unique_glosses = df_base['gloss'].unique()
     gloss_to_id = {gloss: i for i, gloss in enumerate(unique_glosses)}
     id_to_gloss = {i: gloss for i, gloss in enumerate(unique_glosses)}
     print(f"Created mapping for {len(unique_glosses)} unique glosses.")
 
     processed_data_records = []
 
-    # Use MAX_VIDEOS_FOR_TEST here to manage initial augmentation test size
-    df_to_process = df_nslt_100.head(MAX_VIDEOS_FOR_TEST) if MAX_VIDEOS_FOR_TEST else df_nslt_100
+    MAX_VIDEOS_FOR_TEST = None 
+
+    df_to_process = df_base.head(MAX_VIDEOS_FOR_TEST) if MAX_VIDEOS_FOR_TEST is not None else df_base 
 
     print(f"\nProcessing {len(df_to_process)} videos for feature engineering, sequence preparation, and augmentation...")
     for index, row in tqdm(df_to_process.iterrows(), total=len(df_to_process), desc="Processing Sequences"):
@@ -234,13 +237,11 @@ if __name__ == "__main__":
         
         raw_landmarks = np.load(raw_landmarks_path)
 
-        # Process and save the original sequence (for train, val, test)
         original_record = _process_and_pad_sequence(raw_landmarks, PROCESSED_SEQUENCES_DIR, video_id, gloss, split)
         if original_record:
             original_record['gloss_id'] = gloss_to_id[original_record['gloss']]
             processed_data_records.append(original_record)
         
-        # Only augment training data
         if split == 'train':
             for aug_idx in range(NUM_AUGMENTATIONS_PER_TRAIN_VIDEO):
                 augmented_raw_landmarks = augment_sequence(
@@ -262,12 +263,10 @@ if __name__ == "__main__":
     print(f"Processed sequences saved to: {PROCESSED_SEQUENCES_DIR}")
     print(f"Final DataFrame for training/validation/test (including augmentations):\n{final_processed_df['split'].value_counts()}")
 
-    final_processed_df.to_csv('wlasl_nslt_100_final_processed_data_augmented.csv', index=False)
-    print("\nFinal processed data metadata saved to 'wlasl_nslt_100_final_processed_data_augmented.csv'")
+    final_processed_df.to_csv('wlasl_10_words_final_processed_data_augmented_seq90.csv', index=False)
+    print("\nFinal processed data metadata saved to 'wlasl_10_words_final_processed_data_augmented_seq90.csv'")
 
-    # --- Test loading a processed sequence (original and augmented) ---
     if not final_processed_df.empty:
-        # Filter for original and augmented, handling potential non-string types safely
         original_entries = final_processed_df[~final_processed_df['video_id'].astype(str).str.contains('_aug', na=False)]
         augmented_entries = final_processed_df[final_processed_df['video_id'].astype(str).str.contains('_aug', na=False)]
 
