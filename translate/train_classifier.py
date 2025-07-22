@@ -11,7 +11,7 @@ from tensorflow.keras.regularizers import l2
 from tqdm import tqdm 
 
 # --- Configuration (match with previous steps and new model params) ---
-PROCESSED_DATA_CSV = 'wlasl_10_words_final_processed_data_augmented_seq90.csv' # Should be correct
+PROCESSED_DATA_CSV = 'wlasl_20_words_final_processed_data_augmented_seq90.csv' # <-- CHANGED
 PROCESSED_SEQUENCES_DIR = 'processed_sequences' 
 MODEL_SAVE_DIR = 'saved_models' 
 
@@ -21,7 +21,7 @@ EXPECTED_COORDS_PER_FRAME = 1662
 # --- Model Hyperparameters ---
 LSTM_UNITS = 64 # For Bidirectional LSTMs
 DENSE_UNITS = 128 
-DROPOUT_RATE = 0.5 
+DROPOUT_RATE = 0.5 # Starting with 0.5 for 20 words
 LEARNING_RATE = 0.0005
 BATCH_SIZE = 32 
 EPOCHS = 100 
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     print(f"X_test: {X_test.shape}, y_test: {y_test_ids.shape}")
 
     num_classes = df_final['gloss_id'].nunique()
-    print(f"Number of unique classes: {num_classes}")
+    print(f"Number of unique classes: {num_classes}") # Should be 20
 
     y_train = to_categorical(y_train_ids, num_classes=num_classes)
     y_val = to_categorical(y_val_ids, num_classes=num_classes)
@@ -117,9 +117,9 @@ if __name__ == "__main__":
     model.summary()
 
     early_stopping = EarlyStopping(monitor='val_accuracy', patience=20, restore_best_weights=True)
-    checkpoint_filepath = os.path.join(MODEL_SAVE_DIR, 'best_sign_classifier_model_10_words_combined_seq90.keras') # <-- CHANGED MODEL SAVE FILENAME
+    checkpoint_filepath = os.path.join(MODEL_SAVE_DIR, 'best_sign_classifier_model_20_words_seq90.keras') # <-- CHANGED MODEL SAVE FILENAME
     model_checkpoint = ModelCheckpoint(checkpoint_filepath, monitor='val_accuracy', save_best_only=True, verbose=1)
-    reduce_lr = ReduceLROnPlateau(monitor='val_accuracy', factor=0.5, patience=10, min_lr=0.00001, verbose=1)
+    reduce_lr = ReduceLROnPlateau(monitor='val_accuracy', factor=0.5, patience=10, min_lr=0.00001, verbose=1) # Patience 10 for 20 words
 
 
     print(f"\nStarting model training with BATCH_SIZE={BATCH_SIZE} and EPOCHS={EPOCHS}...")

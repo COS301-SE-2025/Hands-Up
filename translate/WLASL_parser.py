@@ -4,9 +4,12 @@ import pandas as pd
 import cv2 
 
 # --- CONFIGURATION FOR TARGET WORD LIST ---
-# This is your initial 10-word subset (lowercase recommended for WLASL compatibility)
+# This is your CUMULATIVE 20-word subset (lowercase recommended for WLASL compatibility)
 TARGET_GLOSS_LIST = [
-    "apple", "black", "blue", "brown", "can", "cat", "chair", "child", "cold", "come"
+    # Your original 10 words:
+    "apple", "black", "blue", "brown", "can", "cat", "chair", "child", "cold", "come",
+    # Your NEW 10 words:
+    "computer", "cow", "cry", "cup", "deaf", "dog", "drink", "drive", "eat", "egg"
 ]
 TARGET_GLOSS_SET = set(g.lower() for g in TARGET_GLOSS_LIST) # Convert to set of lowercase glosses
 
@@ -43,8 +46,6 @@ def parse_wlasl_dataset(base_data_path):
     else:
         print(f"Warning: missing.txt not found at {missing_txt_path}. Proceeding without it.")
 
-    # This gloss_id_map and id_gloss_map is from the original WLASL_v0.3.json,
-    # we will re-map for our target list later.
     gloss_id_map_orig = {} 
     if os.path.exists(class_list_path):
         with open(class_list_path, 'r') as f:
@@ -66,7 +67,7 @@ def parse_wlasl_dataset(base_data_path):
             if video_id in missing_video_ids:
                 continue
 
-            # --- NEW FILTERING: INCLUDE IN TARGET SET AND NOT IN EXCLUDE SET ---
+            # --- FILTERING: INCLUDE IN TARGET SET AND NOT IN EXCLUDE SET ---
             gloss_lower = gloss.lower()
             if gloss_lower not in TARGET_GLOSS_SET:
                 continue # Skip if not in our desired target list
@@ -119,12 +120,12 @@ if __name__ == "__main__":
 
         print(f"\n--- Fixed Word List Subset Summary ({len(TARGET_GLOSS_SET)} words requested, {df_filtered_by_glosses['gloss'].nunique()} words after filtering) ---")
         print(f"Total instances in fixed list subset: {len(df_filtered_by_glosses)}")
-        print(f"Unique glosses in fixed list: {df_filtered_by_glosses['gloss'].nunique()} (Expected: {len(TARGET_GLOSS_SET) - len(GLOSSES_TO_EXCLUDE_SET.intersection(TARGET_GLOSS_SET))})") # Adjusted expected count
+        print(f"Unique glosses in fixed list: {df_filtered_by_glosses['gloss'].nunique()} (Expected: {len(TARGET_GLOSS_SET) - len(GLOSSES_TO_EXCLUDE_SET.intersection(TARGET_GLOSS_SET))})")
         print(f"Distribution of splits:\n{df_filtered_by_glosses['split'].value_counts()}")
         print("First 5 entries of Fixed List DataFrame:")
         print(df_filtered_by_glosses.head())
 
-        output_csv_name = 'wlasl_10_words_processed.csv' # Name for 10 words (will change for increments)
+        output_csv_name = 'wlasl_20_words_processed.csv' # <-- CHANGED TO 20 WORDS
         df_filtered_by_glosses.to_csv(output_csv_name, index=False)
         print(f"\nFixed list processed data saved to '{output_csv_name}'")
     else:

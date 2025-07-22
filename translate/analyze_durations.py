@@ -1,10 +1,10 @@
-# analyze_durations.py (CORRECTED for -1 frame_end)
+# analyze_durations.py
 import pandas as pd
 import os
-import cv2 # NEW IMPORT for reading video durations
+import cv2 
 
-# IMPORTANT: This path must point to the CSV created in the previous step
-PROCESSED_DATA_CSV = 'wlasl_10_words_processed.csv' 
+# IMPORTANT: This path must point to the CSV created in the previous step (wlasl_20_words_processed.csv)
+PROCESSED_DATA_CSV = 'wlasl_20_words_processed.csv' # <-- CHANGED
 # Path to your main WLASL videos directory (e.g., if videos are in ./videos/)
 WLASL_VIDEOS_DIR = './videos' 
 
@@ -16,7 +16,7 @@ if os.path.exists(PROCESSED_DATA_CSV):
 
     print("Calculating actual video durations (this might take a moment)...")
     for index, row in df_subset.iterrows():
-        video_path = row['video_path'] # This path is already complete relative to project root
+        video_path = row['video_path']
         frame_start = row['frame_start']
         frame_end = row['frame_end']
 
@@ -24,31 +24,27 @@ if os.path.exists(PROCESSED_DATA_CSV):
         if frame_end != -1 and frame_end >= frame_start:
             duration = frame_end - frame_start + 1
         else:
-            # If frame_end is -1, we need to check the actual video file length
-            full_video_path_on_disk = video_path # video_path column already contains full path
+            full_video_path_on_disk = video_path 
 
             cap = cv2.VideoCapture(full_video_path_on_disk)
             if cap.isOpened():
                 total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
                 if total_frames > 0 and frame_start > 0:
-                    # If frame_end is -1, it means until end of the video segment.
-                    # So, duration is total frames from actual video minus the start_frame + 1
                     duration = total_frames - frame_start + 1
-                    if duration < 0: duration = 0 # Prevent negative durations
+                    if duration < 0: duration = 0 
                 cap.release()
             else:
                 print(f"Warning: Could not open video file {full_video_path_on_disk} to get full duration. Assigning 0.")
-                duration = 0 # Assign 0 if video cannot be opened
+                duration = 0 
 
         actual_durations.append(duration)
 
     df_subset['duration_frames'] = actual_durations
 
-    # Filter out potentially invalid durations (e.g., 0 if video couldn't be opened)
     df_subset = df_subset[df_subset['duration_frames'] > 0]
 
 
-    print(f"--- WLASL Fixed List Video Duration Analysis (10 Words - CORRECTED) ---")
+    print(f"--- WLASL Fixed List Video Duration Analysis (20 Words - CORRECTED) ---")
     print(f"Total instances analyzed: {len(df_subset)}")
     print(f"Min duration (frames): {df_subset['duration_frames'].min()}")
     print(f"Max duration (frames): {df_subset['duration_frames'].max()}")
