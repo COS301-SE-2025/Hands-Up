@@ -97,7 +97,7 @@ def detectFromImage(sequenceList):
             confidence1 = float(np.max(prediction1))
             label1 = labelEncoder.inverse_transform([index1])[0]
 
-            print(f'Letters Model 2: {label1} at {confidence1}')
+            print(f'Letters Model 1: {label1} at {confidence1}')
 
             prediction3 = numbersModel.predict(inputData1, verbose=0)
             index3 = np.argmax(prediction3, axis=1)[0]
