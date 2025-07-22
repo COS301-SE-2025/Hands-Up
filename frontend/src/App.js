@@ -16,9 +16,9 @@ import { SignLearn } from "./pages/signLearn";
 import { Home} from "./pages/home";
 import { SignQuiz} from "./pages/SignQuiz";
 import { Layout } from "./pages/layout"; 
+import { Game } from "./pages/game"; 
 import ErrorBoundary from "./components/errorBoundary";
 import ErrorFallback from "./components/errorFallback";
-
 
 function App() {
   return (
@@ -111,6 +111,16 @@ function App() {
                   </Layout>
                 </ErrorBoundary>
 
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/game"
+              element={
+                <ProtectedRoute>
+                  <ErrorBoundary fallback={<ErrorFallback errorName="Help" />}>
+                    <Game />
+                  </ErrorBoundary>
                 </ProtectedRoute>
               }
             />
