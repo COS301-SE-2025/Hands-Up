@@ -85,7 +85,7 @@ const TIME_DAYS = ['morning', 'afternoon', 'evening', 'night', 'today', 'tomorro
 const FOOD_DRINKS = ['water', 'apple', 'drink', 'cereal', 'eggs', 'eat', 'hungry', 'full', 'cup',
     'popcorn', 'candy', 'soup','drink', 'juice', 'milk', 'pizza'];
 
-const OBJECTS_THINGS = ['shower', 'table', 'lights', 'computer', 'hat', 'chair', 'car', 'stove',
+const OBJECTS_THINGS = ['shower', 'table', 'lights', 'computer', 'hat', 'chair', 'car',
     'ambulance', 'window'];
 
 const ANIMALS = ['dog', 'cat', 'bird', 'fish', 'horse', 'cow', 'animal'];

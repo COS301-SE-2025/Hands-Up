@@ -29,7 +29,7 @@ export function SignLearn() {
 
     const getNextLetter = useCallback((currentLetter) => {
         if (!currentLetter) return 'a';
-        const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+        const alphabet = 'abcdefghijklmnopqrstuvwxyz123456789';
         const currentIndex = alphabet.indexOf(currentLetter.toLowerCase());
         const nextIndex = (currentIndex + 1) % alphabet.length;
         return alphabet[nextIndex];
@@ -37,7 +37,7 @@ export function SignLearn() {
 
     const getPreviousLetter = useCallback((currentLetter) => {
         if (!currentLetter) return 'z';
-        const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+        const alphabet = 'abcdefghijklmnopqrstuvwxyz123456789';
         const currentIndex = alphabet.indexOf(currentLetter.toLowerCase());
         const prevIndex = (currentIndex - 1 + alphabet.length) % alphabet.length;
         return alphabet[prevIndex];
