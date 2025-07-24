@@ -3,6 +3,7 @@ import {useTranslator} from '../hooks/translateResults';
 import {renderMediaPreview} from '../components/mediaPreview';
 import {renderHistoryItem} from '../components/historyItem';
 import {FingerspellingToggle} from '../components/fingerSpellingToggle'
+import { FaMagic } from "react-icons/fa";
 import '../styles/translator.css';
 
 export function Translator(){
@@ -43,6 +44,23 @@ export function Translator(){
     };
   }, []);
 
+  useEffect(() => {
+  const checkVisualInput = () => {
+    const rect = fabRef.current.getBoundingClientRect();
+    
+    // Replace these with your hand or gaze coordinates
+    const x = detectedX;
+    const y = detectedY;
+
+    if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+      fabRef.current.click();
+    }
+  };
+
+  const interval = setInterval(checkVisualInput, 200); // check every 200ms
+  return () => clearInterval(interval);
+}, []);
+
   const speak = () => {
     const preferredVoice = availableVoices.find((voice) => voice.name === 'Microsoft Zira - English (United States)');
 
@@ -70,14 +88,23 @@ export function Translator(){
               <p>Position your hand clearly in frame for best recognition results</p>
             </div>
 
-            <div className="recognizer-camera-container">
+            <div className="recognizer-camera-container relative">
               <video 
                 ref={videoRef} 
                 autoPlay 
                 playsInline 
                 className="recognizer-video"
               ></video>
-              {/* Hidden canvas for capturing video frames */}
+              <button 
+                ref={fabRef}
+                onClick={() => {
+                  console.log("FAB clicked!");
+                }}
+                className="absolute bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg z-10"
+                aria-label="Floating Action Button"
+              >
+                <FaMagic size={20} />
+              </button>
               <canvas 
                 ref={canvasRef} 
                 style={{ display: 'none' }}
