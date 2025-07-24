@@ -11,18 +11,18 @@ from tensorflow.keras.regularizers import l2
 from tqdm import tqdm 
 
 # --- Configuration (match with previous steps and new model params) ---
-PROCESSED_DATA_CSV = 'wlasl_20_words_final_processed_data_augmented_seq90.csv' # <-- CHANGED
+PROCESSED_DATA_CSV = 'wlasl_20_words_final_processed_data_augmented_seq90.csv' 
 PROCESSED_SEQUENCES_DIR = 'processed_sequences' 
 MODEL_SAVE_DIR = 'saved_models' 
 
 SEQUENCE_LENGTH = 90 # Should be correct
 EXPECTED_COORDS_PER_FRAME = 1662 
 
-# --- Model Hyperparameters ---
-LSTM_UNITS = 64 # For Bidirectional LSTMs
-DENSE_UNITS = 128 
-DROPOUT_RATE = 0.5 # Starting with 0.5 for 20 words
-LEARNING_RATE = 0.0005
+# --- Model Hyperparameters (REBALANCED AND CORRECTED FOR 20 WORDS) ---
+LSTM_UNITS = 96 # Increased capacity for 20 words
+DENSE_UNITS = 128 # Keep this
+DROPOUT_RATE = 0.5 # <-- THIS MUST BE 0.5 (Reverted from 0.6)
+LEARNING_RATE = 0.0005 # <-- THIS MUST BE 0.0005 (Reverted from 0.0001)
 BATCH_SIZE = 32 
 EPOCHS = 100 
 
@@ -34,7 +34,7 @@ def load_data(df):
     for index, row in tqdm(df.iterrows(), total=len(df), desc="Loading processed data"):
         seq_path = row['processed_path']
         gloss_id = row['gloss_id']
-
+        
         try:
             sequence = np.load(seq_path)
             if sequence.shape == (SEQUENCE_LENGTH, EXPECTED_COORDS_PER_FRAME):
@@ -44,7 +44,7 @@ def load_data(df):
                 print(f"Warning: Skipping {seq_path} due to incorrect shape: {sequence.shape}. Expected ({SEQUENCE_LENGTH}, {EXPECTED_COORDS_PER_FRAME})")
         except Exception as e:
             print(f"Error loading {seq_path}: {e}. Skipping.")
-
+    
     return np.array(X), np.array(y)
 
 def build_lstm_model(input_shape, num_classes, lstm_units, dense_units, dropout_rate, learning_rate):
@@ -75,7 +75,7 @@ if __name__ == "__main__":
         print(f"Error: Processed data metadata CSV not found at {PROCESSED_DATA_CSV}.")
         print("Please ensure data_preprocessor.py has been run to create this file (for your fixed list, sequence 90).") 
         exit()
-
+    
     df_final = pd.read_csv(PROCESSED_DATA_CSV)
     print(f"Loaded {len(df_final)} entries from {PROCESSED_DATA_CSV}")
 
@@ -90,7 +90,7 @@ if __name__ == "__main__":
     X_train, y_train_ids = load_data(train_df)
     X_val, y_val_ids = load_data(val_df)
     X_test, y_test_ids = load_data(test_df)
-
+    
     print(f"\nLoaded data shapes:")
     print(f"X_train: {X_train.shape}, y_train: {y_train_ids.shape}")
     print(f"X_val: {X_val.shape}, y_val: {y_val_ids.shape}")
@@ -117,7 +117,7 @@ if __name__ == "__main__":
     model.summary()
 
     early_stopping = EarlyStopping(monitor='val_accuracy', patience=20, restore_best_weights=True)
-    checkpoint_filepath = os.path.join(MODEL_SAVE_DIR, 'best_sign_classifier_model_20_words_seq90.keras') # <-- CHANGED MODEL SAVE FILENAME
+    checkpoint_filepath = os.path.join(MODEL_SAVE_DIR, 'best_sign_classifier_model_20_words_seq90.keras') 
     model_checkpoint = ModelCheckpoint(checkpoint_filepath, monitor='val_accuracy', save_best_only=True, verbose=1)
     reduce_lr = ReduceLROnPlateau(monitor='val_accuracy', factor=0.5, patience=10, min_lr=0.00001, verbose=1) # Patience 10 for 20 words
 

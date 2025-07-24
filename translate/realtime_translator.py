@@ -7,8 +7,10 @@ from tensorflow.keras.models import load_model
 import time
 
 # --- Configuration (must match training parameters) ---
-MODEL_PATH = 'saved_models/best_sign_classifier_model_10_words_combined_seq90.keras'
-PROCESSED_DATA_CSV = 'wlasl_10_words_combined_processed.csv'
+# IMPORTANT: This will be the path to your trained 20-word model
+MODEL_PATH = 'saved_models/best_sign_classifier_model_20_words_seq90.keras' # <-- WILL CHANGE TO 20-WORD MODEL
+# IMPORTANT: This will be the path to your 20-word augmented data CSV
+PROCESSED_DATA_CSV = 'wlasl_20_words_final_processed_data_augmented_seq90.csv' # <-- WILL CHANGE TO 20-WORD DATA
 
 SEQUENCE_LENGTH = 90
 EXPECTED_COORDS_PER_FRAME = 1662
@@ -20,7 +22,7 @@ NUM_FACE_COORDS_SINGLE = 468 * 3
 
 # --- Real-time Translation Specific Parameters ---
 RECORDING_DURATION_SECONDS = 3.6
-CONFIDENCE_THRESHOLD = 0.60 # Adjusted for higher expected accuracy
+CONFIDENCE_THRESHOLD = 0.50 # Adjusted for high expected accuracy
 
 # States for the application
 STATE_IDLE = "IDLE (Press 'S' to record)"
@@ -134,9 +136,10 @@ if __name__ == "__main__":
     df_final = pd.read_csv(PROCESSED_DATA_CSV)
     unique_glosses = df_final['gloss'].unique()
     id_to_gloss = {i: gloss for i, gloss in enumerate(unique_glosses)}
-    print(f"Loaded {len(id_to_gloss)} gloss mappings.")
     # Store glosses in order for easy lookup by ID
     ordered_gloss_names = [id_to_gloss[i] for i in range(len(id_to_gloss))]
+    print(f"Loaded {len(ordered_gloss_names)} gloss mappings.")
+
 
     mp_holistic = mp.solutions.holistic.Holistic(
         static_image_mode=False,
@@ -154,7 +157,7 @@ if __name__ == "__main__":
     print(f"Press 'S' to start {RECORDING_DURATION_SECONDS}-second recording.")
     print("Press 'Q' to quit.")
     print("--------------------------------------------------")
-    print("Console will show predictions for all 10 words.")
+    print("Console will show predictions for all 20 words.") # <-- Will change to 20 words
     print("--------------------------------------------------")
 
 
@@ -244,7 +247,7 @@ if __name__ == "__main__":
                 current_state = STATE_PREDICTING
 
         if current_state == STATE_PREDICTING:
-            print("\n--- NEW PREDICTION ---") # Added for clarity in console
+            print("\n--- NEW PREDICTION ---")
             print("Predicting...")
             current_state = STATE_IDLE
 
@@ -268,19 +271,15 @@ if __name__ == "__main__":
             
             predictions = model.predict(final_input_sequence, verbose=0)
             
-            # --- MODIFIED: Print all confidence scores ---
-            # predictions[0] gives the 1D array of probabilities for the single prediction
             all_scores = predictions[0]
             
-            # Sort scores to see top ones more easily (optional, but good for analysis)
-            sorted_indices = np.argsort(all_scores)[::-1] # Get indices of probabilities from highest to lowest
+            sorted_indices = np.argsort(all_scores)[::-1]
             
             print("Confidence scores for all classes:")
             for i in sorted_indices:
                 gloss_name = ordered_gloss_names[i]
                 score = all_scores[i]
-                print(f"  {gloss_name.upper():<10}: {score:.4f}") # Print gloss name and score
-            # --- END MODIFIED ---
+                print(f"  {gloss_name.upper():<10}: {score:.4f}")
 
             predicted_class_id = np.argmax(predictions)
             prediction_confidence = predictions[0, predicted_class_id]
