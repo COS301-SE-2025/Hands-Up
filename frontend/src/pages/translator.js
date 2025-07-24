@@ -3,7 +3,6 @@ import {useTranslator} from '../hooks/translateResults';
 import {renderMediaPreview} from '../components/mediaPreview';
 import {renderHistoryItem} from '../components/historyItem';
 import {FingerspellingToggle} from '../components/fingerSpellingToggle'
-import { FaMagic } from "react-icons/fa";
 import '../styles/translator.css';
 
 export function Translator(){
@@ -27,6 +26,11 @@ export function Translator(){
     setFingerspellingMode
   } = useTranslator();
 
+  const {
+    onResults
+  } = useLandmarksDetection(canvasRef.current?.getContext('2d'));
+
+
   const speakDisabled = result === "";
   const [availableVoices, setAvailableVoices] = useState([]);
 
@@ -43,23 +47,6 @@ export function Translator(){
       window.speechSynthesis.onvoiceschanged = null;
     };
   }, []);
-
-  useEffect(() => {
-  const checkVisualInput = () => {
-    const rect = fabRef.current.getBoundingClientRect();
-    
-    // Replace these with your hand or gaze coordinates
-    const x = detectedX;
-    const y = detectedY;
-
-    if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
-      fabRef.current.click();
-    }
-  };
-
-  const interval = setInterval(checkVisualInput, 200); // check every 200ms
-  return () => clearInterval(interval);
-}, []);
 
   const speak = () => {
     const preferredVoice = availableVoices.find((voice) => voice.name === 'Microsoft Zira - English (United States)');
@@ -95,19 +82,10 @@ export function Translator(){
                 playsInline 
                 className="recognizer-video"
               ></video>
-              <button 
-                ref={fabRef}
-                onClick={() => {
-                  console.log("FAB clicked!");
-                }}
-                className="absolute bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg z-10"
-                aria-label="Floating Action Button"
-              >
-                <FaMagic size={20} />
-              </button>
               <canvas 
                 ref={canvasRef} 
                 style={{ display: 'none' }}
+                onResults={onResults}
               ></canvas>
               
               <div className="recognizer-camera-controls">
