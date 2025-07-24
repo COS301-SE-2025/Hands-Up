@@ -100,6 +100,7 @@ export function Home(){
                     <div className="home-buttons">
                         <Link to="/translator" className="btn-primary">Start Translating</Link>
                         <Link to="/learn" className="btn-secondary">Begin Learning</Link>
+                        <Link to="/game" className="btn-secondary">Sign Surfers</Link>
                     </div>
                 </div>
                 <div className="home-image">
