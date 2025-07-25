@@ -10,7 +10,7 @@ import time
 # IMPORTANT: This will be the path to your trained 20-word model
 MODEL_PATH = 'saved_models/best_sign_classifier_model_20_words_seq90.keras' # <-- WILL CHANGE TO 20-WORD MODEL
 # IMPORTANT: This will be the path to your 20-word augmented data CSV
-PROCESSED_DATA_CSV = 'wlasl_20_words_final_processed_data_augmented_seq90.csv' # <-- WILL CHANGE TO 20-WORD DATA
+PROCESSED_DATA_CSV = 'wlasl_20_words_personal_final_processed_data_augmented_seq90.csv' # <-- WILL CHANGE TO 20-WORD DATA
 
 SEQUENCE_LENGTH = 90
 EXPECTED_COORDS_PER_FRAME = 1662
