@@ -18,8 +18,16 @@ ai_model/words_model/tmkdt_words
 ai_model/words_model/words
 ai_model/video_data
 ai_model2/notebook/dataset
+ai_model2/notebook
 ai_model2/notebook/processed_dataset
 ai_model2/notebook/__pycache__
+ai_model2/notebook2
+ai_model2/notebook3/msasl_downloaded_videos
+ai_model2/notebook3/msasl_processed_keypoints
+ai_model2/notebook3/msasl_sequences
+ai_model2/notebook3/msasl_videos
+ai_model2/notebook3/model
+ai_model2/notebook3/MS-ASL
 ai_model2/models/__pycache__
 tests
 cypress/screenshots
