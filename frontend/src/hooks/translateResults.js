@@ -132,11 +132,11 @@ export function useTranslator() {
         stopRecording 
     ]);
 
-    useEffect(() => {
-        if (!isProcessingSequence && !recording && !fingerspellingMode) {
-                startRecording();
-        }
-    }, [isProcessingSequence, recording, fingerspellingMode, startRecording]);
+    // useEffect(() => {
+    //     if (!isProcessingSequence && !recording && !fingerspellingMode) {
+    //             startRecording();
+    //     }
+    // }, [isProcessingSequence, recording, fingerspellingMode, startRecording]);
 
     useEffect(() => {
         let intervalId;
