@@ -14,4 +14,8 @@ Author: Karabo
 10. python3 -m pip install transformers
 11. python3 -m  pip install torch torchvision torchaudio
 12. python3 -m  pip install 'accelerate>=0.26.0'
+13. python3 -m pip install peft
+14. python3 -m pip install python-dotenv
+15. python3 -m pip install openai
+
 

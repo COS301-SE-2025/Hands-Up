@@ -25,7 +25,7 @@ ai_model/alphabet_model/J_Z/
 ai_model/processed_data/trainData2.pickle
 ai_model/words_model/tmkdt_words
 ai_model/words_model/words
-ai_model/video_data
+ai_model/llm/glosses
 ai_model2/dataset
 ai_model2/processed_dataset
 ai_model2/models/__pycache__
@@ -34,10 +34,7 @@ ai_model2/models/__pycache__
 backend/api/uploads
 
 # misc
-/backend/api/.env
-/backend/database/.env
-/.env
-/frontend/.env
+**/.env
 
 # ssl certificates
 /frontend/localhost+2-key.pem
