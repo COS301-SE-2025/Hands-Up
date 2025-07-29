@@ -6,17 +6,17 @@ from sklearn.model_selection import train_test_split # For splitting data
 
 # --- Configuration ---
 MY_RECORDED_SIGNS_DIR = 'my_recorded_signs'
-PERSONAL_PROCESSED_CSV = 'wlasl_30_words_personal_processed.csv' # <-- CHANGED: New CSV for 30 words
+PERSONAL_PROCESSED_CSV = 'wlasl_40_words_personal_processed.csv' # Changed to 40 words
 
-# --- Define your expected 30-word list (for validation, ensure only these glosses are included) ---
+# --- Define your expected 40-word list (for validation, ensure only these glosses are included) ---
 # This list MUST match the glosses of the .npy files you have recorded
 EXPECTED_GLOSSES = [
-    # Your original 10 words:
+    # Your current 30 words:
     "apple", "black", "blue", "brown", "can", "cat", "chair", "child", "cold", "come",
-    # Your second batch of 10 words:
     "computer", "cow", "cry", "cup", "deaf", "dog", "drink", "drive", "eat", "egg",
-    # Your NEW third batch of 10 words:
-    "feel", "fish", "father", "full", "future", "girl", "give", "go", "gold", "grandma"
+    "feel", "fish", "father", "full", "future", "girl", "give", "go", "gold", "grandma",
+    # Your NEW 10 words:
+    "red", "yellow", "my", "name", "you", "your", "what", "hello", "again", "who"
 ]
 EXPECTED_GLOSSES_SET = set(g.lower() for g in EXPECTED_GLOSSES)
 
@@ -29,23 +29,23 @@ if os.path.exists(MY_RECORDED_SIGNS_DIR):
     for filename in os.listdir(MY_RECORDED_SIGNS_DIR):
         if filename.lower().endswith('.npy'):
             # Filename format: 'gloss_timestamp.npy' or similar
-            match = re.match(r'(.+?)_(\d+)\.npy', filename, re.IGNORECASE) 
+            match = re.match(r'(.+?)_(\d+)\.npy', filename, re.IGNORECASE)
             if match:
                 gloss = match.group(1).lower() # Extract gloss, ensure lowercase
                 video_id_from_timestamp = match.group(2) # Use timestamp as a unique ID
-                
+
                 full_npy_path = os.path.join(MY_RECORDED_SIGNS_DIR, filename)
 
                 if gloss in EXPECTED_GLOSSES_SET:
                     personal_records.append({
                         'gloss': gloss,
-                        'video_id': f'personal_{video_id_from_timestamp}', 
+                        'video_id': f'personal_{video_id_from_timestamp}',
                         'video_path': full_npy_path, # Path to the NPY file itself
-                        'signer_id': 'personal_user', 
-                        'frame_start': 1, 
-                        'frame_end': -1,  
-                        'fps': 25,        
-                        'bbox': [0,0,0,0], 
+                        'signer_id': 'personal_user',
+                        'frame_start': 1,
+                        'frame_end': -1,
+                        'fps': 25,
+                        'bbox': [0,0,0,0],
                         'split': 'temp' # Temporary split, will be re-assigned
                     })
                 else:
@@ -81,7 +81,7 @@ for gloss in EXPECTED_GLOSSES_SET:
     test_ratio = 0.15
 
     # Ensure enough samples for all splits (min 3 for train_test_split stratify to work well)
-    if len(gloss_df) < 3: 
+    if len(gloss_df) < 3:
         print(f"Warning: Gloss '{gloss}' has only {len(gloss_df)} instances. Adding all to train. (Cannot split)")
         gloss_df['split'] = 'train'
         df_personal_final = pd.concat([df_personal_final, gloss_df])
@@ -90,14 +90,14 @@ for gloss in EXPECTED_GLOSSES_SET:
     # Stratify by gloss (though not strictly necessary as we are looping by gloss)
     # The 'stratify' argument in train_test_split ensures that the proportion of classes
     # is roughly the same in the training, validation, and test sets.
-    
+
     # Split into train/test first
     train_val_df, test_df = train_test_split(
         gloss_df, test_size=test_ratio, random_state=42, stratify=gloss_df['gloss'] if len(gloss_df['gloss'].unique()) > 1 else None # Stratify only if multiple classes present, which is true here.
     )
     # Split train_val into train/val
     # Adjust val_size ratio for the remaining train_val_df
-    remaining_val_ratio = val_ratio / (train_ratio + val_ratio) 
+    remaining_val_ratio = val_ratio / (train_ratio + val_ratio)
     train_df, val_df = train_test_split(
         train_val_df, test_size=remaining_val_ratio, random_state=42, stratify=train_val_df['gloss'] if len(train_val_df['gloss'].unique()) > 1 else None
     )
@@ -105,7 +105,7 @@ for gloss in EXPECTED_GLOSSES_SET:
     train_df['split'] = 'train'
     val_df['split'] = 'val'
     test_df['split'] = 'test'
-    
+
     df_personal_final = pd.concat([df_personal_final, train_df, val_df, test_df])
 
 # Re-map gloss_ids to be sequential (0 to N-1) for the final set of classes
