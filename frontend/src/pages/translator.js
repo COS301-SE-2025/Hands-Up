@@ -3,6 +3,7 @@ import {useTranslator} from '../hooks/translateResults';
 import {renderMediaPreview} from '../components/mediaPreview';
 import {renderHistoryItem} from '../components/historyItem';
 import {FingerspellingToggle} from '../components/fingerSpellingToggle'
+import { useLandmarksDetection } from '../hooks/landmarksDetection';
 import '../styles/translator.css';
 
 export function Translator(){
@@ -11,7 +12,8 @@ export function Translator(){
 
   const {
     videoRef,
-    canvasRef,
+    canvasRef1,
+    canvasRef2,
     result,
     confidence,
     recording,
@@ -26,10 +28,7 @@ export function Translator(){
     setFingerspellingMode
   } = useTranslator();
 
-  const {
-    onResults
-  } = useLandmarksDetection(canvasRef.current?.getContext('2d'));
-
+  useLandmarksDetection(videoRef, canvasRef2);
 
   const speakDisabled = result === "";
   const [availableVoices, setAvailableVoices] = useState([]);
@@ -83,7 +82,11 @@ export function Translator(){
                 className="recognizer-video"
               ></video>
               <canvas 
-                ref={canvasRef} 
+                ref={canvasRef2} 
+                style={{  position: 'absolute', top: 0, left: 0, zIndex: 1  }}
+              ></canvas>
+              <canvas 
+                ref={canvasRef1} 
                 style={{ display: 'none' }}
                 onResults={onResults}
               ></canvas>
