@@ -88,7 +88,7 @@ export function Translator(){
               <canvas 
                 ref={canvasRef1} 
                 style={{ display: 'none' }}
-                onResults={onResults}
+                // onResults={onResults}
               ></canvas>
               
               <div className="recognizer-camera-controls">

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { processImage} from '../utils/apiCalls';
 import SignLanguageAPI  from '../utils/apiCalls';
-import useLandmarksDetection from 'landmarksDetection';
+// import useLandmarksDetection from './landmarksDetection';
 import { v4 as uuidv4 } from 'uuid';
 
 export function useTranslator() {
@@ -76,8 +76,6 @@ export function useTranslator() {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-
 
             canvas.toBlob(async (blob) => {
                 if (!blob) {

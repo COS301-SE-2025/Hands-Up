@@ -55,7 +55,7 @@ export function useLandmarksDetection(videoRef, canvasRef) {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
             
-        drawButton(canvas);
+        button = drawButton(canvas);
 
         if (video.currentTime === lastVideoTime.current) {
             animationFrameId = requestAnimationFrame(detect);
@@ -64,6 +64,7 @@ export function useLandmarksDetection(videoRef, canvasRef) {
         lastVideoTime.current = video.currentTime;
 
         const results = landmarkerRef.current.detectForVideo(video, performance.now());
+        console.log("Landmarks Detection Results:", results);
 
         if (results.landmarks && results.landmarks.length > 0) {
 
@@ -72,6 +73,9 @@ export function useLandmarksDetection(videoRef, canvasRef) {
                     const indexTip = landmarks[8];
                     const x = indexTip.x * canvas.width;
                     const y = indexTip.y * canvas.height;
+
+                    console.log("Button Coordinates:", button.x , button.y);
+                    console.log("Index Finger Tip Coordinates:", x, y);
 
                     // Check if within button bounds
                     if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
@@ -92,7 +96,7 @@ export function useLandmarksDetection(videoRef, canvasRef) {
             //
             }
 
-      animationFrameId = requestAnimationFrame(detect);
+      // animationFrameId = requestAnimationFrame(detect);
     };
 
     animationFrameId = requestAnimationFrame(detect);
