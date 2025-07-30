@@ -68,9 +68,6 @@ for layer in model.layers[:-2]:
     layer.trainable = False
 
 model.compile(optimizer=tf.keras.optimizers.Adam(1e-5),loss='sparse_categorical_crossentropy',metrics=['accuracy'])
-
-yTrainEncoded2 = labelEncoder2.transform(yTrainRaw2)
-
 model.fit(xTrain2, yTrainEncoded2, epochs=10, batch_size=32, validation_split=0.2, callbacks = [early_stop])
 
 testLoss, testAccuracy = model.evaluate(xTest, yTestEncoded)

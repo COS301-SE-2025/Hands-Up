@@ -9,14 +9,13 @@ mpHands = mp.solutions.hands
 mpDrawing = mp.solutions.drawing_utils
 mpDrawingStyles = mp.solutions.drawing_styles
 
-hands = mpHands.Hands(static_image_mode=True, min_detection_confidence=0.3)
+hands = mpHands.Hands(static_image_mode=True, min_detection_confidence=0.1)
 
 DATADIR = '../numbers/nums_test'
 
 data = []
 labels = []
 for dir in os.listdir(DATADIR):
-    #if dir.strip().upper() == 'C': #Starting with C because dataset too big
     for imgName in os.listdir(os.path.join(DATADIR, dir)):
         dataAux = []
 
@@ -32,32 +31,37 @@ for dir in os.listdir(DATADIR):
             continue  
 
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
         results = hands.process(imgRGB)
-        if results.multi_hand_landmarks:
-            for handLandmarks in results.multi_hand_landmarks:
-                
-                for i in range(len(handLandmarks.landmark)):
-                    x = handLandmarks.landmark[i].x
-                    y = handLandmarks.landmark[i].y
 
+        if results.multi_hand_landmarks and results.multi_handedness:
+            for hand_landmarks, hand_handedness in zip(results.multi_hand_landmarks, results.multi_handedness):
+                label = hand_handedness.classification[0].label
+                # Flip if it's a left hand
+                if label == "Left":
+                    img = cv2.flip(img, 1)  
+                    imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                    results = hands.process(imgRGB)
+                    if not results.multi_hand_landmarks:
+                        continue
+                    hand_landmarks = results.multi_hand_landmarks[0]  
+
+                for i in range(len(hand_landmarks.landmark)):
+                    x = hand_landmarks.landmark[i].x
+                    y = hand_landmarks.landmark[i].y
                     x_.append(x)
                     y_.append(y)
 
-                for i in range(len(handLandmarks.landmark)):
-                    x = handLandmarks.landmark[i].x
-                    y = handLandmarks.landmark[i].y
+                for i in range(len(hand_landmarks.landmark)):
+                    x = hand_landmarks.landmark[i].x
+                    y = hand_landmarks.landmark[i].y
                     dataAux.append(x - min(x_))
                     dataAux.append(y - min(y_))
 
-            data.append(dataAux)
-            labels.append(dir.strip().upper())
+                data.append(dataAux)
+                labels.append(dir.strip().upper())
 
-            # cv2.imshow("Hand Landmarks", img)
-            # cv2.waitKey(0)
 print(labels)
 
 file = open('../processed_data/numTestData.pickle', 'wb')
 pickle.dump({'data': data, 'labels': labels}, file)
 file.close()
-
