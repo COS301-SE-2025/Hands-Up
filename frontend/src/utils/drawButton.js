@@ -13,7 +13,7 @@ export function drawButton(canvas) {
 
   ctx.fillStyle = 'white';
   ctx.font = '16px Arial';
-  ctx.fillText("Click Me", button.x + 10, button.y + 30);
+  ctx.fillText("Numbers", button.x + 10, button.y + 30);
 
   return button;
 }
