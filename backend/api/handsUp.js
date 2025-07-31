@@ -20,7 +20,7 @@ const app = express();
 const HTTP_PORT = 2001; 
 const HTTPS_PORT = 2000; 
 app.use(cors({
-    origin: ['http://localhost:3000', 'https://localhost:3000'],
+    origin: ['https://hands-up-frontend.onrender.com'],
     credentials: true,           
 }));
 
