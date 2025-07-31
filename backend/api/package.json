@@ -7,7 +7,7 @@
       "node": true
   }},
   "scripts": {
-    "start": "echo 'No app yet...'",
+    "start": "node handsUP.js",
     "test-coverage": "echo 'No tests yet...'",
     "lint": "echo 'Linting not setup yet...'"
   },
