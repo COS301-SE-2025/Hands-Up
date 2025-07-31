@@ -1,0 +1,32 @@
+{
+  "files": {
+    "main.css": "/static/css/main.d5f20f3d.css",
+    "main.js": "/static/js/main.193a9b71.js",
+    "static/js/453.8ab44547.chunk.js": "/static/js/453.8ab44547.chunk.js",
+    "static/media/landing_video1.mp4": "/static/media/landing_video1.5703040ad375448bad2f.mp4",
+    "static/media/picture1.png": "/static/media/picture1.a26d7cf70d7700b7c5bb.png",
+    "static/media/fa-solid-900.ttf": "/static/media/fa-solid-900.2582b0e4bcf85eceead0.ttf",
+    "static/media/sign33.png": "/static/media/sign33.acdbcfa14255d803a979.png",
+    "static/media/logo2.png": "/static/media/logo2.51ac9959e32de7ea94b6.png",
+    "static/media/chocolate.mp4": "/static/media/chocolate.72a40ec8159bd82464ce.mp4",
+    "static/media/fa-brands-400.ttf": "/static/media/fa-brands-400.1815e00441357e01619e.ttf",
+    "static/media/learn.mp4": "/static/media/learn.7f0b40d35408d944e33b.mp4",
+    "static/media/fa-solid-900.woff2": "/static/media/fa-solid-900.2463b90d9a316e4e5294.woff2",
+    "static/media/devices.png": "/static/media/devices.122f695e9aa846481f26.png",
+    "static/media/fa-brands-400.woff2": "/static/media/fa-brands-400.c210719e60948b211a12.woff2",
+    "static/media/phil.png": "/static/media/phil.5dcb2da460e096e28ca2.png",
+    "static/media/angie.png": "/static/media/angie.9b1315e3834417d51148.png",
+    "static/media/fa-regular-400.ttf": "/static/media/fa-regular-400.914997e1bdfc990d0897.ttf",
+    "static/media/fa-regular-400.woff2": "/static/media/fa-regular-400.89999bdf5d835c012025.woff2",
+    "static/media/fa-v4compatibility.ttf": "/static/media/fa-v4compatibility.da94ef451f4969af06e6.ttf",
+    "static/media/fa-v4compatibility.woff2": "/static/media/fa-v4compatibility.ea8f94e1d22e0d35ccd4.woff2",
+    "index.html": "/index.html",
+    "main.d5f20f3d.css.map": "/static/css/main.d5f20f3d.css.map",
+    "main.193a9b71.js.map": "/static/js/main.193a9b71.js.map",
+    "453.8ab44547.chunk.js.map": "/static/js/453.8ab44547.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d5f20f3d.css",
+    "static/js/main.193a9b71.js"
+  ]
+}
