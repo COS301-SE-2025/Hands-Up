@@ -5,9 +5,6 @@ import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import apiRoutes from './routes/apiRoutes.js';
 import dotenv from 'dotenv';
-import https from 'https';
-import http from 'http';
-import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -17,8 +14,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const HTTP_PORT = 2001; 
-const HTTPS_PORT = 2000; 
 app.use(cors({
     origin: ['https://hands-up-frontend.onrender.com'],
     credentials: true,           
@@ -58,7 +53,7 @@ app.get('/health', (req, res) => {
 // API routes
 app.use('/handsUPApi', apiRoutes);
 
-const PORT = process.env.PORT || 2000;
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
