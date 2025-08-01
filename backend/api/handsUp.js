@@ -15,7 +15,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors({
-    origin: ['https://hands-up-frontend.onrender.com'],
+    origin: ['https://handsup.onrender.com'],
     credentials: true,           
 }));
 
