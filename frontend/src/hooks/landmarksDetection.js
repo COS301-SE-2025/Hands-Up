@@ -1,21 +1,16 @@
-// hooks/landmarksDetection.js
 import { useEffect, useRef } from 'react';
 import { HandLandmarker, FilesetResolver} from '@mediapipe/tasks-vision';
 import {drawButton } from '../utils/drawButton';
 
-// const HAND_CONNECTIONS = [
-//   {start: 0, end: 1}, {start: 1, end: 2}, {start: 2, end: 3}, {start: 3, end: 4},
-//   {start: 5, end: 6}, {start: 6, end: 7}, {start: 7, end: 8},
-//   {start: 9, end: 10}, {start: 10, end: 11}, {start: 11, end: 12},
-//   {start: 13, end: 14}, {start: 14, end: 15}, {start: 15, end: 16},
-//   {start: 17, end: 18}, {start: 18, end: 19}, {start: 19, end: 20},
-//   {start: 0, end: 5}, {start: 5, end: 9}, {start: 9, end: 13}, {start: 13, end: 17}, {start: 17, end: 0}
-// ];
-
 let indexX, indexY = 0;
 let button = {};
+let handXHistory = [];
+let handVisisble = false;
+const SWIPE_HISTORY_LIMIT = 10;
+const SWIPE_THRESHOLD = 120; 
 
 export function useLandmarksDetection(videoRef, canvasRef) {
+
   const landmarkerRef = useRef(null);
   const lastVideoTime = useRef(-1);
 
@@ -64,39 +59,38 @@ export function useLandmarksDetection(videoRef, canvasRef) {
         lastVideoTime.current = video.currentTime;
 
         const results = landmarkerRef.current.detectForVideo(video, performance.now());
-        console.log("Landmarks Detection Results:", results);
+        // console.log("Landmarks Detection Results:", results);
 
         if (results.landmarks && results.landmarks.length > 0) {
+          handVisisble = true;
 
-            for (const landmarks of results.landmarks) {
-                if (landmarks.length >= 9 && landmarks[8]) {
-                    const indexTip = landmarks[8];
-                    const x = indexTip.x * canvas.width;
-                    const y = indexTip.y * canvas.height;
+          for (const landmarks of results.landmarks) {
+            const keypoints = [landmarks[0], landmarks[5], landmarks[9], landmarks[13], landmarks[17]];
+            const avgX = keypoints.reduce((sum, p) => sum + p.x * canvas.width, 0) / keypoints.length;
 
-                    console.log("Button Coordinates:", button.x , button.y);
-                    console.log("Index Finger Tip Coordinates:", x, y);
-
-                    // Check if within button bounds
-                    if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
-                        console.alert("Hand clicked the button!");
-                    }
-                }
-            }
-            // const drawingUtils = new DrawingUtils(ctx);
-            // for (const landmarks of results.landmarks) {
-            //     drawingUtils.drawConnectors(landmarks, HAND_CONNECTIONS, {
-            //         color: '#00FF00',
-            //         lineWidth: 8,
-            //     });
-            //     drawingUtils.drawLandmarks(landmarks, {
-            //         color: '#FF0000',
-            //         radius: 3,
-            //     });
-            //
+            handXHistory.push(avgX);
+            if (handXHistory.length > SWIPE_HISTORY_LIMIT) {
+              handXHistory.shift();
             }
 
-      // animationFrameId = requestAnimationFrame(detect);
+            if (handXHistory.length === SWIPE_HISTORY_LIMIT) {
+              const deltaX = handXHistory[SWIPE_HISTORY_LIMIT - 1] - handXHistory[0];
+              if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
+                const direction = deltaX < 0 ? 'right' : 'left';
+                console.log(`Swipe detected: ${direction}`);
+                handXHistory = []; 
+              }
+            }
+          }
+        } else {
+          if (handVisisble) {
+            console.log("Hand lost — clearing swipe history");
+          }
+          handVisisble = false;
+          handXHistory = [];
+        }
+
+      animationFrameId = requestAnimationFrame(detect);
     };
 
     animationFrameId = requestAnimationFrame(detect);
