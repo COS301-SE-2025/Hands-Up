@@ -19,6 +19,7 @@ ai_model/llm/gloss2eng_model
 #datasets
 ai_model/letters
 ai_model/numbers
+ai_model/numbers2
 ai_model/letters_fine_tune
 ai_model/alphabet_model/letters
 ai_model/alphabet_model/J_Z/
