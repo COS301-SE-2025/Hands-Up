@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { processImage} from '../utils/apiCalls';
 import SignLanguageAPI  from '../utils/apiCalls';
-// import useLandmarksDetection from './landmarksDetection';
+import { useModelSwitch } from '../contexts/modelContext';
 import { v4 as uuidv4 } from 'uuid';
 
 export function useTranslator() {
@@ -19,6 +19,7 @@ export function useTranslator() {
     const [landmarkFrames, setLandmarkFrames] = useState([]);
     const [fingerspellingMode, setFingerspellingMode] = useState(false);
     const processingRef = useRef(false);
+    const { modelState, switchModel } = useModelSwitch();
     const sequenceNum = 20
     
     const stopRecording = useCallback(() => {
@@ -51,11 +52,20 @@ export function useTranslator() {
             const response = await processImage(formData);
 
             setResult(prev => {
-                if (response.letter === 'SPACE') return prev + ' ';
-                if (response.letter === 'DEL') return prev.slice(0, -1);
-                return prev + response.letter;
+
+                if(modelState.model === 'alpha') {
+                    if (response.letter === 'SPACE') return prev + ' ';
+                    if (response.letter === 'DEL') return prev.slice(0, -1);
+                    setConfidence((response.confidenceLetter * 100).toFixed(2) + "%");
+                    return prev + response.letter;
+
+                } else if (modelState.model === 'num') {
+                    setConfidence((response.confidenceNumber * 100).toFixed(2) + "%");
+                    return prev + response.number;
+                }
             });
-            setConfidence((response.confidence * 100).toFixed(2) + "%");
+            // setConfidence((response.confidence * 100).toFixed(2) + "%");
+
         } catch (err) {
             console.error("Error during sequence detection:", err);
             setResult("Error translating sign.");
@@ -64,7 +74,7 @@ export function useTranslator() {
             processingRef.current = false;
             setLandmarkFrames([]);
         }
-    }, [setResult, setConfidence]);
+    }, [setResult, setConfidence, modelState]);
 
     const captureImageFromVideo = useCallback(() => {
         const video = videoRef.current;

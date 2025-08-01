@@ -107,12 +107,15 @@ def detectFromImage(sequenceList):
             print(f'Numbers Model: {label3} at {confidence3}')
 
             if label1==label2:
-                return {'letter': label2, 'confidence': confidence2}
+                return {'letter': label2, 'confidenceLetter': confidence2,
+                        'number': label3, 'confidenceNumber': confidence3}
             # elif label2=="Z" and label1=="L":
             #     return {'letter': label2, 'confidence': confidence2}
             # elif label2=="J" and label1=="I":
             #     return {'letter': label2, 'confidence': confidence2}
             else:
-                return {'letter': label1, 'confidence': confidence1}        
+                return {'letter': label1, 'confidenceLetter': confidence1
+                        , 'number': label3, 'confidenceNumber': confidence3}        
     else:   
-        return {'letter': label2, 'confidence': confidence2}
+        return {'letter': label2, 'confidenceLetter': confidence2
+                , 'number': '', 'confidenceNumber': 0.0}

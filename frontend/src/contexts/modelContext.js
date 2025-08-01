@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, PropTypes } from "react";
 
 const modelSwitchContext = createContext();
 
@@ -7,14 +7,11 @@ const MODEL_LIST = ["alpha", "gloss", "num"];
 export function ModelSwitchProvider({ children }) {
   const [modelIndex, setModelIndex] = useState(0);
 
-  const switchModel = (direction = "right") => {
+  const switchModel = () => {
     setModelIndex((prevIndex) => {
-      if (direction === "right") {
-        return (prevIndex + 1) % MODEL_LIST.length;
-      } else if (direction === "left") {
-        return (prevIndex - 1 + MODEL_LIST.length) % MODEL_LIST.length;
-      }
-      return prevIndex; 
+      const newIndex = (prevIndex + 1) % MODEL_LIST.length;
+      console.log(`Switching model to: ${MODEL_LIST[newIndex]}`);
+      return newIndex;
     });
   };
 
@@ -33,6 +30,6 @@ export const useModelSwitch = () => {
   return useContext(modelSwitchContext);
 };
 
-ModelSwitchProvider.propTypes = {
-    children: PropTypes.node.isRequired,
-};
+// ModelSwitchProvider.propTypes = {
+//     children: PropTypes.node.isRequired,
+// };

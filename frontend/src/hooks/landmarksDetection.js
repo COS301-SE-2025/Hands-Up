@@ -1,18 +1,19 @@
 import { useEffect, useRef } from 'react';
 import { HandLandmarker, FilesetResolver} from '@mediapipe/tasks-vision';
 import {drawButton } from '../utils/drawButton';
+import { useModelSwitch } from '../contexts/modelContext';
 
-let indexX, indexY = 0;
-let button = {};
+let direction = ""
 let handXHistory = [];
-let handVisisble = false;
+let handVisible = false;
 const SWIPE_HISTORY_LIMIT = 10;
-const SWIPE_THRESHOLD = 120; 
+const SWIPE_THRESHOLD = 100; 
 
 export function useLandmarksDetection(videoRef, canvasRef) {
 
   const landmarkerRef = useRef(null);
   const lastVideoTime = useRef(-1);
+  const { modelState, switchModel } = useModelSwitch();
 
   useEffect(() => {
     const loadHandLandmarker = async () => {
@@ -36,21 +37,35 @@ export function useLandmarksDetection(videoRef, canvasRef) {
     loadHandLandmarker();
   }, []);
 
+  const handleSwipe = (direction) => {
+        if (direction === "right") {
+        switchModel();
+        }
+    };
+  
+  useEffect(() => {
+      const canvas = canvasRef.current;
+      if (canvas && modelState.model) {
+      console.log("Redrawing button for model:", modelState.model);
+      drawButton(canvas, modelState.model);
+      }
+  }, [modelState.model]);
+
   useEffect(() => {
     let animationFrameId;
 
     const detect = async () => {
         if (!videoRef.current || videoRef.current.readyState < 2 || !canvasRef.current ||!landmarkerRef.current) { animationFrameId = requestAnimationFrame(detect);
-            return;
+          return;
         }
          
         const video = videoRef.current;
         const canvas = canvasRef.current;
 
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-            
-        button = drawButton(canvas);
+        canvas.width = video.videoWidth*0.5;
+        canvas.height = video.videoHeight*0.5;
+
+        drawButton(canvas, modelState.model);
 
         if (video.currentTime === lastVideoTime.current) {
             animationFrameId = requestAnimationFrame(detect);
@@ -62,7 +77,7 @@ export function useLandmarksDetection(videoRef, canvasRef) {
         // console.log("Landmarks Detection Results:", results);
 
         if (results.landmarks && results.landmarks.length > 0) {
-          handVisisble = true;
+          // handVisisble = true;
 
           for (const landmarks of results.landmarks) {
             const keypoints = [landmarks[0], landmarks[5], landmarks[9], landmarks[13], landmarks[17]];
@@ -76,18 +91,20 @@ export function useLandmarksDetection(videoRef, canvasRef) {
             if (handXHistory.length === SWIPE_HISTORY_LIMIT) {
               const deltaX = handXHistory[SWIPE_HISTORY_LIMIT - 1] - handXHistory[0];
               if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
-                const direction = deltaX < 0 ? 'right' : 'left';
+                direction = deltaX > 0 ? 'right' : 'left';
                 console.log(`Swipe detected: ${direction}`);
+                direction === "right" ? switchModel() : console.log("No model switch");
+                handleSwipe(direction);
                 handXHistory = []; 
               }
             }
           }
         } else {
-          if (handVisisble) {
-            console.log("Hand lost — clearing swipe history");
-          }
-          handVisisble = false;
-          handXHistory = [];
+          //   if (!handVisible) {
+          //     console.log("Hand lost — clearing swipe history");
+          //   }
+          //   handVisible = false;
+        //   handXHistory = [];
         }
 
       animationFrameId = requestAnimationFrame(detect);
@@ -98,5 +115,5 @@ export function useLandmarksDetection(videoRef, canvasRef) {
     return () => cancelAnimationFrame(animationFrameId);
   }, [videoRef, canvasRef]);
 
-  return { indexX, indexY };
+  // return {};
 }
