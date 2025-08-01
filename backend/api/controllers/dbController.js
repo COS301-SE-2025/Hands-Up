@@ -266,7 +266,7 @@ export const logoutUser = async (req, res) => {
   res.clearCookie('sessionId', {
     httpOnly: true,
     secure: true,
-    sameSite: 'Lax',
+    sameSite: 'none',
     path: '/',
   });
 
@@ -282,13 +282,13 @@ export const authenticateUser = async (req, res, next) => {
     const sessionData = activeSessions.get(sessionId);
   
     if (!sessionData) {
-   res.clearCookie('sessionId', { httpOnly: true, secure: true, sameSite: 'Lax', path: '/' });
+   res.clearCookie('sessionId', { httpOnly: true, secure: true, sameSite: 'none', path: '/' });
       return res.status(401).json({ message: 'Unauthorized: Session invalid or expired.' });
     }
 
     if (Date.now() > sessionData.expires) {
     activeSessions.delete(sessionId);
-      res.clearCookie('sessionId', { httpOnly: true, secure: true, sameSite: 'Lax', path: '/' });
+      res.clearCookie('sessionId', { httpOnly: true, secure: true, sameSite: 'none', path: '/' });
       return res.status(401).json({ message: 'Unauthorized: Session invalid or expired.' });
     }
 
@@ -303,7 +303,7 @@ export const authenticateUser = async (req, res, next) => {
 
     if (!user) {
      activeSessions.delete(sessionId);
-      res.clearCookie('sessionId', { httpOnly: true, secure: true, sameSite: 'Lax', path: '/' });
+      res.clearCookie('sessionId', { httpOnly: true, secure: true, sameSite: 'none', path: '/' });
       return res.status(401).json({ message: 'Unauthorized: User not found.' });
     }
 
@@ -472,7 +472,7 @@ export const deleteUserAccount = async (req, res) => {
                   {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'Lax',
+                    sameSite: 'none',
                     path: '/',});
                     // sessionDeleted = true;
                     }}}
