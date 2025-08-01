@@ -1,620 +1,368 @@
-import os
-import sys
 import cv2
+import json
+import os
+import argparse
 import numpy as np
 import mediapipe as mp
-import json
-import argparse
-from pathlib import Path
-import time
-from collections import deque, Counter
-import traceback
+import pickle
+from tensorflow.keras.models import load_model
+import time # Import for timing operations
 
-print("Python script started", flush=True)
-print(f"Python version: {sys.version}", flush=True)
-print(f"Working directory: {os.getcwd()}", flush=True)
-print(f"Script arguments: {sys.argv}", flush=True)
+# Mediapipe setup
+# Optimize Mediapipe for performance:
+# - STATIC_IMAGE_MODE=False for video streams
+# - model_complexity=1 for a balance of accuracy and speed
+mp_holistic = mp.solutions.holistic
 
-# Constants
-SEQUENCE_LENGTH = 30
-MIN_DETECTION_CONFIDENCE = 0.3
-MIN_TRACKING_CONFIDENCE = 0.3
-CONFIDENCE_SMOOTHING_WINDOW = 5
-MIN_SEQUENCE_CONFIDENCE = 0.2
+# --- Configuration Constants ---
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-class SignLanguageDetector:
-    def __init__(self, model_path='action_model.h5', processed_path='../processed_dataset'):
-        print("Initializing SignLanguageDetector...", flush=True)
-        
-        self.script_dir = Path(__file__).parent.absolute()
-        self.model_path = self.script_dir / model_path
-        self.processed_path = self.script_dir / processed_path
-        
-        print(f"Script directory: {self.script_dir}", flush=True)
-        print(f"Model path: {self.model_path}", flush=True)
-        print(f"Processed path: {self.processed_path}", flush=True)
-        
-        # Check if paths exist
-        if not self.model_path.exists():
-            print(f"Model not found at: {self.model_path}", flush=True)
-            raise FileNotFoundError(f"Model file not found at {self.model_path}")
-        
-        if not self.processed_path.exists():
-            print(f"Processed dataset not found at: {self.processed_path}", flush=True)
-            raise FileNotFoundError(f"Processed dataset not found at {self.processed_path}")
-        
-        print("Initializing MediaPipe...", flush=True)
-        # Initialize MediaPipe
-        self.mp_holistic = mp.solutions.holistic
-        self.mp_drawing = mp.solutions.drawing_utils
-        
-        # Load model and actions
-        print("Loading model and actions...", flush=True)
-        self.model, self.actions = self._load_assets()
-        
-        print("Creating holistic detector...", flush=True)
-        self.holistic = self.mp_holistic.Holistic(
-            min_detection_confidence=MIN_DETECTION_CONFIDENCE,
-            min_tracking_confidence=MIN_TRACKING_CONFIDENCE,
-            model_complexity=1,
-            smooth_landmarks=True
-        )
-        
-        # Prediction smoothing
-        self.confidence_buffer = deque(maxlen=CONFIDENCE_SMOOTHING_WINDOW)
-        self.last_valid_keypoints = None
-        self.frames_without_detection = 0
-        self.max_frames_without_detection = 10
-        
-        # Visualization
-        self.visualize = False
-        
-        print("SignLanguageDetector initialized successfully", flush=True)
-    
-    def _load_assets(self):
-        """Load model and action labels with error handling"""
-        try:
-            print("Loading TensorFlow model...", flush=True)
-            from tensorflow.keras.models import load_model
-            print("TensorFlow imported successfully", flush=True)
-            
-            print(f"Loading model from: {self.model_path}", flush=True)
-            model = load_model(str(self.model_path))
-            print("Model loaded successfully", flush=True)
-            
-            print("Loading action labels...", flush=True)
-            actions = sorted([
-                folder for folder in os.listdir(self.processed_path) 
-                if (self.processed_path / folder).is_dir()
-            ])
-            
-            print(f"Found {len(actions)} actions: {actions}", flush=True)
-            return model, actions
-            
-        except Exception as e:
-            print(f"Error loading assets: {e}", flush=True)
-            print(f"Traceback: {traceback.format_exc()}", flush=True)
-            raise
-    
-    def _preprocess_frame(self, frame):
-        """Enhance frame for better detection"""
-        try:
-            h, w = frame.shape[:2]
-            if h != w:
-                size = max(h, w)
-                squared = np.zeros((size, size, 3), dtype=np.uint8)
-                offset_h = (size - h) // 2
-                offset_w = (size - w) // 2
-                squared[offset_h:offset_h+h, offset_w:offset_w+w] = frame
-                frame = squared
-            
-            frame = cv2.resize(frame, (640, 640))
-            ycrcb = cv2.cvtColor(frame, cv2.COLOR_BGR2YCrCb)
-            ycrcb[:,:,0] = cv2.equalizeHist(ycrcb[:,:,0])
-            return cv2.cvtColor(ycrcb, cv2.COLOR_YCrCb2RGB)
-        except Exception as e:
-            print(f"Error preprocessing frame: {e}", flush=True)
-            return cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    
-    def _draw_landmarks(self, image, results):
-        """Draw MediaPipe landmarks on the image"""
-        if results is None:
-            return image
-        
-        try:
-            # Draw pose landmarks
-            self.mp_drawing.draw_landmarks(
-                image,
-                results.pose_landmarks,
-                self.mp_holistic.POSE_CONNECTIONS,
-                self.mp_drawing.DrawingSpec(color=(245,117,66), thickness=2, circle_radius=2),
-                self.mp_drawing.DrawingSpec(color=(245,66,230), thickness=2, circle_radius=2)
-            )
-            
-            # Draw face landmarks
-            self.mp_drawing.draw_landmarks(
-                image,
-                results.face_landmarks,
-                self.mp_holistic.FACEMESH_TESSELATION,
-                self.mp_drawing.DrawingSpec(color=(80,110,10), thickness=1, circle_radius=1),
-                self.mp_drawing.DrawingSpec(color=(80,256,121), thickness=1, circle_radius=1)
-            )
-            
-            # Draw hand landmarks
-            self.mp_drawing.draw_landmarks(
-                image,
-                results.left_hand_landmarks,
-                self.mp_holistic.HAND_CONNECTIONS,
-                self.mp_drawing.DrawingSpec(color=(121,22,76), thickness=2, circle_radius=4),
-                self.mp_drawing.DrawingSpec(color=(121,44,250), thickness=2, circle_radius=2)
-            )
-            self.mp_drawing.draw_landmarks(
-                image,
-                results.right_hand_landmarks,
-                self.mp_holistic.HAND_CONNECTIONS,
-                self.mp_drawing.DrawingSpec(color=(245,117,66), thickness=2, circle_radius=4),
-                self.mp_drawing.DrawingSpec(color=(245,66,230), thickness=2, circle_radius=2)
-            )
-            
-            return image
-        except Exception as e:
-            print(f"Error drawing landmarks: {e}", flush=True)
-            return image
-    
-    def _draw_info(self, image, prediction=None, landmark_stats=None):
-        """Draw prediction and landmark info on the image"""
-        try:
-            h, w = image.shape[:2]
-            
-            # Draw prediction
-            if prediction and prediction.get('action'):
-                text = f"Sign: {prediction['action']} ({prediction['confidence']:.2f})"
-                cv2.putText(image, text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 
-                           1, (0, 255, 0), 2, cv2.LINE_AA)
-            
-            # Draw landmark stats
-            if landmark_stats:
-                y_offset = 60
-                stats_text = [
-                    f"Hands: {landmark_stats['hand_score']:.2f} ({landmark_stats['hand_count']})",
-                    f"Pose: {landmark_stats['pose_score']:.2f}",
-                    f"Face: {landmark_stats['face_score']:.2f}",
-                    f"Total: {landmark_stats['total_score']:.2f}",
-                    f"Threshold: {landmark_stats['threshold_used']:.2f}"
-                ]
-                
-                for text in stats_text:
-                    cv2.putText(image, text, (10, y_offset), cv2.FONT_HERSHEY_SIMPLEX,
-                               0.6, (255, 255, 255), 1, cv2.LINE_AA)
-                    y_offset += 25
-            
-            return image
-        except Exception as e:
-            print(f"Error drawing info: {e}", flush=True)
-            return image
-    
-    def process_frame(self, frame):
-        """Process a single frame"""
-        try:
-            processed = self._preprocess_frame(frame)
-            processed.flags.writeable = False
-            results = self.holistic.process(processed)
-            processed.flags.writeable = True
-            image = cv2.cvtColor(processed, cv2.COLOR_RGB2BGR)
-            
-            if self.visualize:
-                image = self._draw_landmarks(image, results)
-            
-            return image, results
-        except Exception as e:
-            print(f"Error processing frame: {e}", flush=True)
-            return frame, None
-    
-    def extract_keypoints(self, results):
-        """Extract keypoints from MediaPipe results"""
-        try:
-            pose = np.array([[lm.x, lm.y, lm.z, lm.visibility] for lm in results.pose_landmarks.landmark]).flatten() if results.pose_landmarks else np.zeros(33*4)
-            face = np.array([[lm.x, lm.y, lm.z] for lm in results.face_landmarks.landmark]).flatten() if results.face_landmarks else np.zeros(468*3)
-            lh = np.array([[lm.x, lm.y, lm.z] for lm in results.left_hand_landmarks.landmark]).flatten() if results.left_hand_landmarks else np.zeros(21*3)
-            rh = np.array([[lm.x, lm.y, lm.z] for lm in results.right_hand_landmarks.landmark]).flatten() if results.right_hand_landmarks else np.zeros(21*3)
-            return np.concatenate([pose, face, lh, rh])
-        except Exception as e:
-            print(f"Error extracting keypoints: {e}", flush=True)
-            return np.zeros(33*4 + 468*3 + 21*3 + 21*3)
-    
-    def has_sufficient_landmarks(self, results):
-        """Check if we have sufficient landmarks for sign detection"""
-        if results is None:
-            return False, {
-                'hand_score': 0,
-                'pose_score': 0,
-                'face_score': 0,
-                'total_score': 0,
-                'has_hands': False,
-                'has_pose': False,
-                'has_face': False,
-                'hand_count': 0,
-                'threshold_used': 0.4
-            }
-        
-        try:
-            has_hands = results.left_hand_landmarks is not None or results.right_hand_landmarks is not None
-            has_pose = results.pose_landmarks is not None
-            has_face = results.face_landmarks is not None
-            
-            hand_score = 0
-            pose_score = 0
-            face_score = 0
-            hand_count = 0
-            
-            if results.left_hand_landmarks:
-                hand_count += 1
-                if len(results.left_hand_landmarks.landmark) >= 21:
-                    x_coords = [lm.x for lm in results.left_hand_landmarks.landmark]
-                    y_coords = [lm.y for lm in results.left_hand_landmarks.landmark]
-                    coord_variance = np.var(x_coords) + np.var(y_coords)
-                    hand_score += min(1.0, coord_variance * 10)
-                else:
-                    hand_score += 0.3
-            
-            if results.right_hand_landmarks:
-                hand_count += 1
-                if len(results.right_hand_landmarks.landmark) >= 21:
-                    x_coords = [lm.x for lm in results.right_hand_landmarks.landmark]
-                    y_coords = [lm.y for lm in results.right_hand_landmarks.landmark]
-                    coord_variance = np.var(x_coords) + np.var(y_coords)
-                    hand_score += min(1.0, coord_variance * 10)
-                else:
-                    hand_score += 0.3
-            
-            if hand_count > 0:
-                hand_score = hand_score / hand_count
-            
-            if results.pose_landmarks:
-                upper_body_indices = list(range(11, 17)) + list(range(23, 25))
-                pose_visibilities = [results.pose_landmarks.landmark[i].visibility 
-                                   for i in upper_body_indices 
-                                   if i < len(results.pose_landmarks.landmark)]
-                if pose_visibilities:
-                    pose_score = np.mean(pose_visibilities)
-            
-            if results.face_landmarks:
-                face_score = 0.7
-            
-            if has_hands:
-                total_score = (hand_score * 0.7) + (pose_score * 0.2) + (face_score * 0.1)
-                min_threshold = 0.15
-            else:
-                total_score = (pose_score * 0.7) + (face_score * 0.3)
-                min_threshold = 0.4
-            
-            has_basic_structure = total_score > min_threshold
-            
-            if pose_score > 0.8 and has_pose:
-                has_basic_structure = True
-                
-            if has_hands and hand_score > 0.1:
-                has_basic_structure = True
-            
-            return has_basic_structure, {
-                'hand_score': hand_score,
-                'pose_score': pose_score,
-                'face_score': face_score,
-                'total_score': total_score,
-                'has_hands': has_hands,
-                'has_pose': has_pose,
-                'has_face': has_face,
-                'hand_count': hand_count,
-                'threshold_used': min_threshold
-            }
-        except Exception as e:
-            print(f"Error checking landmarks: {e}", flush=True)
-            return False, {
-                'hand_score': 0,
-                'pose_score': 0,
-                'face_score': 0,
-                'total_score': 0,
-                'has_hands': False,
-                'has_pose': False,
-                'has_face': False,
-                'hand_count': 0,
-                'threshold_used': 0.4,
-                'error': str(e)
-            }
+# Update paths to be absolute (already done, good!)
+MODEL_PATH = os.path.join(SCRIPT_DIR, 'action_model.h5')
+NORMALIZATION_PARAMS_PATH = os.path.join(SCRIPT_DIR, 'normalization_params.npy')
+LABEL_MAP_PATH = os.path.join(SCRIPT_DIR, 'label_map.pkl')
+SEQUENCE_LENGTH = 30 # Must match what the model expects
+# Define a history length for predictions to smooth results
+PREDICTION_HISTORY_LENGTH = 5 # Number of recent predictions to consider for smoothing
+MIN_CONFIDENCE_THRESHOLD = 0.7 # Default minimum confidence to report a sign/phrase
 
-    def process_image(self, image_path):
-        """Process a single image for sign detection"""
-        print(f"Processing image: {image_path}", flush=True)
-        
-        if not os.path.exists(image_path):
-            print(f"Image file not found: {image_path}", flush=True)
-            raise FileNotFoundError(f"Image file not found: {image_path}")
-        
+# --- Global variables for model and normalization ---
+model = None
+X_mean, X_std = 0, 1 # Fallback defaults
+actions = [] # List of action names
+label_map = {} # Maps action name to integer label
+reversed_label_map = {} # Maps integer label back to action name
+
+def load_model_and_assets():
+    """Load the model, normalization parameters, and label map"""
+    global model, X_mean, X_std, actions, label_map, reversed_label_map
+    
+    # Try to enable GPU for TensorFlow if available
+    try:
+        import tensorflow as tf
+        gpus = tf.config.list_physical_devices('GPU')
+        if gpus:
+            try:
+                # Currently, a common strategy is to allow growth for memory to prevent allocating all GPU memory at once
+                for gpu in gpus:
+                    tf.config.experimental.set_memory_growth(gpu, True)
+                print(f"TensorFlow is configured to use GPU: {gpus}")
+            except RuntimeError as e:
+                print(f"Error setting GPU memory growth: {e}")
+        else:
+            print("No GPU found for TensorFlow, using CPU.")
+    except Exception as e:
+        print(f"Could not configure TensorFlow for GPU: {e}")
+
+
+    try:
+        model = load_model(MODEL_PATH)
+        print(f"Model loaded from {MODEL_PATH}")
+    except Exception as e:
+        print(f"Error loading model from {MODEL_PATH}: {e}")
+        model = None
+
+    try:
+        X_mean, X_std = np.load(NORMALIZATION_PARAMS_PATH)
+        print(f"Normalization parameters loaded from {NORMALIZATION_PARAMS_PATH}")
+    except Exception as e:
+        print(f"Error loading normalization parameters: {e}")
+        X_mean, X_std = 0, 1
+
+    try:
+        with open(LABEL_MAP_PATH, 'rb') as f:
+            label_map = pickle.load(f)
+        actions = sorted(list(label_map.keys()))
+        reversed_label_map = {v: k for k, v in label_map.items()}
+        print(f"Label map loaded with {len(actions)} actions")
+    except Exception as e:
+        print(f"Error loading label map: {e}")
+        actions = []
+        reversed_label_map = {}
+
+def extract_keypoints(results):
+    """Extract keypoints from Mediapipe Holistic results"""
+    # Using ternary operator for more concise extraction
+    pose = np.array([[res.x, res.y, res.z, res.visibility] for res in results.pose_landmarks.landmark]).flatten() \
+            if results.pose_landmarks else np.zeros(33*4)
+    
+    # Only use face landmarks if they are actually used by your model.
+    # If your model doesn't use face keypoints, setting this to zeros(0)
+    # or excluding it entirely will save computation.
+    # For now, keep it as is, but be mindful of its size (468*3 = 1404 features)
+    face = np.array([[res.x, res.y, res.z] for res in results.face_landmarks.landmark]).flatten() \
+            if results.face_landmarks else np.zeros(468*3) # Consider reducing face keypoints or removing if not critical
+
+    lh = np.array([[res.x, res.y, res.z] for res in results.left_hand_landmarks.landmark]).flatten() \
+            if results.left_hand_landmarks else np.zeros(21*3)
+    
+    rh = np.array([[res.x, res.y, res.z] for res in results.right_hand_landmarks.landmark]).flatten() \
+            if results.right_hand_landmarks else np.zeros(21*3)
+    
+    return np.concatenate([pose, face, lh, rh])
+
+def predict_sequence(keypoint_sequence, min_confidence=MIN_CONFIDENCE_THRESHOLD):
+    """Predict action from a sequence of keypoints"""
+    if model is None or not actions:
+        # print("Model or label map not loaded - cannot predict") # Keep this silent for real-time
+        return None, 0.0
+    
+    # Add batch dimension and normalize
+    # Ensure the input shape matches what your model expects
+    # If your model expects (None, SEQUENCE_LENGTH, num_features), ensure keypoint_sequence is (SEQUENCE_LENGTH, num_features)
+    input_data = np.expand_dims(keypoint_sequence, axis=0)
+    input_data_norm = (input_data - X_mean) / (X_std + 1e-8)
+    
+    # Make prediction
+    predictions = model.predict(input_data_norm, verbose=0)[0]
+    predicted_idx = np.argmax(predictions)
+    confidence = float(predictions[predicted_idx])
+
+    if confidence >= min_confidence:
+        predicted_action = reversed_label_map.get(predicted_idx, "UNKNOWN")
+        return predicted_action, confidence
+    else:
+        return None, confidence # Return None if confidence is too low
+
+def process_image_and_predict(image_path, min_confidence=MIN_CONFIDENCE_THRESHOLD):
+    """Process a single image file and predict the action"""
+    if model is None:
+        print("Model not loaded - cannot predict")
+        return None, 0.0
+
+    if not os.path.exists(image_path):
+        print(f"Image file not found: {image_path}")
+        return None, 0.0
+
+    try:
         frame = cv2.imread(image_path)
         if frame is None:
-            print(f"Could not read image: {image_path}", flush=True)
-            raise ValueError(f"Could not read image: {image_path}")
-        
-        print(f"Image loaded: {frame.shape}", flush=True)
-        
-        image, results = self.process_frame(frame)
-        has_landmarks, landmark_stats = self.has_sufficient_landmarks(results)
-        print(f"Landmarks detected: {has_landmarks}, stats: {landmark_stats}", flush=True)
-        
-        if not has_landmarks:
-            print("Insufficient landmarks for detection", flush=True)
-            if self.visualize:
-                image = self._draw_info(image, None, landmark_stats)
-                cv2.imshow('Sign Language Detection', image)
-                cv2.waitKey(0)
-                cv2.destroyAllWindows()
-            return {'action': None, 'confidence': 0.0, 'error': 'Insufficient landmarks detected'}
-        
-        keypoints = self.extract_keypoints(results)
-        sequence = [keypoints] * SEQUENCE_LENGTH
-        
-        try:
-            res = self.model.predict(np.expand_dims(sequence, axis=0), verbose=0)[0]
-            predicted_action = self.actions[np.argmax(res)]
-            confidence = float(np.max(res))
-            
-            print(f"Prediction: {predicted_action}, confidence: {confidence}", flush=True)
-            
-            if self.visualize:
-                prediction = {'action': predicted_action, 'confidence': confidence}
-                image = self._draw_info(image, prediction, landmark_stats)
-                cv2.imshow('Sign Language Detection', image)
-                cv2.waitKey(0)
-                cv2.destroyAllWindows()
-            
-            return {
-                'action': predicted_action,
-                'confidence': confidence,
-                'sign': predicted_action,
-                'landmark_stats': landmark_stats
-            }
-            
-        except Exception as e:
-            print(f"Prediction error: {e}", flush=True)
-            if self.visualize:
-                cv2.imshow('Sign Language Detection', image)
-                cv2.waitKey(0)
-                cv2.destroyAllWindows()
-            return {'action': None, 'confidence': 0.0, 'error': str(e)}
-    
-    def process_video(self, video_path, max_frames=300):
-        """Process video file and return predictions"""
-        print(f"Starting video processing: {video_path}", flush=True)
-        
-        if not os.path.exists(video_path):
-            print(f"Video file not found: {video_path}", flush=True)
-            raise FileNotFoundError(f"Video file not found: {video_path}")
-        
-        cap = cv2.VideoCapture(video_path)
-        if not cap.isOpened():
-            print(f"Could not open video: {video_path}", flush=True)
-            raise ValueError(f"Could not open video: {video_path}")
-        
-        fps = cap.get(cv2.CAP_PROP_FPS)
-        frame_count_total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        duration = frame_count_total / fps if fps > 0 else 0
-        
-        print(f"Video info: {frame_count_total} frames, {fps:.2f} FPS, {duration:.2f}s", flush=True)
-        
-        sequence = []
-        predictions = []
-        frame_count = 0
-        detection_stats = []
-        last_progress = 0
-        
-        if self.visualize:
-            cv2.namedWindow('Sign Language Detection', cv2.WINDOW_NORMAL)
-        
-        start_time = time.time()
-        
-        try:
-            while cap.isOpened() and frame_count < max_frames:
-                ret, frame = cap.read()
-                if not ret:
-                    print(f"End of video reached at frame {frame_count}", flush=True)
-                    break
-                    
-                frame_count += 1
+            print(f"Could not read image: {image_path}")
+            return None, 0.0
+
+        with mp_holistic.Holistic(static_image_mode=True, model_complexity=1) as holistic:
+            image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            results = holistic.process(image)
+
+            if results.pose_landmarks or results.face_landmarks or results.left_hand_landmarks or results.right_hand_landmarks:
+                keypoints = extract_keypoints(results)
+                # For single image, you typically have one frame. Your model expects a sequence.
+                # You might need to adapt the model for single-frame prediction or
+                # create a dummy sequence (e.g., repeating the single frame SEQUENCE_LENGTH times).
+                # Assuming your model expects (1, SEQUENCE_LENGTH, num_features) and your model
+                # was trained with sequences, repeating the frame is a common workaround for single images.
+                # A better approach would be to train a separate single-frame model or ensure
+                # the existing model can handle a sequence of 1.
+                # For now, let's repeat the frame to fit the SEQUENCE_LENGTH expectation.
                 
-                progress = (frame_count / min(frame_count_total, max_frames)) * 100
-                if progress - last_progress >= 20:
-                    elapsed = time.time() - start_time
-                    print(f"Processing: {progress:.1f}% ({frame_count}/{min(frame_count_total, max_frames)} frames, {elapsed:.1f}s)", flush=True)
-                    last_progress = progress
-                
-                image, results = self.process_frame(frame)
-                has_landmarks, landmark_stats = self.has_sufficient_landmarks(results)
-                detection_stats.append(landmark_stats)
-                
-                keypoints = self.extract_keypoints(results)
-                
-                if has_landmarks:
-                    self.frames_without_detection = 0
-                    self.last_valid_keypoints = keypoints.copy()
-                    sequence.append(keypoints)
+                # Check if keypoints is not empty, it could be empty if no landmarks detected.
+                if keypoints.size > 0:
+                    repeated_sequence = np.array([keypoints] * SEQUENCE_LENGTH)
+                    action, confidence = predict_sequence(repeated_sequence, min_confidence)
+                    return action, confidence
                 else:
-                    self.frames_without_detection += 1
-                    if (self.frames_without_detection <= self.max_frames_without_detection and 
-                        self.last_valid_keypoints is not None and len(sequence) > 0):
-                        decay_factor = 1.0 - (self.frames_without_detection / self.max_frames_without_detection) * 0.5
-                        interpolated_keypoints = self.last_valid_keypoints * decay_factor
-                        sequence.append(interpolated_keypoints)
+                    return None, 0.0
+            else:
+                return None, 0.0
+
+    except Exception as e:
+        print(f"Error processing image {image_path}: {e}")
+        return None, 0.0
+
+
+def process_video_and_predict_realtime(video_path, min_confidence=MIN_CONFIDENCE_THRESHOLD):
+    """
+    Process a video file in a more real-time manner.
+    This version collects a sliding window of frames and predicts.
+    """
+    if model is None:
+        print("Model not loaded - cannot predict")
+        return None, 0.0
+    
+    cap = cv2.VideoCapture(video_path)
+    if not cap.isOpened():
+        print(f"Error: Could not open video {video_path}")
+        return None, 0.0
+
+    # Initialize a deque (double-ended queue) for efficient sequence handling
+    # collections.deque is more efficient than list.append + list.pop(0)
+    from collections import deque
+    sequence_buffer = deque(maxlen=SEQUENCE_LENGTH)
+    
+    # Store recent predictions for smoothing/majority voting
+    prediction_history = deque(maxlen=PREDICTION_HISTORY_LENGTH)
+
+    predicted_action = "N/A"
+    current_confidence = 0.0
+    
+    # Use Holistic for video streams (min_detection_confidence=0.5, min_tracking_confidence=0.5)
+    # model_complexity=1 for speed.
+    with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5, model_complexity=1) as holistic:
+        frame_count = 0
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                break
+            
+            frame_count += 1
+            # Optional: Resize frame if it's very high resolution, to speed up Mediapipe
+            # if frame.shape[0] > 720: # Example: if height > 720p
+            #    frame = cv2.resize(frame, (int(frame.shape[1] * (720 / frame.shape[0])), 720))
+
+            # Process frame with Mediapipe
+            # Make image not writeable to pass by reference to Mediapipe for performance
+            image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            image.flags.writeable = False
+            results = holistic.process(image)
+            image.flags.writeable = True # Make it writeable again if you want to draw on it later
+
+            # Extract keypoints
+            keypoints = extract_keypoints(results)
+            
+            # Append to buffer
+            sequence_buffer.append(keypoints)
+            
+            # Only predict once the buffer is full
+            if len(sequence_buffer) == SEQUENCE_LENGTH:
+                sequence_np = np.array(list(sequence_buffer)) # Convert deque to numpy array
+                action, confidence = predict_sequence(sequence_np, min_confidence)
+                
+                # Smooth predictions (e.g., majority vote or average confidence)
+                if action:
+                    prediction_history.append((action, confidence))
+                else:
+                    prediction_history.append(("N/A", confidence)) # Store N/A for low confidence
+
+                # Simple smoothing: Take the most frequent action with high enough confidence
+                if len(prediction_history) > 0:
+                    # Filter out "N/A" and predictions below min_confidence for majority vote
+                    valid_predictions = [p[0] for p in prediction_history if p[0] != "N/A" and p[1] >= min_confidence]
+                    if valid_predictions:
+                        from collections import Counter
+                        most_common_action = Counter(valid_predictions).most_common(1)
+                        if most_common_action:
+                            predicted_action = most_common_action[0][0]
+                            # You might want to average confidence for the most common action
+                            # For simplicity, we'll just report the confidence of the last prediction if it was valid
+                            current_confidence = confidence 
+                        else:
+                            predicted_action = "N/A"
+                            current_confidence = 0.0 # Or the highest confidence among filtered out ones
                     else:
-                        sequence = []
-                        self.last_valid_keypoints = None
-                        self.frames_without_detection = 0
+                        predicted_action = "N/A"
+                        current_confidence = 0.0 # Or the highest confidence among filtered out ones
                 
-                sequence = sequence[-SEQUENCE_LENGTH:]
+                # If you want real-time output per frame, print here
+                # print(f"Frame {frame_count}: Predicted {predicted_action} (Conf: {current_confidence:.2f})")
                 
-                current_prediction = None
-                if len(sequence) == SEQUENCE_LENGTH:
-                    try:
-                        res = self.model.predict(np.expand_dims(sequence, axis=0), verbose=0)[0]
-                        predicted_action = self.actions[np.argmax(res)]
-                        confidence = float(np.max(res))
-                        
-                        self.confidence_buffer.append((predicted_action, confidence))
-                        
-                        if len(self.confidence_buffer) >= 3:
-                            smoothed_action, smoothed_confidence = self._smooth_predictions()
-                            current_prediction = {
-                                'action': smoothed_action,
-                                'confidence': smoothed_confidence
-                            }
-                            predictions.append({
-                                'action': smoothed_action,
-                                'confidence': smoothed_confidence,
-                                'raw_confidence': confidence,
-                                'frame': frame_count
-                            })
-                    except Exception as e:
-                        print(f"Prediction error at frame {frame_count}: {e}", flush=True)
+                # In a real-time application, you might display this on the frame or send it via a socket.
+                # For this script, we'll just take the final prediction after the video ends.
                 
-                if self.visualize:
-                    image = self._draw_info(image, current_prediction, landmark_stats)
-                    cv2.imshow('Sign Language Detection', image)
-                    if cv2.waitKey(1) & 0xFF == ord('q'):
-                        print("Visualization terminated by user", flush=True)
-                        break
-        
-        except Exception as e:
-            print(f"Error during video processing: {e}", flush=True)
-            print(f"Traceback: {traceback.format_exc()}", flush=True)
-        
-        finally:
-            cap.release()
-            if self.visualize:
-                cv2.destroyAllWindows()
-            processing_time = time.time() - start_time
-            print(f"Video processing completed: {frame_count} frames in {processing_time:.2f}s", flush=True)
-        
-        return predictions, detection_stats
+    cap.release()
     
-    def _smooth_predictions(self):
-        """Smooth predictions using recent history"""
-        recent_predictions = list(self.confidence_buffer)
-        
-        action_confidences = {}
-        for action, conf in recent_predictions:
-            if action not in action_confidences:
-                action_confidences[action] = []
-            action_confidences[action].append(conf)
-        
-        best_action = None
-        best_score = 0
-        
-        for action, confidences in action_confidences.items():
-            avg_confidence = np.mean(confidences)
-            frequency_weight = len(confidences) / len(recent_predictions)
-            score = avg_confidence * (0.7 + 0.3 * frequency_weight)
-            
-            if score > best_score:
-                best_score = score
-                best_action = action
-        
-        return best_action, best_score
+    # Final prediction after processing the video
+    # If the video was too short to fill the buffer, handle that
+    if len(sequence_buffer) < SEQUENCE_LENGTH:
+        print(f"Warning: Video was shorter than SEQUENCE_LENGTH ({len(sequence_buffer)} frames vs {SEQUENCE_LENGTH}). No prediction made based on full sequence.")
+        return None, 0.0 # Or attempt prediction with partial sequence if your model supports it
+
+    return predicted_action, current_confidence
+
+
+if __name__ == '__main__':
+    # Load model and assets first (only once when script starts)
+    load_model_and_assets()
     
-    def analyze_results(self, predictions, detection_stats, min_confidence=0.3):
-        """Analyze predictions to determine final result"""
-        print(f"Analyzing {len(predictions)} predictions...", flush=True)
-        
-        if not predictions:
-            print("No predictions to analyze", flush=True)
-            return {'action': None, 'confidence': 0.0, 'phrase': None}
-        
-        valid_predictions = [p for p in predictions if p['confidence'] >= min_confidence]
-        print(f"{len(valid_predictions)} valid predictions (confidence >= {min_confidence})", flush=True)
-        
-        if not valid_predictions:
-            print("No valid predictions", flush=True)
-            return {'action': None, 'confidence': 0.0, 'phrase': None}
-        
-        action_stats = {}
-        for pred in valid_predictions:
-            action = pred['action']
-            if action not in action_stats:
-                action_stats[action] = {'confidences': [], 'count': 0}
-            action_stats[action]['confidences'].append(pred['confidence'])
-            action_stats[action]['count'] += 1
-        
-        best_action = None
-        best_score = 0
-        
-        for action, stats in action_stats.items():
-            avg_confidence = np.mean(stats['confidences'])
-            max_confidence = np.max(stats['confidences'])
-            consistency = stats['count'] / len(valid_predictions)
-            score = avg_confidence * 0.5 + consistency * 0.3 + max_confidence * 0.2
-            
-            print(f"{action}: avg={avg_confidence:.3f}, max={max_confidence:.3f}, consistency={consistency:.3f}, score={score:.3f}", flush=True)
-            
-            if score > best_score:
-                best_score = score
-                best_action = action
-        
-        final_confidence = round(float(np.mean(action_stats[best_action]['confidences'])), 2)
-        print(f"Final result: {best_action} (confidence: {final_confidence})", flush=True)
-        
-        return {
-            'action': best_action, 
-            'confidence': final_confidence,
-            'phrase': best_action
+    parser = argparse.ArgumentParser(description="Run sign language detection on an image or video.")
+    parser.add_argument("--video", type=str, help="Path to the input video file")
+    parser.add_argument("--image", type=str, help="Path to the input image file")
+    parser.add_argument("--min_confidence", type=float, default=MIN_CONFIDENCE_THRESHOLD, 
+                        help=f"Minimum confidence threshold for a prediction to be reported (default: {MIN_CONFIDENCE_THRESHOLD})")
+    
+    args = parser.parse_args()
+    
+    final_action = None
+    final_confidence = 0.0
+    
+    start_time = time.time()
+
+    if args.image:
+        image_path = args.image
+        if os.path.exists(image_path):
+            final_action, final_confidence = process_image_and_predict(image_path, args.min_confidence)
+            result_type = "image"
+        else:
+            final_action = None
+            final_confidence = 0.0
+            error_message = f"Image file not found: {image_path}"
+            result_type = "image_error"
+            print(json.dumps({
+                "success": False,
+                "error": error_message,
+                "sign": None,
+                "confidence": 0.0,
+                "image_path": image_path
+            }))
+            exit() # Exit if image not found
+    elif args.video:
+        video_path = args.video
+        if os.path.exists(video_path):
+            final_action, final_confidence = process_video_and_predict_realtime(video_path, args.min_confidence)
+            result_type = "video"
+        else:
+            final_action = None
+            final_confidence = 0.0
+            error_message = f"Video file not found: {video_path}"
+            result_type = "video_error"
+            print(json.dumps({
+                "success": False,
+                "error": error_message,
+                "phrase": None,
+                "confidence": 0.0,
+                "video_path": video_path
+            }))
+            exit() # Exit if video not found
+    else:
+        # No image or video argument provided
+        print(json.dumps({
+            "success": False,
+            "error": "No input image or video file specified. Use --image or --video.",
+            "sign": None,
+            "phrase": None,
+            "confidence": 0.0
+        }))
+        exit() # Exit if no input
+
+    end_time = time.time()
+    processing_time = end_time - start_time
+    # print(f"Total processing time: {processing_time:.2f} seconds") # For debugging
+
+    # Structure the response as JSON (based on the API expectations)
+    if result_type == "image":
+        result = {
+            "success": True,
+            "error": None,
+            "sign": final_action if final_action else "UNKNOWN",
+            "confidence": round(float(final_confidence), 2),
+            "image_path": args.image,
+            "processing_time_sec": round(processing_time, 2)
+        }
+    elif result_type == "video":
+        result = {
+            "success": True,
+            "error": None,
+            "phrase": final_action if final_action else "UNKNOWN",
+            "confidence": round(float(final_confidence), 2),
+            "video_path": args.video,
+            "processing_time_sec": round(processing_time, 2)
+        }
+    else: # Error case, should have exited earlier but as fallback
+        result = {
+            "success": False,
+            "error": "An unexpected error occurred or input not handled.",
+            "phrase": None,
+            "confidence": 0.0
         }
 
-
-def main():
-    print("Main function started", flush=True)
-    
-    try:
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--video', help='Path to video file')
-        parser.add_argument('--image', help='Path to image file')
-        parser.add_argument('--test', action='store_true', help='Run test mode')
-        parser.add_argument('--min_confidence', type=float, default=0.3, 
-                           help='Minimum confidence threshold (0.0-1.0)')
-        parser.add_argument('--visualize', action='store_true', help='Enable visualization')
-        args = parser.parse_args()
-        
-        print(f"Arguments parsed: video={args.video}, image={args.image}, test={args.test}, visualize={args.visualize}", flush=True)
-        
-        if args.test:
-            print("Test mode activated", flush=True)
-            result = {'status': 'test_success', 'message': 'Python script is working'}
-            print(json.dumps(result))
-            return
-        
-        if not args.video and not args.image:
-            print("Error: Either --video or --image argument is required", flush=True)
-            result = {'action': None, 'confidence': 0.0, 'error': 'No input file specified'}
-            print(json.dumps(result))
-            return
-        
-        print("Creating detector...", flush=True)
-        detector = SignLanguageDetector()
-        detector.visualize = args.visualize
-        
-        if args.image:
-            print("Processing image...", flush=True)
-            result = detector.process_image(args.image)
-        else:
-            print("Processing video...", flush=True)
-            predictions, detection_stats = detector.process_video(args.video)
-            result = detector.analyze_results(predictions, detection_stats, args.min_confidence)
-        
-        print("Processing complete, outputting result...", flush=True)
-        print(json.dumps(result))
-        
-    except Exception as e:
-        print(f"Fatal error in main: {e}", flush=True)
-        print(f"Traceback: {traceback.format_exc()}", flush=True)
-        error_result = {'action': None, 'confidence': 0.0, 'error': str(e)}
-        print(json.dumps(error_result))
-
-
-if __name__ == "__main__":
-    main()
+    # Print JSON (Node.js will capture this as stdout)
+    print(json.dumps(result))

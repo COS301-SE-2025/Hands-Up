@@ -2,9 +2,20 @@
  * @jest-environment jsdom
 */
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { Translator } from '../../../frontend/src/pages/translator';
 import '@testing-library/jest-dom';
+
+Object.defineProperty(window, "speechSynthesis", {
+    writable: true,
+    value: {
+      getVoices: jest.fn(() => [
+        { name: "Microsoft Zira - English (United States)", lang: "en-US" },
+      ]),
+      speak: jest.fn(),
+      cancel: jest.fn(),
+    },
+});
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -24,11 +35,6 @@ beforeEach(() => {
   
   HTMLCanvasElement.prototype.toBlob = function (cb) {
     cb(new Blob(['fake-image'], { type: 'image/jpeg' }));
-  };
-
-  // Mock speech synthesis
-  window.speechSynthesis = {
-    speak: jest.fn(),
   };
 
   // Mock MediaRecorder

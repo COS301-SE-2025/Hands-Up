@@ -26,7 +26,7 @@ Thus, the system focuses on three core functionalities:
 | Demo # | Video Link                                                                 | SRS Link |
 |--------|----------------------------------------------------------------------------|------------------|
 | 1      | [Demo 1 Video](https://drive.google.com/file/d/1mFRqv6zRN1a6LuKWWXX5wu1XCvTVVWZ7/view) | [Demo 1 SRS](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_1) |
-| 2      | [Demo 2 Video] | [Demo 2 SRS](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2) |
+| 2      | [Demo 2 Video](https://drive.google.com/file/d/1JdpGGRkO_d-04IrgbtnfarugVtxaAQ4w/view?usp=drive_link) | [Demo 2 SRS](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2) |
 | 3      | [Demo 3 Video] | [Demo 3 SRS] |
 | 4      | [Demo 4 Video] | [Demo 4 SRS] |
 
@@ -57,9 +57,13 @@ Thus, the system focuses on three core functionalities:
 <!-- 🐛 Issues -->
 ![GitHub issues](https://img.shields.io/github/issues/COS301-SE-2025/Hands-Up)
 
+![Build](https://img.shields.io/github/actions/workflow/status/COS301-SE-2025/Hands-Up/build.yml)
+
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/COS301-SE-2025/Hands-Up)
 
-[![Coverage](https://img.shields.io/codecov/c/github/COS301-SE-2025/Hands-Up?logo=codecov)](https://codecov.io/gh/COS301-SE-2025/Hands-Up)
+![Contributors](https://img.shields.io/github/contributors/COS301-SE-2025/Hands-Up)
+
+![Last Commit](https://img.shields.io/github/last-commit/COS301-SE-2025/Hands-Up)
 
 <h2 align="center">Technologies </h2>
 <div align="Center">
@@ -196,11 +200,11 @@ Thus, the system focuses on three core functionalities:
 
 | Team Member         | Contributions                                                                                         |
 |--------------------|-------------------------------------------------------------------------------------------------------|
-| Karabo Serothoane  | - Set up database on Docker  <br> - Set up GitHub Actions  <br> - Set up testing environment  <br> - Implemented learning progress use case and testing |
-| Thendo Mbedzi      | - Designed and implemented all pages for UI  <br> - Created and applied the app theme  <br> - Created wireframes and mockups for documentation |
-| Tambi Chirima      | - Set up GitHub organisation and management  <br> - Initialised GitHub structure (mono-repo)  <br> - Implemented visual input use case and testing |
-| Driya Govender     | - Set up GitHub Wiki  <br> - Implemented update user details use case and testing |
-| Mutarisi Chibaya   | - Designed the architecture of the system  <br> - Developed and tested backend endpoints for login and sign up |
+| Karabo Serothoane  | - Set up database on Docker  <br> - Set up GitHub Actions  <br> - Set up testing environment  <br> - Implemented learning progress use case and testing <br> - Developed the Alphabet AI model with real-time translation support <br> - Created and animated the lessons on the Learn page <br> - Improved code maintainability and structure |
+| Thendo Mbedzi      | - Designed and implemented all pages for UI  <br> - Created and applied the app theme  <br> - Created wireframes and mockups for documentation <br> - Redesigned the UI with an improved interface <br> - Refined existing hand animation on the Learn page <br> - Implemented the security quality requirements |
+| Tambi Chirima      | - Set up GitHub organisation and management  <br> - Initialised GitHub structure (mono-repo)  <br> - Implemented visual input use case and testing <br> - Created the Help page <br> - Developed integration tests and automation scripts <br> - Implemented Continuous Integration (CI) support |
+| Driya Govender     | - Set up GitHub Wiki  <br> - Implemented update user details use case and testing <br> - Designed and implemented the Landing page <br> - Improved test coverage by adding and updating unit tests |
+| Mutarisi Chibaya   | - Designed the architecture of the system  <br> - Developed and tested backend endpoints for login and sign up <br> - Developed and fine-tuned an LSTM-based neural network for ASL word translation |
 
 </div>
 <h2>All team members contributed towards documentation</h2>

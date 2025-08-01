@@ -10,25 +10,23 @@ import { fileURLToPath } from 'url';
 
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 const app = express();
 app.use(cors({
     origin: ['https://handsup.onrender.com'],
     credentials: true,           
 }));
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ limit: '100mb' }));
+app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(session({
     secret: process.env.SESSION_SECRET || 'a_strong_secret_key_for_sessions', 
     resave: false, 
     saveUninitialized: false, 
     cookie: {
-        secure: true, 
+        secure: false, 
         httpOnly: true, 
         maxAge: 24 * 60 * 60 * 1000, 
         sameSite: 'none', 
@@ -45,7 +43,6 @@ app.use((req, res, next) => {
     next();
 });
 
-// Health check endpoint (add before apiRoutes)
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });

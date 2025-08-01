@@ -3,7 +3,7 @@ import os
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.utils import to_categorical
 
-def load_data(data_path='processed_dataset', actions=None, sequence_length=30, test_size=0.2, random_state=42):
+def load_data(data_path='super_augmented_dataset', actions=None, sequence_length=30, test_size=0.2, random_state=42):
     if actions is None:
         actions = sorted([folder for folder in os.listdir(data_path) if os.path.isdir(os.path.join(data_path, folder))])
     

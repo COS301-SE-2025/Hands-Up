@@ -14,6 +14,7 @@ import { Translator } from "./pages/translator";
 import { Learn } from "./pages/learn";
 import { SignLearn } from "./pages/signLearn";
 import { Home} from "./pages/home";
+import { SignQuiz} from "./pages/SignQuiz";
 import { Layout } from "./pages/layout"; 
 import ErrorBoundary from "./components/errorBoundary";
 import ErrorFallback from "./components/errorFallback";
@@ -39,6 +40,7 @@ function App() {
             } />
             <Route path="/reset-password/:token" element={<Login />} />
             <Route path="/sign/:letter" element = {<SignLearn />} />
+            <Route path="/quiz" element={<SignQuiz />} />
            <Route
               path="/userProfile"
               element={

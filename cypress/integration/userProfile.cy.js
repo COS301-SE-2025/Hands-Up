@@ -1,7 +1,7 @@
 /* global describe, it, cy, before*/
 describe('User Profile Page tests', () => {
     before('visit the demo site', () => {
-    cy.visit('https://localhost:3000/signup');
+    cy.visit('http://localhost:3000/signup');
   });
     it('should update user profile with valid data', () => {
         const uniqueId = Date.now();
@@ -20,7 +20,7 @@ describe('User Profile Page tests', () => {
 
       cy.contains('h1', 'Welcome back').should('be.visible');
 
-      cy.visit('https://localhost:3000/userProfile');
+      cy.visit('http://localhost:3000/userProfile');
       cy.contains('button', 'Edit Profile').should('be.visible');
       cy.contains('button', 'View Terms and Conditions').should('be.visible');
       cy.contains('button', 'Log Out').should('be.visible');

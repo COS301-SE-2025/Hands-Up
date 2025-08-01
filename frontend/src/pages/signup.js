@@ -237,7 +237,7 @@ export function Signup() {
                                     <div className="input-group">
                                         <label htmlFor="password" className="input-label"><Lock className="lock-icon" /> Password</label>
                                         <div className="input-wrapper">
-                                            <input type={showPassword ? "text" : "password"} name="password" id="password" value={formData.password} onChange={handleChange} placeholder="••••••••" className="text-input" />
+                                            <input type={showPassword ? "text" : "password"} name="password" id="password" value={formData.password} onChange={handleChange} placeholder="••••••••" className="text-input" autoComplete="off"/>
                                             <button type="button" onClick={() => setShowPassword(!showPassword)} className="password-toggle-button">
                                                 {showPassword ? <EyeOff className="password-icon" /> : <Eye className="password-icon" />}
                                             </button>
@@ -246,7 +246,7 @@ export function Signup() {
                                     <div className="input-group">
                                         <label htmlFor="confirmPassword" className="input-label"><Lock className="lock-icon" /> Confirm Password</label>
                                         <div className="input-wrapper">
-                                            <input type={showConfirmPassword ? "text" : "password"} name="confirmPassword" id="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="••••••••" className="text-input" />
+                                            <input type={showConfirmPassword ? "text" : "password"} name="confirmPassword" id="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="••••••••" className="text-input" autoComplete="off"/>
                                             <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="password-toggle-button">
                                                 {showConfirmPassword ? <EyeOff className="password-icon" /> : <Eye className="password-icon" />}
                                             </button>

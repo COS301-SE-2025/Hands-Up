@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {useTranslator} from '../hooks/translateResults';
 import {renderMediaPreview} from '../components/mediaPreview';
 import {renderHistoryItem} from '../components/historyItem';
+import {FingerspellingToggle} from '../components/fingerSpellingToggle'
 import '../styles/translator.css';
 
 export function Translator(){
 
-  const [speakDisabled] = useState(true);
   const [audioProgressWidth] = useState(0);
 
   const {
@@ -21,8 +21,40 @@ export function Translator(){
     capturedBlob,
     startRecording,
     handleFileUpload,
-    setResult
+    setResult,
+    fingerspellingMode,
+    setFingerspellingMode
   } = useTranslator();
+
+  const speakDisabled = result === "";
+  const [availableVoices, setAvailableVoices] = useState([]);
+
+  useEffect(() => {
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      setAvailableVoices(voices);
+    };
+
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    loadVoices(); 
+
+    return () => {
+      window.speechSynthesis.onvoiceschanged = null;
+    };
+  }, []);
+
+  const speak = () => {
+    const preferredVoice = availableVoices.find((voice) => voice.name === 'Microsoft Zira - English (United States)');
+
+    const text = result.replace('Detected: ', '').replace('Detected phrase: ', '').replace('API Result: ', '');
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+    }
+
+    window.speechSynthesis.speak(utterance);
+  };
 
   return (
     <div className="recognizer-container">
@@ -73,6 +105,12 @@ export function Translator(){
             </div>
 
             <div className="recognizer-controls">
+              <div>
+                <FingerspellingToggle 
+                  fingerspellingMode={fingerspellingMode} 
+                  setFingerspellingMode={setFingerspellingMode} 
+                />
+            </div>
               <button onClick={() => setResult("")} className="recognizer-control-button recognizer-capture-button">
                 <i></i> Clear Results
               </button>
@@ -81,7 +119,7 @@ export function Translator(){
                 className={`recognizer-control-button ${recording ? 'recognizer-stop-button' : 'recognizer-record-button'}`}
               >
                 <i className={`fas ${recording ? 'fa-stop' : 'fa-video'}`}></i> 
-                {recording ? 'Stop Recording' : 'Record Sequence'}
+                {recording ? 'Stop Signing' : 'Start Signing'}
               </button>
               <label className="recognizer-control-button recognizer-upload-button">
                 <i className="fas fa-upload"></i> Upload Sign
@@ -171,6 +209,7 @@ export function Translator(){
                   aria-label='Volume Up'
                   className="recognizer-speak-button" 
                   disabled={speakDisabled}
+                  onClick={speak} 
                 >
                   <i className="fas fa-volume-up"></i>
                 </button>
@@ -213,7 +252,7 @@ export function Translator(){
                 </li>
                 <li className="recognizer-tip-item">
                   <i className="fas fa-clock recognizer-tip-icon"></i>
-                  <span>Hold the sign steady for 1-2 seconds</span>
+                  <span>Hold the sign steady for 2 seconds</span>
                 </li>
                 <li className="recognizer-tip-item">
                   <i className="fas fa-adjust recognizer-tip-icon"></i>
