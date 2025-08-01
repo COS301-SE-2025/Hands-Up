@@ -11,7 +11,7 @@ mpDrawingStyles = mp.solutions.drawing_styles
 
 hands = mpHands.Hands(static_image_mode=True, min_detection_confidence=0.3)
 
-DATADIR = '../letters_fine_tune'
+DATADIR = '../numbers_fine_tune'
 
 data = []
 labels = []
@@ -54,7 +54,7 @@ for dir in os.listdir(DATADIR):
 
 print(labels)
 
-file = open('../processed_data/fineTuneData.pickle', 'wb')
+file = open('../processed_data/numFineTuneData.pickle', 'wb')
 pickle.dump({'data': data, 'labels': labels}, file)
 file.close()
 

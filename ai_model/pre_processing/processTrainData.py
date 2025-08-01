@@ -21,6 +21,7 @@ for dir in os.listdir(DATADIR):
 
         x_ = []
         y_ = []
+        z_ = []
 
         imgPath = os.path.join(DATADIR, dir, imgName)
         print("Reading:", imgPath)
@@ -48,14 +49,19 @@ for dir in os.listdir(DATADIR):
                 for i in range(len(hand_landmarks.landmark)):
                     x = hand_landmarks.landmark[i].x
                     y = hand_landmarks.landmark[i].y
+                    z = hand_landmarks.landmark[i].z
+
                     x_.append(x)
                     y_.append(y)
+                    z_.append(z)
 
                 for i in range(len(hand_landmarks.landmark)):
                     x = hand_landmarks.landmark[i].x
                     y = hand_landmarks.landmark[i].y
+                    z = hand_landmarks.landmark[i].z
                     dataAux.append(x - min(x_))
                     dataAux.append(y - min(y_))
+                    dataAux.append(z - min(z_))
 
                 data.append(dataAux)
                 labels.append(dir.strip().upper())
