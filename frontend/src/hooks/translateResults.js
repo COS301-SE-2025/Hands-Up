@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { processImage} from '../utils/apiCalls';
 import SignLanguageAPI  from '../utils/apiCalls';
+import { useModelSwitch } from '../contexts/modelContext';
 import { v4 as uuidv4 } from 'uuid';
 
 export function useTranslator() {
     const videoRef = useRef(null);
-    const canvasRef = useRef(null);
+    const canvasRef1 = useRef(null);
+    const canvasRef2 = useRef(null);
     const [result, setResult] = useState("");
     const [confidence, setConfidence] = useState("Awaiting capture to detect confidence level...");
     const [recording, setRecording] = useState(false);
@@ -17,6 +19,7 @@ export function useTranslator() {
     const [landmarkFrames, setLandmarkFrames] = useState([]);
     const [fingerspellingMode, setFingerspellingMode] = useState(false);
     const processingRef = useRef(false);
+    const { modelState, switchModel } = useModelSwitch();
     const sequenceNum = 20
     
     const stopRecording = useCallback(() => {
@@ -49,11 +52,20 @@ export function useTranslator() {
             const response = await processImage(formData);
 
             setResult(prev => {
-                if (response.letter === 'SPACE') return prev + ' ';
-                if (response.letter === 'DEL') return prev.slice(0, -1);
-                return prev + response.letter;
+
+                if(modelState.model === 'alpha') {
+                    if (response.letter === 'SPACE') return prev + ' ';
+                    if (response.letter === 'DEL') return prev.slice(0, -1);
+                    setConfidence((response.confidenceLetter * 100).toFixed(2) + "%");
+                    return prev + response.letter;
+
+                } else if (modelState.model === 'num') {
+                    setConfidence((response.confidenceNumber * 100).toFixed(2) + "%");
+                    return prev + response.number;
+                }
             });
-            setConfidence((response.confidence * 100).toFixed(2) + "%");
+            // setConfidence((response.confidence * 100).toFixed(2) + "%");
+
         } catch (err) {
             console.error("Error during sequence detection:", err);
             setResult("Error translating sign.");
@@ -62,15 +74,15 @@ export function useTranslator() {
             processingRef.current = false;
             setLandmarkFrames([]);
         }
-    }, [setResult, setConfidence]);
-
+    }, [setResult, setConfidence, modelState]);
 
     const captureImageFromVideo = useCallback(() => {
         const video = videoRef.current;
-        const canvas = canvasRef.current;
+        const canvas = canvasRef1.current;
 
         if (video && canvas) {
             const ctx = canvas.getContext('2d');
+
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -107,7 +119,7 @@ export function useTranslator() {
         }
     }, [
         videoRef,
-        canvasRef,
+        canvasRef1,
         fingerspellingMode,
         setCapturedImage,
         setCapturedType,
@@ -116,7 +128,6 @@ export function useTranslator() {
         setLandmarkFrames,
         sendSequenceToBackend,
     ]);
-
 
    useEffect(() => {
         let intervalId;
@@ -130,6 +141,7 @@ export function useTranslator() {
         return () => clearInterval(intervalId);
     }, [autoCaptureEnabled, fingerspellingMode, captureImageFromVideo]);
 
+    
     useEffect(() => {
         const enableCamera = async () => {
             try {
@@ -191,7 +203,8 @@ export function useTranslator() {
 
     return {
         videoRef,
-        canvasRef,
+        canvasRef1,
+        canvasRef2,
         result,
         confidence,
         recording,

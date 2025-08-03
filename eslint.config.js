@@ -9,7 +9,11 @@ export default defineConfig([
   {
     files: ["**/*.{js,mjs,cjs,jsx}"],
     languageOptions: {
-      globals: globals.browser,
+      globals: {
+        ...globals.browser,
+        ...globals.jest,   
+        ...globals.node,
+      },
       ecmaVersion: 2021,
     },
     plugins: { js },

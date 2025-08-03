@@ -1,4 +1,5 @@
-# To test alphabet detection
+# Installations 
+Author: Karabo
 
 ## Istallations in Windows
 1. python3 -m pip install opencv-python
@@ -9,7 +10,12 @@
 6. python3 -m pip install python-dotenv
 7. python3 -m pip install flask-cors
 8. python3 -m pip install collections
-9. pip install pytest
+9. python3 -m pip install datasets
+10. python3 -m pip install transformers
+11. python3 -m  pip install torch torchvision torchaudio
+12. python3 -m  pip install 'accelerate>=0.26.0'
+13. python3 -m pip install peft
+14. python3 -m pip install python-dotenv
+15. python3 -m pip install openai
 
-## To run
-python3 alphabetDetection.py
+

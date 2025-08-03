@@ -7,7 +7,6 @@ from tensorflow.keras.callbacks import EarlyStopping
 
 early_stop = EarlyStopping(patience=2, restore_best_weights=True)
 
-#process first data set
 dataDictTrain = pickle.load(open('../processed_data/trainData.pickle', 'rb'))
 
 cleanedData = []

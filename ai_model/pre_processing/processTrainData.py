@@ -11,7 +11,7 @@ mpDrawingStyles = mp.solutions.drawing_styles
 
 hands = mpHands.Hands(static_image_mode=True, min_detection_confidence=0.3)
 
-DATADIR = '../letters/asl_alphabet_train'
+DATADIR = '../numbers/nums_test'
 
 data = []
 labels = []
@@ -57,7 +57,7 @@ for dir in os.listdir(DATADIR):
             # cv2.waitKey(0)
 print(labels)
 
-file = open('../processed_data/trainData.pickle', 'wb')
+file = open('../processed_data/numTestData.pickle', 'wb')
 pickle.dump({'data': data, 'labels': labels}, file)
 file.close()
 
