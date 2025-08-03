@@ -64,9 +64,25 @@ def detectFromImage(sequenceList):
     label2 = ""
     fallback_frame = cv2.imread(sequenceList[-1])  
 
-    if len(processed_sequence) != sequenceNum:
-        return {'letter': '', 'confidence': 0.0}
-       
+    for i in range(sequenceNum):
+        if processed_sequence[i] is None:
+            
+            prev = next((processed_sequence[j] for j in range(i - 1, -1, -1) if processed_sequence[j] is not None), None)
+            next_ = next((processed_sequence[j] for j in range(i + 1, sequenceNum) if processed_sequence[j] is not None), None)
+
+            if prev is not None and next_ is not None:
+                alpha = (i - [j for j in range(i - 1, -1, -1) if processed_sequence[j] is not None][0]) / \
+                        ([j for j in range(i + 1, sequenceNum) if processed_sequence[j] is not None][0] - 
+                         [j for j in range(i - 1, -1, -1) if processed_sequence[j] is not None][0])
+                interpolated = np.array(prev) * (1 - alpha) + np.array(next_) * alpha
+                processed_sequence[i] = interpolated.tolist()
+            elif prev is not None:
+                processed_sequence[i] = prev.copy()
+            elif next_ is not None:
+                processed_sequence[i] = next_.copy()
+            else:
+                return {'letter': '', 'confidence': 0.0}
+
     inputData2 = np.array(processed_sequence, dtype=np.float32).reshape(1, sequenceNum, 63)
     prediction2 = lettersModel2.predict(inputData2, verbose=0)
     index2 = np.argmax(prediction2, axis=1)[0]
