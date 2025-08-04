@@ -1,7 +1,12 @@
-import React,  { useRef, useState, useEffect } from 'react';
+import React,  { useRef, useState, useEffect, Suspense } from 'react';
+import { Link } from 'react-router-dom';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, useGLTF, useTexture, useAnimations } from '@react-three/drei';
-import * as THREE from 'three';
+import { useGLTF,  Loader } from '@react-three/drei';
+import { BiSolidChevronLeft, BiSolidChevronRight } from "react-icons/bi";
+import { ImArrowLeft, ImArrowRight } from "react-icons/im";
+import Road from '../components/game/road';
+import Runner from '../components/game/runner';
+import Cars from '../components/game/cars';
 
 const carModels = [
   'suzuki swift.glb',
@@ -12,7 +17,7 @@ const carModels = [
   'taxi.glb',
 ];
 
-const xlanes = [-6, -3, 2, 4]; 
+const xlanes = [-6, -3, 3, -6]; 
 
 function getRandomCarsForLanes() {
   return xlanes.map((laneX) => ({
@@ -23,59 +28,6 @@ function getRandomCarsForLanes() {
   }));
 }
 
-// function getRandomCars(count = 6) {
-//   const cars = [];
-
-//   for (let i = 0; i < count; i++) {
-//     cars.push({
-//       x: xlanes[Math.floor(Math.random() * xlanes.length)],
-//       z: -Math.random() * 100,
-//       model: carModels[Math.floor(Math.random() * carModels.length)],
-//       speed: 0.1 + Math.random() * 0.2,
-//     });
-//   }
-
-//   return cars;
-// }
-
-function RunnerCharacter({ filename }) {
-  const path = `/models/${filename}`;
-  const group = useRef();
-  const { scene, animations } = useGLTF(path);
-  const { actions } = useAnimations(animations, group);
-  const [xPos, setXPos] = useState(0); // lane: -3, 0, 3
-
-  console.log("Animations array:", animations);
-
-  useEffect(() => {
-    if (actions && actions["Armature|mixamo.com|Layer0"]) {
-      actions["Armature|mixamo.com|Layer0"].reset().fadeIn(0.5).play();
-    }
-  }, [actions]);
-
-  // keyboard controls 
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'ArrowLeft' || e.key === 'a') {
-        setXPos((prev) => Math.max(-6, prev - 3)); // left 
-      } 
-      else if (e.key === 'ArrowRight' || e.key === 'd') {
-        setXPos((prev) => Math.min(6, prev + 3)); // right 
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  // useFrame(() => {
-  //   if (group.current) 
-  //       group.current.position.set(xPos, 0, 50); 
-  // });
-
-  return <primitive ref={group} object={scene} position={[xPos, 0, 50]} rotation={[0, Math.PI, 0]} scale={[1.5, 1.5, 1.5]}/>;
-}
-
 function Model({ filename }) {
   const path = `/models/game models/${filename}`;
   const { scene } = useGLTF(path);
@@ -84,7 +36,8 @@ function Model({ filename }) {
 
 function MovingCar({ position, filename, speed = 0.2 }) {
     const ref = useRef();
-    // const [initialZ] = useState(position[2]); 
+
+    // const car = getCar(); 
 
     useEffect(() => {
         if (ref.current) {
@@ -108,63 +61,117 @@ function MovingCar({ position, filename, speed = 0.2 }) {
     );
 }
 
-function Road() {
-  const texture = useTexture('/models/game models/textures/road.png');
-  const materialRef = useRef();
-
-  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(1, 4); 
-
-  useFrame((state, delta) => {
-    if (materialRef.current) {
-      materialRef.current.map.offset.y += delta * 0.3; 
-    }
-  });
-
-  return (
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]}>
-      <planeGeometry args={[20, 200]} />
-      <meshStandardMaterial ref={materialRef} map={texture} />
-    </mesh>
-  );
-}
-
 export function Game() {
     const [cars, setCars] = useState([]);
+    const [gameStarted, setGameStarted] = useState(false);
 
     useEffect(() => {
         setCars(getRandomCarsForLanes());
     }, []);
 
-    // useEffect(() => {
-    //   setCars(getRandomCars(4)); // or however many cars you want
-    // }, []);
-
     return (
-        <div>
+      <div style={{ position: 'relative', height: '100vh' }}>   
 
-        <div style={{ height: '100vh', background: 'deepskyblue' }}>
-            <Canvas camera={{ position: [0, 3, 58], fov: 55 }}>
-            <ambientLight intensity={1.5} />
-            <directionalLight position={[0, 10, 5]} intensity={1} />
+        <div style={{ height: '100%', filter: gameStarted ? 'none' : 'blur(5px)', transition: 'filter 0.5s', background: 'deepskyblue' }}>             
+          <Canvas camera={{ position: [0, 3, 58], fov: 55 }}>
+            <Suspense fallback={null}>
+              <ambientLight intensity={1.5} />
+              <directionalLight position={[0, 10, 5]} intensity={1} />
 
-            <Road />
+              <Road />
 
-            {/* Spawn random cars */}
-            {cars.map((car, index) => (
-                <MovingCar
-                key={index}
-                position={[car.x, 0, car.z]}
-                filename={car.model}
-                speed={car.speed}
-                />
-            ))}
+              {/* Spawn random cars */}
+              {cars.map((car, index) => (
+                  <MovingCar
+                  key={index}
+                  position={[car.x, 0, car.z]}
+                  filename={car.model}
+                  speed={car.speed}
+                  />
+              ))}
 
-            <RunnerCharacter filename="philRun.glb" />
-
-            <OrbitControls />
-            </Canvas>
+              {gameStarted && <Runner filename="philRun.glb" />}
+            </Suspense>
+          </Canvas>
         </div>
-        </div>
+        <Loader />
+
+        {!gameStarted && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '23%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 10,
+              textAlign: 'center',
+              width: '35%', 
+              backgroundColor: '#4e7a51',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '2px'
+            }}
+          >
+              <div
+                style={{
+                  backgroundColor: '#4e7a51',
+                  borderRadius: '12px',
+                  border: '4px solid white',
+                  padding: '12px 16px',
+                  display: 'flex',
+                  flexDirection: 'row', 
+                  alignItems: 'center',
+                  justifyContent: 'flex-start',
+                  gap: '5%',
+                }}
+              >
+                <Link to="/home" style={{ textDecoration: 'none', cursor: 'pointer', marginTop: '3%' }}><span style={{ color: 'white', fontSize: '45px', fontWeight: 'bold', marginTop: '3%' }}><ImArrowLeft /></span></Link>
+                <span style={{ color: '#ffcc00', fontSize: '45px', fontWeight: 'bold' }}>G12</span>
+                <span style={{ color: 'white', fontSize: '45px', fontWeight: 'bold' }}>Sign Surfers</span>
+              </div>
+
+              <button
+                onClick={() => setGameStarted(true)}
+                style={{
+                  backgroundColor: '#4e7a51',
+                  borderRadius: '12px',
+                  border: '4px solid white',
+                  padding: '12px 16px',
+                  fontSize: '35px',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
+                  gap: '25px',
+                }}
+              >
+                START <span style={{ fontSize: '35px', marginTop: '1%' }}><ImArrowRight /></span>
+              </button>
+
+              <div
+                style={{
+                  backgroundColor: 'whitesmoke',
+                  borderRadius: '12px',
+                  border: '4px solid white',
+                  // padding: '0',
+                  color: 'red',
+                  fontSize: '40px',
+                  fontWeight: 'bold',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  // gap: '12px',
+                }}
+              >
+                <span><BiSolidChevronLeft /><BiSolidChevronLeft /><BiSolidChevronLeft /></span>
+                <span style={{ margin: '0 120px' }} />
+                <span><BiSolidChevronRight /><BiSolidChevronRight /><BiSolidChevronRight /></span>
+              </div>
+          </div>
+        )}
+
+      </div>
     );
 }
