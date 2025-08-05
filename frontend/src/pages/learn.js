@@ -1,15 +1,31 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/learnSidebar';
 import { CategoryTile } from '../components/learnCategoryTile';
 import { LevelTile } from '../components/learnLevelTile';
 import '../styles/learn.css';
 import { useLearningStats } from '../contexts/learningStatsContext';
 import ModelViewer from '../components/mascotModelViewer'
+import { AngieSigns } from '../components/angieSigns';
+import { PhilSigns } from '../components/philSigns';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
 
+async function getLandmarks(letter) {
+    try {
+        const response = await fetch(`/landmarks/${letter}.json`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error(`Error loading landmarks for ${letter}:`, error);
+        return [];
+    }
+}
 
 const HelpMessage = ({ message, onClose, position }) => {
-     if (!message) return null;
+    const [landmarks, setLandmarks] = useState({});
+    
+    if (!message) return null;
 
     let positionClasses = '';
     switch (position) {
@@ -31,11 +47,15 @@ const HelpMessage = ({ message, onClose, position }) => {
 
     return (
        <div className="help-message-backdrop fixed inset-0 bg-black bg-opacity-50 z-[9998] animate-fadeIn">
-
             <div className={`help-message-overlay fixed z-[9999] p-6 rounded-2xl shadow-2xl flex flex-col items-center justify-center bg-gradient-to-br from-white to-gray-50 border border-gray-200 ${positionClasses} animate-fadeInScale`}>
-
                 <div className="w-full max-w-[200px] h-[200px] rounded-xl bg-white shadow-md mb-4 flex items-center justify-center">
-                    <ModelViewer modelPath={'/models/angieWaving.glb'} />
+                    <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
+                        <ambientLight intensity={5} />
+                        <group position={[0, -1.1, 0]}>
+                            {/* <PhilSigns landmarks={landmarks}/> */}
+                            <AngieSigns landmarks={landmarks} />
+                        </group>
+                   </Canvas>
                 </div>
 
                 <p className="text-gray-800 text-lg text-center font-medium mb-6 leading-relaxed">
@@ -97,10 +117,12 @@ const SEASONS_WEATHER = ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 
 
 export function Learn() {
     const { stats } = useLearningStats();
+    const [landmarks, setLandmarks] = useState({});
     const [selectedSection, setSelectedSection] = useState('dashboard');
     const [currentCategory, setCurrentCategory] = useState(null);
     const [unlockedLevels] = useState(27); 
     const navigate = useNavigate();
+    const location = useLocation();
     const [showHelpMessage, setShowHelpMessage] = useState(false);
     const [helpMessageContent, setHelpMessageContent] = useState('');
     const [helpMessagePosition, setHelpMessagePosition] = useState('top-right');
@@ -161,6 +183,15 @@ export function Learn() {
     const lessonProgress = (calcLessonsCompleted + calcSignsLearned) / (TOTAL_LESSONS + TOTAL_SIGNS_AVAILABLE) * 100;
     const progressPercent = Math.min(100, Math.round(lessonProgress));
 
+    useEffect(() => {
+        if (location.state?.selectedCategory) {
+            const category = categories.find(cat => cat.id === location.state.selectedCategory);
+            if (category) {
+                setCurrentCategory(category);
+                setSelectedSection('category');
+            }
+        }
+    }, [location.state]);
    
     const goBack = () => {
         setCurrentCategory(null);
@@ -173,6 +204,11 @@ export function Learn() {
         }
     };
 
+    const navigateToSign = (sign, categoryId) => {
+        navigate(`/sign/${sign}?category=${categoryId}`, {
+            state: { category: categoryId }
+        });
+    };
     
     const getQuizRoute = (categoryId) => {
         switch (categoryId) {
@@ -289,7 +325,7 @@ export function Learn() {
 
                 {currentCategory && (
                     <div className="category-levels">
-                        <h2>{currentCategory.name} Levels</h2>
+                        <h2>{currentCategory.name} </h2>
                         <div className="stepping-poles">
 
                             {currentCategory.id === 'alphabets' ? (
@@ -299,7 +335,7 @@ export function Learn() {
                                             key={i}
                                             level={String.fromCharCode(65 + i)}
                                             unlocked={i < unlockedLevels}
-                                            onClick={() => navigate(`/sign/${String.fromCharCode(65 + i)}`)}
+                                            onClick={() => navigateToSign(String.fromCharCode(65 + i), 'alphabets')}
                                         />
                                     ))}
                                     <LevelTile
@@ -331,7 +367,7 @@ export function Learn() {
                                             key={i + 1}
                                             level={(i + 1).toString()}
                                             unlocked={true} 
-                                            onClick={() => navigate(`/sign/${i + 1}`)} 
+                                            onClick={() => navigateToSign((i + 1).toString(), 'numbers')}
                                         />
                                     ))}
 
@@ -363,7 +399,7 @@ export function Learn() {
                                                 backgroundImage: 'none',
                                                 color: ['Black', 'Navy', 'Purple', 'Brown', 'Grey'].includes(color) ? '#fff' : '#333'
                                             }}
-                                            onClick={() => navigate(`/sign/${color.toLowerCase()}`)} 
+                                            onClick={() => navigateToSign(color.toLowerCase(), 'colours')}
                                         />
                                     ))}
                                     <LevelTile
@@ -389,7 +425,7 @@ export function Learn() {
                                             key={word}
                                             level={word.charAt(0).toUpperCase() + word.slice(1)} 
                                             unlocked={true} 
-                                            onClick={() => navigate(`/sign/${word.toLowerCase()}`)}
+                                            onClick={() => navigateToSign(word.toLowerCase(), 'introduce')}
                                         />
                                     ))}
                                     <LevelTile
@@ -423,7 +459,7 @@ export function Learn() {
                                             key={word}
                                             level={word.charAt(0).toUpperCase() + word.slice(1)} 
                                             unlocked={true} 
-                                            onClick={() => navigate(`/sign/${word.toLowerCase()}`)}
+                                            onClick={() => navigateToSign(word.toLowerCase(), 'family')}
                                         />
                                     ))}
                                     <LevelTile
@@ -458,7 +494,7 @@ export function Learn() {
                                             key={word}
                                             level={word.charAt(0).toUpperCase() + word.slice(1)} 
                                             unlocked={true} 
-                                            onClick={() => navigate(`/sign/${word.toLowerCase()}`)}
+                                            onClick={() => navigateToSign(word.toLowerCase(), 'feelings')}
                                         />
                                     ))}
                                     <LevelTile
@@ -493,7 +529,7 @@ export function Learn() {
                                             key={word}
                                             level={word.charAt(0).toUpperCase() + word.slice(1)} 
                                             unlocked={true} 
-                                            onClick={() => navigate(`/sign/${word.toLowerCase()}`)}
+                                            onClick={() => navigateToSign(word.toLowerCase(), 'actions')}
                                         />
                                     ))}
                                     <LevelTile
@@ -528,7 +564,7 @@ export function Learn() {
                                             key={word}
                                             level={word.charAt(0).toUpperCase() + word.slice(1)} 
                                             unlocked={true} 
-                                            onClick={() => navigate(`/sign/${word.toLowerCase()}`)}
+                                            onClick={() => navigateToSign(word.toLowerCase(), 'questions')}
                                         />
                                     ))}
                                     <LevelTile
@@ -563,7 +599,7 @@ export function Learn() {
                                             key={word}
                                             level={word.charAt(0).toUpperCase() + word.slice(1)} 
                                             unlocked={true} 
-                                            onClick={() => navigate(`/sign/${word.toLowerCase()}`)}
+                                            onClick={() => navigateToSign(word.toLowerCase(), 'time')}
                                         />
                                     ))}
                                     <LevelTile
@@ -598,7 +634,7 @@ export function Learn() {
                                             key={word}
                                             level={word.charAt(0).toUpperCase() + word.slice(1)} 
                                             unlocked={true} 
-                                            onClick={() => navigate(`/sign/${word.toLowerCase()}`)}
+                                            onClick={() => navigateToSign(word.toLowerCase(), 'food')}
                                         />
                                     ))}
                                     <LevelTile
@@ -633,7 +669,7 @@ export function Learn() {
                                             key={word}
                                             level={word.charAt(0).toUpperCase() + word.slice(1)} 
                                             unlocked={true} 
-                                            onClick={() => navigate(`/sign/${word.toLowerCase()}`)}
+                                            onClick={() => navigateToSign(word.toLowerCase(), 'things')}
                                         />
                                     ))}
                                     <LevelTile
@@ -668,11 +704,11 @@ export function Learn() {
                                             key={word}
                                             level={word.charAt(0).toUpperCase() + word.slice(1)} 
                                             unlocked={true} 
-                                            onClick={() => navigate(`/sign/${word.toLowerCase()}`)}
+                                            onClick={() => navigateToSign(word.toLowerCase(), 'animals')}
                                         />
                                     ))}
                                     <LevelTile
-                                        key={'actions-quiz'}
+                                        key={'animals-quiz'}
                                         level={'Quiz'}
                                         unlocked={
                                             ANIMALS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))
@@ -702,7 +738,7 @@ export function Learn() {
                                             key={word}
                                             level={word.charAt(0).toUpperCase() + word.slice(1)} 
                                             unlocked={true} 
-                                            onClick={() => navigate(`/sign/${word.toLowerCase()}`)}
+                                            onClick={() => navigateToSign(word.toLowerCase(), 'seasons')}
                                         />
                                     ))}
                                     <LevelTile
@@ -757,11 +793,9 @@ export function Learn() {
                             )}
                         </div>
 
-
                         <button onClick={goBack} className="back-button">← Back</button>
                     </div>
                 )}
-
 
                 {showHelpMessage && (
                     <HelpMessage
