@@ -102,7 +102,7 @@ export function UserProfile() {
                 newPassword: '',
                 confirmPassword: ''
             });
-            setAvatarUrl(`${BACKEND_BASE_URL}/${currentUser.avatarurl.replace(/^\/+/, '')}`);
+            setAvatarUrl(`${BACKEND_BASE_URL}/${currentUser.avatarurl?.replace(/^\/+/, '') ?? ''}`);
 
             setLoading(false);
         } else {

@@ -58,22 +58,13 @@ const HelpMessage = ({ message, onClose, position }) => {
                    </Canvas>
                 </div>
 
-                <p className="text-gray-800 text-lg text-center font-medium mb-6 leading-relaxed">
+                <p className="text-gray-800 text-lg text-center font-medium mb-6 leading-relaxed max-w-md">
                     {message}
                 </p>
 
                 <button
                     onClick={onClose}
-                    className="
-                        bg-gradient-to-r from-blue-500 to-blue-700 
-                        hover:from-blue-600 hover:to-blue-800 
-                        text-white font-bold py-3 px-8 rounded-full 
-                        transition duration-300 ease-in-out 
-                        transform hover:scale-105 active:scale-95 
-                        focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-opacity-75
-                        shadow-lg hover:shadow-xl
-                        text-lg tracking-wide
-                    "
+                    className="btn-secondary"
                 >
                     Okay!
                 </button>
@@ -113,7 +104,23 @@ const ANIMALS = ['dog', 'cat', 'bird', 'fish', 'horse', 'cow', 'animal'];
 const SEASONS_WEATHER = ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 'cloudy', 'snow',
     'wind', 'sunrise', 'hot', 'cold', 'warm', 'cool','weather', 'freeze'];
 
-
+// Help message content for each category
+const CATEGORY_HELP_MESSAGES = {
+    dashboard: "Welcome to the Learn page! Here you can explore different categories of sign language. Click on any unlocked category to start your learning journey.",
+    alphabets: "Welcome to the Alphabet category! Here you'll learn the basic letter signs. You need to learn at least 5 letters before you can attempt the quiz. Click on any letter to start practicing!",
+    numbers: "Welcome to Numbers & Counting! Practice signing numbers 1-20. All levels are unlocked - click on any number to learn its sign. Take the quiz when you're ready!",
+    colours: "Welcome to Colours! Learn how to sign different colors. Each tile shows the color you'll be learning. All colors are available - click on any color tile to start!",
+    introduce: "Welcome to Introduce Yourself! Learn essential words for introducing yourself and greeting others. You must learn ALL words in this category to unlock the quiz!",
+    family: "Welcome to Family Members! Learn signs for different family relationships. Master all family member signs to unlock the quiz and progress further!",
+    feelings: "Welcome to Emotions & Feelings! Express your emotions through sign language. Learn all emotion signs to unlock the quiz and continue your journey!",
+    actions: "Welcome to Common Actions! Learn signs for everyday activities and actions. Complete all action signs to unlock the quiz!",
+    questions: "Welcome to Asking Questions! Learn how to ask important questions in sign language. Master all question words to unlock the quiz!",
+    time: "Welcome to Time & Days! Learn signs related to time, days of the week, and time periods. Complete all time-related signs to unlock the quiz!",
+    food: "Welcome to Food & Drinks! Learn signs for various foods and beverages. Master all food signs to unlock the quiz!",
+    things: "Welcome to Objects & Things! Learn signs for common objects around you. Complete all object signs to unlock the quiz!",
+    animals: "Welcome to Animals! Learn signs for different animals. Master all animal signs to unlock the quiz!",
+    seasons: "Welcome to Weather & Seasons! Learn signs for weather conditions and seasons. Complete all weather signs to unlock the quiz!"
+};
 
 export function Learn() {
     const { stats } = useLearningStats();
@@ -127,12 +134,10 @@ export function Learn() {
     const [helpMessageContent, setHelpMessageContent] = useState('');
     const [helpMessagePosition, setHelpMessagePosition] = useState('top-right');
 
-    const [hasSeenInitialDashboardHelp, setHasSeenInitialDashboardHelp] = useState(
-        localStorage.getItem('hasSeenInitialDashboardHelp') === 'true'
-    );
-    const [hasSeenCategoryQuizHelp, setHasSeenCategoryQuizHelp] = useState(
-        JSON.parse(localStorage.getItem('hasSeenCategoryQuizHelp') || '{}')
-    );
+    const [hasSeenHelp, setHasSeenHelp] = useState(() => {
+        const saved = localStorage.getItem('learnPageHelpSeen');
+        return saved ? JSON.parse(saved) : {};
+    });
 
     console.log(stats);
     const lessonsCompleted = stats?.lessonsCompleted || 0;
@@ -173,7 +178,6 @@ export function Learn() {
     const TOTAL_ANIMALS = ANIMALS.length;
     const TOTAL_SEASONS_WEATHER = SEASONS_WEATHER.length;
 
-
     const TOTAL_SIGNS_AVAILABLE = TOTAL_ALPHABET_SIGNS + TOTAL_NUMBER_SIGNS + TOTAL_COLOUR_SIGNS + TOTAL_INTRODUCTION_WORDS + TOTAL_FAMILY_MEMBERS + TOTAL_EMOTIONS_FEELINGS +
         TOTAL_COMMON_ACTIONS + TOTAL_ASKING_QUESTIONS + TOTAL_TIME_DAYS + TOTAL_FOOD_DRINKS + TOTAL_OBJECTS_THINGS + TOTAL_ANIMALS + TOTAL_SEASONS_WEATHER;
 
@@ -182,6 +186,12 @@ export function Learn() {
     const calcSignsLearned = Math.min(signsLearned, TOTAL_SIGNS_AVAILABLE); 
     const lessonProgress = (calcLessonsCompleted + calcSignsLearned) / (TOTAL_LESSONS + TOTAL_SIGNS_AVAILABLE) * 100;
     const progressPercent = Math.min(100, Math.round(lessonProgress));
+
+    const saveHelpSeen = (helpKey) => {
+        const updated = { ...hasSeenHelp, [helpKey]: true };
+        setHasSeenHelp(updated);
+        localStorage.setItem('learnPageHelpSeen', JSON.stringify(updated));
+    };
 
     useEffect(() => {
         if (location.state?.selectedCategory) {
@@ -196,11 +206,11 @@ export function Learn() {
     const goBack = () => {
         setCurrentCategory(null);
         setSelectedSection('dashboard');
-        if (!hasSeenInitialDashboardHelp) {
-            showHelp(
-                "Welcome to the Learn page! Here you can explore different categories of sign language. Click on an unlocked category to start your learning journey.",
-                'top-right'
-            );
+        
+        if (!hasSeenHelp.dashboard) {
+            setTimeout(() => {
+                showHelp(CATEGORY_HELP_MESSAGES.dashboard, 'center', 'dashboard');
+            }, 300);
         }
     };
 
@@ -243,49 +253,47 @@ export function Learn() {
         }
     };
 
-
-    const showHelp = (message, position) => {
+    const showHelp = (message, position, helpKey) => {
         setHelpMessageContent(message);
         setHelpMessagePosition(position);
         setShowHelpMessage(true);
+        
+        setShowHelpMessage({ message, position, helpKey });
     };
 
- 
-    const handleCloseHelp = (messageType) => {
-        setShowHelpMessage(false);
-        if (messageType === 'dashboard') {
-            setHasSeenInitialDashboardHelp(true);
-            localStorage.setItem('hasSeenInitialDashboardHelp', 'true');
-        } else if (messageType === 'categoryQuiz' && currentCategory) {
-            const updatedSeen = { ...hasSeenCategoryQuizHelp, [currentCategory.id]: true };
-            setHasSeenCategoryQuizHelp(updatedSeen);
-            localStorage.setItem('hasSeenCategoryQuizHelp', JSON.stringify(updatedSeen));
+    const handleCloseHelp = () => {
+        if (showHelpMessage.helpKey) {
+            saveHelpSeen(showHelpMessage.helpKey);
         }
+        setShowHelpMessage(false);
     };
 
-    useEffect(() => {
-        if (!hasSeenInitialDashboardHelp && selectedSection === 'dashboard' && !currentCategory) {
+    const handleCategoryClick = (category) => {
+        if (category.unlocked) {
+            setCurrentCategory(category);
+            setShowHelpMessage(false);
+            
+            if (!hasSeenHelp[category.id]) {
+                setTimeout(() => {
+                    showHelp(CATEGORY_HELP_MESSAGES[category.id], 'center', category.id);
+                }, 300);
+            }
+        } else {
             showHelp(
-                "Welcome to the Learn page! Here you can explore different categories of sign language. Click on an unlocked category to start your learning journey.",
-                'top-right'
+                `The '${category.name}' category is currently locked. Complete the quiz in the previous category to unlock new ones!`,
+                'center',
+                `locked_${category.id}`
             );
         }
-    }, [selectedSection, currentCategory, hasSeenInitialDashboardHelp]);
+    };
 
-    useEffect(() => {
-       if (currentCategory && !hasSeenCategoryQuizHelp[currentCategory.id]) {
-            let message = "";
-            if (currentCategory.id === 'alphabets') {
-                message = `In the ${currentCategory.name} category, you need to learn at least 5 signs before you can attempt the quiz. Complete the lessons to unlock it!`;
-            } else if (currentCategory.id === 'introduce') {
-                message = `To unlock the quiz for ${currentCategory.name}, you must learn all words in this category. Once the quiz is completed, new categories might unlock!`;
-            }
-            else {
-                message = `To unlock the quiz for ${currentCategory.name}, you must complete all lessons in this category. Once the quiz is completed, new categories might unlock!`;
-            }
-            showHelp(message, 'bottom-right');
+   useEffect(() => {
+        if (!hasSeenHelp.dashboard && selectedSection === 'dashboard' && !currentCategory) {
+            setTimeout(() => {
+                showHelp(CATEGORY_HELP_MESSAGES.dashboard, 'center', 'dashboard');
+            }, 500);
         }
-    }, [currentCategory, hasSeenCategoryQuizHelp]);
+    }, [selectedSection, currentCategory, hasSeenHelp.dashboard]);
 
     return (
         <div className="duo-app">
@@ -306,17 +314,7 @@ export function Learn() {
                                     key={cat.id}
                                     name={cat.name}
                                     unlocked={cat.unlocked}
-                                    onClick={() => {
-                                        if (cat.unlocked) {
-                                            setCurrentCategory(cat);
-                                            setShowHelpMessage(false);
-                                        } else {
-                                            showHelp(
-                                                `The '${cat.name}' category is currently locked. Complete the quiz in the previous category to unlock new ones!`,
-                                                'center'
-                                            );
-                                        }
-                                    }}
+                                    onClick={() => handleCategoryClick(cat)}
                                 />
                             ))}
                         </div>
@@ -348,7 +346,8 @@ export function Learn() {
                                             } else {
                                                 showHelp(
                                                     `You need to learn at least 5 signs in the Alphabet category to unlock this quiz. Keep practicing!`,
-                                                    'center'
+                                                    'center',
+                                                    'alphabet_quiz_locked'
                                                 );
                                             }
                                         }}
@@ -440,7 +439,8 @@ export function Learn() {
                                             } else {
                                                 showHelp(
                                                     `You need to learn all words in the 'Introduce Yourself' category to unlock this quiz. Keep practicing!`,
-                                                    'center'
+                                                    'center',
+                                                    'introduce_quiz_locked'
                                                 );
                                             }
                                         }}
@@ -474,7 +474,8 @@ export function Learn() {
                                             } else {
                                                 showHelp(
                                                     `You need to learn all words in the 'Family Member' category to unlock this quiz. Keep practicing!`,
-                                                    'center'
+                                                    'center',
+                                                    'family_quiz_locked'
                                                 );
                                             }
                                         }}
@@ -509,7 +510,8 @@ export function Learn() {
                                             } else {
                                                 showHelp(
                                                     `You need to learn all words in the 'Emotions and Feelings' category to unlock this quiz. Keep practicing!`,
-                                                    'center'
+                                                    'center',
+                                                    'feelings_quiz_locked'
                                                 );
                                             }
                                         }}
@@ -544,7 +546,8 @@ export function Learn() {
                                             } else {
                                                 showHelp(
                                                     `You need to learn all words in the 'Common Actions' category to unlock this quiz. Keep practicing!`,
-                                                    'center'
+                                                    'center',
+                                                    'actions_quiz_locked'
                                                 );
                                             }
                                         }}
@@ -579,7 +582,8 @@ export function Learn() {
                                             } else {
                                                 showHelp(
                                                     `You need to learn all words in the 'Asking Questions' category to unlock this quiz. Keep practicing!`,
-                                                    'center'
+                                                    'center',
+                                                    'questions_quiz_locked'
                                                 );
                                             }
                                         }}
@@ -614,7 +618,8 @@ export function Learn() {
                                             } else {
                                                 showHelp(
                                                     `You need to learn all words in the 'Time and Days' category to unlock this quiz. Keep practicing!`,
-                                                    'center'
+                                                    'center',
+                                                    'time_quiz_locked'
                                                 );
                                             }
                                         }}
@@ -649,7 +654,8 @@ export function Learn() {
                                             } else {
                                                 showHelp(
                                                     `You need to learn all words in the 'Food and Drinks' category to unlock this quiz. Keep practicing!`,
-                                                    'center'
+                                                    'center',
+                                                    'food_quiz_locked'
                                                 );
                                             }
                                         }}
@@ -684,7 +690,8 @@ export function Learn() {
                                             } else {
                                                 showHelp(
                                                     `You need to learn all words in the 'Object and Things' category to unlock this quiz. Keep practicing!`,
-                                                    'center'
+                                                    'center',
+                                                    'things_quiz_locked'
                                                 );
                                             }
                                         }}
@@ -719,7 +726,8 @@ export function Learn() {
                                             } else {
                                                 showHelp(
                                                     `You need to learn all words in the 'Animals' category to unlock this quiz. Keep practicing!`,
-                                                    'center'
+                                                    'center',
+                                                    'animals_quiz_locked'
                                                 );
                                             }
                                         }}
@@ -753,7 +761,8 @@ export function Learn() {
                                             } else {
                                                 showHelp(
                                                     `You need to learn all words in the 'Seasons and Weather' category to unlock this quiz. Keep practicing!`,
-                                                    'center'
+                                                    'center',
+                                                    'seasons_quiz_locked'
                                                 );
                                             }
                                         }}
@@ -799,18 +808,9 @@ export function Learn() {
 
                 {showHelpMessage && (
                     <HelpMessage
-                        message={helpMessageContent}
-                        position={helpMessagePosition}
-                        onClose={() => {
-                            if (helpMessageContent.includes("Welcome to the Learn page!")) {
-                                handleCloseHelp('dashboard');
-                            } else if (helpMessageContent.includes("To unlock the quiz for") || helpMessageContent.includes("You need to learn at least 5 signs")) {
-                                handleCloseHelp('categoryQuiz');
-                            } else {
-                                setShowHelpMessage(false);
-                            }
-                        }}
-
+                        message={showHelpMessage.message || helpMessageContent}
+                        position={showHelpMessage.position || helpMessagePosition}
+                        onClose={handleCloseHelp}
                     />
                 )}
             </div>
