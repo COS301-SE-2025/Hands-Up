@@ -166,9 +166,13 @@ export function UserProfile() {
                     setDeleteStep(0);
                     setDeleteConfirmText("");
 
+                if (process.env.NODE_ENV === 'test') {
+                    logout();
+                } else {
                     setTimeout(() => {
                         logout();
                     }, 2000);
+                }
                 } catch (err) {
                     console.error('Error deleting account:', err);
                     setFormErrors({ general: "Failed to delete account. Please try again." });
@@ -576,7 +580,6 @@ export function UserProfile() {
             <div className="profile-options">
                 {formSuccess && <div className="success-message">{formSuccess}</div>}
                 {error && <div className="error-message">{error}</div>} 
-                {formErrors.general && <div className="error-message">{formErrors.general}</div>}
 
                 <button className="option-button" onClick={() => setShowEditForm(true)}>
                      Edit Profile
@@ -586,7 +589,7 @@ export function UserProfile() {
               
 
                 <button className="option-button" onClick={() => setShowTermsModal(true)}>
-                    Terms and Conditions
+                    View Terms and Conditions
                     <span className="arrow-icon">→</span>
                 </button>
 

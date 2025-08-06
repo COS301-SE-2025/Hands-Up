@@ -320,7 +320,7 @@ export function Learn() {
 
                 {currentCategory && (
                     <div className="category-levels">
-                        <h2>{currentCategory.name} </h2>
+                        <h2>{currentCategory.name} Levels </h2>
                         <div className="stepping-poles">
 
                             {currentCategory.id === 'alphabets' ? (
