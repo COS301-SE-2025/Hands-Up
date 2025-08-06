@@ -119,7 +119,7 @@ if __name__ == "__main__":
         while time.time() - record_start_time < DEFAULT_RECORDING_DURATION_SECONDS:
             ret, frame = cap.read()
             if not ret: break
-            frame = cv2.flip(frame, 1)
+            # frame = cv2.flip(frame, 1)
             
             image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             image.flags.writeable = False
