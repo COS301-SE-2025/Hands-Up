@@ -6,7 +6,8 @@ import { BiSolidChevronLeft, BiSolidChevronRight } from "react-icons/bi";
 import { ImArrowLeft, ImArrowRight } from "react-icons/im";
 import Road from '../components/game/road';
 import Runner from '../components/game/runner';
-import Cars from '../components/game/cars';
+import Distance from '../components/game/distance';
+// import Cars from '../components/game/cars';
 
 const carModels = [
   'suzuki swift.glb',
@@ -34,45 +35,68 @@ function Model({ filename }) {
   return <primitive object={scene} />;
 }
 
-function MovingCar({ position, filename, speed = 0.2 }) {
+function MovingCar({ position, filename, speed = 0.2, distance }) {
     const ref = useRef();
 
     // const car = getCar(); 
 
     useEffect(() => {
-        if (ref.current) {
+      if (ref.current) {
         ref.current.position.set(...position);
-        }
+      }
     }, [position]);
 
     useFrame(() => {
-        if (ref.current) {
-        ref.current.position.z += speed;
+      if (ref.current) {
+        ref.current.position.z += 0.5;
         if (ref.current.position.z > 60) {
             ref.current.position.z = -50; 
         }
-        }
+      }
     });
 
     return (
-        <group ref={ref} position={position}>
+      <group ref={ref} position={position}>
         <Model filename={filename} />
-        </group>
+      </group>
     );
 }
 
 export function Game() {
     const [cars, setCars] = useState([]);
     const [gameStarted, setGameStarted] = useState(false);
+    const [distance, setDistance] = useState(0);
+    // const [lives, setLives] = useState(3);
 
     useEffect(() => {
         setCars(getRandomCarsForLanes());
     }, []);
 
+    // const distance = Distance(gameStarted);
+
     return (
       <div style={{ position: 'relative', height: '100vh' }}>   
+        <div style={{ height: '100%', filter: gameStarted ? 'none' : 'blur(5px)', transition: 'filter 0.5s', background: 'deepskyblue' }}> 
 
-        <div style={{ height: '100%', filter: gameStarted ? 'none' : 'blur(5px)', transition: 'filter 0.5s', background: 'deepskyblue' }}>             
+          <div style={{ position: 'absolute', left: '1%', color: '#ffcc00', padding: '10px 20px', borderRadius: '10px', fontSize: '28px', fontWeight: 'bold' }}>
+            Distance: {distance} m
+          </div>
+          {/* <div style={{ position: 'absolute', left: '1%', color: '#ffcc00', padding: '10px 20px', borderRadius: '10px', fontSize: '28px', fontWeight: 'bold' }}>
+            Lives: {lives}
+          </div> */}
+
+          <div style={{ position: 'absolute', display: 'flex', flexDirection: 'column', right: '1.5%'}} > 
+            <svg width="80" height="80" viewBox="0 0 120 104" style={{ cursor: 'pointer' }}>
+              <polygon points="60,0 115,30 115,74 60,104 5,74 5,30" fill="red" transform="translate(60 52) scale(0.85) translate(-60 -52)" stroke='white' strokeWidth={12}/>
+              <text x="60" y="54" textAnchor="middle" dominantBaseline="middle" fill="white" fontSize="22" fontWeight="bold" pointerEvents="none">
+                STOP
+              </text>
+            </svg>
+            <svg width="80" height="80" style={{ cursor: 'pointer' }} viewBox="0 0 80 80" >
+              <polygon points="10,15 70,15 40,65" fill="white" stroke='red' strokeWidth={8} />
+            </svg>
+          </div>
+
           <Canvas camera={{ position: [0, 3, 58], fov: 55 }}>
             <Suspense fallback={null}>
               <ambientLight intensity={1.5} />
@@ -82,15 +106,16 @@ export function Game() {
 
               {/* Spawn random cars */}
               {cars.map((car, index) => (
-                  <MovingCar
+                <MovingCar
                   key={index}
                   position={[car.x, 0, car.z]}
                   filename={car.model}
                   speed={car.speed}
-                  />
+                />
               ))}
-
-              {gameStarted && <Runner filename="philRun.glb" />}
+              
+              <Runner />
+              {/* {gameStarted && <Runner />} */}
             </Suspense>
           </Canvas>
         </div>

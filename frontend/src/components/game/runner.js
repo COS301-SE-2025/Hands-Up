@@ -1,8 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useGLTF, useAnimations } from '@react-three/drei';
 
-export default function Runner({ filename }) {
-  const path = `/models/${filename}`;
+export default function Runner() {
+  const path = `/models/angieRun.glb`;
   const group = useRef();
   const { scene, animations } = useGLTF(path);
   const { actions } = useAnimations(animations, group);
