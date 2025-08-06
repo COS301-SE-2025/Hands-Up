@@ -56,11 +56,11 @@ export function Landing(){
 
       <div className="hero-container">
         <div className="hero-div">
-          <div className="side-image left-image">
+          {/* <div className="side-image left-image">
             <div style={{ width: '100%', height: '85vh' }}>
-              <ModelViewer modelPath={'/models/philSalute.glb'}/>
+              <ModelViewer modelPath={'/models/angieSalute.glb'}/>
             </div>
-          </div>
+          </div> */}
           <div>
             <h1 className="hero-div-h1">Welcome to Hands UP</h1>
             <p className="hero-div-p">Empowering Communication <br></br> One Sign at a Time.</p>
