@@ -258,7 +258,7 @@ export function SignQuiz() {
                         {currentCategoryData.name} QUIZ
                     </h2>
                     <p style={{ color: '#666', fontSize: '18px', marginBottom: '30px' }}>
-                        You'll see 5 different {currentCategoryData.name.toLowerCase()} signs.
+                        You&apos;ll see 5 different {currentCategoryData.name.toLowerCase()} signs.
                         <br />Type the correct answer for each sign!
                     </p>
 
@@ -509,7 +509,7 @@ export function SignQuiz() {
         );
     }
 
-    const currentQuestion = quizQuestions[currentQuestionIndex];
+
 
     return (
         <div style={{
@@ -583,9 +583,10 @@ export function SignQuiz() {
                 overflow: 'hidden'
             }}>
                 <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
+                    {/* eslint-disable-next-line react/no-unknown-property */}
                     <ambientLight intensity={5} />
-                    
-                    <group position={[0, -1.1, 0]}>               
+                     {/* eslint-disable-next-line react/no-unknown-property */}
+                    <group position={[0, -1.1, 0]}>             
                         {landmarks && Object.keys(landmarks).length > 0 && (
                             selectedCharacter === 'angie' ? (
                                 <AngieSigns key={replayKey} landmarks={landmarks} />

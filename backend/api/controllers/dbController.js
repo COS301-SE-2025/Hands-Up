@@ -705,7 +705,8 @@ export const uploadUserAvatar = async (req, res) => {
     const originalname = req.file.originalname;
     const buffer = req.file.buffer;
     const uploadDir = path.join(process.cwd(), 'uploads', 'avatars');
-    const filename = `${userID}-${Date.now()}-${originalname.replace(/[^a-zA-Z0-9.\-]/g, '_')}`; 
+    
+    const filename = `${userID}-${Date.now()}-${originalname.replace(/[^a-zA-Z0-9.-]/g, '_')}`; 
     const filePath = path.join(uploadDir, filename);
 
     try {

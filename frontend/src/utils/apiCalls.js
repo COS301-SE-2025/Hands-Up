@@ -50,7 +50,7 @@ class SignLanguageAPI {
         let errorData;
         try {
           errorData = JSON.parse(errorText);
-        } catch (e) {
+        } catch {
           errorData = { error: errorText };
         }
         
@@ -113,7 +113,7 @@ class SignLanguageAPI {
         let errorData;
         try {
           errorData = JSON.parse(errorText);
-        } catch (e) {
+        } catch {
           errorData = { error: errorText };
         }
         throw new Error(errorData.details || errorData.error || `HTTP error! status: ${response.status}`);

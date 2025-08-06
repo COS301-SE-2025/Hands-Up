@@ -145,6 +145,8 @@ router.use((error, req, res, next) => {
         error: message,
         details: details
     });
+
+    next(); 
 });
 
 export default router;
