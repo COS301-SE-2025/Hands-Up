@@ -1,30 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo} from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/learnSidebar';
 import { CategoryTile } from '../components/learnCategoryTile';
 import { LevelTile } from '../components/learnLevelTile';
 import '../styles/learn.css';
 import { useLearningStats } from '../contexts/learningStatsContext';
-import ModelViewer from '../components/mascotModelViewer'
 import { AngieSigns } from '../components/angieSigns';
-import { PhilSigns } from '../components/philSigns';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
+import PropTypes from 'prop-types';
 
-async function getLandmarks(letter) {
-    try {
-        const response = await fetch(`/landmarks/${letter}.json`);
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error(`Error loading landmarks for ${letter}:`, error);
-        return [];
-    }
-}
+// Define landmarks at the top level to avoid the undefined error
+const landmarks = {};
 
 const HelpMessage = ({ message, onClose, position }) => {
-    const [landmarks, setLandmarks] = useState({});
-    
     if (!message) return null;
 
     let positionClasses = '';
@@ -50,9 +38,10 @@ const HelpMessage = ({ message, onClose, position }) => {
             <div className={`help-message-overlay fixed z-[9999] p-6 rounded-2xl shadow-2xl flex flex-col items-center justify-center bg-gradient-to-br from-white to-gray-50 border border-gray-200 ${positionClasses} animate-fadeInScale`}>
                 <div className="w-full max-w-[200px] h-[200px] rounded-xl bg-white shadow-md mb-4 flex items-center justify-center">
                     <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
+                        {/* eslint-disable-next-line react/no-unknown-property */}
                         <ambientLight intensity={5} />
+                        {/* eslint-disable-next-line react/no-unknown-property */}
                         <group position={[0, -1.1, 0]}>
-                            {/* <PhilSigns landmarks={landmarks}/> */}
                             <AngieSigns landmarks={landmarks} />
                         </group>
                    </Canvas>
@@ -71,6 +60,13 @@ const HelpMessage = ({ message, onClose, position }) => {
             </div>
         </div>
     );
+};
+
+// Add PropTypes validation
+HelpMessage.propTypes = {
+    message: PropTypes.string,
+    onClose: PropTypes.func.isRequired,
+    position: PropTypes.string
 };
 
 const COLORS = [
@@ -124,7 +120,6 @@ const CATEGORY_HELP_MESSAGES = {
 
 export function Learn() {
     const { stats } = useLearningStats();
-    const [landmarks, setLandmarks] = useState({});
     const [selectedSection, setSelectedSection] = useState('dashboard');
     const [currentCategory, setCurrentCategory] = useState(null);
     const [unlockedLevels] = useState(27); 
@@ -144,11 +139,13 @@ export function Learn() {
     const signsLearned = stats?.signsLearned || 0;
     const quizzesCompleted = stats?.quizzesCompleted || 0;
 
-    const unlockedCategories = stats?.unlockedCategories
+    const unlockedCategories =  useMemo(() => {
+        return stats?.unlockedCategories
         ? [...stats.unlockedCategories, 'numbers', 'colours', 'introduce', 'family', 'feelings', 'actions', 'questions', 'time', 'food', 'things', 'animals', 'seasons']
         : ['alphabets', 'numbers', 'colours', 'introduce', 'family', 'feelings', 'actions', 'questions', 'time', 'food', 'things', 'animals', 'seasons'];
-
-    const categories = [
+ }, [stats?.unlockedCategories]);
+ 
+    const categories = useMemo(() => [
         { id: 'alphabets', name: 'The Alphabet', unlocked: unlockedCategories.includes('alphabets') },
         { id: 'numbers', name: 'Numbers & Counting', unlocked: unlockedCategories.includes('numbers') },
         { id: 'introduce', name: 'Introduce Yourself', unlocked: unlockedCategories.includes('introduce') },
@@ -162,7 +159,7 @@ export function Learn() {
         { id: 'things', name: 'Objects & Things', unlocked: unlockedCategories.includes('things') },
         { id: 'animals', name: 'Animals', unlocked: unlockedCategories.includes('animals') },
         { id: 'seasons', name: 'Weather & Seasons', unlocked: unlockedCategories.includes('seasons') },
-    ];
+    ], [unlockedCategories]);
 
     const TOTAL_ALPHABET_SIGNS = 26;
     const TOTAL_NUMBER_SIGNS = 20; 
@@ -201,7 +198,7 @@ export function Learn() {
                 setSelectedSection('category');
             }
         }
-    }, [location.state]);
+    }, [location.state, categories]);
    
     const goBack = () => {
         setCurrentCategory(null);
@@ -328,12 +325,12 @@ export function Learn() {
 
                             {currentCategory.id === 'alphabets' ? (
                                 <>
-                                    {[...Array(26)].map((_, i) => (
+                                    {[...Array(26)].map((_, index) => (
                                         <LevelTile
-                                            key={i}
-                                            level={String.fromCharCode(65 + i)}
-                                            unlocked={i < unlockedLevels}
-                                            onClick={() => navigateToSign(String.fromCharCode(65 + i), 'alphabets')}
+                                            key={index}
+                                            level={String.fromCharCode(65 + index)}
+                                            unlocked={index < unlockedLevels}
+                                            onClick={() => navigateToSign(String.fromCharCode(65 + index), 'alphabets')}
                                         />
                                     ))}
                                     <LevelTile
@@ -361,12 +358,12 @@ export function Learn() {
                                 </>
                             ) : currentCategory.id === 'numbers' ? (
                                 <>
-                                    {[...Array(20)].map((_, i) => (
+                                    {[...Array(20)].map((_, index) => (
                                         <LevelTile
-                                            key={i + 1}
-                                            level={(i + 1).toString()}
+                                            key={index + 1}
+                                            level={(index + 1).toString()}
                                             unlocked={true} 
-                                            onClick={() => navigateToSign((i + 1).toString(), 'numbers')}
+                                            onClick={() => navigateToSign((index + 1).toString(), 'numbers')}
                                         />
                                     ))}
 
@@ -385,7 +382,7 @@ export function Learn() {
                                 </>
                             ) : currentCategory.id === 'colours' ? (
                                 <>
-                                    {COLORS.map((color, i) => (
+                                    {COLORS.map((color) => (
                                         <LevelTile
                                             key={color}
                                             level={color}
@@ -419,7 +416,7 @@ export function Learn() {
                                 </>
                             ) : currentCategory.id === 'introduce' ? ( 
                                 <>
-                                    {INTRODUCTION_WORDS.map((word, i) => (
+                                    {INTRODUCTION_WORDS.map((word) => (
                                         <LevelTile
                                             key={word}
                                             level={word.charAt(0).toUpperCase() + word.slice(1)} 
@@ -454,7 +451,7 @@ export function Learn() {
                                 </>
                             ) :  currentCategory.id === 'family' ? ( 
                                 <>
-                                    {FAMILY_MEMBERS.map((word, i) => (
+                                    {FAMILY_MEMBERS.map((word) => (
                                         <LevelTile
                                             key={word}
                                             level={word.charAt(0).toUpperCase() + word.slice(1)} 
@@ -490,7 +487,7 @@ export function Learn() {
                             ):
                             currentCategory.id === 'feelings' ? ( 
                                 <>
-                                    {EMOTIONS_FEELINGS.map((word, i) => (
+                                    {EMOTIONS_FEELINGS.map((word) => (
                                         <LevelTile
                                             key={word}
                                             level={word.charAt(0).toUpperCase() + word.slice(1)} 
@@ -526,7 +523,7 @@ export function Learn() {
                             ):
                             currentCategory.id === 'actions' ? ( 
                                 <>
-                                    {COMMON_ACTIONS.map((word, i) => (
+                                    {COMMON_ACTIONS.map((word) => (
                                         <LevelTile
                                             key={word}
                                             level={word.charAt(0).toUpperCase() + word.slice(1)} 
@@ -562,7 +559,7 @@ export function Learn() {
                             ):
                             currentCategory.id === 'questions' ? ( 
                                 <>
-                                    {ASKING_QUESTIONS.map((word, i) => (
+                                    {ASKING_QUESTIONS.map((word) => (
                                         <LevelTile
                                             key={word}
                                             level={word.charAt(0).toUpperCase() + word.slice(1)} 
@@ -598,7 +595,7 @@ export function Learn() {
                             ): 
                             currentCategory.id === 'time' ? ( 
                                 <>
-                                    {TIME_DAYS.map((word, i) => (
+                                    {TIME_DAYS.map((word) => (
                                         <LevelTile
                                             key={word}
                                             level={word.charAt(0).toUpperCase() + word.slice(1)} 
@@ -634,7 +631,7 @@ export function Learn() {
                             ):
                             currentCategory.id === 'food' ? ( 
                                 <>
-                                    {FOOD_DRINKS.map((word, i) => (
+                                    {FOOD_DRINKS.map((word) => (
                                         <LevelTile
                                             key={word}
                                             level={word.charAt(0).toUpperCase() + word.slice(1)} 
@@ -670,7 +667,7 @@ export function Learn() {
                             ):
                             currentCategory.id === 'things' ? ( 
                                 <>
-                                    {OBJECTS_THINGS.map((word, i) => (
+                                    {OBJECTS_THINGS.map((word) => (
                                         <LevelTile
                                             key={word}
                                             level={word.charAt(0).toUpperCase() + word.slice(1)} 
@@ -706,7 +703,7 @@ export function Learn() {
                             ):
                             currentCategory.id === 'animals' ? ( 
                                 <>
-                                    {ANIMALS.map((word, i) => (
+                                    {ANIMALS.map((word) => (
                                         <LevelTile
                                             key={word}
                                             level={word.charAt(0).toUpperCase() + word.slice(1)} 
@@ -741,7 +738,7 @@ export function Learn() {
                                 </>
                             ): currentCategory.id === 'seasons' ? ( 
                                 <>
-                                    {SEASONS_WEATHER.map((word, i) => (
+                                    {SEASONS_WEATHER.map((word) => (
                                         <LevelTile
                                             key={word}
                                             level={word.charAt(0).toUpperCase() + word.slice(1)} 
@@ -778,12 +775,12 @@ export function Learn() {
                             (
                                
                                 <>
-                                    {[...Array(5)].map((_, i) => (
+                                    {[...Array(5)].map((_, index) => (
                                         <LevelTile
-                                            key={i}
-                                            level={`Level ${i + 1}`}
+                                            key={index}
+                                            level={`Level ${index + 1}`}
                                             unlocked={true} 
-                                            onClick={() => navigate(`/${currentCategory.id}/level/${i + 1}`)}
+                                            onClick={() => navigate(`/${currentCategory.id}/level/${index + 1}`)}
                                         />
                                     ))}
                                     <LevelTile

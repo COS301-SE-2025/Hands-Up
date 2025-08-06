@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unknown-property */
 
-import React, { useEffect, useState, useCallback } from 'react'; 
+import React, { useEffect, useState, useCallback, useMemo } from 'react'; 
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useLearningStats } from '../contexts/learningStatsContext'; 
 import { AngieSigns } from '../components/angieSigns';
@@ -30,7 +30,7 @@ export function SignLearn() {
 
     const category = location.state?.category || new URLSearchParams(location.search).get('category');
 
-    const categoryWords = {
+    const categoryWords = useMemo(() => ({
         'alphabets': 'abcdefghijklmnopqrstuvwxyz'.split(''),
         'numbers': ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'],
         'colours': ['red', 'blue', 'green', 'yellow', 'black', 'white', 'pink', 'purple', 'orange', 'brown', 'grey', 'cyan', 'magenta', 'lime', 'gold', 'silver'],
@@ -44,7 +44,7 @@ export function SignLearn() {
         'things': ['shower', 'table', 'lights', 'computer', 'hat', 'chair', 'car', 'ambulance', 'window'],
         'animals': ['dog', 'cat', 'bird', 'fish', 'horse', 'cow', 'animal'],
         'seasons': ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 'cloudy', 'snow', 'wind', 'sunrise', 'hot', 'cold', 'warm', 'cool', 'weather', 'freeze']
-    };
+    }), []);
 
     const getNextSign = useCallback((currentSign) => {
         if (!currentSign || !category) return null;
@@ -58,7 +58,7 @@ export function SignLearn() {
         
         if (currentIndex === -1 || currentIndex === categoryList.length - 1) return null;
         return categoryList[currentIndex + 1];
-    }, [category]); 
+    }, [category, categoryWords]);
 
     const getPreviousSign = useCallback((currentSign) => {
         if (!currentSign || !category) return null;
@@ -72,7 +72,7 @@ export function SignLearn() {
         
         if (currentIndex <= 0) return null;
         return categoryList[currentIndex - 1];
-    }, [category]); 
+    }, [category, categoryWords]);
 
     const showPreviousButton = getPreviousSign(letter) !== null;
     const showNextButton = getNextSign(letter) !== null;
@@ -178,24 +178,6 @@ export function SignLearn() {
         );
     }
 
-    const getCategoryDisplayName = (catId) => {
-        const categoryNames = {
-            'alphabets': 'The Alphabet',
-            'numbers': 'Numbers & Counting',
-            'introduce': 'Introduce Yourself',
-            'family': 'Family Members',
-            'feelings': 'Emotions & Feelings',
-            'actions': 'Common Actions',
-            'questions': 'Asking Questions',
-            'time': 'Time & Days',
-            'food': 'Food & Drinks',
-            'colours': 'Colours',
-            'things': 'Objects & Things',
-            'animals': 'Animals',
-            'seasons': 'Weather & Seasons'
-        };
-        return categoryNames[catId] || 'Learn';
-    };
 
     return (
         <div className="sign-learn-container" style={{
