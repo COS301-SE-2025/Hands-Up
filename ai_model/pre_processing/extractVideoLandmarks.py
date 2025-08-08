@@ -16,9 +16,9 @@ def extractLandmarksFromVideo(videoPath, letter, outputDir='landmarks'):
             break
 
         frame = cv2.flip(frame, 1)
-        imageRgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        imageRGB = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-        results = hands.process(imageRgb)
+        results = hands.process(imageRGB)
 
         frameLandmarks = []
         if results.multi_hand_landmarks:
@@ -61,7 +61,12 @@ def processAllVideosInDirectory(videoDirectory, outputDirectory='landmarks'):
             print(f"Skipping non-video file: {filename}")
 
 if __name__ == "__main__":
+<<<<<<< HEAD
+    videoInputDirectory = "../video_data" '
+    landmarkOutputDirectory = "../processed_data/landmarks" 
+=======
     videoInputDirectory = "../video_data" 
     landmarkOutputDirectory = "../processed_data/landmarks"
+>>>>>>> d4b3d9b80cc1a7921929b3c508f8ca04f190f480
     
     processAllVideosInDirectory(videoInputDirectory, landmarkOutputDirectory)
