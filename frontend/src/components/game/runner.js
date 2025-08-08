@@ -1,12 +1,18 @@
-// eslint-disable-next-line react-hooks/exhaustive-deps
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useGLTF, useAnimations } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
 import { useRunnerX } from '../../contexts/game/runnerPosition';
 
-export default function Runner() {
-  const runnerX = useRunnerX();
+const lanes = [-6, -3, 3, 6];
+
+export default function Runner({ gameStarted }) {
+  const runnerX = useRunnerX(); 
   const { scene, animations } = useGLTF(`/models/angieRun.glb`);
   const { actions } = useAnimations(animations, scene);
+
+  const [currentX, setCurrentX] = useState(0);
+  const currentXRef = useRef(0);
+  currentXRef.current = currentX;
 
   useEffect(() => {
     if (actions && actions["Armature|mixamo.com|Layer0"]) {
@@ -14,37 +20,45 @@ export default function Runner() {
     }
   }, [actions]);
 
-  // useEffect(() => {
-  //   const handleKeyDown = (e) => {
-  //     setXPos((prev) => {
-  //       if (e.key === 'ArrowLeft' || e.key === 'a') {
-  //         const next = prev - 3;
-  //         return next === 0 ? -3 : Math.max(-6, next);
-  //       } else if (e.key === 'ArrowRight' || e.key === 'd') {
-  //         const next = prev + 3;
-  //         return next === 0 ? 3 : Math.min(6, next);
-  //       }
-  //       return prev;
-  //     });
-  //   };
-
-  //   window.addEventListener('keydown', handleKeyDown);
-  //   return () => window.removeEventListener('keydown', handleKeyDown);
-  // });
+  useEffect(() => {
+    if (gameStarted) {
+      if (runnerX.current === 0) {
+        runnerX.current = 3;
+      }
+    } 
+    else {
+      runnerX.current = 0;
+      setCurrentX(0);
+    }
+  }, [gameStarted, runnerX]);
 
   useEffect(() => {
+    if (!gameStarted) return;
     const handleKey = (e) => {
       if (e.key === 'ArrowLeft' || e.key === 'a') {
-        runnerX.current = Math.max(runnerX.current - 3, -6);
+        const laneID = lanes.indexOf(runnerX.current);
+        if (laneID > 0) runnerX.current = lanes[laneID - 1];
       }
       if (e.key === 'ArrowRight' || e.key === 'd') {
-        runnerX.current = Math.min(runnerX.current + 3, 6);
+        const laneID = lanes.indexOf(runnerX.current);
+        if (laneID < lanes.length - 1) runnerX.current = lanes[laneID + 1];
       }
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, []);
+  }, [gameStarted, runnerX]);
 
-  return (<primitive object={scene} position={[runnerX.current, 0, 50]} rotation={[0, Math.PI, 0]} scale={[1.4, 1.4, 1.4]}/>
-  );
+  useFrame((_, delta) => {
+    const speed = 20; 
+    const targetX = runnerX.current;
+    let diff = targetX - currentXRef.current;
+
+    if (Math.abs(diff) > 0.01) {
+      const step = Math.sign(diff) * speed * delta;
+      let newX = Math.abs(step) > Math.abs(diff) ? targetX : currentXRef.current + step;
+      setCurrentX(newX);
+    }
+  });
+
+  return (<primitive object={scene} position={[currentX, 0, 50]} rotation={[0, Math.PI, 0]} scale={[1.4, 1.4, 1.4]}/>);
 }

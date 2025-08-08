@@ -8,62 +8,6 @@ import { RunnerPosProvider } from '../contexts/game/runnerPosition';
 import { VehicleSpawner } from '../components/game/cars';
 import Road from '../components/game/road';
 import Runner from '../components/game/runner';
-// import Runner from '../components/game/runner';
-// import Distance from '../components/game/distance';
-// import Cars from '../components/game/cars';
-
-// const carModels = [
-//   'suzuki swift.glb',
-//   'vw golf gti.glb',
-//   'peugeot 206.glb',
-//   'toyota hilux.glb',
-//   'toyota fortuner.glb',
-//   'taxi.glb',
-// ];
-
-// const xlanes = [-6, -3, 3, -6]; 
-
-// function getRandomCarsForLanes() {
-//   return xlanes.map((laneX) => ({
-//     x: laneX,
-//     z: -Math.random() * 100, // start at random Z between -100 and 0
-//     model: carModels[Math.floor(Math.random() * carModels.length)],
-//     speed: 0.1 + Math.random() * 0.2, // optional: different speeds
-//   }));
-// }
-
-// function Model({ filename }) {
-//   const path = `/models/game models/${filename}`;
-//   const { scene } = useGLTF(path);
-//   return <primitive object={scene} />;
-// }
-
-// function MovingCar({ position, filename, speed = 0.2, distance }) {
-//     const ref = useRef();
-
-//     // const car = getCar(); 
-
-//     useEffect(() => {
-//       if (ref.current) {
-//         ref.current.position.set(...position);
-//       }
-//     }, [position]);
-
-//     useFrame(() => {
-//       if (ref.current) {
-//         ref.current.position.z += 0.5;
-//         if (ref.current.position.z > 60) {
-//             ref.current.position.z = -50; 
-//         }
-//       }
-//     });
-
-//     return (
-//       <group ref={ref} position={position}>
-//         <Model filename={filename} />
-//       </group>
-//     );
-// }
 
 export function Game() {
     const [gameStarted, setGameStarted] = useState(false);
@@ -107,7 +51,7 @@ export function Game() {
               <directionalLight position={[0, 10, 5]} intensity={1} />
 
               <Road />
-              <Runner />
+              <Runner gameStarted={gameStarted}/>
               <VehicleSpawner onCollision={handleCollision} />
 
             </Suspense>
