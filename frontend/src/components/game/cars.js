@@ -17,6 +17,7 @@ const carModels = [
 export function VehicleSpawner({ onCollision }) {
   const runnerX = useRunnerX();
   const idCounter = useRef(0);
+  const lastCollisionTime = useRef(0);
 
   const modelPaths = carModels.map((name) => encodeURI(`/models/game models/${name}`));
   const gltfs = useLoader(GLTFLoader, modelPaths);
@@ -24,7 +25,7 @@ export function VehicleSpawner({ onCollision }) {
 
   const [vehicles, setVehicles] = useState([]);
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     setVehicles((prev) => {
       const next = [...prev];
 
@@ -57,8 +58,11 @@ export function VehicleSpawner({ onCollision }) {
 
         // collision check
         if (Math.abs(v.z - runnerZ) < collisionThresholdZ && v.lane === runnerX.current) {
-          onCollision?.();
-          continue; // remove vehicle
+          if (state.clock.elapsedTime - lastCollisionTime.current > 0.4) { 
+            lastCollisionTime.current = state.clock.elapsedTime;
+            onCollision?.();
+          }
+          continue; 
         }
 
         // remove vehicle if passed runner
