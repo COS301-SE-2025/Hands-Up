@@ -22,32 +22,35 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'a_strong_secret_key_for_sessions', 
-    resave: false, 
-    saveUninitialized: false, 
+    secret: process.env.SESSION_SECRET || 'a_strong_secret_key_for_sessions',
+    resave: false,
+    saveUninitialized: false,
     cookie: {
         secure: false, 
         httpOnly: true, 
         maxAge: 24 * 60 * 60 * 1000, 
         sameSite: 'none', 
     },
-   
 }));
 
-app.use('/uploads', express.static('uploads'));
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 app.use((req, res, next) => {
-    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    if (process.env.NODE_ENV === 'production' && req.secure) { 
+        res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    }
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('X-XSS-Protection', '1; mode=block');
     next();
 });
 
+
 app.get('/health', (req, res) => {
-  res.status(200).send('OK');
+    res.status(200).send('OK');
 });
 
-// API routes
 app.use('/handsUPApi', apiRoutes);
 
 const PORT = process.env.PORT || 10000;
