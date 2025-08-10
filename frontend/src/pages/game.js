@@ -31,7 +31,8 @@ export function Game() {
 
     return (
       <div style={{ position: 'relative', height: '100vh' }}>   
-        <div style={{ height: '100%', filter: gameStarted ? 'none' : 'blur(5px)', transition: 'filter 0.5s', background: 'deepskyblue' }}> 
+        <div style={{ height: '100%', filter: gameStarted ? 'none' : 'blur(5px)', transition: 'filter 0.5s', background: 'deepskyblue',
+                      background: `linear-gradient(to bottom, lightblue 0%, deepskyblue 40%, #4CAF50 54%, #2E7D32 100%)`}}> 
 
           <div style={{ position: 'absolute', left: '1%', color: '#ffcc00', display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '20px 20px 0px', fontSize: '28px', fontWeight: 'bold' }}>
