@@ -3,7 +3,7 @@ import { useGLTF, useAnimations } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useRunnerX } from '../../contexts/game/runnerPosition';
 
-const lanes = [-6, -3, 3, 6];
+const lanes = [-5, -2, 2, 5];
 
 export default function Runner({ gameStarted }) {
   const runnerX = useRunnerX(); 
@@ -23,7 +23,7 @@ export default function Runner({ gameStarted }) {
   useEffect(() => {
     if (gameStarted) {
       if (runnerX.current === 0) {
-        runnerX.current = 3;
+        runnerX.current = 2;
       }
     } 
     else {
@@ -49,7 +49,7 @@ export default function Runner({ gameStarted }) {
   }, [gameStarted, runnerX]);
 
   useFrame((_, delta) => {
-    const speed = 20; 
+    const speed = 15; 
     const targetX = runnerX.current;
     let diff = targetX - currentXRef.current;
 
@@ -60,5 +60,5 @@ export default function Runner({ gameStarted }) {
     }
   });
 
-  return (<primitive object={scene} position={[currentX, 0, 50]} rotation={[0, Math.PI, 0]} scale={[1.4, 1.4, 1.4]}/>);
+  return (<primitive object={scene} position={[currentX, 0, 50]} rotation={[0, Math.PI, 0]} scale={[1.1, 1.1, 1.1]}/>);
 }

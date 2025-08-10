@@ -1,4 +1,4 @@
-import React,  { useState, Suspense } from 'react';
+import React,  { useEffect, useState, Suspense } from 'react';
 import { Link } from 'react-router-dom';
 import { Canvas} from '@react-three/fiber';
 import { Loader } from '@react-three/drei';
@@ -11,12 +11,23 @@ import Runner from '../components/game/runner';
 
 export function Game() {
     const [gameStarted, setGameStarted] = useState(false);
+    const [gamePaused, setGamePaused] = useState(false);
     const [lives, setLives] = useState(3);
     const [distance, setDistance] = useState(0);
 
     const handleCollision = () => {
       setLives(l => Math.max(l - 1, 0));
     };
+
+    useEffect(() => {
+      if (!gameStarted || gamePaused) return;
+
+      const interval = setInterval(() => {
+        setDistance(d => d + 10);
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }, [gameStarted]);
 
     return (
       <div style={{ position: 'relative', height: '100vh' }}>   
@@ -32,9 +43,8 @@ export function Game() {
           </div>
 
           <div style={{ position: 'absolute', display: 'flex', flexDirection: 'column', right: '1.5%'}} > 
-            <svg width="80" height="80" viewBox="0 0 120 104" style={{ cursor: 'pointer' }} 
-              onClick={() => { console.log("clicked stop")}}>
-              <polygon points="60,0 115,30 115,74 60,104 5,74 5,30" fill="red" transform="translate(60 52) scale(0.85) translate(-60 -52)" stroke='white' strokeWidth={12}/>
+            <svg width="80" height="80" viewBox="0 0 120 104" style={{ cursor: 'pointer' }} onClick={() => { console.log("clicked stop")}}>
+              <polygon points="60,0 115,30 115,74 60,104 5,74 5,30" fill="red" transform="translate(60 52) scale(0.85) translate(-60 -52)" stroke='white' strokeWidth={12} />
               <text x="60" y="54" textAnchor="middle" dominantBaseline="middle" fill="white" fontSize="22" fontWeight="bold" pointerEvents="none">
                 STOP
               </text>

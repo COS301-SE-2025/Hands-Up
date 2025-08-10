@@ -3,14 +3,15 @@ import { useFrame, useLoader } from '@react-three/fiber';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { useRunnerX } from '../../contexts/game/runnerPosition';
 
-const lanes = [-6, -3, 3, 6];
+const lanes = [-5, -2, 2, 5];
 const carModels = [
+  'bus.glb', 
+  'peugeot 207.glb',
   'suzuki swift.glb',
-  'vw golf gti.glb',
-  'peugeot 206.glb',
-  'toyota hilux.glb',
-  'toyota fortuner.glb',
   'taxi.glb',
+  'toyota fortuner.glb',
+  'toyota hilux.glb',
+  'vw golf gti.glb',
 ];
 
 export function VehicleSpawner({ onCollision }) {
@@ -38,7 +39,7 @@ export function VehicleSpawner({ onCollision }) {
           id: idCounter.current,
           lane,
           z: -60,
-          speed: 12,
+          speed: 10,
           object: clone, 
         });
       }
