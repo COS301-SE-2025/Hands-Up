@@ -3,34 +3,44 @@ import { Canvas} from '@react-three/fiber';
 import { Loader } from '@react-three/drei';
 
 import { RunnerPosProvider } from '../contexts/game/runnerPosition';
-import { VehicleSpawner } from '../components/game/cars';
+import { VehicleSpawner } from '../components/game/spawnCars';
 import Road from '../components/game/road';
 import Runner from '../components/game/runner';
-import LifeLostSign from '../components/game/lives';
-import StartScreen from '../components/game/start';
+import LifeLostSign from '../components/game/removeLife';
+import StartScreen from '../components/game/gameStart';
+import GameOverScreen from '../components/game/gameOver';
 
 export function Game() {
     const [gameStarted, setGameStarted] = useState(false);
+    const [gameOver, setGameOver] = useState(false);
     const [gamePaused, setGamePaused] = useState(false);
     const [lives, setLives] = useState(3);
     const [lifeLost, setLifeLost] = useState(false);
     const [distance, setDistance] = useState(0);
+    const [wordsCollected, setWordsCollected] = useState(0);
 
     const handleCollision = () => {
       setLives(l => {
         const newLives = Math.max(l - 1, 0);
         if (newLives === 0) {
           setGameStarted(false); 
-          setDistance(0);
-          setLives(3);  
+          setGameOver(true);  
         }
         else {
           setLifeLost(true);
-          setTimeout(() => setLifeLost(false), 2000);
+          setTimeout(() => setLifeLost(false), 2500);
         }
 
         return newLives;
       });
+    };
+
+    const handleReplay = () => {
+      setLives(3);
+      setDistance(0);
+      setWordsCollected(0);
+      setGameOver(false); 
+      setGameStarted(true);
     };
 
     useEffect(() => {
@@ -45,7 +55,7 @@ export function Game() {
 
     return (
       <div style={{ position: 'relative', height: '100vh' }}>   
-        <div style={{ height: '100%', filter: gameStarted ? 'none' : 'blur(5px)', transition: 'filter 0.5s',
+        <div style={{ height: '100%', filter: gameStarted ? 'none' : 'blur(4px)', transition: 'filter 0.5s',
                       background: `linear-gradient(to bottom, lightblue 0%, deepskyblue 40%, #4CAF50 54%, #2E7D32 100%)`}}> 
 
           {lifeLost && <LifeLostSign />}
@@ -87,7 +97,8 @@ export function Game() {
         </div>
         <Loader />
 
-        {!gameStarted && <StartScreen onStart={() => setGameStarted(true)} />}
+        {!gameStarted && !gameOver && <StartScreen onStart={() => setGameStarted(true)} />}
+        {!gameStarted && gameOver && <GameOverScreen distance={distance} wordsCollected={wordsCollected} onReplay={handleReplay}/>}
 
       </div>
     );
