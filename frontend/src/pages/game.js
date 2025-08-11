@@ -17,9 +17,20 @@ export function Game() {
     const [distance, setDistance] = useState(0);
 
     const handleCollision = () => {
-      setLives(l => Math.max(l - 1, 0));
-      setLifeLost(true);
-      setTimeout(() => setLifeLost(false), 2000);
+      setLives(l => {
+        const newLives = Math.max(l - 1, 0);
+        if (newLives === 0) {
+          setGameStarted(false); 
+          setDistance(0);
+          setLives(3);  
+        }
+        else {
+          setLifeLost(true);
+          setTimeout(() => setLifeLost(false), 2000);
+        }
+
+        return newLives;
+      });
     };
 
     useEffect(() => {
