@@ -4,6 +4,7 @@ import { Loader } from '@react-three/drei';
 
 import { RunnerPosProvider } from '../contexts/game/runnerPosition';
 import { VehicleSpawner } from '../components/game/spawnCars';
+import { CoinSpawner } from '../components/game/letterCoins';
 import Road from '../components/game/road';
 import Runner from '../components/game/runner';
 import LifeLostSign from '../components/game/removeLife';
@@ -90,6 +91,7 @@ export function Game() {
               <Road />
               <Runner gameStarted={gameStarted}/>
               <VehicleSpawner onCollision={handleCollision} />
+              <CoinSpawner onCollect={handleCollision} />
 
             </Suspense>
           </Canvas>

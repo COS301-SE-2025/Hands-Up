@@ -65,7 +65,7 @@ export function VehicleSpawner({ onCollision }) {
           continue; 
         }
 
-        // remove vehicle if passed runner
+        // keep vehicle if it hasn't passed runner yet
         if (v.z < zFront) {
           remaining.push(v);
         }
