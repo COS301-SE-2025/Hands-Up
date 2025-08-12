@@ -14,6 +14,20 @@ export default function Runner({ gameStarted }) {
   const currentXRef = useRef(0);
   currentXRef.current = currentX;
 
+  const [currentY, setCurrentY] = useState(0);
+  const currentYRef = useRef(0);
+  currentYRef.current = currentY;
+
+  const isJumpingRef = useRef(false);
+
+  const jumpStartTimeRef = useRef(0);
+  const JUMP_DURATION = 2; 
+  const JUMP_HEIGHT = 3; 
+
+  // const jumpVelocityRef = useRef(0);
+  // const GRAVITY = -18; 
+  // const JUMP_FORCE = 12; 
+
   useEffect(() => {
     if (actions && actions["Armature|mixamo.com|Layer0"]) {
       actions["Armature|mixamo.com|Layer0"].reset().fadeIn(0.5).play();
@@ -29,6 +43,10 @@ export default function Runner({ gameStarted }) {
     else {
       runnerX.current = 0;
       setCurrentX(0);
+      setCurrentY(0);
+      isJumpingRef.current = false;
+      jumpStartTimeRef.current = 0;
+      // jumpVelocityRef.current = 0;
     }
   }, [gameStarted, runnerX]);
 
@@ -42,6 +60,11 @@ export default function Runner({ gameStarted }) {
       if (e.key === 'ArrowRight' || e.key === 'd') {
         const laneID = lanes.indexOf(runnerX.current);
         if (laneID < lanes.length - 1) runnerX.current = lanes[laneID + 1];
+      }
+      if ((e.key === 'ArrowUp' || e.key === 'w') && !isJumpingRef.current) {
+        isJumpingRef.current = true;
+        jumpStartTimeRef.current = performance.now() / 1000;
+        // jumpVelocityRef.current = JUMP_FORCE;
       }
     };
     window.addEventListener('keydown', handleKey);
@@ -58,7 +81,33 @@ export default function Runner({ gameStarted }) {
       let newX = Math.abs(step) > Math.abs(diff) ? targetX : currentXRef.current + step;
       setCurrentX(newX);
     }
+
+    if (isJumpingRef.current) {
+      const now = performance.now() / 1000;
+      const elapsed = now - jumpStartTimeRef.current;
+
+      if (elapsed >= JUMP_DURATION) {
+        isJumpingRef.current = false;
+        setCurrentY(0);
+      } else {
+        const newY = JUMP_HEIGHT * Math.sin(Math.PI * elapsed / JUMP_DURATION);
+        setCurrentY(newY);
+      }
+    }
+
+    // if (isJumpingRef.current) {
+    //   jumpVelocityRef.current += GRAVITY * delta;
+    //   let newY = currentYRef.current + jumpVelocityRef.current * delta;
+
+    //   if (newY <= 0) {
+    //     newY = 0;
+    //     isJumpingRef.current = false;
+    //     jumpVelocityRef.current = 0;
+    //   }
+
+    //   setCurrentY(newY);
+    // }
   });
 
-  return (<primitive object={scene} position={[currentX, 0, 50]} rotation={[0, Math.PI, 0]} scale={[1.1, 1.1, 1.1]}/>);
+  return (<primitive object={scene} position={[currentX, currentY, 50]} rotation={[0, Math.PI, 0]} scale={[1.1, 1.1, 1.1]}/>);
 }
