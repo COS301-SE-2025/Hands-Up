@@ -34,6 +34,7 @@ backend/api/uploads
 /backend/database/.env
 /.env
 /frontend/.env
+/translate
 
 # ssl certificates
 /frontend/localhost+2-key.pem
