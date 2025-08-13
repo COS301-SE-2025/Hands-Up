@@ -1,16 +1,18 @@
 /* eslint-disable react/no-unknown-property */
 
-import React, { useEffect, useState, useCallback, useMemo } from 'react'; 
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react'; 
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useLearningStats } from '../contexts/learningStatsContext'; 
 import { AngieSigns } from '../components/angieSigns';
-//import { PhilSigns } from '../components/philSigns';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 
 async function getLandmarks(letter) {
     try {
         const response = await fetch(`/landmarks/${letter}.json`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         return data;
     } catch (error) {
@@ -18,6 +20,29 @@ async function getLandmarks(letter) {
         return [];
     }
 }
+
+const COMMON_PHRASES = [
+    { id: 'hello_my_name', phrase: 'Hello My Name', words: ['hello', 'my', 'name'] },
+    { id: 'nice_meet_you', phrase: 'Nice Meet You', words: ['nice', 'meet', 'you'] },
+    { id: 'i_love_you', phrase: 'I Love You', words: ['love', 'you'] },
+    { id: 'i_am_happy', phrase: 'I Am Happy', words: ['happy'] },
+    { id: 'i_am_sad', phrase: 'I Am Sad', words: ['sad'] },
+    { id: 'good_morning', phrase: 'Good Morning', words: ['morning'] },
+    { id: 'good_night', phrase: 'Good Night', words: ['night'] },
+    { id: 'see_you_tomorrow', phrase: 'See You Tomorrow', words: ['see','you', 'tomorrow'] },
+    { id: 'i_am_hungry', phrase: 'I Am Hungry', words: ['hungry'] },
+    { id: 'drink_water', phrase: 'Drink Water', words: ['drink', 'water'] },
+    { id: 'my_mother', phrase: 'My Mother', words: ['my', 'mother'] },
+    { id: 'my_father', phrase: 'My Father', words: ['my', 'father'] },
+    { id: 'brother_sister', phrase: 'Brother Sister', words: ['brother', 'sister'] },
+    { id: 'watch_tv', phrase: 'Watch TV', words: ['watch'] },
+    { id: 'go_sleep', phrase: 'Go Sleep', words: ['go', 'sleep'] },
+    { id: 'i_understand', phrase: 'I Understand', words: ['understand'] },
+    { id: 'hot_weather', phrase: 'Hot Weather', words: ['hot', 'weather'] },
+    { id: 'cold_weather', phrase: 'Cold Weather', words: ['cold', 'weather'] },
+    { id: 'eat_apple', phrase: 'Eat Apple', words: ['eat', 'apple'] },
+    { id: 'my_pet_is_a_dog', phrase: 'My Pet Is A Dog', words: ['my', 'pet','dog'] }
+];
 
 export function SignLearn() {
     const { letter } = useParams();
@@ -27,8 +52,14 @@ export function SignLearn() {
     const [loading, setLoading] = useState(true);
     const { updateStats, stats } = useLearningStats();
     const [replayKey, setReplayKey] = useState(0);
+    const [currentWordIndex, setCurrentWordIndex] = useState(0);
+    const [isAutoPlaying, setIsAutoPlaying] = useState(false);
+    const timeoutRef = useRef(null);
 
     const category = location.state?.category || new URLSearchParams(location.search).get('category');
+    const isPhrase = location.pathname.startsWith('/phrase/');
+    
+    const currentPhrase = isPhrase ? COMMON_PHRASES.find(p => p.id === letter) : null;
 
     const categoryWords = useMemo(() => ({
         'alphabets': 'abcdefghijklmnopqrstuvwxyz'.split(''),
@@ -37,13 +68,14 @@ export function SignLearn() {
         'introduce': ['hello', 'name', 'my', 'again', 'goodbye', 'nice', 'meet', 'you', 'this', 'sorry', 'and'],
         'family': ['brother', 'sister', 'mother', 'father', 'aunt', 'uncle', 'grandma', 'grandpa', 'child', 'siblings', 'boy', 'girl'],
         'feelings': ['happy', 'sad', 'angry', 'cry', 'hurt', 'sorry', 'like', 'love', 'hate', 'feel'],
-        'actions': ['drive', 'watch', 'sleep', 'walk', 'stand', 'sit', 'give', 'understand', 'go', 'stay', 'talk'],
+        'actions': ['drive', 'watch','see', 'sleep', 'walk', 'stand', 'sit', 'give', 'understand', 'go', 'stay', 'talk'],
         'questions': ['why', 'tell', 'when', 'who', 'which'],
         'time': ['morning', 'afternoon', 'evening', 'night', 'today', 'tomorrow', 'yesterday', 'year', 'now', 'future', 'oclock', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
         'food': ['water', 'apple', 'drink', 'cereal', 'eggs', 'eat', 'hungry', 'full', 'cup', 'popcorn', 'candy', 'soup', 'juice', 'milk', 'pizza'],
         'things': ['shower', 'table', 'lights', 'computer', 'hat', 'chair', 'car', 'ambulance', 'window'],
         'animals': ['dog', 'cat', 'bird', 'fish', 'horse', 'cow', 'animal'],
-        'seasons': ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 'cloudy', 'snow', 'wind', 'sunrise', 'hot', 'cold', 'warm', 'cool', 'weather', 'freeze']
+        'seasons': ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 'cloudy', 'snow', 'wind', 'sunrise', 'hot', 'cold', 'warm', 'cool', 'weather', 'freeze'],
+        'phrases': COMMON_PHRASES.map(p => p.id)
     }), []);
 
     const getNextSign = useCallback((currentSign) => {
@@ -78,6 +110,9 @@ export function SignLearn() {
     const showNextButton = getNextSign(letter) !== null;
 
     const handleBackToLearn = () => {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
         if (category) {
             navigate('/learn', { state: { selectedCategory: category } });
         } else {
@@ -88,24 +123,90 @@ export function SignLearn() {
     const handleNextSign = () => {
         const nextSign = getNextSign(letter);
         if (nextSign) {
-            navigate(`/sign/${nextSign}${category ? `?category=${category}` : ''}`, {
-                state: { category }
-            });
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+            if (category === 'phrases') {
+                navigate(`/phrase/${nextSign}`, {
+                    state: { category }
+                });
+            } else {
+                navigate(`/sign/${nextSign}${category ? `?category=${category}` : ''}`, {
+                    state: { category }
+                });
+            }
         }
     };
 
     const handlePreviousSign = () => {
         const prevSign = getPreviousSign(letter);
         if (prevSign) {
-            navigate(`/sign/${prevSign}${category ? `?category=${category}` : ''}`, {
-                state: { category }
-            });
+           if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+            if (category === 'phrases') {
+                navigate(`/phrase/${prevSign}`, {
+                    state: { category }
+                });
+            } else {
+                navigate(`/sign/${prevSign}${category ? `?category=${category}` : ''}`, {
+                    state: { category }
+                });
+            }
         }
     };
 
+    const startAutoPlay = useCallback(() => {
+        if (!currentPhrase || isAutoPlaying) return;
+        
+        setIsAutoPlaying(true);
+        setCurrentWordIndex(0);
+        setReplayKey(prev => prev + 1);
+        
+        let index = 0;
+        const playNext = () => {
+            if (index < currentPhrase.words.length) {
+                setCurrentWordIndex(index);
+                setReplayKey(prev => prev + 1);
+                index++;
+                
+                if (index < currentPhrase.words.length) {
+                    timeoutRef.current = setTimeout(playNext, 3000); // 3 second delay between words
+                } else {
+                    setIsAutoPlaying(false);
+                }
+            }
+        };
+        
+        timeoutRef.current = setTimeout(playNext, 500);
+    }, [currentPhrase, isAutoPlaying]);
+
     const handleReplay = () => {
-        setReplayKey(prev => prev + 1); 
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+        
+        if (isPhrase && currentPhrase) {
+            setIsAutoPlaying(true); 
+        } else {
+           setReplayKey(prev => prev + 1);
+        }
     };
+
+    useEffect(() => {
+        if (isPhrase && currentPhrase && !isAutoPlaying && landmarks && landmarks.length > 0) {
+           const timer = setTimeout(startAutoPlay, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [isPhrase, currentPhrase, isAutoPlaying, landmarks, startAutoPlay]);
+
+    useEffect(() => {
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+        };
+    }, []);
 
     useEffect(() => {
         async function loadData() {
@@ -113,15 +214,38 @@ export function SignLearn() {
 
             setLoading(true);
             try {
-                const data = await getLandmarks(letter);
+                let data;
+                if (isPhrase && currentPhrase) {
+                    const currentWord = currentPhrase.words[currentWordIndex];
+                    console.log('Loading landmarks for word:', currentWord);
+                    data = await getLandmarks(currentWord);
+                } else {
+                    console.log('Loading landmarks for letter:', letter);
+                    data = await getLandmarks(letter);
+                }
+                
+                if (!data || data.length === 0) {
+                    console.warn('No landmarks found for:', isPhrase ? currentPhrase.words[currentWordIndex] : letter);
+                }
+                
                 setLandmarks(data);
 
-                const learnedSigns = stats?.learnedSigns || []; 
-                if (!learnedSigns.includes(letter.toLowerCase())) {
-                    updateStats({
-                        signsLearned: (stats?.signsLearned || 0) + 1,
-                        learnedSigns: [...learnedSigns, letter.toLowerCase()]
-                    });
+                if (isPhrase && currentPhrase) {
+                    const learnedPhrases = stats?.learnedPhrases || [];
+                    if (!learnedPhrases.includes(letter)) {
+                        updateStats({
+                            phrasesLearned: (stats?.phrasesLearned || 0) + 1,
+                            learnedPhrases: [...learnedPhrases, letter]
+                        });
+                    }
+                } else {
+                    const learnedSigns = stats?.learnedSigns || []; 
+                    if (!learnedSigns.includes(letter.toLowerCase())) {
+                        updateStats({
+                            signsLearned: (stats?.signsLearned || 0) + 1,
+                            learnedSigns: [...learnedSigns, letter.toLowerCase()]
+                        });
+                    }
                 }
             } catch (error) {
                 console.error('Failed to load landmarks:', error);
@@ -130,7 +254,7 @@ export function SignLearn() {
             }
         }
         loadData();
-    }, [letter, updateStats, stats]); 
+    }, [letter, currentWordIndex, isPhrase, currentPhrase, updateStats, stats]); 
 
     if (loading) {
         return (
@@ -143,13 +267,18 @@ export function SignLearn() {
                 minHeight: '100vh',
                 justifyContent: 'center'
             }}>
-                <h1 style={{ color: '#333' }}>Loading Sign: {letter}</h1>
+                <h1 style={{ color: '#333' }}>
+                    Loading {isPhrase ? 'Phrase' : 'Sign'}: {isPhrase ? currentPhrase?.phrase : letter}
+                </h1>
                 <div style={{
                     fontSize: '18px',
                     color: '#666',
                     marginTop: '20px'
                 }}>
-                    Loading landmarks...
+                    {isPhrase && currentPhrase ? 
+                        `Loading landmarks for "${currentPhrase.words[currentWordIndex]}"...` :
+                        'Loading landmarks...'
+                    }
                 </div>
             </div>
         );
@@ -166,18 +295,26 @@ export function SignLearn() {
                 minHeight: '100vh',
                 justifyContent: 'center'
             }}>
-                <h1 style={{ color: '#333' }}>Learning Sign: {letter}</h1>
+                <h1 style={{ color: '#333' }}>
+                    Learning {isPhrase ? 'Phrase' : 'Sign'}: {isPhrase ? currentPhrase?.phrase : letter}
+                </h1>
                 <div style={{
                     fontSize: '18px',
                     color: '#dc3545',
                     marginTop: '20px'
                 }}>
-                    No landmark data found for letter &quot{letter}&quot
+                    No landmark data found for {isPhrase ? `word "${currentPhrase?.words[currentWordIndex]}" in phrase` : 'letter'} &quot;{isPhrase ? currentPhrase?.phrase : letter}&quot;
+                </div>
+                <div style={{
+                    fontSize: '14px',
+                    color: '#666',
+                    marginTop: '10px'
+                }}>
+                    Make sure the landmarks file exists: /landmarks/{isPhrase ? currentPhrase?.words[currentWordIndex] : letter}.json
                 </div>
             </div>
         );
     }
-
 
     return (
         <div className="sign-learn-container" style={{
@@ -310,18 +447,41 @@ export function SignLearn() {
                 textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
                 marginTop: '40px'
             }}>
-                Learning Sign: {letter.toUpperCase()}
-                {category && (
-                    <div style={{ 
-                        fontSize: '0.6em', 
-                        color: '#666', 
-                        fontWeight: 'normal',
-                        marginTop: '10px' 
-                    }}>
-                 
+                {isPhrase ? (
+                    <div>
+                        <div>Learning Phrase: {currentPhrase?.phrase}</div>
+                        <div style={{ 
+                            fontSize: '0.6em', 
+                            color: '#666', 
+                            fontWeight: 'normal',
+                            marginTop: '10px' 
+                        }}>
+                            Current Word: {currentPhrase?.words[currentWordIndex]?.toUpperCase()} 
+                            ({currentWordIndex + 1} of {currentPhrase?.words.length})
+                            {isAutoPlaying && (
+                                <span style={{ color: '#4caf50', marginLeft: '10px' }}>
+                                    ● Auto-playing...
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                ) : (
+                    <div>
+                        Learning Sign: {letter.toUpperCase()}
+                        {category && (
+                            <div style={{ 
+                                fontSize: '0.6em', 
+                                color: '#666', 
+                                fontWeight: 'normal',
+                                marginTop: '10px' 
+                            }}>
+                                Category: {category}
+                            </div>
+                        )}
                     </div>
                 )}
             </h1>
+
 
             <div style={{
                 width: '100%',
@@ -334,7 +494,6 @@ export function SignLearn() {
                 <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
                     <ambientLight intensity={5} />
                     <group position={[0, -1.1, 0]}>
-                        {/* <PhilSigns landmarks={landmarks} replay={replayKey}/> */}
                         <AngieSigns landmarks={landmarks} replay={replayKey}/>
                     </group>
                     <OrbitControls enablePan={false} maxPolarAngle={Math.PI / 2} minDistance={2} maxDistance={3} />
@@ -350,26 +509,42 @@ export function SignLearn() {
             }}>
                 <button
                     onClick={handleReplay}
+                    disabled={isAutoPlaying}
                     style={{
                         padding: '12px 24px',
                         fontSize: '16px',
                         fontWeight: 'bold',
                         borderRadius: '10px',
-                        backgroundColor: '#ffe44d',
-                        color: 'black',
+                        backgroundColor: isAutoPlaying ? '#ccc' : '#ffe44d',
+                        color: isAutoPlaying ? '#666' : 'black',
                         border: 'none',
                         boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-                        cursor: 'pointer',
+                        cursor: isAutoPlaying ? 'not-allowed' : 'pointer',
                         transition: '0.3s',
                     }}
                     onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'scale(1.05)';
+                        if (!isAutoPlaying) {
+                            e.currentTarget.style.transform = 'scale(1.05)';
+                        }
                     }}
                     onMouseLeave={(e) => {
                         e.currentTarget.style.transform = 'scale(1)';
                     }}
-                >Replay Animation</button>
+                >
+                    {isPhrase ? 
+                        (isAutoPlaying ? 'Playing Phrase...' : 'Replay Full Phrase') : 
+                        'Replay Animation'
+                    }
+                </button>
             </div>
+
+            <style jsx>{`
+                @keyframes pulse {
+                    0% { transform: scale(1); opacity: 1; }
+                    50% { transform: scale(1.2); opacity: 0.7; }
+                    100% { transform: scale(1); opacity: 1; }
+                }
+            `}</style>
         </div>
     );
 }

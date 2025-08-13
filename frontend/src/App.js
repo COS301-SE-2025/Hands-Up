@@ -14,7 +14,7 @@ import { Translator } from "./pages/translator";
 import { Learn } from "./pages/learn";
 import { SignLearn } from "./pages/signLearn";
 import { Home} from "./pages/home";
-import { SignQuiz} from "./pages/SignQuiz";
+import { SignQuiz} from "./pages/signQuiz";
 import { Layout } from "./pages/layout"; 
 import ErrorBoundary from "./components/errorBoundary";
 import ErrorFallback from "./components/errorFallback";
@@ -47,6 +47,13 @@ function App() {
                 </ErrorBoundary>
               </ProtectedRoute>
             } />
+            <Route path="/phrase/:letter" element={
+              <ProtectedRoute>
+                <ErrorBoundary fallback={<ErrorFallback errorName="SignLearn" />}>
+                  <SignLearn />
+                </ErrorBoundary>
+              </ProtectedRoute>
+            } />
 
             <Route path="/quiz/:category" element={
               <ProtectedRoute>
@@ -69,6 +76,7 @@ function App() {
             <Route path="/things-quiz" element={<Navigate to="/quiz/things" replace />} />
             <Route path="/animals-quiz" element={<Navigate to="/quiz/animals" replace />} />
             <Route path="/seasons-quiz" element={<Navigate to="/quiz/seasons" replace />} />
+            <Route path="/phrases-quiz" element={<Navigate to="/quiz/phrases" replace />} />
             
            <Route
               path="/userProfile"
