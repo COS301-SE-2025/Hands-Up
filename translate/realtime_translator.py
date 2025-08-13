@@ -192,7 +192,7 @@ if __name__ == "__main__":
         # --- CAMERA FLIP ADJUSTMENT ---
         # This line will flip the image horizontally.
         # This creates an un-mirrored view, as if someone is facing you.
-        frame = cv2.flip(frame, 1)
+        # frame = cv2.flip(frame, 1)
         # --- END CAMERA FLIP ADJUSTMENT ---
 
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
