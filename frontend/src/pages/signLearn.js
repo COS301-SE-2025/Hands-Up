@@ -186,8 +186,9 @@ export function SignLearn() {
             clearTimeout(timeoutRef.current);
         }
         
-        if (isPhrase && currentPhrase) {
-            setIsAutoPlaying(true); 
+           if (isPhrase && currentPhrase) {
+            setIsAutoPlaying(true);
+            setTimeout(startAutoPlay, 100);
         } else {
            setReplayKey(prev => prev + 1);
         }
