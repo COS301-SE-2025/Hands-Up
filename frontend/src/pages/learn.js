@@ -9,7 +9,6 @@ import { AngieSigns } from '../components/angieSigns';
 import { Canvas } from '@react-three/fiber';
 import PropTypes from 'prop-types';
 
-// Define landmarks at the top level to avoid the undefined error
 const landmarks = {};
 
 const HelpMessage = ({ message, onClose, position }) => {
@@ -62,7 +61,6 @@ const HelpMessage = ({ message, onClose, position }) => {
     );
 };
 
-// Add PropTypes validation
 HelpMessage.propTypes = {
     message: PropTypes.string,
     onClose: PropTypes.func.isRequired,
@@ -81,7 +79,7 @@ const FAMILY_MEMBERS = ['brother', 'sister', 'mother','father', 'aunt', 'uncle',
 
 const EMOTIONS_FEELINGS = ['happy', 'sad', 'angry','cry','hurt', 'sorry', 'like', 'love', 'hate', 'feel'];
 
-const COMMON_ACTIONS = ['drive', 'watch', 'sleep', 'walk', 'stand', 'sit', 'give', 'understand', 'go', 'stay',
+const COMMON_ACTIONS = ['drive', 'watch','see', 'sleep', 'walk', 'stand', 'sit', 'give', 'understand', 'go', 'stay',
     'talk'];
 
 const ASKING_QUESTIONS = ['why', 'tell', 'when', 'who', 'which'];
@@ -100,7 +98,29 @@ const ANIMALS = ['dog', 'cat', 'bird', 'fish', 'horse', 'cow', 'animal'];
 const SEASONS_WEATHER = ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 'cloudy', 'snow',
     'wind', 'sunrise', 'hot', 'cold', 'warm', 'cool','weather', 'freeze'];
 
-// Help message content for each category
+const COMMON_PHRASES = [
+    { id: 'hello_my_name', phrase: 'Hello My Name', words: ['hello', 'my', 'name'] },
+    { id: 'nice_meet_you', phrase: 'Nice Meet You', words: ['nice', 'meet', 'you'] },
+    { id: 'i_love_you', phrase: 'I Love You', words: ['love', 'you'] },
+    { id: 'i_am_happy', phrase: 'I Am Happy', words: ['happy'] },
+    { id: 'i_am_sad', phrase: 'I Am Sad', words: ['sad'] },
+    { id: 'good_morning', phrase: 'Good Morning', words: ['morning'] },
+    { id: 'good_night', phrase: 'Good Night', words: ['night'] },
+    { id: 'see_you_tomorrow', phrase: 'See You Tomorrow', words: ['you', 'tomorrow'] },
+    { id: 'i_am_hungry', phrase: 'I Am Hungry', words: ['hungry'] },
+    { id: 'drink_water', phrase: 'Drink Water', words: ['drink', 'water'] },
+    { id: 'my_mother', phrase: 'My Mother', words: ['my', 'mother'] },
+    { id: 'my_father', phrase: 'My Father', words: ['my', 'father'] },
+    { id: 'brother_sister', phrase: 'Brother Sister', words: ['brother', 'sister'] },
+    { id: 'watch_tv', phrase: 'Watch TV', words: ['watch'] },
+    { id: 'go_sleep', phrase: 'Go Sleep', words: ['go', 'sleep'] },
+    { id: 'i_understand', phrase: 'I Understand', words: ['understand'] },
+    { id: 'hot_weather', phrase: 'Hot Weather', words: ['hot', 'weather'] },
+    { id: 'cold_weather', phrase: 'Cold Weather', words: ['cold', 'weather'] },
+    { id: 'eat_apple', phrase: 'Eat Apple', words: ['eat', 'apple'] },
+    { id: 'my_pet_is_a_dog', phrase: 'My Pet Is A Dog', words: ['my', 'pet','dog'] }
+];
+
 const CATEGORY_HELP_MESSAGES = {
     dashboard: "Welcome to the Learn page! Here you can explore different categories of sign language. Click on any unlocked category to start your learning journey.",
     alphabets: "Welcome to the Alphabet category! Here you'll learn the basic letter signs. You need to learn at least 5 letters before you can attempt the quiz. Click on any letter to start practicing!",
@@ -115,7 +135,8 @@ const CATEGORY_HELP_MESSAGES = {
     food: "Welcome to Food & Drinks! Learn signs for various foods and beverages. Master all food signs to unlock the quiz!",
     things: "Welcome to Objects & Things! Learn signs for common objects around you. Complete all object signs to unlock the quiz!",
     animals: "Welcome to Animals! Learn signs for different animals. Master all animal signs to unlock the quiz!",
-    seasons: "Welcome to Weather & Seasons! Learn signs for weather conditions and seasons. Complete all weather signs to unlock the quiz!"
+    seasons: "Welcome to Weather & Seasons! Learn signs for weather conditions and seasons. Complete all weather signs to unlock the quiz!",
+    phrases: "Welcome to Common Phrases! Learn to combine words into meaningful phrases. Master the art of signing complete thoughts and sentences!"
 };
 
 export function Learn() {
@@ -141,8 +162,8 @@ export function Learn() {
 
     const unlockedCategories =  useMemo(() => {
         return stats?.unlockedCategories
-        ? [...stats.unlockedCategories, 'numbers', 'colours', 'introduce', 'family', 'feelings', 'actions', 'questions', 'time', 'food', 'things', 'animals', 'seasons']
-        : ['alphabets', 'numbers', 'colours', 'introduce', 'family', 'feelings', 'actions', 'questions', 'time', 'food', 'things', 'animals', 'seasons'];
+        ? [...stats.unlockedCategories, 'numbers', 'colours', 'introduce', 'family', 'feelings', 'actions', 'questions', 'time', 'food', 'things', 'animals', 'seasons', 'phrases']
+        : ['alphabets', 'numbers', 'colours', 'introduce', 'family', 'feelings', 'actions', 'questions', 'time', 'food', 'things', 'animals', 'seasons', 'phrases'];
  }, [stats?.unlockedCategories]);
  
     const categories = useMemo(() => [
@@ -159,6 +180,7 @@ export function Learn() {
         { id: 'things', name: 'Objects & Things', unlocked: unlockedCategories.includes('things') },
         { id: 'animals', name: 'Animals', unlocked: unlockedCategories.includes('animals') },
         { id: 'seasons', name: 'Weather & Seasons', unlocked: unlockedCategories.includes('seasons') },
+        { id: 'phrases', name: 'Common Phrases', unlocked: unlockedCategories.includes('phrases') },
     ], [unlockedCategories]);
 
     const TOTAL_ALPHABET_SIGNS = 26;
@@ -174,11 +196,12 @@ export function Learn() {
     const TOTAL_OBJECTS_THINGS = OBJECTS_THINGS.length;
     const TOTAL_ANIMALS = ANIMALS.length;
     const TOTAL_SEASONS_WEATHER = SEASONS_WEATHER.length;
+    const TOTAL_PHRASES = COMMON_PHRASES.length;
 
     const TOTAL_SIGNS_AVAILABLE = TOTAL_ALPHABET_SIGNS + TOTAL_NUMBER_SIGNS + TOTAL_COLOUR_SIGNS + TOTAL_INTRODUCTION_WORDS + TOTAL_FAMILY_MEMBERS + TOTAL_EMOTIONS_FEELINGS +
-        TOTAL_COMMON_ACTIONS + TOTAL_ASKING_QUESTIONS + TOTAL_TIME_DAYS + TOTAL_FOOD_DRINKS + TOTAL_OBJECTS_THINGS + TOTAL_ANIMALS + TOTAL_SEASONS_WEATHER;
+        TOTAL_COMMON_ACTIONS + TOTAL_ASKING_QUESTIONS + TOTAL_TIME_DAYS + TOTAL_FOOD_DRINKS + TOTAL_OBJECTS_THINGS + TOTAL_ANIMALS + TOTAL_SEASONS_WEATHER + TOTAL_PHRASES;
 
-    const TOTAL_LESSONS = 12 * 30; 
+    const TOTAL_LESSONS = 13 * 30; 
     const calcLessonsCompleted = Math.min(lessonsCompleted, TOTAL_LESSONS);
     const calcSignsLearned = Math.min(signsLearned, TOTAL_SIGNS_AVAILABLE); 
     const lessonProgress = (calcLessonsCompleted + calcSignsLearned) / (TOTAL_LESSONS + TOTAL_SIGNS_AVAILABLE) * 100;
@@ -216,6 +239,12 @@ export function Learn() {
             state: { category: categoryId }
         });
     };
+
+    const navigateToPhrase = (phraseId) => {
+        navigate(`/phrase/${phraseId}`, {
+            state: { category: 'phrases' }
+        });
+    };
     
     const getQuizRoute = (categoryId) => {
         switch (categoryId) {
@@ -245,6 +274,8 @@ export function Learn() {
                 return '/animals-quiz';
             case 'seasons':
                 return '/seasons-quiz';
+            case 'phrases':
+                return '/phrases-quiz';
             default:
                 return '/quiz'; 
         }
@@ -411,6 +442,53 @@ export function Learn() {
                                             fontWeight: 'bold',
                                             fontSize: '14px',
                                             textShadow: '1px 1px 2px rgba(0,0,0,0.7)'
+                                        }}
+                                    />
+                                </>
+                            ) : currentCategory.id === 'phrases' ? (
+                                <>
+                                    {COMMON_PHRASES.map((phrase) => (
+                                        <LevelTile
+                                            key={phrase.id}
+                                            level={phrase.phrase}
+                                            unlocked={true}
+                                            onClick={() => navigateToPhrase(phrase.id)}
+                                            style={{
+                                                backgroundColor: '#17a2b8',
+                                                color: '#fff',
+                                                fontSize: '12px',
+                                                fontWeight: 'bold',
+                                                padding: '8px',
+                                                textAlign: 'center',
+                                                minHeight: '60px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}
+                                        />
+                                    ))}
+                                    <LevelTile
+                                        key={'phrases-quiz'}
+                                        level={'Quiz'}
+                                        unlocked={
+                                            COMMON_PHRASES.every(phrase => stats?.learnedPhrases?.includes(phrase.id))
+                                        }
+                                        onClick={() => {
+                                            if (COMMON_PHRASES.every(phrase => stats?.learnedPhrases?.includes(phrase.id))) {
+                                                navigate(getQuizRoute(currentCategory.id));
+                                            } else {
+                                                showHelp(
+                                                    `You need to learn all phrases in the 'Common Phrases' category to unlock this quiz. Keep practicing!`,
+                                                    'center',
+                                                    'phrases_quiz_locked'
+                                                );
+                                            }
+                                        }}
+                                        style={{
+                                            backgroundColor: COMMON_PHRASES.every(phrase => stats?.learnedPhrases?.includes(phrase.id)) ? '#ffc107' : '#ccc',
+                                            color: COMMON_PHRASES.every(phrase => stats?.learnedPhrases?.includes(phrase.id)) ? '#fff' : '#666',
+                                            fontWeight: 'bold',
+                                            fontSize: '14px'
                                         }}
                                     />
                                 </>
