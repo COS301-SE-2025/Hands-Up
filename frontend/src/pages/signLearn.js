@@ -467,7 +467,7 @@ export function SignLearn() {
                     </div>
                 ) : (
                     <div>
-                        Learning Sign: {letter.toUpperCase()}
+                         {letter.toUpperCase()}
                         {category && (
                             <div style={{ 
                                 fontSize: '0.6em', 
