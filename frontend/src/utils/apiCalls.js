@@ -61,7 +61,7 @@ export const processImage = async (formData) => {
   console.log("Processing captured image...");
     console.log("form_data ",formData);
   try {
-    const response = await fetch(`${API_BASE_URL}/sign/processImage`, {
+    const response = await fetch('https://handup-service.onrender.com/handsUPApi/sign/processImage', {
       method: 'POST',
       body: formData
     });
