@@ -4,7 +4,7 @@ import FormData from 'form-data'; // You'll need to install form-data: npm insta
 
 
 // --- Configuration for Flask Server ---
-const FLASK_BASE_URL = 'https://word-model-service.onrender.com'; // IMPORTANT: Change this to your Flask server's URL
+const FLASK_BASE_URL = 'https://tmkdt-handsup-model.hf.space'; // IMPORTANT: Change this to your Flask server's URL
 // If Flask is running on a different machine or port, update this.
 // For production, this should be an environment variable.
 
