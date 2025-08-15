@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unknown-property */
 import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from "prop-types";
 import { useGLTF, useAnimations } from '@react-three/drei';

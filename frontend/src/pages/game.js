@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unknown-property */
 import React,  { useEffect, useState, Suspense } from 'react';
 import { Canvas} from '@react-three/fiber';
 import { Loader } from '@react-three/drei';

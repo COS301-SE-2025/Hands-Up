@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unknown-property */
 import React, { useState, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useRunnerX } from '../../contexts/game/runnerPosition';
