@@ -112,7 +112,7 @@ export function Home(){
                 <>
                     <hr className="divider" />
                     <section className="learning-overview-section animated-section">
-                        <h2 className="section-title">Your Learning Journey 🚀</h2>
+                        <h2 className="section-title">Your Learning Journey</h2>
 
                         <div className="learning-overview-grid">
                             <div className="learning-progress-card">
