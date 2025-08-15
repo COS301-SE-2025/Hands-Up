@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useFrame, useLoader } from '@react-three/fiber';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { useRunnerX } from '../../contexts/game/runnerPosition';
+import { useRunnerX, useRunnerY } from '../../contexts/game/runnerPosition';
 
 const lanes = [-5, -2, 2, 5];
 const carModels = [
@@ -16,6 +16,8 @@ const carModels = [
 
 export function VehicleSpawner({ onCollision, speed }) {
   const runnerX = useRunnerX();
+  const runnerY = useRunnerY();
+
   const idCounter = useRef(0);
   const lastCollisionTime = useRef(0);
 
@@ -57,7 +59,7 @@ export function VehicleSpawner({ onCollision, speed }) {
         v.object.position.set(v.lane, 0, v.z);
 
         // collision check
-        if (Math.abs(v.z - runnerZ) < collisionThresholdZ && v.lane === runnerX.current) {
+        if (runnerY.current === 0 && v.lane === runnerX.current && Math.abs(v.z - runnerZ) < collisionThresholdZ) {
           if (state.clock.elapsedTime - lastCollisionTime.current > 0.4) { 
             lastCollisionTime.current = state.clock.elapsedTime;
             onCollision?.();

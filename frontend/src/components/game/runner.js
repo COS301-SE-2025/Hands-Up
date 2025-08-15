@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useGLTF, useAnimations } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
-import { useRunnerX } from '../../contexts/game/runnerPosition';
+import { useRunnerX, useRunnerY } from '../../contexts/game/runnerPosition';
 
 const lanes = [-5, -2, 2, 5];
 
 export default function Runner({ gameStarted }) {
   const runnerX = useRunnerX(); 
+  const runnerY = useRunnerY();
+
   const { scene, animations } = useGLTF(`/models/angieRun.glb`);
   const { actions } = useAnimations(animations, scene);
 
@@ -24,10 +26,6 @@ export default function Runner({ gameStarted }) {
   const JUMP_DURATION = 2; 
   const JUMP_HEIGHT = 3; 
 
-  // const jumpVelocityRef = useRef(0);
-  // const GRAVITY = -18; 
-  // const JUMP_FORCE = 12; 
-
   useEffect(() => {
     if (actions && actions["Armature|mixamo.com|Layer0"]) {
       actions["Armature|mixamo.com|Layer0"].reset().fadeIn(0.5).play();
@@ -42,11 +40,11 @@ export default function Runner({ gameStarted }) {
     } 
     else {
       runnerX.current = 0;
+      runnerY.current = 0;
       setCurrentX(0);
       setCurrentY(0);
       isJumpingRef.current = false;
       jumpStartTimeRef.current = 0;
-      // jumpVelocityRef.current = 0;
     }
   }, [gameStarted, runnerX]);
 
@@ -64,7 +62,6 @@ export default function Runner({ gameStarted }) {
       if ((e.key === 'ArrowUp' || e.key === 'w') && !isJumpingRef.current) {
         isJumpingRef.current = true;
         jumpStartTimeRef.current = performance.now() / 1000;
-        // jumpVelocityRef.current = JUMP_FORCE;
       }
     };
     window.addEventListener('keydown', handleKey);
@@ -89,24 +86,17 @@ export default function Runner({ gameStarted }) {
       if (elapsed >= JUMP_DURATION) {
         isJumpingRef.current = false;
         setCurrentY(0);
+        runnerY.current = 0;
       } else {
         const newY = JUMP_HEIGHT * Math.sin(Math.PI * elapsed / JUMP_DURATION);
         setCurrentY(newY);
+        runnerY.current = newY;
       }
     }
+    else {
+      runnerY.current = currentYRef.current; 
+    }
 
-    // if (isJumpingRef.current) {
-    //   jumpVelocityRef.current += GRAVITY * delta;
-    //   let newY = currentYRef.current + jumpVelocityRef.current * delta;
-
-    //   if (newY <= 0) {
-    //     newY = 0;
-    //     isJumpingRef.current = false;
-    //     jumpVelocityRef.current = 0;
-    //   }
-
-    //   setCurrentY(newY);
-    // }
   });
 
   return (<primitive object={scene} position={[currentX, currentY, 50]} rotation={[0, Math.PI, 0]} scale={[1.1, 1.1, 1.1]}/>);
