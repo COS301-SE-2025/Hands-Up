@@ -65,7 +65,7 @@ export const processImage = async (formData) => {
       method: 'POST',
       body: formData
     });
-
+    console.log(response);
     const data = await response.json();
     console.log("Response:", data);
     return (data);
