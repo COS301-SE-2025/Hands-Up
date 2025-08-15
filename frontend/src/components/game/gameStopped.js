@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from "prop-types";
 import { ImArrowLeft, ImArrowRight } from 'react-icons/im';
 import { BsExclamationTriangle } from "react-icons/bs";
 
@@ -96,3 +97,8 @@ export default function StopScreen({ onResume, onQuit }) {
             </div>
     );
 }
+
+StopScreen.propTypes = {
+  onResume: PropTypes.func.isRequired,
+  onQuit: PropTypes.func.isRequired,
+};

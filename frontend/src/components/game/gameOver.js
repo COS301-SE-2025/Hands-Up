@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from "prop-types";
 import { useNavigate } from 'react-router-dom';
 import { ImArrowLeft, ImArrowRight } from 'react-icons/im';
 import { BiSolidChevronLeft, BiSolidChevronRight } from 'react-icons/bi';
@@ -29,7 +30,6 @@ export default function GameOverScreen({ distance, wordsCollected, onReplay }) {
           borderRadius: '12px',
           border: '4px solid white',
           padding: '12px 16px',
-          color: 'white',
           fontWeight: 'bold',
           fontSize: '2.34vw',
           color: 'red',
@@ -135,3 +135,9 @@ export default function GameOverScreen({ distance, wordsCollected, onReplay }) {
     </div>
   );
 }
+
+GameOverScreen.propTypes = {
+  distance: PropTypes.number.isRequired,
+  wordsCollected: PropTypes.number.isRequired,
+  onReplay: PropTypes.func.isRequired,
+};

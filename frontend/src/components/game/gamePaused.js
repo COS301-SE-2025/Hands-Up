@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from "prop-types";
 import { ImArrowRight } from 'react-icons/im';
 import { FaCirclePause } from "react-icons/fa6";
 
@@ -74,3 +75,7 @@ export default function PauseScreen({ onResume }) {
             </div>
     );
 }
+
+PauseScreen.propTypes = {
+  onResume: PropTypes.func.isRequired,
+};

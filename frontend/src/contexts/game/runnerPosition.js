@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useRef } from 'react';
+import PropTypes from "prop-types";
 
 const RunnerPosContext = createContext(null);
 
@@ -11,6 +12,10 @@ export function RunnerPosProvider({ children }) {
     </RunnerPosContext.Provider>
   );
 }
+
+RunnerPosProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 
 export function useRunnerX() {
   const context = useContext(RunnerPosContext);

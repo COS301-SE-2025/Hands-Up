@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from "prop-types";
 import { useNavigate } from 'react-router-dom';
 import { ImArrowLeft, ImArrowRight } from 'react-icons/im';
 import { BiSolidChevronLeft, BiSolidChevronRight } from 'react-icons/bi';
@@ -111,3 +112,7 @@ export default function StartScreen({ onStart }) {
             </div>
     );
 }
+
+StartScreen.propTypes = {
+  onStart: PropTypes.func.isRequired,
+};

@@ -109,7 +109,8 @@ export function Game() {
               {!gamePaused && !gameStopped && (
                 <>
                   <VehicleSpawner onCollision={handleCollision} speed={carSpeed} />
-                  <CoinSpawner onCollect={handleCollision} />
+                  <CoinSpawner />
+                  {/* <CoinSpawner onCollect={handleCollection} /> */}
                 </>
               )}
 

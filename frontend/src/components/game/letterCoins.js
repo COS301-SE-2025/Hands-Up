@@ -5,7 +5,7 @@ import * as THREE from 'three';
 
 const lanes = [-5, -2, 2, 5];
 
-export function CoinSpawner({ onCollect }) {
+export function CoinSpawner() {
     const runnerX = useRunnerX();
     const idCounter = useRef(0);
     const lastCollectTime = useRef(0);

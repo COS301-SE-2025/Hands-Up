@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import PropTypes from "prop-types";
 import { useGLTF, useAnimations } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useRunnerX, useRunnerY } from '../../contexts/game/runnerPosition';
@@ -46,7 +47,7 @@ export default function Runner({ gameStarted }) {
       isJumpingRef.current = false;
       jumpStartTimeRef.current = 0;
     }
-  }, [gameStarted, runnerX]);
+  }, [gameStarted, runnerX, runnerY]);
 
   useEffect(() => {
     if (!gameStarted) return;
@@ -101,3 +102,7 @@ export default function Runner({ gameStarted }) {
 
   return (<primitive object={scene} position={[currentX, currentY, 50]} rotation={[0, Math.PI, 0]} scale={[1.1, 1.1, 1.1]}/>);
 }
+
+Runner.propTypes = {
+  gameStarted: PropTypes.bool.isRequired,
+};

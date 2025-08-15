@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import PropTypes from "prop-types";
 import { useFrame, useLoader } from '@react-three/fiber';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { useRunnerX, useRunnerY } from '../../contexts/game/runnerPosition';
@@ -83,3 +84,8 @@ export function VehicleSpawner({ onCollision, speed }) {
     </>
   );
 }
+
+VehicleSpawner.propTypes = {
+  onCollision: PropTypes.func.isRequired,
+  speed: PropTypes.number.isRequired,
+};
