@@ -33,9 +33,10 @@ export function Layout({ children }) {
   }
 
   const isProfileActive = currentPath === NAV_PATHS.Profile;
-  const displayAvatarUrl = currentUser?.avatarurl 
-                           ? `${BACKEND_BASE_URL}/${currentUser.avatarurl}` 
-                           : null;
+  const displayAvatarUrl = currentUser?.avatarurl
+  ? `${BACKEND_BASE_URL}/${currentUser.avatarurl.replace(/^\/+/, '')}`
+  : null;
+
 
   return (
     <div className="layout-container">
