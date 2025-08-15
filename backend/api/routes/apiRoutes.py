@@ -3,7 +3,7 @@ import requests
 import os
 
 # Define your Hugging Face Space URL here
-HUGGINGFACE_API_URL = os.environ.get("https://tmkdt-handsup-model.hf.space")
+HUGGINGFACE_API_URL = os.environ.get("HUGGINGFACE_LETTER_MODEL_API")
 
 api_blueprint = Blueprint('sign', __name__, url_prefix='/sign')
 
