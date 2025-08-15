@@ -1,11 +1,10 @@
 import express from 'express';
 import cors from 'cors';
-import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import apiRoutes from './routes/apiRoutes.js';
 import dotenv from 'dotenv';
-import path from 'path';
+import {dirname} from 'path';
 import { fileURLToPath } from 'url';
 
 dotenv.config();
@@ -16,8 +15,6 @@ app.use(cors({
     credentials: true,           
 }));
 
-app.use(bodyParser.json({ limit: '100mb' }));
-app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -26,7 +23,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: false, 
+        secure: true, 
         httpOnly: true, 
         maxAge: 24 * 60 * 60 * 1000, 
         sameSite: 'none', 
