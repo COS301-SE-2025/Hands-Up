@@ -10,11 +10,14 @@ import Runner from '../components/game/runner';
 import LifeLostSign from '../components/game/removeLife';
 import StartScreen from '../components/game/gameStart';
 import GameOverScreen from '../components/game/gameOver';
+import PauseScreen from '../components/game/gamePaused';
+import StopScreen from '../components/game/gameStopped';
 
 export function Game() {
     const [gameStarted, setGameStarted] = useState(false);
     const [gameOver, setGameOver] = useState(false);
     const [gamePaused, setGamePaused] = useState(false);
+    const [gameStopped, setGameStopped] = useState(false);
 
     const [lives, setLives] = useState(3);
     const [lifeLost, setLifeLost] = useState(false);
@@ -45,19 +48,21 @@ export function Game() {
       setCarSpeed(10);
       setWordsCollected(0);
       setGameOver(false); 
+      setGamePaused(false);
+      setGameStopped(false); 
       setGameStarted(true);
     };
 
     // increase distance travelled
     useEffect(() => {
-      if (!gameStarted || gamePaused) return;
+      if (!gameStarted || gamePaused || gameStopped) return;
 
       const interval = setInterval(() => {
         setDistance(d => d + carSpeed);
       }, 1000);
 
       return () => clearInterval(interval);
-    }, [gameStarted, gamePaused, carSpeed]);
+    }, [gameStarted, gamePaused, gameStopped, carSpeed]);
 
     // increase speed
     useEffect(() => {
@@ -81,14 +86,14 @@ export function Game() {
             </div>
           </div>
 
-          <div style={{ position: 'absolute', display: 'flex', flexDirection: 'column', right: '1.5%'}} > 
-            <svg width="80" height="80" viewBox="0 0 120 104" style={{ cursor: 'pointer' }} onClick={() => { console.log("clicked stop")}}>
+          <div style={{ position: 'absolute', top: 0, right: '1.5%', display: 'flex', flexDirection: 'column', zIndex: 10 }}>
+            <svg width="80" height="80" viewBox="0 0 120 104" style={{ cursor: 'pointer' }} onClick={() => { if (!gameStarted) return; setGameStarted(false); setGameStopped(true); }} >
               <polygon points="60,0 115,30 115,74 60,104 5,74 5,30" fill="red" transform="translate(60 52) scale(0.85) translate(-60 -52)" stroke='white' strokeWidth={12} />
               <text x="60" y="54" textAnchor="middle" dominantBaseline="middle" fill="white" fontSize="22" fontWeight="bold" pointerEvents="none">
                 STOP
               </text>
             </svg>
-            <svg width="80" height="80" style={{ cursor: 'pointer' }} viewBox="0 0 80 80" >
+            <svg width="80" height="80" viewBox="0 0 80 80" style={{ cursor: 'pointer' }} onClick={() => { if (!gameStarted) return; setGameStarted(false); setGamePaused(true); }}>
               <polygon points="10,15 70,15 40,65" fill="white" stroke='red' strokeWidth={8} />
             </svg>
           </div>
@@ -101,8 +106,12 @@ export function Game() {
 
               <Road />
               <Runner gameStarted={gameStarted}/>
-              <VehicleSpawner onCollision={handleCollision} speed={carSpeed}/>
-              <CoinSpawner onCollect={handleCollision} />
+              {!gamePaused && !gameStopped && (
+                <>
+                  <VehicleSpawner onCollision={handleCollision} speed={carSpeed} />
+                  <CoinSpawner onCollect={handleCollision} />
+                </>
+              )}
 
             </Suspense>
           </Canvas>
@@ -110,8 +119,10 @@ export function Game() {
         </div>
         <Loader />
 
-        {!gameStarted && !gameOver && <StartScreen onStart={() => setGameStarted(true)} />}
+        {!gameStarted && !gameOver && !gamePaused && !gameStopped && <StartScreen onStart={() => setGameStarted(true)} />}
         {!gameStarted && gameOver && <GameOverScreen distance={distance} wordsCollected={wordsCollected} onReplay={handleReplay}/>}
+        {!gameStarted && gamePaused && <PauseScreen onResume={() => {setGameStarted(true); setGamePaused(false);}} />}
+        {!gameStarted && gameStopped && <StopScreen onResume={() => {setGameStarted(true); setGameStopped(false);}} onQuit={() => { setGameStopped(false); setGameOver(true);}} />}
 
       </div>
     );
