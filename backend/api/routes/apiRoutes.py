@@ -1,49 +1,31 @@
 from flask import Blueprint, request, jsonify
-from controllers.lettersController import detectFromImage
-# from controllers.wordsController import detectFromFrames
-import tempfile
+import requests
 import os
+
+# Define your Hugging Face Space URL here
+HUGGINGFACE_API_URL = os.environ.get("https://tmkdt-handsup-model.hf.space")
 
 api_blueprint = Blueprint('sign', __name__, url_prefix='/sign')
 
 @api_blueprint.route('/sign/processImage', methods=['POST'])
 def process_image():
     files = request.files.getlist('frames')
-    sequenceNum = 20
     
-    if len(files) != sequenceNum:
+    if not HUGGINGFACE_API_URL:
+        return jsonify({'error': 'Hugging Face API URL not configured'}), 500
+
+    if len(files) != 20:
         return jsonify({'error': 'Exactly 20 frames required'}), 400
 
-    temp_dir = tempfile.mkdtemp()
-    paths = []
-
+    # Prepare files for the request
+    file_payload = [('frames', (file.filename, file.stream, file.content_type)) for file in files]
+    
     try:
-        for i, file in enumerate(files):
-            path = os.path.join(temp_dir, f'frame_{i}.jpg')
-            file.save(path)
-            paths.append(path)
-
-        result = detectFromImage(paths)
-        return jsonify(result)
-    finally:
-        # Clean up all files
-        for path in paths:
-            os.remove(path)
-        os.rmdir(temp_dir)
-
-# @api_blueprint.route("/sign/processFrames", methods=["POST"])
-# def process_frames():
-#     files = request.files.getlist("frames")
-#     if not files:
-#         return jsonify({"error": "No frames provided"}), 400
-
-#     frames = []
-#     for file in sorted(files, key=lambda f: f.filename):  
-#         frames.append(file.read())
-
-#     try:
-#         result = detectFromFrames(frames)
-#         return jsonify(result)
-#     except Exception as e:
-#         return jsonify({"error": str(e)}), 500
-
+        # Forward the request to the Hugging Face API
+        response = requests.post(f"{HUGGINGFACE_API_URL}/detect-letters-from-sequence", files=file_payload)
+        response.raise_for_status()  # Raise an HTTPError for bad responses (4xx or 5xx)
+        
+        return jsonify(response.json())
+        
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': 'Failed to connect to AI model API', 'details': str(e)}), 500

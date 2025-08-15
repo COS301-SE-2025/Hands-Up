@@ -61,7 +61,7 @@ export const processImage = async (formData) => {
   console.log("Processing captured image...");
 
   try {
-    const response = await fetch('http://127.0.0.1:5000/handsUPApi/sign/processImage', {
+    const response = await fetch(`${API_BASE_URL}/handsUPApi/sign/processImage`, {
       method: 'POST',
       body: formData
     });
