@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import apiRoutes from './routes/apiRoutes.js';
 import dotenv from 'dotenv';
+import path from 'path';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 
