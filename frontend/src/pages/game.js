@@ -15,9 +15,12 @@ export function Game() {
     const [gameStarted, setGameStarted] = useState(false);
     const [gameOver, setGameOver] = useState(false);
     const [gamePaused, setGamePaused] = useState(false);
+
     const [lives, setLives] = useState(3);
     const [lifeLost, setLifeLost] = useState(false);
     const [distance, setDistance] = useState(0);
+    const [carSpeed, setCarSpeed] = useState(10);
+    const maxSpeed = 20;
     const [wordsCollected, setWordsCollected] = useState(0);
 
     const handleCollision = () => {
@@ -39,20 +42,28 @@ export function Game() {
     const handleReplay = () => {
       setLives(3);
       setDistance(0);
+      setCarSpeed(10);
       setWordsCollected(0);
       setGameOver(false); 
       setGameStarted(true);
     };
 
+    // increase distance travelled
     useEffect(() => {
       if (!gameStarted || gamePaused) return;
 
       const interval = setInterval(() => {
-        setDistance(d => d + 10);
+        setDistance(d => d + carSpeed);
       }, 1000);
 
       return () => clearInterval(interval);
-    }, [gameStarted]);
+    }, [gameStarted, gamePaused, carSpeed]);
+
+    // increase speed
+    useEffect(() => {
+        const newSpeed = Math.min(10 + Math.floor(distance / 1000), maxSpeed);
+        setCarSpeed(newSpeed); 
+    }, [distance]);
 
     return (
       <div style={{ position: 'relative', height: '100vh' }}>   
@@ -90,7 +101,7 @@ export function Game() {
 
               <Road />
               <Runner gameStarted={gameStarted}/>
-              <VehicleSpawner onCollision={handleCollision} />
+              <VehicleSpawner onCollision={handleCollision} speed={carSpeed}/>
               <CoinSpawner onCollect={handleCollision} />
 
             </Suspense>

@@ -14,7 +14,7 @@ const carModels = [
   'vw golf gti.glb',
 ];
 
-export function VehicleSpawner({ onCollision }) {
+export function VehicleSpawner({ onCollision, speed }) {
   const runnerX = useRunnerX();
   const idCounter = useRef(0);
   const lastCollisionTime = useRef(0);
@@ -40,7 +40,7 @@ export function VehicleSpawner({ onCollision }) {
           id: idCounter.current,
           lane,
           z: -60,
-          speed: 10,
+          speed: speed,
           object: clone, 
         });
       }
