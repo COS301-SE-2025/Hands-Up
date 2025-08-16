@@ -22,16 +22,16 @@ async function getLandmarks(letter) {
 }
 
 const COMMON_PHRASES = [
-    { id: 'hello_my_name', phrase: 'Hello My Name', words: ['hello', 'my', 'name'] },
+    { id: 'hello_my_name', phrase: 'Hello My Name', words: ['helloMyName'] },
     { id: 'nice_meet_you', phrase: 'Nice Meet You', words: ['nice', 'meet', 'you'] },
-    { id: 'i_love_you', phrase: 'I Love You', words: ['love', 'you'] },
-    { id: 'i_am_happy', phrase: 'I Am Happy', words: ['happy'] },
-    { id: 'i_am_sad', phrase: 'I Am Sad', words: ['sad'] },
+    { id: 'i_love_you', phrase: 'I Love You', words: ['iLoveYou'] },
+    { id: 'i_am_happy', phrase: 'I Am Happy', words: ['me','happy'] },
+    { id: 'i_am_sad', phrase: 'I Am Sad', words: ['me','sad'] },
     { id: 'good_morning', phrase: 'Good Morning', words: ['morning'] },
     { id: 'good_night', phrase: 'Good Night', words: ['night'] },
     { id: 'see_you_tomorrow', phrase: 'See You Tomorrow', words: ['see','you', 'tomorrow'] },
     { id: 'i_am_hungry', phrase: 'I Am Hungry', words: ['hungry'] },
-    { id: 'drink_water', phrase: 'Drink Water', words: ['drink', 'water'] },
+    { id: 'drink_water', phrase: 'Drink Water', words: ['drinkWater'] },
     { id: 'my_mother', phrase: 'My Mother', words: ['my', 'mother'] },
     { id: 'my_father', phrase: 'My Father', words: ['my', 'father'] },
     { id: 'brother_sister', phrase: 'Brother Sister', words: ['brother', 'sister'] },
@@ -450,15 +450,13 @@ export function SignLearn() {
             }}>
                 {isPhrase ? (
                     <div>
-                        <div>Learning Phrase: {currentPhrase?.phrase}</div>
+                        <div> {currentPhrase?.phrase}</div>
                         <div style={{ 
                             fontSize: '0.6em', 
                             color: '#666', 
                             fontWeight: 'normal',
                             marginTop: '10px' 
                         }}>
-                            Current Word: {currentPhrase?.words[currentWordIndex]?.toUpperCase()} 
-                            ({currentWordIndex + 1} of {currentPhrase?.words.length})
                             {isAutoPlaying && (
                                 <span style={{ color: '#4caf50', marginLeft: '10px' }}>
                                     ● Auto-playing...
