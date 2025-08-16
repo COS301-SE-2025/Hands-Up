@@ -352,7 +352,7 @@ export function Learn() {
                 {currentCategory && (
                     <div className="category-levels">
                         <h2>{currentCategory.name} Levels </h2>
-                        <div className="stepping-poles">
+                        <div className={`stepping-poles ${currentCategory.id === 'phrases' ? 'phrases-layout' : ''}`}>
 
                             {currentCategory.id === 'alphabets' ? (
                                 <>
@@ -448,31 +448,29 @@ export function Learn() {
                             ) : currentCategory.id === 'phrases' ? (
                                 <>
                                     {COMMON_PHRASES.map((phrase) => (
-                                        <LevelTile
+                                        <div
                                             key={phrase.id}
-                                            level={phrase.phrase}
-                                            unlocked={true}
+                                            className="level-card phrase-card unlocked"
                                             onClick={() => navigateToPhrase(phrase.id)}
-                                            style={{
-                                                backgroundColor: '#17a2b8',
-                                                color: '#fff',
-                                                fontSize: '12px',
-                                                fontWeight: 'bold',
-                                                padding: '8px',
-                                                textAlign: 'center',
-                                                minHeight: '60px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center'
-                                            }}
-                                        />
+                                        >
+                                            <div className="phrase-content">
+                                                <div className="phrase-icon">
+                                                    💬
+                                                </div>
+                                                <div className="phrase-text">
+                                                    <h3 className="phrase-title">{phrase.phrase}</h3>
+                                                    <p className="phrase-subtitle">Learn this common phrase</p>
+                                                </div>
+                                            </div>
+                                            <div className="phrase-arrow">→</div>
+                                        </div>
                                     ))}
-                                    <LevelTile
-                                        key={'phrases-quiz'}
-                                        level={'Quiz'}
-                                        unlocked={
+                                    <div
+                                        className={`level-card phrase-card phrase-quiz ${
                                             COMMON_PHRASES.every(phrase => stats?.learnedPhrases?.includes(phrase.id))
-                                        }
+                                                ? 'unlocked' 
+                                                : 'locked'
+                                        }`}
                                         onClick={() => {
                                             if (COMMON_PHRASES.every(phrase => stats?.learnedPhrases?.includes(phrase.id))) {
                                                 navigate(getQuizRoute(currentCategory.id));
@@ -484,13 +482,23 @@ export function Learn() {
                                                 );
                                             }
                                         }}
-                                        style={{
-                                            backgroundColor: COMMON_PHRASES.every(phrase => stats?.learnedPhrases?.includes(phrase.id)) ? '#ffc107' : '#ccc',
-                                            color: COMMON_PHRASES.every(phrase => stats?.learnedPhrases?.includes(phrase.id)) ? '#fff' : '#666',
-                                            fontWeight: 'bold',
-                                            fontSize: '14px'
-                                        }}
-                                    />
+                                    >
+                                        <div className="phrase-content">
+                                            <div className="phrase-icon">
+                                              
+                                            </div>
+                                            <div className="phrase-text">
+                                                <h3 className="phrase-title">Phrases Quiz</h3>
+                                                <p className="phrase-subtitle">
+                                                    {COMMON_PHRASES.every(phrase => stats?.learnedPhrases?.includes(phrase.id))
+                                                        ? 'Test your phrase knowledge!'
+                                                        : 'Complete all phrases to unlock'
+                                                    }
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="phrase-arrow"> →</div>
+                                    </div>
                                 </>
                             ) : currentCategory.id === 'introduce' ? ( 
                                 <>
