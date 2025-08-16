@@ -15,6 +15,9 @@ tests/coverage/
 #datasets
 ai_model/letters
 ai_model/letters_fine_tune
+ai_model/numbers
+ai_model/numbers2
+ai_model/numbers_fine_tune
 ai_model/alphabet_model/letters
 ai_model/alphabet_model/J_Z/
 ai_model/processed_data/trainData2.pickle
@@ -29,10 +32,7 @@ ai_model2/models/__pycache__
 backend/api/uploads
 
 # misc
-/backend/api/.env
-/backend/database/.env
-/.env
-/frontend/.env
+**/.env
 
 # ssl certificates
 /frontend/localhost+2-key.pem
