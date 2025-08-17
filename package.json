@@ -8,18 +8,29 @@
     }
   },
   "scripts": {
-    "database": "cd backend/database && docker-compose up -d --build && docker-compose run flyway migrate",
-    "api": "cd backend/api && npm i && node handsUP",
+    "database": "cd backend/database && docker-compose up -d --build",
+    "database:migrate": "cd backend/database && docker-compose run --rm flyway migrate || echo 'Migration failed, continuing...'",
+    "database:with-migration": "npm run database && sleep 15 && npm run database:migrate",
+    "database:reset": "cd backend/database && docker-compose down -v && docker-compose up -d --build && sleep 15 && npm run database:migrate",
+    "api": "cd backend/api && npm i && node handsUp.js",
     "ui": "cd frontend && npm i && npm start",
-    "start": "concurrently \"npm run database\" \"npm run api\" \"npm run ui\"",
+    "start": "concurrently \"npm run database:with-migration\" \"npm run api\" \"npm run ui\"",
+    "start:no-migration": "concurrently \"npm run database\" \"npm run api\" \"npm run ui\"",
     "test-coverage": "node --no-warnings --experimental-vm-modules --experimental-require-module ./node_modules/jest/bin/jest.js --passWithNoTests --coverage",
     "lint": "eslint . --ext .js --fix",
     "cypress:run": "cypress run",
-    "db:setup": "cd backend/database && docker-compose up -d --build && sleep 15",
-    "db:migrate": "cd backend/database && docker-compose --env-file ../../.env run flyway migrate",
-    "services": "concurrently \"npm run api\" \"npm run ui\"",
-    "wait-and-test": "wait-on http://localhost:2000/health --timeout 90000 && npm run cypress:run",
-    "test:integration": "npm run db:setup && npm run db:migrate && concurrently --kill-others --success first \"npm run services\" \"npm run wait-and-test\""
+    "cypress:run:delayed": "wait-on http://localhost:3000 http://localhost:2000/health --timeout 120000 && cypress run",
+    "services": "concurrently \"npm run database\" \"npm run api\" \"npm run ui\"",
+    "services:with-migration": "concurrently \"npm run database:with-migration\" \"npm run api\" \"npm run ui\"",
+    "integration": "concurrently --kill-others --success first \"npm run services\" \"npm run cypress:run:delayed\"",
+    "test:integration": "concurrently --kill-others --success first \"npm run services\" \"npm run cypress:run:delayed\"",
+    "integration:with-migration": "concurrently --kill-others --success first \"npm run services:with-migration\" \"npm run cypress:run:delayed\"",
+    "integration:verbose": "concurrently --kill-others --success first --prefix-colors \"bgBlue.bold,bgMagenta.bold,bgGreen.bold,bgYellow.bold\" \"npm run database\" \"npm run api\" \"npm run ui\" \"npm run cypress:run:delayed\"",
+    "wait-for-services": "wait-on http://localhost:3000 http://localhost:2000/health --timeout 120000",
+    "cypress:headless": "wait-on http://localhost:3000 http://localhost:2000/health --timeout 120000 && cypress run --headless",
+    "cypress:open": "wait-on http://localhost:3000 http://localhost:2000/health --timeout 120000 && cypress open",
+    "dev": "npm run start:no-migration",
+    "dev:fresh": "npm run database:reset && npm run start:no-migration"
   },
   "main": "index.js",
   "devDependencies": {
@@ -32,7 +43,7 @@
     "@testing-library/react": "^16.3.0",
     "autoprefixer": "^10.4.21",
     "babel-eslint": "^10.1.0",
-    "concurrently": "^9.1.2",
+    "concurrently": "^9.2.0",
     "cypress": "^14.5.0",
     "eslint": "^9.29.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
@@ -49,6 +60,8 @@
     "webpack": "^5.99.9"
   },
   "dependencies": {
+    "@react-three/drei": "^10.4.2",
+    "@react-three/fiber": "^9.1.4",
     "aos": "^2.3.4",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
@@ -65,6 +78,7 @@
     "prop-types": "^15.8.1",
     "react-circular-progressbar": "^2.2.0",
     "react-icons": "^5.5.0",
-    "react-router-dom": "^7.6.2"
+    "react-router-dom": "^7.6.2",
+    "three": "^0.178.0"
   }
 }

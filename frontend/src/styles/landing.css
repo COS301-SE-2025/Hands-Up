@@ -197,25 +197,15 @@ html, body {
 }
 
 .left-image {
-  left: 0;
-  bottom: 0;
+  left: 1%;
+  top: 3%;
   max-height: 80%;
 }
 
 .right-image {
-  right: 1%;
-  bottom: 0;
+  right: 15%;
+  top: 3%;
   max-height: 86%;
-}
-
-@keyframes jump {
-  0%   { transform: translateY(0); }
-  50%  { transform: translateY(-12px); }
-  100% { transform: translateY(0); }
-}
-
-.side-image:hover {
-  animation: jump 0.8s ease-in-out;
 }
 
 /* about section */

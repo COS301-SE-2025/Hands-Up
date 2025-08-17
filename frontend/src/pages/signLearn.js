@@ -1,12 +1,18 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react'; 
-import { useParams, useNavigate } from 'react-router-dom';
+/* eslint-disable react/no-unknown-property */
+
+import React, { useEffect, useState, useCallback, useMemo } from 'react'; 
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useLearningStats } from '../contexts/learningStatsContext'; 
+import { AngieSigns } from '../components/angieSigns';
+//import { PhilSigns } from '../components/philSigns';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
 
 async function getLandmarks(letter) {
     try {
         const response = await fetch(`/landmarks/${letter}.json`);
         const data = await response.json();
-        return data.frames;
+        return data;
     } catch (error) {
         console.error(`Error loading landmarks for ${letter}:`, error);
         return [];
@@ -16,44 +22,89 @@ async function getLandmarks(letter) {
 export function SignLearn() {
     const { letter } = useParams();
     const navigate = useNavigate();
-    const canvasRef = useRef(null);
-    const [landmarks, setLandmarks] = useState([]);
-    const [frameIndex, setFrameIndex] = useState(0);
+    const location = useLocation();
+    const [landmarks, setLandmarks] = useState({});
     const [loading, setLoading] = useState(true);
-
     const { updateStats, stats } = useLearningStats();
+    const [replayKey, setReplayKey] = useState(0);
 
-    const getNextLetter = useCallback((currentLetter) => {
-        if (!currentLetter) return 'a';
-        const alphabet = 'abcdefghijklmnopqrstuvwxyz';
-        const currentIndex = alphabet.indexOf(currentLetter.toLowerCase());
-        const nextIndex = (currentIndex + 1) % alphabet.length;
-        return alphabet[nextIndex];
-    }, []); 
+    const category = location.state?.category || new URLSearchParams(location.search).get('category');
 
-    const getPreviousLetter = useCallback((currentLetter) => {
-        if (!currentLetter) return 'z';
-        const alphabet = 'abcdefghijklmnopqrstuvwxyz';
-        const currentIndex = alphabet.indexOf(currentLetter.toLowerCase());
-        const prevIndex = (currentIndex - 1 + alphabet.length) % alphabet.length;
-        return alphabet[prevIndex];
-    }, []); 
+    const categoryWords = useMemo(() => ({
+        'alphabets': 'abcdefghijklmnopqrstuvwxyz'.split(''),
+        'numbers': ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'],
+        'colours': ['red', 'blue', 'green', 'yellow', 'black', 'white', 'pink', 'purple', 'orange', 'brown', 'grey', 'cyan', 'magenta', 'lime', 'gold', 'silver'],
+        'introduce': ['hello', 'name', 'my', 'again', 'goodbye', 'nice', 'meet', 'you', 'this', 'sorry', 'and'],
+        'family': ['brother', 'sister', 'mother', 'father', 'aunt', 'uncle', 'grandma', 'grandpa', 'child', 'siblings', 'boy', 'girl'],
+        'feelings': ['happy', 'sad', 'angry', 'cry', 'hurt', 'sorry', 'like', 'love', 'hate', 'feel'],
+        'actions': ['drive', 'watch', 'sleep', 'walk', 'stand', 'sit', 'give', 'understand', 'go', 'stay', 'talk'],
+        'questions': ['why', 'tell', 'when', 'who', 'which'],
+        'time': ['morning', 'afternoon', 'evening', 'night', 'today', 'tomorrow', 'yesterday', 'year', 'now', 'future', 'oclock', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
+        'food': ['water', 'apple', 'drink', 'cereal', 'eggs', 'eat', 'hungry', 'full', 'cup', 'popcorn', 'candy', 'soup', 'juice', 'milk', 'pizza'],
+        'things': ['shower', 'table', 'lights', 'computer', 'hat', 'chair', 'car', 'ambulance', 'window'],
+        'animals': ['dog', 'cat', 'bird', 'fish', 'horse', 'cow', 'animal'],
+        'seasons': ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 'cloudy', 'snow', 'wind', 'sunrise', 'hot', 'cold', 'warm', 'cool', 'weather', 'freeze']
+    }), []);
 
-    const showPreviousButton = letter && letter.toLowerCase() !== 'a';
-    const showNextButton = letter && letter.toLowerCase() !== 'z';
+    const getNextSign = useCallback((currentSign) => {
+        if (!currentSign || !category) return null;
+        
+        const categoryList = categoryWords[category];
+        if (!categoryList) return null;
+        
+        const currentIndex = categoryList.findIndex(sign => 
+            sign.toLowerCase() === currentSign.toLowerCase()
+        );
+        
+        if (currentIndex === -1 || currentIndex === categoryList.length - 1) return null;
+        return categoryList[currentIndex + 1];
+    }, [category, categoryWords]);
+
+    const getPreviousSign = useCallback((currentSign) => {
+        if (!currentSign || !category) return null;
+        
+        const categoryList = categoryWords[category];
+        if (!categoryList) return null;
+        
+        const currentIndex = categoryList.findIndex(sign => 
+            sign.toLowerCase() === currentSign.toLowerCase()
+        );
+        
+        if (currentIndex <= 0) return null;
+        return categoryList[currentIndex - 1];
+    }, [category, categoryWords]);
+
+    const showPreviousButton = getPreviousSign(letter) !== null;
+    const showNextButton = getNextSign(letter) !== null;
 
     const handleBackToLearn = () => {
-        navigate('/learn');
+        if (category) {
+            navigate('/learn', { state: { selectedCategory: category } });
+        } else {
+           navigate('/learn');
+        }
     };
 
-    const handleNextAlphabet = () => {
-        const nextLetter = getNextLetter(letter);
-        navigate(`/sign/${nextLetter}`);
+    const handleNextSign = () => {
+        const nextSign = getNextSign(letter);
+        if (nextSign) {
+            navigate(`/sign/${nextSign}${category ? `?category=${category}` : ''}`, {
+                state: { category }
+            });
+        }
     };
 
-    const handlePreviousAlphabet = () => {
-        const prevLetter = getPreviousLetter(letter);
-        navigate(`/sign/${prevLetter}`);
+    const handlePreviousSign = () => {
+        const prevSign = getPreviousSign(letter);
+        if (prevSign) {
+            navigate(`/sign/${prevSign}${category ? `?category=${category}` : ''}`, {
+                state: { category }
+            });
+        }
+    };
+
+    const handleReplay = () => {
+        setReplayKey(prev => prev + 1); 
     };
 
     useEffect(() => {
@@ -62,19 +113,16 @@ export function SignLearn() {
 
             setLoading(true);
             try {
-                const frames = await getLandmarks(letter);
-                setLandmarks(frames);
-                setFrameIndex(0);
+                const data = await getLandmarks(letter);
+                setLandmarks(data);
 
-                const learnedSigns = stats?.learnedSigns || []; // Assuming 'learnedSigns' array in stats
+                const learnedSigns = stats?.learnedSigns || []; 
                 if (!learnedSigns.includes(letter.toLowerCase())) {
                     updateStats({
                         signsLearned: (stats?.signsLearned || 0) + 1,
                         learnedSigns: [...learnedSigns, letter.toLowerCase()]
                     });
                 }
-
-               
             } catch (error) {
                 console.error('Failed to load landmarks:', error);
             } finally {
@@ -82,188 +130,7 @@ export function SignLearn() {
             }
         }
         loadData();
-    }, [letter, updateStats, stats, getNextLetter]); 
-
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        const ctx = canvas?.getContext('2d');
-
-        function drawFrame() {
-            if (!ctx || landmarks.length === 0) return;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            gradient.addColorStop(0, '#e8f4f8');
-            gradient.addColorStop(1, '#f0f8ff');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            const frame = landmarks[frameIndex];
-            if (!frame || frame.length < 21) return;
-
-            const getCoord = ({ x, y, z = 0 }) => {
-                const canvasX = x * canvas.width;
-                const canvasY = y * canvas.height;
-                const depth = z * 100;
-                const perspective = 1 + (depth * 0.001);
-
-                return {
-                    x: canvasX,
-                    y: canvasY,
-                    z: depth,
-                    perspective: perspective
-                };
-            };
-
-            const points = frame.map(getCoord);
-
-            const getUniformSkinColor = (baseAlpha = 1) => {
-                const baseR = 230;
-                const baseG = 190;
-                const baseB = 150;
-                return `rgba(${baseR}, ${baseG}, ${baseB}, ${baseAlpha})`;
-            };
-
-            const fingerSegments = [
-                [[1, 2], [2, 3], [3, 4]],
-                [[5, 6], [6, 7], [7, 8]],
-                [[9, 10], [10, 11], [11, 12]],
-                [[13, 14], [14, 15], [15, 16]],
-                [[17, 18], [18, 19], [19, 20]]
-            ];
-
-            const segmentsWithDepth = [];
-            fingerSegments.forEach((finger, fingerIndex) => {
-                finger.forEach((segment, segmentIndex) => {
-                    const [startIdx, endIdx] = segment;
-                    const avgZ = (points[startIdx].z + points[endIdx].z) / 2;
-                    segmentsWithDepth.push({
-                        fingerIndex,
-                        segmentIndex,
-                        segment,
-                        avgZ
-                    });
-                });
-            });
-
-            segmentsWithDepth.sort((a, b) => b.avgZ - a.avgZ);
-
-            ctx.save();
-            ctx.translate(8, 10);
-            ctx.scale(0.98, 0.95);
-
-            const palmPoints = [points[0], points[1], points[5], points[9], points[13], points[17]];
-            ctx.beginPath();
-            ctx.moveTo(palmPoints[0].x, palmPoints[0].y);
-
-            for (let i = 1; i < palmPoints.length; i++) {
-                const current = palmPoints[i];
-                const next = palmPoints[(i + 1) % palmPoints.length];
-                const midX = (current.x + next.x) / 2;
-                const midY = (current.y + next.y) / 2;
-                ctx.quadraticCurveTo(current.x, current.y, midX, midY);
-            }
-
-            ctx.closePath();
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-            ctx.filter = 'blur(6px)';
-            ctx.fill();
-            ctx.filter = 'none';
-            ctx.restore();
-
-            ctx.beginPath();
-            ctx.moveTo(points[0].x, points[0].y);
-            ctx.quadraticCurveTo(points[0].x - 30, points[0].y + 50, points[1].x - 10, points[1].y + 10);
-            ctx.lineTo(points[5].x - 10, points[5].y + 5);
-            ctx.lineTo(points[9].x, points[9].y);
-            ctx.lineTo(points[13].x + 10, points[13].y + 5);
-            ctx.lineTo(points[17].x + 10, points[17].y + 10);
-            ctx.quadraticCurveTo(points[0].x + 30, points[0].y + 50, points[0].x, points[0].y);
-            ctx.closePath();
-
-            ctx.fillStyle = getUniformSkinColor(1);
-            ctx.fill();
-            ctx.strokeStyle = `rgba(150, 100, 80, 0.5)`;
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
-
-            const fingerConnectionPairs = [
-                [0, 1], [0, 5], [9, 5], [13, 9], [17, 13]
-            ];
-
-            fingerConnectionPairs.forEach(([startIdx, endIdx]) => {
-                const start = points[startIdx];
-                const end = points[endIdx];
-
-                ctx.beginPath();
-                ctx.moveTo(start.x, start.y);
-                ctx.lineTo(end.x, end.y);
-                ctx.lineWidth = 20;
-                ctx.strokeStyle = getUniformSkinColor(1);
-                ctx.lineCap = 'round';
-                ctx.stroke();
-            });
-
-            segmentsWithDepth.forEach(({ fingerIndex, segmentIndex, segment }) => {
-                const [startIdx, endIdx] = segment;
-                const start = points[startIdx];
-                const end = points[endIdx];
-
-                let baseWidth;
-                if (fingerIndex === 0) baseWidth = 28;
-                else if (fingerIndex === 1) baseWidth = 22;
-                else if (fingerIndex === 2) baseWidth = 24;
-                else if (fingerIndex === 3) baseWidth = 21;
-                else baseWidth = 19;
-
-                const widthMultiplier = segmentIndex === 2 ? 0.6 : segmentIndex === 1 ? 0.8 : 1;
-                let segmentWidth = baseWidth * widthMultiplier;
-
-                const avgPerspective = (start.perspective + end.perspective) / 2;
-                segmentWidth *= avgPerspective;
-
-                const angle = Math.atan2(end.y - start.y, end.x - start.x);
-                const perpAngle = angle + Math.PI / 2;
-
-                const halfWidth = segmentWidth / 2;
-                const startX1 = start.x + Math.cos(perpAngle) * halfWidth;
-                const startY1 = start.y + Math.sin(perpAngle) * halfWidth;
-                const startX2 = start.x - Math.cos(perpAngle) * halfWidth;
-                const startY2 = start.y - Math.sin(perpAngle) * halfWidth;
-
-                const endHalfWidth = halfWidth * (segmentIndex === 2 ? 0.6 : 0.8);
-                const endX1 = end.x + Math.cos(perpAngle) * endHalfWidth;
-                const endY1 = end.y + Math.sin(perpAngle) * endHalfWidth;
-                const endX2 = end.x - Math.cos(perpAngle) * endHalfWidth;
-                const endY2 = end.y - Math.sin(perpAngle) * endHalfWidth;
-
-                ctx.beginPath();
-                ctx.moveTo(startX1, startY1);
-                ctx.lineTo(endX1, endY1);
-                ctx.lineTo(endX2, endY2);
-                ctx.lineTo(startX2, startY2);
-                ctx.closePath();
-
-                ctx.fillStyle = getUniformSkinColor(1);
-                ctx.fill();
-
-                ctx.strokeStyle = `rgba(150, 100, 80, 0.5)`;
-                ctx.lineWidth = 0.8;
-                ctx.stroke();
-            });
-
-            if ( landmarks.length > 1) {
-                setTimeout(() => {
-                    setFrameIndex((prev) => (prev + 1) % landmarks.length);
-                }, 30);
-            }
-        }
-
-        drawFrame();
-    }, [landmarks, frameIndex]);
-
-
+    }, [letter, updateStats, stats]); 
 
     if (loading) {
         return (
@@ -311,6 +178,7 @@ export function SignLearn() {
         );
     }
 
+
     return (
         <div className="sign-learn-container" style={{
             display: 'flex',
@@ -353,12 +221,12 @@ export function SignLearn() {
                     e.currentTarget.style.transform = 'translateY(0)';
                 }}
             >
-                ← Back to Learn
+                ← Back 
             </button>
 
             {showPreviousButton && (
                 <button
-                    onClick={handlePreviousAlphabet}
+                    onClick={handlePreviousSign}
                     style={{
                         position: 'absolute',
                         left: '20px',
@@ -389,7 +257,7 @@ export function SignLearn() {
                         e.currentTarget.style.backgroundColor = '#ffc107';
                         e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
                     }}
-                    title={`Previous: ${getPreviousLetter(letter).toUpperCase()}`}
+                    title={`Previous: ${getPreviousSign(letter)?.toUpperCase()}`}
                 >
                     ‹
                 </button>
@@ -397,7 +265,7 @@ export function SignLearn() {
 
             {showNextButton && (
                 <button
-                    onClick={handleNextAlphabet}
+                    onClick={handleNextSign}
                     style={{
                         position: 'absolute',
                         right: '20px',
@@ -428,7 +296,7 @@ export function SignLearn() {
                         e.currentTarget.style.backgroundColor = '#28a745';
                         e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
                     }}
-                    title={`Next: ${getNextLetter(letter).toUpperCase()}`}
+                    title={`Next: ${getNextSign(letter)?.toUpperCase()}`}
                 >
                     ›
                 </button>
@@ -443,21 +311,35 @@ export function SignLearn() {
                 marginTop: '40px'
             }}>
                 Learning Sign: {letter.toUpperCase()}
+                {category && (
+                    <div style={{ 
+                        fontSize: '0.6em', 
+                        color: '#666', 
+                        fontWeight: 'normal',
+                        marginTop: '10px' 
+                    }}>
+                 
+                    </div>
+                )}
             </h1>
 
-            <canvas
-                ref={canvasRef}
-                width={640}
-                height={480}
-                style={{
-                    border: '2px solid #ddd',
-                    borderRadius: '15px',
-                    backgroundColor: '#fff',
-                    boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
-                    maxWidth: '90%',
-                    height: 'auto'
-                }}
-            />
+            <div style={{
+                width: '100%',
+                maxWidth: '640px',
+                height: '480px',
+                borderRadius: '15px',
+                boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
+                overflow: 'hidden'
+                }}>
+                <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
+                    <ambientLight intensity={5} />
+                    <group position={[0, -1.1, 0]}>
+                        {/* <PhilSigns landmarks={landmarks} replay={replayKey}/> */}
+                        <AngieSigns landmarks={landmarks} replay={replayKey}/>
+                    </group>
+                    <OrbitControls enablePan={false} maxPolarAngle={Math.PI / 2} minDistance={2} maxDistance={3} />
+                </Canvas>
+            </div>
 
             <div className="controls-container" style={{
                 marginTop: '30px',
@@ -466,7 +348,27 @@ export function SignLearn() {
                 flexWrap: 'wrap',
                 justifyContent: 'center'
             }}>
-
+                <button
+                    onClick={handleReplay}
+                    style={{
+                        padding: '12px 24px',
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        borderRadius: '10px',
+                        backgroundColor: '#ffe44d',
+                        color: 'black',
+                        border: 'none',
+                        boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+                        cursor: 'pointer',
+                        transition: '0.3s',
+                    }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'scale(1.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'scale(1)';
+                    }}
+                >Replay Animation</button>
             </div>
         </div>
     );

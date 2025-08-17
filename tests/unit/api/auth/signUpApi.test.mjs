@@ -671,7 +671,7 @@ describe('Signup API', () => {
       json: jest.fn().mockResolvedValueOnce({}),
     });
 
-    await expect(signup(mockUserData)).rejects.toThrow('An unknown error occurred');
+    await expect(signup(mockUserData)).rejects.toThrow('Signup failed');
 
     expect(fetch).toHaveBeenCalledWith(
       'http://localhost:2000/handsUPApi/auth/signup',
