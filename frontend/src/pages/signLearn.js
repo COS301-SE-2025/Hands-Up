@@ -22,16 +22,20 @@ async function getLandmarks(letter) {
 }
 
 const COMMON_PHRASES = [
+
     { id: 'hello_my_name', phrase: 'Hello My Name', words: ['helloMyName'] },
     { id: 'nice_meet_you', phrase: 'Nice Meet You', words: ['nice', 'meet', 'you'] },
     { id: 'i_love_you', phrase: 'I Love You', words: ['iLoveYou'] },
     { id: 'i_am_happy', phrase: 'I Am Happy', words: ['me','happy'] },
     { id: 'i_am_sad', phrase: 'I Am Sad', words: ['me','sad'] },
+
     { id: 'good_morning', phrase: 'Good Morning', words: ['morning'] },
     { id: 'good_night', phrase: 'Good Night', words: ['night'] },
     { id: 'see_you_tomorrow', phrase: 'See You Tomorrow', words: ['see','you', 'tomorrow'] },
     { id: 'i_am_hungry', phrase: 'I Am Hungry', words: ['hungry'] },
+
     { id: 'drink_water', phrase: 'Drink Water', words: ['drinkWater'] },
+
     { id: 'my_mother', phrase: 'My Mother', words: ['my', 'mother'] },
     { id: 'my_father', phrase: 'My Father', words: ['my', 'father'] },
     { id: 'brother_sister', phrase: 'Brother Sister', words: ['brother', 'sister'] },
@@ -64,17 +68,20 @@ export function SignLearn() {
     const categoryWords = useMemo(() => ({
         'alphabets': 'abcdefghijklmnopqrstuvwxyz'.split(''),
         'numbers': ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'],
-        'colours': ['red', 'blue', 'green', 'yellow', 'black', 'white', 'pink', 'purple', 'orange', 'brown', 'grey', 'cyan', 'magenta', 'lime', 'gold', 'silver'],
+        'colours': ['red', 'blue', 'green', 'yellow', 'black', 'white', 'pink', 'purple', 'orange', 'brown', 'gold', 'silver'],
         'introduce': ['hello', 'name', 'my', 'again', 'goodbye', 'nice', 'meet', 'you', 'this', 'sorry', 'and'],
         'family': ['brother', 'sister', 'mother', 'father', 'aunt', 'uncle', 'grandma', 'grandpa', 'child', 'siblings', 'boy', 'girl'],
-        'feelings': ['happy', 'sad', 'angry', 'cry', 'hurt', 'sorry', 'like', 'love', 'hate', 'feel'],
+
+        'feelings': ['happy', 'sad', 'angry', 'cry', 'sorry', 'like', 'love', 'hate', 'feel'],
+
         'actions': ['drive', 'watch','see', 'sleep', 'walk', 'stand', 'sit', 'give', 'understand', 'go', 'stay', 'talk'],
         'questions': ['why', 'tell', 'when', 'who', 'which'],
-        'time': ['morning', 'afternoon', 'evening', 'night', 'today', 'tomorrow', 'yesterday', 'year', 'now', 'future', 'oclock', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
+        'time': ['today', 'tomorrow', 'yesterday', 'year', 'now', 'future', 'oclock', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
         'food': ['water', 'apple', 'drink', 'cereal', 'eggs', 'eat', 'hungry', 'full', 'cup', 'popcorn', 'candy', 'soup', 'juice', 'milk', 'pizza'],
         'things': ['shower', 'table', 'lights', 'computer', 'hat', 'chair', 'car', 'ambulance', 'window'],
         'animals': ['dog', 'cat', 'bird', 'fish', 'horse', 'cow', 'animal'],
-        'seasons': ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 'cloudy', 'snow', 'wind', 'sunrise', 'hot', 'cold', 'warm', 'cool', 'weather', 'freeze'],
+        'seasons': ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 'snow', 'wind', 'sunrise', 'hot', 'cold', 'warm', 'cool', 'weather', 'freeze'],
+
         'phrases': COMMON_PHRASES.map(p => p.id)
     }), []);
 
@@ -186,6 +193,7 @@ export function SignLearn() {
             clearTimeout(timeoutRef.current);
         }
         
+
            if (isPhrase && currentPhrase) {
             setIsAutoPlaying(true);
             setTimeout(startAutoPlay, 100);
@@ -450,13 +458,16 @@ export function SignLearn() {
             }}>
                 {isPhrase ? (
                     <div>
+
                         <div> {currentPhrase?.phrase}</div>
+
                         <div style={{ 
                             fontSize: '0.6em', 
                             color: '#666', 
                             fontWeight: 'normal',
                             marginTop: '10px' 
                         }}>
+
                             {isAutoPlaying && (
                                 <span style={{ color: '#4caf50', marginLeft: '10px' }}>
                                     ● Auto-playing...
@@ -466,7 +477,8 @@ export function SignLearn() {
                     </div>
                 ) : (
                     <div>
-                        Learning Sign: {letter.toUpperCase()}
+                         {letter.toUpperCase()}
+
                         {category && (
                             <div style={{ 
                                 fontSize: '0.6em', 

@@ -69,7 +69,7 @@ HelpMessage.propTypes = {
 
 const COLORS = [
     'Red', 'Blue', 'Green', 'Yellow', 'Black', 'White', 'Pink', 'Purple',
-    'Orange', 'Brown', 'Grey', 'Cyan', 'Magenta', 'Lime', 'Gold', 'Silver'
+    'Orange', 'Brown', 'Gold', 'Silver'
 ];
 
 const INTRODUCTION_WORDS = ['hello', 'name', 'my','again', 'goodbye', 'nice', 'meet', 'you', 'this', 'sorry', 'and'];
@@ -77,14 +77,14 @@ const INTRODUCTION_WORDS = ['hello', 'name', 'my','again', 'goodbye', 'nice', 'm
 const FAMILY_MEMBERS = ['brother', 'sister', 'mother','father', 'aunt', 'uncle', 'grandma', 'grandpa', 'child',
      'siblings','boy','girl',];
 
-const EMOTIONS_FEELINGS = ['happy', 'sad', 'angry','cry','hurt', 'sorry', 'like', 'love', 'hate', 'feel'];
+const EMOTIONS_FEELINGS = ['happy', 'sad', 'angry','cry', 'sorry', 'like', 'love', 'hate', 'feel'];
 
 const COMMON_ACTIONS = ['drive', 'watch','see', 'sleep', 'walk', 'stand', 'sit', 'give', 'understand', 'go', 'stay',
     'talk'];
 
 const ASKING_QUESTIONS = ['why', 'tell', 'when', 'who', 'which'];
 
-const TIME_DAYS = ['morning', 'afternoon', 'evening', 'night', 'today', 'tomorrow', 'yesterday', 'year',
+const TIME_DAYS = [ 'today', 'tomorrow', 'yesterday', 'year',
     'now', 'future','Oclock', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 const FOOD_DRINKS = ['water', 'apple', 'drink', 'cereal', 'eggs', 'eat', 'hungry', 'full', 'cup',
@@ -95,7 +95,7 @@ const OBJECTS_THINGS = ['shower', 'table', 'lights', 'computer', 'hat', 'chair',
 
 const ANIMALS = ['dog', 'cat', 'bird', 'fish', 'horse', 'cow', 'animal'];
 
-const SEASONS_WEATHER = ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 'cloudy', 'snow',
+const SEASONS_WEATHER = ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 'snow',
     'wind', 'sunrise', 'hot', 'cold', 'warm', 'cool','weather', 'freeze'];
 
 const COMMON_PHRASES = [
@@ -448,6 +448,7 @@ export function Learn() {
                             ) : currentCategory.id === 'phrases' ? (
                                 <>
                                     {COMMON_PHRASES.map((phrase) => (
+
                                         <div
                                             key={phrase.id}
                                             className="level-card phrase-card unlocked"
@@ -471,6 +472,7 @@ export function Learn() {
                                                 ? 'unlocked' 
                                                 : 'locked'
                                         }`}
+
                                         onClick={() => {
                                             if (COMMON_PHRASES.every(phrase => stats?.learnedPhrases?.includes(phrase.id))) {
                                                 navigate(getQuizRoute(currentCategory.id));
@@ -482,6 +484,7 @@ export function Learn() {
                                                 );
                                             }
                                         }}
+
                                     >
                                         <div className="phrase-content">
                                             <div className="phrase-icon">
@@ -499,6 +502,7 @@ export function Learn() {
                                         </div>
                                         <div className="phrase-arrow"> →</div>
                                     </div>
+
                                 </>
                             ) : currentCategory.id === 'introduce' ? ( 
                                 <>
