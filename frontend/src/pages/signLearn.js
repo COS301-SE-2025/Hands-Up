@@ -67,14 +67,14 @@ export function SignLearn() {
         'colours': ['red', 'blue', 'green', 'yellow', 'black', 'white', 'pink', 'purple', 'orange', 'brown', 'grey', 'cyan', 'magenta', 'lime', 'gold', 'silver'],
         'introduce': ['hello', 'name', 'my', 'again', 'goodbye', 'nice', 'meet', 'you', 'this', 'sorry', 'and'],
         'family': ['brother', 'sister', 'mother', 'father', 'aunt', 'uncle', 'grandma', 'grandpa', 'child', 'siblings', 'boy', 'girl'],
-        'feelings': ['happy', 'sad', 'angry', 'cry', 'hurt', 'sorry', 'like', 'love', 'hate', 'feel'],
+        'feelings': ['happy', 'sad', 'angry', 'cry', 'sorry', 'like', 'love', 'hate', 'feel'],
         'actions': ['drive', 'watch','see', 'sleep', 'walk', 'stand', 'sit', 'give', 'understand', 'go', 'stay', 'talk'],
         'questions': ['why', 'tell', 'when', 'who', 'which'],
         'time': ['morning', 'afternoon', 'evening', 'night', 'today', 'tomorrow', 'yesterday', 'year', 'now', 'future', 'oclock', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
         'food': ['water', 'apple', 'drink', 'cereal', 'eggs', 'eat', 'hungry', 'full', 'cup', 'popcorn', 'candy', 'soup', 'juice', 'milk', 'pizza'],
         'things': ['shower', 'table', 'lights', 'computer', 'hat', 'chair', 'car', 'ambulance', 'window'],
         'animals': ['dog', 'cat', 'bird', 'fish', 'horse', 'cow', 'animal'],
-        'seasons': ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 'cloudy', 'snow', 'wind', 'sunrise', 'hot', 'cold', 'warm', 'cool', 'weather', 'freeze'],
+        'seasons': ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 'snow', 'wind', 'sunrise', 'hot', 'cold', 'warm', 'cool', 'weather', 'freeze'],
         'phrases': COMMON_PHRASES.map(p => p.id)
     }), []);
 

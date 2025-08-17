@@ -77,7 +77,7 @@ const INTRODUCTION_WORDS = ['hello', 'name', 'my','again', 'goodbye', 'nice', 'm
 const FAMILY_MEMBERS = ['brother', 'sister', 'mother','father', 'aunt', 'uncle', 'grandma', 'grandpa', 'child',
      'siblings','boy','girl',];
 
-const EMOTIONS_FEELINGS = ['happy', 'sad', 'angry','cry','hurt', 'sorry', 'like', 'love', 'hate', 'feel'];
+const EMOTIONS_FEELINGS = ['happy', 'sad', 'angry','cry', 'sorry', 'like', 'love', 'hate', 'feel'];
 
 const COMMON_ACTIONS = ['drive', 'watch','see', 'sleep', 'walk', 'stand', 'sit', 'give', 'understand', 'go', 'stay',
     'talk'];
@@ -95,7 +95,7 @@ const OBJECTS_THINGS = ['shower', 'table', 'lights', 'computer', 'hat', 'chair',
 
 const ANIMALS = ['dog', 'cat', 'bird', 'fish', 'horse', 'cow', 'animal'];
 
-const SEASONS_WEATHER = ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 'cloudy', 'snow',
+const SEASONS_WEATHER = ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 'snow',
     'wind', 'sunrise', 'hot', 'cold', 'warm', 'cool','weather', 'freeze'];
 
 const COMMON_PHRASES = [
