@@ -7,8 +7,8 @@ from tensorflow.keras.models import load_model
 import time
 
 # --- Configuration (must match training parameters) ---
-MODEL_PATH = 'saved_models/best_sign_classifier_model_40_words_seq90.keras'
-PROCESSED_DATA_CSV = 'wlasl_40_words_personal_final_processed_data_augmented_seq90.csv'
+MODEL_PATH = 'saved_models/best_sign_classifier_model_125_words_seq90.keras'
+PROCESSED_DATA_CSV = 'wlasl_125_words_personal_final_processed_data_augmented_seq90.csv'
 
 SEQUENCE_LENGTH = 90
 EXPECTED_COORDS_PER_FRAME = 1662
