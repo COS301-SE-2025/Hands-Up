@@ -24,28 +24,23 @@ async function getLandmarks(letter) {
 const COMMON_PHRASES = [
 
     { id: 'hello_my_name', phrase: 'Hello My Name', words: ['helloMyName'] },
-    { id: 'nice_meet_you', phrase: 'Nice Meet You', words: ['nice', 'meet', 'you'] },
+    { id: 'nice_meet_you', phrase: 'Nice To Meet You', words: ['niceToMeetYou'] },
     { id: 'i_love_you', phrase: 'I Love You', words: ['iLoveYou'] },
-    { id: 'i_am_happy', phrase: 'I Am Happy', words: ['me','happy'] },
-    { id: 'i_am_sad', phrase: 'I Am Sad', words: ['me','sad'] },
-
-    { id: 'good_morning', phrase: 'Good Morning', words: ['morning'] },
-    { id: 'good_night', phrase: 'Good Night', words: ['night'] },
-    { id: 'see_you_tomorrow', phrase: 'See You Tomorrow', words: ['see','you', 'tomorrow'] },
-    { id: 'i_am_hungry', phrase: 'I Am Hungry', words: ['hungry'] },
-
+    { id: 'i_am_happy', phrase: 'I Am Happy', words: ['meHappy'] },
+    { id: 'i_am_sad', phrase: 'I Am Sad', words: ['meSad'] },
+    { id: 'see_you_tomorrow', phrase: 'See You Tomorrow', words: ['seeYouTomorrow'] },
+    { id: 'i_am_hungry', phrase: 'I Am Hungry', words: ['meHungry'] },
     { id: 'drink_water', phrase: 'Drink Water', words: ['drinkWater'] },
-
-    { id: 'my_mother', phrase: 'My Mother', words: ['my', 'mother'] },
-    { id: 'my_father', phrase: 'My Father', words: ['my', 'father'] },
-    { id: 'brother_sister', phrase: 'Brother Sister', words: ['brother', 'sister'] },
-    { id: 'watch_tv', phrase: 'Watch TV', words: ['watch'] },
-    { id: 'go_sleep', phrase: 'Go Sleep', words: ['go', 'sleep'] },
-    { id: 'i_understand', phrase: 'I Understand', words: ['understand'] },
-    { id: 'hot_weather', phrase: 'Hot Weather', words: ['hot', 'weather'] },
-    { id: 'cold_weather', phrase: 'Cold Weather', words: ['cold', 'weather'] },
-    { id: 'eat_apple', phrase: 'Eat Apple', words: ['eat', 'apple'] },
-    { id: 'my_pet_is_a_dog', phrase: 'My Pet Is A Dog', words: ['my', 'pet','dog'] }
+    { id: 'my_mother', phrase: 'My Mother', words: ['myMother'] },
+    { id: 'my_father', phrase: 'My Father', words: ['myFather'] },
+    
+    { id: 'brother_sister', phrase: 'My Brother and Sister', words: ['myBrotherAndSister'] },
+    { id: 'go_sleep', phrase: 'Go To Sleep', words: ['goSleep'] },
+    { id: 'i_understand', phrase: 'I Understand', words: ['meunderstand'] },
+    { id: 'hot_weather', phrase: 'Hot Weather', words: ['hotWeather'] },
+    { id: 'cold_weather', phrase: 'Cold Weather', words: ['coldWeather'] },
+    { id: 'eat_apple', phrase: 'Eat an Apple', words: ['eatApple'] },
+    { id: 'my_pet_is_a_dog', phrase: 'My Pet Is A Dog', words: ['myPetDog'] }
 ];
 
 export function SignLearn() {
