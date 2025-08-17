@@ -17,7 +17,7 @@ const CATEGORIES = {
     },
     colours: {
         name: 'Colours',
-        items: ['Red', 'Blue', 'Green', 'Yellow', 'Black', 'White', 'Pink', 'Purple', 'Orange', 'Brown', 'Grey', 'Cyan', 'Magenta', 'Lime', 'Gold', 'Silver']
+        items: ['Red', 'Blue', 'Green', 'Yellow', 'Black', 'White', 'Pink', 'Purple', 'Orange', 'Brown',  'Gold', 'Silver']
     },
     introduce: {
         name: 'Introduce Yourself',
@@ -29,7 +29,7 @@ const CATEGORIES = {
     },
     feelings: {
         name: 'Emotions & Feelings',
-        items: ['happy', 'sad', 'angry', 'cry', 'hurt', 'sorry', 'like', 'love', 'hate', 'feel']
+        items: ['happy', 'sad', 'angry', 'cry', 'sorry', 'like', 'love', 'hate', 'feel']
     },
     actions: {
         name: 'Common Actions',
@@ -41,7 +41,7 @@ const CATEGORIES = {
     },
     time: {
         name: 'Time & Days',
-        items: ['morning', 'afternoon', 'evening', 'night', 'today', 'tomorrow', 'yesterday', 'year', 'now', 'future', 'Oclock', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        items: [ 'today', 'tomorrow', 'yesterday', 'year', 'now', 'future', 'Oclock', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     },
     food: {
         name: 'Food & Drinks',
@@ -262,41 +262,7 @@ export function SignQuiz() {
                         <br />Type the correct answer for each sign!
                     </p>
 
-                    <div style={{ marginBottom: '30px' }}>
-                        <h3 style={{ color: '#333', marginBottom: '15px' }}>Choose your character:</h3>
-                        <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
-                            <button
-                                onClick={() => setSelectedCharacter('angie')}
-                                style={{
-                                    padding: '10px 20px',
-                                    backgroundColor: selectedCharacter === 'angie' ? '#28a745' : '#6c757d',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '8px',
-                                    cursor: 'pointer',
-                                    fontSize: '16px',
-                                    fontWeight: 'bold'
-                                }}
-                            >
-                                Angie
-                            </button>
-                            <button
-                                onClick={() => setSelectedCharacter('phil')}
-                                style={{
-                                    padding: '10px 20px',
-                                    backgroundColor: selectedCharacter === 'phil' ? '#28a745' : '#6c757d',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '8px',
-                                    cursor: 'pointer',
-                                    fontSize: '16px',
-                                    fontWeight: 'bold'
-                                }}
-                            >
-                                Phil
-                            </button>
-                        </div>
-                    </div>
+
 
                     <button
                         onClick={startQuiz}

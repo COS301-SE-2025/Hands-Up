@@ -69,7 +69,7 @@ HelpMessage.propTypes = {
 
 const COLORS = [
     'Red', 'Blue', 'Green', 'Yellow', 'Black', 'White', 'Pink', 'Purple',
-    'Orange', 'Brown', 'Grey', 'Cyan', 'Magenta', 'Lime', 'Gold', 'Silver'
+    'Orange', 'Brown', 'Gold', 'Silver'
 ];
 
 const INTRODUCTION_WORDS = ['hello', 'name', 'my','again', 'goodbye', 'nice', 'meet', 'you', 'this', 'sorry', 'and'];
@@ -84,7 +84,7 @@ const COMMON_ACTIONS = ['drive', 'watch','see', 'sleep', 'walk', 'stand', 'sit',
 
 const ASKING_QUESTIONS = ['why', 'tell', 'when', 'who', 'which'];
 
-const TIME_DAYS = ['morning', 'afternoon', 'evening', 'night', 'today', 'tomorrow', 'yesterday', 'year',
+const TIME_DAYS = [ 'today', 'tomorrow', 'yesterday', 'year',
     'now', 'future','Oclock', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 const FOOD_DRINKS = ['water', 'apple', 'drink', 'cereal', 'eggs', 'eat', 'hungry', 'full', 'cup',
