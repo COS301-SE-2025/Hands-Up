@@ -40,7 +40,7 @@ export function useLandmarksDetection(videoRef, canvasRef) {
       const canvas = canvasRef.current;
       if (canvas && modelState.model) {
       console.log("Redrawing button for model:", modelState.model);
-      let text = modelState.model=='alpha'?'Alphabet':modelState.model=='num'?'Numbers': 'Glosses';
+      let text = modelState.model==='alpha'?'Alphabet':modelState.model==='num'?'Numbers': 'Glosses';
       drawButton(canvas, text);
       }
   }, [modelState.model, canvasRef, switchModel]);
@@ -59,7 +59,7 @@ export function useLandmarksDetection(videoRef, canvasRef) {
         canvas.width = video.videoWidth*0.5;
         canvas.height = video.videoHeight*0.5;
 
-        let text = modelState.model=='alpha'?'Alphabet':modelState.model=='num'?'Numbers': 'Glosses';
+        let text = modelState.model==='alpha'?'Alphabet':modelState.model==='num'?'Numbers': 'Glosses';
         drawButton(canvas, text);
 
         if (video.currentTime === lastVideoTime.current) {
