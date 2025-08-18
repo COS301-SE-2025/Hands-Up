@@ -36,7 +36,7 @@ describe('Overall Application Tests', () => {
       // Test page structure and initial elements
       cy.contains('h2', 'Sign Language Recognizer').should('be.visible');
       cy.get('.recognizer-banner').should('be.visible');
-      cy.get('.recognizer-banner p').should('contain', 'Position your hand clearly in frame for best recognition results');
+      cy.get('.recognizer-banner p').should('contain', 'Swipe your hand in the camera to switch models');
       cy.get('.recognizer-camera-container').should('be.visible');
       cy.get('video.recognizer-video').should('be.visible');
       cy.get('.recognizer-live-indicator').should('be.visible');
