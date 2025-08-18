@@ -4,13 +4,11 @@ import {renderMediaPreview} from '../components/mediaPreview';
 import {renderHistoryItem} from '../components/historyItem';
 import {FingerspellingToggle} from '../components/fingerSpellingToggle'
 import { useLandmarksDetection } from '../hooks/landmarksDetection';
-import { useModelSwitch } from '../contexts/modelContext';
 import '../styles/translator.css';
 
 export function Translator(){
 
   const [audioProgressWidth] = useState(0);
-  const { switchModel, modelState } = useModelSwitch();
 
   const {
     videoRef,

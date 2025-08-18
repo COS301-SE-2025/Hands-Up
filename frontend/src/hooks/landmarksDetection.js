@@ -5,7 +5,6 @@ import { useModelSwitch } from '../contexts/modelContext';
 
 let direction = ""
 let handXHistory = [];
-let handVisible = false;
 const SWIPE_HISTORY_LIMIT = 10;
 const SWIPE_THRESHOLD = 100; 
 
@@ -44,7 +43,7 @@ export function useLandmarksDetection(videoRef, canvasRef) {
       let text = modelState.model=='alpha'?'Alphabet':modelState.model=='num'?'Numbers': 'Glosses';
       drawButton(canvas, text);
       }
-  }, [modelState.model]);
+  }, [modelState.model, canvasRef, switchModel]);
 
   useEffect(() => {
     let animationFrameId;
@@ -108,5 +107,5 @@ export function useLandmarksDetection(videoRef, canvasRef) {
     animationFrameId = requestAnimationFrame(detect);
 
     return () => cancelAnimationFrame(animationFrameId);
-  }, [videoRef, canvasRef,modelState.model]);
+  }, [videoRef, canvasRef,modelState.model, switchModel]);
 }

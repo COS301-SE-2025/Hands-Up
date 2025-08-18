@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, PropTypes } from "react";
+import React, { createContext, useContext, useState } from "react";
+import PropTypes from "prop-types";
 
 const modelSwitchContext = createContext();
 
@@ -30,6 +31,6 @@ export const useModelSwitch = () => {
   return useContext(modelSwitchContext);
 };
 
-// ModelSwitchProvider.propTypes = {
-//     children: PropTypes.node.isRequired,
-// };
+ModelSwitchProvider.propTypes = {
+    children: PropTypes.node.isRequired,
+};
