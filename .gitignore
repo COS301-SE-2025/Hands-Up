@@ -27,6 +27,7 @@ ai_model/video_data
 ai_model2/dataset
 ai_model2/processed_dataset
 ai_model2/models/__pycache__
+.venv
 
 #uploads
 backend/api/uploads
@@ -51,3 +52,12 @@ ai_model2/notebook/Logs
 
 #uploads
 backend/uploads
+
+
+#module translate
+venv_signlang
+translate/videos
+translate/extracted_landmarks
+translate/processed_sequences
+translate/my_recorded_signs
+
