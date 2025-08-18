@@ -1,10 +1,29 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLearningStats } from '../contexts/learningStatsContext';
 import { AngieSigns } from '../components/angieSigns';
-import { PhilSigns } from '../components/philSigns';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
+
+const COMMON_PHRASES = [
+    { id: 'hello_my_name', phrase: 'Hello My Name', words: ['helloMyName'] },
+    { id: 'nice_meet_you', phrase: 'Nice To Meet You', words: ['niceToMeetYou'] },
+    { id: 'i_love_you', phrase: 'I Love You', words: ['iLoveYou'] },
+    { id: 'i_am_happy', phrase: 'I Am Happy', words: ['meHappy'] },
+    { id: 'i_am_sad', phrase: 'I Am Sad', words: ['meSad'] },
+    { id: 'see_you_tomorrow', phrase: 'See You Tomorrow', words: ['seeYouTomorrow'] },
+    { id: 'i_am_hungry', phrase: 'I Am Hungry', words: ['meHungry'] },
+    { id: 'drink_water', phrase: 'Drink Water', words: ['drinkWater'] },
+    { id: 'my_mother', phrase: 'My Mother', words: ['myMother'] },
+    { id: 'my_father', phrase: 'My Father', words: ['myFather'] },
+    { id: 'brother_sister', phrase: 'My Brother and Sister', words: ['myBrotherAndSister'] },
+    { id: 'go_sleep', phrase: 'Go To Sleep', words: ['goSleep'] },
+    { id: 'i_understand', phrase: 'I Understand', words: ['meUnderstand'] },
+    { id: 'hot_weather', phrase: 'Hot Weather', words: ['hotWeather'] },
+    { id: 'cold_weather', phrase: 'Cold Weather', words: ['coldWeather'] },
+    { id: 'eat_apple', phrase: 'Eat an Apple', words: ['eatApple'] },
+    { id: 'my_pet_is_a_dog', phrase: 'My Pet Is A Dog', words: ['myPetDog'] }
+];
 
 const CATEGORIES = {
     alphabets: {
@@ -17,7 +36,7 @@ const CATEGORIES = {
     },
     colours: {
         name: 'Colours',
-        items: ['Red', 'Blue', 'Green', 'Yellow', 'Black', 'White', 'Pink', 'Purple', 'Orange', 'Brown', 'Grey', 'Cyan', 'Magenta', 'Lime', 'Gold', 'Silver']
+        items: ['Red', 'Blue', 'Green', 'Yellow', 'Black', 'White', 'Pink', 'Purple', 'Orange', 'Brown', 'Gold', 'Silver']
     },
     introduce: {
         name: 'Introduce Yourself',
@@ -29,7 +48,7 @@ const CATEGORIES = {
     },
     feelings: {
         name: 'Emotions & Feelings',
-        items: ['happy', 'sad', 'angry', 'cry', 'hurt', 'sorry', 'like', 'love', 'hate', 'feel']
+        items: ['happy', 'sad', 'angry', 'cry', 'sorry', 'like', 'love', 'hate', 'feel']
     },
     actions: {
         name: 'Common Actions',
@@ -41,7 +60,7 @@ const CATEGORIES = {
     },
     time: {
         name: 'Time & Days',
-        items: ['morning', 'afternoon', 'evening', 'night', 'today', 'tomorrow', 'yesterday', 'year', 'now', 'future', 'Oclock', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        items: ['today', 'tomorrow', 'yesterday', 'year', 'now', 'future', 'Oclock', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     },
     food: {
         name: 'Food & Drinks',
@@ -58,6 +77,10 @@ const CATEGORIES = {
     seasons: {
         name: 'Weather & Seasons',
         items: ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 'cloudy', 'snow', 'wind', 'sunrise', 'hot', 'cold', 'warm', 'cool', 'weather', 'freeze']
+    },
+    phrases: {
+        name: 'Common Phrases',
+        items: COMMON_PHRASES
     }
 };
 
@@ -76,7 +99,7 @@ export function SignQuiz() {
     const navigate = useNavigate();
     const { category } = useParams();
     const { updateStats, stats } = useLearningStats();
-    
+
     const [quizQuestions, setQuizQuestions] = useState([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [userAnswers, setUserAnswers] = useState([]);
@@ -85,37 +108,101 @@ export function SignQuiz() {
     const [score, setScore] = useState(0);
     const [loading, setLoading] = useState(true);
     const [quizStarted, setQuizStarted] = useState(false);
-    
+    const [hasTrackedQuizStats, setHasTrackedQuizStats] = useState(false);
     const [landmarks, setLandmarks] = useState({});
     const [replayKey, setReplayKey] = useState(0);
-    const [selectedCharacter, setSelectedCharacter] = useState('angie');
-
+    const [isAutoPlaying, setIsAutoPlaying] = useState(false);
+    
+    const timeoutRef = useRef(null);
     const currentCategoryData = CATEGORIES[category] || CATEGORIES['alphabets'];
+    const isPhrasesQuiz = category === 'phrases';
 
     const generateQuizQuestions = useCallback(() => {
-        const availableItems = currentCategoryData.items;
-        
-       const shuffled = [...availableItems].sort(() => Math.random() - 0.5);
-        const selectedItems = shuffled.slice(0, Math.min(5, availableItems.length));
-        
-        return selectedItems.map((item, index) => ({
-            id: index + 1,
-            item: item.toLowerCase(),
-            correctAnswer: item,
-            displayAnswer: item
-        }));
-    }, [currentCategoryData]);
+        if (isPhrasesQuiz) {
+            const shuffled = [...COMMON_PHRASES].sort(() => Math.random() - 0.5);
+            const selectedPhrases = shuffled.slice(0, Math.min(5, COMMON_PHRASES.length));
 
-    const loadCurrentQuestionLandmarks = useCallback(async (item) => {
+            return selectedPhrases.map((phrase, index) => ({
+                id: index + 1,
+                item: phrase.id,
+                phrase: phrase,
+                correctAnswer: phrase.phrase,
+                displayAnswer: phrase.phrase
+            }));
+        } else {
+            const availableItems = currentCategoryData.items;
+            const shuffled = [...availableItems].sort(() => Math.random() - 0.5);
+            const selectedItems = shuffled.slice(0, Math.min(5, availableItems.length));
+
+            return selectedItems.map((item, index) => ({
+                id: index + 1,
+                item: item.toLowerCase(),
+                correctAnswer: item,
+                displayAnswer: item
+            }));
+        }
+    }, [currentCategoryData, isPhrasesQuiz]);
+
+    const loadCurrentQuestionLandmarks = useCallback(async (question) => {
         try {
-            const data = await getLandmarks(item);
-            setLandmarks(data);
-            setReplayKey(prev => prev + 1);
+            if (isPhrasesQuiz && question.phrase) {
+                const firstWord = question.phrase.words[0];
+                const data = await getLandmarks(firstWord);
+                setLandmarks(data);
+                setReplayKey(prev => prev + 1);
+            } else {
+                const data = await getLandmarks(question.item);
+                setLandmarks(data);
+                setReplayKey(prev => prev + 1);
+            }
         } catch (error) {
             console.error('Failed to load landmarks:', error);
             setLandmarks({});
         }
-    }, []);
+    }, [isPhrasesQuiz]);
+
+    const startPhraseAutoPlay = useCallback((phrase) => {
+        if (!phrase || isAutoPlaying) return;
+
+        setIsAutoPlaying(true);
+
+        let index = 0;
+        const playNext = async () => {
+            if (index < phrase.words.length) {
+            
+                try {
+                    const data = await getLandmarks(phrase.words[index]);
+                    setLandmarks(data);
+                    setReplayKey(prev => prev + 1);
+                } 
+                catch (error) {
+                    console.error('Failed to load landmarks for word:', phrase.words[index], error);
+                }
+
+                index++;
+
+                if (index < phrase.words.length) {
+                    timeoutRef.current = setTimeout(playNext, 3000);
+                } else {
+                    setIsAutoPlaying(false);
+                }
+            }
+        };
+
+        timeoutRef.current = setTimeout(playNext, 500);
+    }, [isAutoPlaying]);
+
+    const handleReplay = () => {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+
+        if (isPhrasesQuiz && quizQuestions[currentQuestionIndex]?.phrase) {
+            startPhraseAutoPlay(quizQuestions[currentQuestionIndex].phrase);
+        } else {
+            setReplayKey(prev => prev + 1);
+        }
+    };
 
     useEffect(() => {
         const questions = generateQuizQuestions();
@@ -126,9 +213,26 @@ export function SignQuiz() {
     useEffect(() => {
         if (quizStarted && quizQuestions.length > 0 && currentQuestionIndex < quizQuestions.length) {
             const currentQuestion = quizQuestions[currentQuestionIndex];
-            loadCurrentQuestionLandmarks(currentQuestion.item);
+            loadCurrentQuestionLandmarks(currentQuestion);
         }
     }, [quizStarted, currentQuestionIndex, quizQuestions, loadCurrentQuestionLandmarks]);
+
+    useEffect(() => {
+        if (isPhrasesQuiz && quizStarted && quizQuestions[currentQuestionIndex]?.phrase && landmarks && Object.keys(landmarks).length > 0) {
+            const timer = setTimeout(() => {
+                startPhraseAutoPlay(quizQuestions[currentQuestionIndex].phrase);
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [isPhrasesQuiz, quizStarted, currentQuestionIndex, quizQuestions, landmarks, startPhraseAutoPlay]);
+
+    useEffect(() => {
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+        };
+    }, []);
 
     const startQuiz = () => {
         setQuizStarted(true);
@@ -137,6 +241,7 @@ export function SignQuiz() {
         setCurrentAnswer('');
         setShowResults(false);
         setScore(0);
+        setHasTrackedQuizStats(false);
     };
 
     const handleAnswerSubmit = () => {
@@ -144,13 +249,13 @@ export function SignQuiz() {
 
         const currentQuestion = quizQuestions[currentQuestionIndex];
         const isCorrect = currentAnswer.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase();
-        
+
         const newAnswer = {
             questionId: currentQuestion.id,
             userAnswer: currentAnswer.trim(),
             correctAnswer: currentQuestion.correctAnswer,
             isCorrect,
-            questionItem: currentQuestion.item
+            questionItem: isPhrasesQuiz ? currentQuestion.phrase.phrase : currentQuestion.item
         };
 
         const newUserAnswers = [...userAnswers, newAnswer];
@@ -162,17 +267,26 @@ export function SignQuiz() {
 
         setCurrentAnswer('');
 
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+        setIsAutoPlaying(false);
+
         if (currentQuestionIndex + 1 < quizQuestions.length) {
             setCurrentQuestionIndex(currentQuestionIndex + 1);
         } else {
             setShowResults(true);
             const finalScore = newUserAnswers.filter(answer => answer.isCorrect).length;
-            updateStats({
-                quizzesCompleted: (stats?.quizzesCompleted || 0) + 1,
-                quizScore: finalScore,
-                totalQuizQuestions: (stats?.totalQuizQuestions || 0) + quizQuestions.length,
-                [`${category}QuizCompleted`]: true
-            });
+
+            if (!hasTrackedQuizStats) {
+                updateStats({
+                    quizzesCompleted: (stats?.quizzesCompleted || 0) + 1,
+                    quizScore: finalScore,
+                    totalQuizQuestions: (stats?.totalQuizQuestions || 0) + quizQuestions.length,
+                    [`${category}QuizCompleted`]: true
+                });
+                setHasTrackedQuizStats(true);
+            }
         }
     };
 
@@ -182,35 +296,84 @@ export function SignQuiz() {
         }
     };
 
-    const handleReplay = () => {
-        setReplayKey(prev => prev + 1);
-    };
-
     const restartQuiz = () => {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+        setIsAutoPlaying(false);
+        setHasTrackedQuizStats(false);
         const questions = generateQuizQuestions();
         setQuizQuestions(questions);
         startQuiz();
     };
 
-   const goBackToCategory = () => {
+    const goBackToCategory = () => {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
         navigate('/learn', { state: { selectedCategory: category } });
     };
 
     const goBackToLearn = () => {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
         navigate('/learn');
+    };
+
+    const containerStyle = {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '20px',
+        backgroundColor: '#f5f5f5',
+        minHeight: '100vh',
+        justifyContent: 'center',
+        fontFamily: 'Inter, sans-serif'
+    };
+
+    const backButtonStyle = {
+        position: 'absolute',
+        top: '20px',
+        left: '20px',
+        padding: '10px 20px',
+        backgroundColor: '#6c757d',
+        color: 'white',
+        border: 'none',
+        borderRadius: '8px',
+        cursor: 'pointer',
+        fontSize: '16px'
+    };
+
+    const quizCardStyle = {
+        backgroundColor: 'white',
+        padding: '40px',
+        borderRadius: '15px',
+        boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
+        textAlign: 'center',
+        maxWidth: '500px'
+    };
+
+    const startButtonStyle = {
+        padding: '15px 30px',
+        backgroundColor: '#28a745',
+        color: 'white',
+        border: 'none',
+        borderRadius: '10px',
+        fontSize: '20px',
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+            backgroundColor: '#218838',
+            transform: 'translateY(-2px)'
+        }
     };
 
     if (loading) {
         return (
-            <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                padding: '20px',
-                backgroundColor: '#f5f5f5',
-                minHeight: '100vh',
-                justifyContent: 'center'
-            }}>
+            <div style={containerStyle}>
                 <h1 style={{ color: '#333' }}>Loading {currentCategoryData.name} Quiz...</h1>
             </div>
         );
@@ -218,100 +381,32 @@ export function SignQuiz() {
 
     if (!quizStarted) {
         return (
-            <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                padding: '20px',
-                backgroundColor: '#f5f5f5',
-                minHeight: '100vh',
-                justifyContent: 'center',
-                fontFamily: 'Inter, sans-serif'
-            }}>
-                <button
-                    onClick={goBackToCategory}
-                    style={{
-                        position: 'absolute',
-                        top: '20px',
-                        left: '20px',
-                        padding: '10px 20px',
-                        backgroundColor: '#6c757d',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        fontSize: '16px'
-                    }}
-                >
+            <div style={containerStyle}>
+                <button onClick={goBackToCategory} style={backButtonStyle}>
                     ← Back to {currentCategoryData.name}
                 </button>
 
-                <div style={{
-                    backgroundColor: 'white',
-                    padding: '40px',
-                    borderRadius: '15px',
-                    boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
-                    textAlign: 'center',
-                    maxWidth: '500px'
-                }}>
+                <div style={quizCardStyle}>
                     <h2 style={{ color: '#333', marginBottom: '20px' }}>
                         {currentCategoryData.name} QUIZ
                     </h2>
                     <p style={{ color: '#666', fontSize: '18px', marginBottom: '30px' }}>
-                        You&apos;ll see 5 different {currentCategoryData.name.toLowerCase()} signs.
-                        <br />Type the correct answer for each sign!
+                        {isPhrasesQuiz ? (
+                            <>
+                                You`&apos;`ll see 5 different phrase animations.
+                                <br />Watch the full phrase and type what you think it means!
+                            </>
+                        ) : (
+                            <>
+                                You`&apos;`ll see 5 different {currentCategoryData.name.toLowerCase()} signs.
+                                <br />Type the correct answer for each sign!
+                            </>
+                        )}
                     </p>
-
-                    <div style={{ marginBottom: '30px' }}>
-                        <h3 style={{ color: '#333', marginBottom: '15px' }}>Choose your character:</h3>
-                        <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
-                            <button
-                                onClick={() => setSelectedCharacter('angie')}
-                                style={{
-                                    padding: '10px 20px',
-                                    backgroundColor: selectedCharacter === 'angie' ? '#28a745' : '#6c757d',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '8px',
-                                    cursor: 'pointer',
-                                    fontSize: '16px',
-                                    fontWeight: 'bold'
-                                }}
-                            >
-                                Angie
-                            </button>
-                            <button
-                                onClick={() => setSelectedCharacter('phil')}
-                                style={{
-                                    padding: '10px 20px',
-                                    backgroundColor: selectedCharacter === 'phil' ? '#28a745' : '#6c757d',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '8px',
-                                    cursor: 'pointer',
-                                    fontSize: '16px',
-                                    fontWeight: 'bold'
-                                }}
-                            >
-                                Phil
-                            </button>
-                        </div>
-                    </div>
 
                     <button
                         onClick={startQuiz}
-                        style={{
-                            padding: '15px 30px',
-                            backgroundColor: '#28a745',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '10px',
-                            fontSize: '20px',
-                            fontWeight: 'bold',
-                            cursor: 'pointer',
-                            boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-                            transition: 'all 0.3s ease'
-                        }}
+                        style={startButtonStyle}
                         onMouseEnter={(e) => {
                             e.currentTarget.style.backgroundColor = '#218838';
                             e.currentTarget.style.transform = 'translateY(-2px)';
@@ -332,26 +427,32 @@ export function SignQuiz() {
         const percentage = Math.round((score / quizQuestions.length) * 100);
         const passed = percentage >= 60;
 
+        const resultCardStyle = {
+            ...quizCardStyle,
+            maxWidth: '700px',
+            width: '100%'
+        };
+
+        const correctAnswerStyle = {
+            padding: '12px',
+            margin: '8px 0',
+            backgroundColor: '#d4edda',
+            borderRadius: '8px',
+            border: '2px solid #c3e6cb',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+        };
+
+        const incorrectAnswerStyle = {
+            ...correctAnswerStyle,
+            backgroundColor: '#f8d7da',
+            border: '2px solid #f5c6cb'
+        };
+
         return (
-            <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                padding: '20px',
-                backgroundColor: '#f5f5f5',
-                minHeight: '100vh',
-                justifyContent: 'center',
-                fontFamily: 'Inter, sans-serif'
-            }}>
-                <div style={{
-                    backgroundColor: 'white',
-                    padding: '40px',
-                    borderRadius: '15px',
-                    boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
-                    textAlign: 'center',
-                    maxWidth: '700px',
-                    width: '100%'
-                }}>
+            <div style={containerStyle}>
+                <div style={resultCardStyle}>
                     <h1 style={{ 
                         color: passed ? '#28a745' : '#dc3545', 
                         marginBottom: '20px',
@@ -359,11 +460,11 @@ export function SignQuiz() {
                     }}>
                         {passed ? '🎉 Great Job!' : '📚 Keep Learning!'}
                     </h1>
-                    
+
                     <h2 style={{ color: '#333', marginBottom: '20px' }}>
                         {currentCategoryData.name} Quiz Results
                     </h2>
-                    
+
                     <div style={{
                         fontSize: '24px',
                         color: '#333',
@@ -378,24 +479,12 @@ export function SignQuiz() {
                         </p>
                     </div>
 
-                    <div style={{
-                        textAlign: 'left',
-                        marginBottom: '30px'
-                    }}>
+                    <div style={{ textAlign: 'left', marginBottom: '30px' }}>
                         <h3 style={{ color: '#333', marginBottom: '15px' }}>Questions You Got Correct:</h3>
                         {userAnswers.filter(answer => answer.isCorrect).length > 0 ? (
                             <div style={{ marginBottom: '20px' }}>
                                 {userAnswers.filter(answer => answer.isCorrect).map((answer, index) => (
-                                    <div key={index} style={{
-                                        padding: '12px',
-                                        margin: '8px 0',
-                                        backgroundColor: '#d4edda',
-                                        borderRadius: '8px',
-                                        border: '2px solid #c3e6cb',
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center'
-                                    }}>
+                                    <div key={index} style={correctAnswerStyle}>
                                         <div>
                                             <strong>Question {userAnswers.indexOf(answer) + 1}: {answer.correctAnswer}</strong>
                                             <br />
@@ -403,11 +492,7 @@ export function SignQuiz() {
                                                 Your answer: {answer.userAnswer}
                                             </span>
                                         </div>
-                                        <div style={{ 
-                                            fontSize: '24px',
-                                            color: '#155724',
-                                            fontWeight: 'bold'
-                                        }}>
+                                        <div style={{ fontSize: '24px', color: '#155724', fontWeight: 'bold' }}>
                                             ✓
                                         </div>
                                     </div>
@@ -421,16 +506,7 @@ export function SignQuiz() {
                             <>
                                 <h3 style={{ color: '#333', marginBottom: '15px' }}>Questions You Got Wrong:</h3>
                                 {userAnswers.filter(answer => !answer.isCorrect).map((answer, index) => (
-                                    <div key={index} style={{
-                                        padding: '12px',
-                                        margin: '8px 0',
-                                        backgroundColor: '#f8d7da',
-                                        borderRadius: '8px',
-                                        border: '2px solid #f5c6cb',
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center'
-                                    }}>
+                                    <div key={index} style={incorrectAnswerStyle}>
                                         <div>
                                             <strong>Question {userAnswers.indexOf(answer) + 1}: {answer.correctAnswer}</strong>
                                             <br />
@@ -442,11 +518,7 @@ export function SignQuiz() {
                                                 Correct answer: {answer.correctAnswer}
                                             </span>
                                         </div>
-                                        <div style={{ 
-                                            fontSize: '24px',
-                                            color: '#721c24',
-                                            fontWeight: 'bold'
-                                        }}>
+                                        <div style={{ fontSize: '24px', color: '#721c24', fontWeight: 'bold' }}>
                                             ✗
                                         </div>
                                     </div>
@@ -471,7 +543,7 @@ export function SignQuiz() {
                         >
                             Try Again
                         </button>
-                        
+
                         <button
                             onClick={goBackToCategory}
                             style={{
@@ -487,7 +559,7 @@ export function SignQuiz() {
                         >
                             Back to {currentCategoryData.name}
                         </button>
-                        
+
                         <button
                             onClick={goBackToLearn}
                             style={{
@@ -509,54 +581,63 @@ export function SignQuiz() {
         );
     }
 
+    const quizContainerStyle = {
+        ...containerStyle,
+        justifyContent: 'flex-start'
+    };
 
+    const canvasContainerStyle = {
+        width: '640px',
+        height: '480px',
+        maxWidth: '90%',
+        border: '2px solid #ddd',
+        borderRadius: '15px',
+        backgroundColor: '#fff',
+        boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
+        marginBottom: '20px',
+        overflow: 'hidden'
+    };
+
+    const progressBarStyle = {
+        backgroundColor: '#e9ecef',
+        borderRadius: '10px',
+        padding: '5px',
+        width: '300px',
+        margin: '0 auto'
+    };
+
+    const replayButtonStyle = {
+        padding: '8px 16px',
+        backgroundColor: isAutoPlaying ? '#ccc' : '#17a2b8',
+        color: 'white',
+        border: 'none',
+        borderRadius: '6px',
+        cursor: isAutoPlaying ? 'not-allowed' : 'pointer',
+        fontSize: '14px',
+        fontWeight: 'bold',
+        marginBottom: '20px',
+        transition: 'all 0.3s ease'
+    };
 
     return (
-        <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            padding: '20px',
-            backgroundColor: '#f5f5f5',
-            minHeight: '100vh',
-            fontFamily: 'Inter, sans-serif'
-        }}>
-            <button
-                onClick={goBackToCategory}
-                style={{
-                    position: 'absolute',
-                    top: '20px',
-                    left: '20px',
-                    padding: '10px 20px',
-                    backgroundColor: '#6c757d',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    fontSize: '16px'
-                }}
-            >
+        <div style={quizContainerStyle}>
+            <button onClick={goBackToCategory} style={backButtonStyle}>
                 ← Back to {currentCategoryData.name}
             </button>
 
-            <div style={{
-                textAlign: 'center',
-                marginBottom: '20px',
-                marginTop: '40px'
-            }}>
+            <div style={{ textAlign: 'center', marginBottom: '20px', marginTop: '40px' }}>
                 <h1 style={{ color: '#333', marginBottom: '5px' }}>
                     {currentCategoryData.name} Quiz
                 </h1>
                 <p style={{ color: '#666', marginBottom: '10px' }}>
                     Question {currentQuestionIndex + 1} of {quizQuestions.length}
                 </p>
-                <div style={{
-                    backgroundColor: '#e9ecef',
-                    borderRadius: '10px',
-                    padding: '5px',
-                    width: '300px',
-                    margin: '0 auto'
-                }}>
+                {isPhrasesQuiz && isAutoPlaying && (
+                    <p style={{ color: '#4caf50', fontSize: '14px', fontWeight: 'bold' }}>
+                        ● Auto-playing phrase...
+                    </p>
+                )}
+                <div style={progressBarStyle}>
                     <div style={{
                         backgroundColor: '#28a745',
                         height: '20px',
@@ -568,31 +649,19 @@ export function SignQuiz() {
             </div>
 
             <h2 style={{ color: '#333', marginBottom: '20px' }}>
-                What is this sign?
+                {isPhrasesQuiz ? 'What phrase is being signed?' : 'What is this sign?'}
             </h2>
 
-            <div style={{
-                width: '640px',
-                height: '480px',
-                maxWidth: '90%',
-                border: '2px solid #ddd',
-                borderRadius: '15px',
-                backgroundColor: '#fff',
-                boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
-                marginBottom: '20px',
-                overflow: 'hidden'
-            }}>
+            <div style={canvasContainerStyle}>
                 <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
                     {/* eslint-disable-next-line react/no-unknown-property */}
                     <ambientLight intensity={5} />
-                     {/* eslint-disable-next-line react/no-unknown-property */}
+                    {/* eslint-disable-next-line react/no-unknown-property */}
                     <group position={[0, -1.1, 0]}>             
-                        {landmarks && Object.keys(landmarks).length > 0 && (
-                            selectedCharacter === 'angie' ? (
+                        {landmarks && Object.keys(landmarks).length > 0  (
+                          
                                 <AngieSigns key={replayKey} landmarks={landmarks} />
-                            ) : (
-                                <PhilSigns key={replayKey} landmarks={landmarks} />
-                            )
+                            
                         )}
                     </group>  
                     <OrbitControls enablePan={false} maxPolarAngle={Math.PI / 2} minDistance={2} maxDistance={3} />
@@ -601,26 +670,23 @@ export function SignQuiz() {
 
             <button
                 onClick={handleReplay}
-                style={{
-                    padding: '8px 16px',
-                    backgroundColor: '#17a2b8',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    fontWeight: 'bold',
-                    marginBottom: '20px',
-                    transition: 'all 0.3s ease'
-                }}
+                disabled={isAutoPlaying}
+                style={replayButtonStyle}
                 onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#138496';
+                    if (!isAutoPlaying) {
+                        e.currentTarget.style.backgroundColor = '#138496';
+                    }
                 }}
                 onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#17a2b8';
+                    if (!isAutoPlaying) {
+                        e.currentTarget.style.backgroundColor = '#17a2b8';
+                    }
                 }}
             >
-                🔄 Replay
+                {isPhrasesQuiz ? 
+                    (isAutoPlaying ? 'Playing Phrase...' : '🔄 Replay Phrase') : 
+                    '🔄 Replay'
+                }
             </button>
 
             <div style={{

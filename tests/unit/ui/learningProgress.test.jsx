@@ -30,8 +30,9 @@ jest.mock("../../../frontend/src/hooks/learningStatsUpdater", () => ({
   useStatUpdater: jest.fn(),
 }));
 
-jest.mock('../../../frontend/src/components/learnSidebar', () => ({
-  Sidebar: ({ progressPercent, signsLearned, lessonsCompleted, quizzesCompleted }) => (
+// SOLUTION 1: Add PropTypes to mocked components
+jest.mock('../../../frontend/src/components/learnSidebar', () => {
+  const MockedSidebar = ({ progressPercent, signsLearned, lessonsCompleted }) => (
     <div className="sidebar">
       <div className="sidebar-item active">Learning Map</div>
       <div className="sidebar-summary">
@@ -57,22 +58,39 @@ jest.mock('../../../frontend/src/components/learnSidebar', () => ({
         </div>
       </div>
     </div>
-  )
-}));
+  );
 
-jest.mock('../../../frontend/src/components/learnCategoryTile', () => ({
-  CategoryTile: ({ name, unlocked, onClick }) => (
+  // Add PropTypes to avoid validation errors
+  MockedSidebar.propTypes = {
+    progressPercent: require('prop-types').number,
+    signsLearned: require('prop-types').number,
+    lessonsCompleted: require('prop-types').number,
+  };
+
+  return { Sidebar: MockedSidebar };
+});
+
+jest.mock('../../../frontend/src/components/learnCategoryTile', () => {
+  const MockedCategoryTile = ({ name, unlocked, onClick }) => (
     <div 
       className={`category-tile ${unlocked ? 'unlocked' : 'locked'}`}
       onClick={onClick}
     >
       <div className="category-name">{name}</div>
     </div>
-  )
-}));
+  );
 
-jest.mock('../../../frontend/src/components/learnLevelTile', () => ({
-  LevelTile: ({ level, unlocked, onClick, style, className }) => (
+  MockedCategoryTile.propTypes = {
+    name: require('prop-types').string,
+    unlocked: require('prop-types').bool,
+    onClick: require('prop-types').func,
+  };
+
+  return { CategoryTile: MockedCategoryTile };
+});
+
+jest.mock('../../../frontend/src/components/learnLevelTile', () => {
+  const MockedLevelTile = ({ level, unlocked, onClick, style, className }) => (
     <div 
       className={`level-tile ${unlocked ? 'unlocked' : 'locked'} ${className || ''}`}
       onClick={onClick}
@@ -80,16 +98,36 @@ jest.mock('../../../frontend/src/components/learnLevelTile', () => ({
     >
       {level}
     </div>
-  )
-}));
+  );
 
-jest.mock('../../../frontend/src/components/angieSigns', () => ({
-  AngieSigns: () => <div>Angie Signs</div>
-}));
+  MockedLevelTile.propTypes = {
+    level: require('prop-types').oneOfType([require('prop-types').string, require('prop-types').number]),
+    unlocked: require('prop-types').bool,
+    onClick: require('prop-types').func,
+    style: require('prop-types').object,
+    className: require('prop-types').string,
+  };
 
-jest.mock('@react-three/fiber', () => ({
-  Canvas: ({ children }) => <div className="canvas-mock">{children}</div>
-}));
+  return { LevelTile: MockedLevelTile };
+});
+
+jest.mock('../../../frontend/src/components/angieSigns', () => {
+  const MockedAngieSigns = () => <div>Angie Signs</div>;
+  
+  MockedAngieSigns.propTypes = {};
+  
+  return { AngieSigns: MockedAngieSigns };
+});
+
+jest.mock('@react-three/fiber', () => {
+  const MockedCanvas = ({ children }) => <div className="canvas-mock">{children}</div>;
+  
+  MockedCanvas.propTypes = {
+    children: require('prop-types').node,
+  };
+
+  return { Canvas: MockedCanvas };
+});
 
 jest.mock('../../../frontend/src/styles/learn.css', () => ({}));
 
