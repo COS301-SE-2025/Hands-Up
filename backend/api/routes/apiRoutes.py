@@ -1,6 +1,5 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from flask import Blueprint, request, jsonify
 from controllers.lettersController import detectFromImage
-from controllers.wordsController import detectWords
 from controllers.wordsController import detectWords
 import tempfile
 import os
@@ -10,39 +9,50 @@ api_blueprint = Blueprint('sign', __name__, url_prefix='/sign')
 @api_blueprint.route('/sign/processImage', methods=['POST'])
 def process_image():
     files = request.files.getlist('frames')
-    
     sequenceNum = 20
+    
+    if len(files) != sequenceNum:
+        return jsonify({'error': 'Exactly 20 frames required'}), 400
 
-    if len(frames) != sequenceNum:
-        raise HTTPException(status_code=400, detail="Exactly 20 frames required")
+    temp_dir = tempfile.mkdtemp()
+    paths = []
 
-    image_file = request.files['image']
+    try:
+        for i, file in enumerate(files):
+            path = os.path.join(temp_dir, f'frame_{i}.jpg')
+            file.save(path)
+            paths.append(path)
 
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as tmp:
-        image_path = tmp.name
-        image_file.save(image_path)
+        result = detectFromImage(paths)
+        return jsonify(result)
+    finally:
+        for path in paths:
+            os.remove(path)
+        os.rmdir(temp_dir)
 
-    result = detectFromImage(image_path)
-    os.remove(image_path)
-
-    return jsonify(result)
-
-@api_blueprint.route('/sign/processWord', methods=['POST'])
-def process_word():
+@api_blueprint.route('/sign/processWords', methods=['POST'])
+def process_words():
     files = request.files.getlist('frames')
     sequenceNum = 90
     
     if len(files) != sequenceNum:
         return jsonify({'error': 'Exactly 90 frames required'}), 400
 
-    image_file = request.files['image']
+    temp_dir = tempfile.mkdtemp()
+    paths = []
 
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as tmp:
-        image_path = tmp.name
-        image_file.save(image_path)
+    try:
+        for i, file in enumerate(files):
+            path = os.path.join(temp_dir, f'frame_{i}.jpg')
+            file.save(path)
+            paths.append(path)
 
-    result = detectWords(image_path)
-    os.remove(image_path)
+        result = detectWords(paths)
+        return jsonify(result)
+    finally:
+        # Clean up all files
+        for path in paths:
+            os.remove(path)
+        os.rmdir(temp_dir)
 
-    return jsonify(result)
 

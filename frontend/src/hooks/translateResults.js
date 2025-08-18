@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { processImage} from '../utils/apiCalls';
+import { processImage, processWords} from '../utils/apiCalls';
 import SignLanguageAPI  from '../utils/apiCalls';
 import { useModelSwitch } from '../contexts/modelContext';
 import { v4 as uuidv4 } from 'uuid';
@@ -22,7 +22,7 @@ export function useTranslator() {
     const { modelState } = useModelSwitch();
     const activeModelRef = useRef(modelState.model);
     const [isSwitching, setIsSwitching] = useState(false);
-    const sequenceNum = 20;
+    const sequenceNum = 90;
 
     const stopRecording = useCallback(() => {
         setRecording(false);
@@ -56,7 +56,7 @@ export function useTranslator() {
                 formData.append('frames', blob, `frame${i}.jpg`);
             });
 
-            const response = await processImage(formData);
+            const response = await processWords(formData);
 
             if (!response || !response.letter || !response.number) {
                 console.error("Invalid response from API:", response);
@@ -117,7 +117,7 @@ export function useTranslator() {
                         if (updated.length === sequenceNum) {
                             sendSequenceToBackend(updated);
                             setLandmarkFrames([]);
-                            // stopRecording();
+                            stopRecording();
                             return [];
                         }
 
@@ -155,7 +155,7 @@ export function useTranslator() {
         if (autoCaptureEnabled && fingerspellingMode && videoRef.current) {
             intervalId = setInterval(() => {
                 captureImageFromVideo();
-            }, 50); 
+            }, 33.33); 
         }
 
         return () => clearInterval(intervalId);
