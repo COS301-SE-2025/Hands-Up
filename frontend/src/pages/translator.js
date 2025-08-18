@@ -73,7 +73,7 @@ export function Translator(){
 
             <div className="recognizer-banner">
               <i className="fas fa-lightbulb recognizer-banner-icon"></i>
-              <p>Position your hand clearly in frame for best recognition results</p>
+              <p>Swipe your hand in the camera to switch models</p>
             </div>
 
             <div className="recognizer-camera-container relative">
@@ -85,7 +85,7 @@ export function Translator(){
               ></video>
               <canvas 
                 ref={canvasRef2} 
-                style={{  position: 'absolute', top: 0, left: 0, zIndex: 1  }}
+                style={{  position: 'absolute', top: 0, left: '15%', zIndex: 1  }}
               ></canvas>
               <canvas 
                 ref={canvasRef1} 

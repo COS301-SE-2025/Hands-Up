@@ -19,9 +19,11 @@ export function useTranslator() {
     const [landmarkFrames, setLandmarkFrames] = useState([]);
     const [fingerspellingMode, setFingerspellingMode] = useState(false);
     const processingRef = useRef(false);
-    const { modelState, switchModel } = useModelSwitch();
-    const sequenceNum = 20
-    
+    const { modelState } = useModelSwitch();
+    const activeModelRef = useRef(modelState.model);
+    const [isSwitching, setIsSwitching] = useState(false);
+    const sequenceNum = 20;
+
     const stopRecording = useCallback(() => {
         setRecording(false);
         setAutoCaptureEnabled(false);
@@ -41,6 +43,11 @@ export function useTranslator() {
     const sendSequenceToBackend = useCallback(async (blobs) => {
         if (!Array.isArray(blobs) || blobs.length !== sequenceNum || processingRef.current) return;
 
+        if (isSwitching) {
+            console.log("Skipping prediction during swipe...");
+            return;
+        }
+
         processingRef.current = true;
 
         try {
@@ -51,20 +58,22 @@ export function useTranslator() {
 
             const response = await processImage(formData);
 
+            if (!response || !response.letter || !response.number) {
+                console.error("Invalid response from API:", response);
+                return;
+            }
+
             setResult(prev => {
-
-                if(modelState.model === 'alpha') {
-                    if (response.letter === 'SPACE') return prev + ' ';
-                    if (response.letter === 'DEL') return prev.slice(0, -1);
-                    setConfidence((response.confidenceLetter * 100).toFixed(2) + "%");
-                    return prev + response.letter;
-
-                } else if (modelState.model === 'num') {
-                    setConfidence((response.confidenceNumber * 100).toFixed(2) + "%");
-                    return prev + response.number;
+                if (activeModelRef.current === 'alpha') {
+                    if (response?.letter === 'SPACE') return prev + ' ';
+                    if (response?.letter === 'DEL') return prev.slice(0, -1);
+                    setConfidence((response?.confidenceLetter * 100).toFixed(2) + "%");
+                    return prev + response?.letter;
+                } else if (activeModelRef.current === 'num') {
+                    setConfidence((response?.confidenceNumber * 100).toFixed(2) + "%");
+                    return prev + response?.number;
                 }
             });
-            // setConfidence((response.confidence * 100).toFixed(2) + "%");
 
         } catch (err) {
             console.error("Error during sequence detection:", err);
@@ -74,7 +83,7 @@ export function useTranslator() {
             processingRef.current = false;
             setLandmarkFrames([]);
         }
-    }, [setResult, setConfidence, modelState]);
+    }, [setResult, setConfidence, isSwitching]);
 
     const captureImageFromVideo = useCallback(() => {
         const video = videoRef.current;
@@ -128,6 +137,17 @@ export function useTranslator() {
         setLandmarkFrames,
         sendSequenceToBackend,
     ]);
+
+    useEffect(() => {
+        setIsSwitching(true);
+
+        const timeout = setTimeout(() => {
+            activeModelRef.current = modelState.model;
+            setIsSwitching(false); 
+        }, 500); 
+
+        return () => clearTimeout(timeout);
+    }, [modelState.model]);
 
    useEffect(() => {
         let intervalId;

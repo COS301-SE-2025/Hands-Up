@@ -1,10 +1,15 @@
-from flask import Flask
-from flask_cors import CORS
-from routes.apiRoutes import api_blueprint
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from routes.apiRoutes import router as api_router  
 
-app = Flask(__name__)
-CORS(app)
-app.register_blueprint(api_blueprint, url_prefix='/handsUPApi')
+app = FastAPI()
 
-if __name__ == '__main__':
-    app.run(debug=True)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # change this to your frontend domain for security
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(api_router, prefix="/handsUPApi")

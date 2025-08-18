@@ -1,49 +1,29 @@
-from flask import Blueprint, request, jsonify
+from fastapi import APIRouter, UploadFile, File, HTTPException
 from controllers.lettersController import detectFromImage
-# from controllers.wordsController import detectFromFrames
-import tempfile
-import os
+import tempfile, os
 
-api_blueprint = Blueprint('sign', __name__, url_prefix='/sign')
+router = APIRouter(prefix="/sign")
 
-@api_blueprint.route('/sign/processImage', methods=['POST'])
-def process_image():
-    files = request.files.getlist('frames')
+@router.post("/processImage")
+async def process_image(frames: list[UploadFile] = File(...)):
     sequenceNum = 20
-    
-    if len(files) != sequenceNum:
-        return jsonify({'error': 'Exactly 20 frames required'}), 400
+
+    if len(frames) != sequenceNum:
+        raise HTTPException(status_code=400, detail="Exactly 20 frames required")
 
     temp_dir = tempfile.mkdtemp()
     paths = []
 
     try:
-        for i, file in enumerate(files):
-            path = os.path.join(temp_dir, f'frame_{i}.jpg')
-            file.save(path)
+        for i, file in enumerate(frames):
+            path = os.path.join(temp_dir, f"frame_{i}.jpg")
+            with open(path, "wb") as f:
+                f.write(await file.read())
             paths.append(path)
 
         result = detectFromImage(paths)
-        return jsonify(result)
+        return result
     finally:
-        # Clean up all files
         for path in paths:
             os.remove(path)
         os.rmdir(temp_dir)
-
-# @api_blueprint.route("/sign/processFrames", methods=["POST"])
-# def process_frames():
-#     files = request.files.getlist("frames")
-#     if not files:
-#         return jsonify({"error": "No frames provided"}), 400
-
-#     frames = []
-#     for file in sorted(files, key=lambda f: f.filename):  
-#         frames.append(file.read())
-
-#     try:
-#         result = detectFromFrames(frames)
-#         return jsonify(result)
-#     except Exception as e:
-#         return jsonify({"error": str(e)}), 500
-

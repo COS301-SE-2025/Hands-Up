@@ -31,7 +31,7 @@ def detectFromImage(sequenceList):
     if len(sequenceList) != sequenceNum:
         return {'letter': '', 'confidence': 0.0}
 
-    processed_sequence = []
+    processedSequence = []
 
     for imagePath in sequenceList:
         image = cv2.imread(imagePath)
@@ -58,32 +58,42 @@ def detectFromImage(sequenceList):
             dataAux2.append(lm.y - min(yList))
             dataAux2.append(0) 
 
-        processed_sequence.append(dataAux2)
+        processedSequence.append(dataAux2)
 
     confidence2 = 0.0
     label2 = ""
     fallback_frame = cv2.imread(sequenceList[-1])  
 
-    for i in range(sequenceNum):
-        if processed_sequence[i] is None:
+    # for i in range(len(processedSequence)):
+    #     if processedSequence[i] is None:
+    #         prevIdx, nextIdx = -1, -1
             
-            prev = next((processed_sequence[j] for j in range(i - 1, -1, -1) if processed_sequence[j] is not None), None)
-            next_ = next((processed_sequence[j] for j in range(i + 1, sequenceNum) if processed_sequence[j] is not None), None)
+    #         for j in range(i - 1, -1, -1):
+    #             if processedSequence[j] is not None:
+    #                 prevIdx = j
+    #                 break
+            
+    #         for j in range(i + 1, len(processedSequence)):
+    #             if processedSequence[j] is not None:
+    #                 nextIdx = j
+    #                 break
 
-            if prev is not None and next_ is not None:
-                alpha = (i - [j for j in range(i - 1, -1, -1) if processed_sequence[j] is not None][0]) / \
-                        ([j for j in range(i + 1, sequenceNum) if processed_sequence[j] is not None][0] - 
-                         [j for j in range(i - 1, -1, -1) if processed_sequence[j] is not None][0])
-                interpolated = np.array(prev) * (1 - alpha) + np.array(next_) * alpha
-                processed_sequence[i] = interpolated.tolist()
-            elif prev is not None:
-                processed_sequence[i] = prev.copy()
-            elif next_ is not None:
-                processed_sequence[i] = next_.copy()
-            else:
-                return {'letter': '', 'confidence': 0.0}
+    #         if prevIdx != -1 and nextIdx != -1:
+    #             prevData = np.array(processedSequence[prevIdx])
+    #             nextData = np.array(processedSequence[nextIdx])
+    #             t = (i - prevIdx) / (nextIdx - prevIdx)
+    #             interpolatedData = prevData + (nextData - prevData) * t
+    #             processedSequence[i] = interpolatedData.tolist()
+    #         elif prevIdx != -1:
+    #             processedSequence[i] = processedSequence[prevIdx]
+    #         elif nextIdx != -1:
+    #             processedSequence[i] = processedSequence[nextIdx]
 
-    inputData2 = np.array(processed_sequence, dtype=np.float32).reshape(1, sequenceNum, 63)
+    if len(processedSequence) != sequenceNum:
+        print("incomplete sequence: ", len(processedSequence))
+        return {'letter': '', 'confidence': 0.0}
+
+    inputData2 = np.array(processedSequence, dtype=np.float32).reshape(1, sequenceNum, 63)
     prediction2 = lettersModel2.predict(inputData2, verbose=0)
     index2 = np.argmax(prediction2, axis=1)[0]
     confidence2 = float(np.max(prediction2))

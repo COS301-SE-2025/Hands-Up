@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, PropTypes } from "react";
 
 const modelSwitchContext = createContext();
 
-const MODEL_LIST = ["alpha", "gloss", "num"];
+const MODEL_LIST = ["alpha", "num"];
 
 export function ModelSwitchProvider({ children }) {
   const [modelIndex, setModelIndex] = useState(0);

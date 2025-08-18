@@ -36,18 +36,13 @@ export function useLandmarksDetection(videoRef, canvasRef) {
 
     loadHandLandmarker();
   }, []);
-
-  const handleSwipe = (direction) => {
-        if (direction === "right") {
-        switchModel();
-        }
-    };
   
   useEffect(() => {
       const canvas = canvasRef.current;
       if (canvas && modelState.model) {
       console.log("Redrawing button for model:", modelState.model);
-      drawButton(canvas, modelState.model);
+      let text = modelState.model=='alpha'?'Alphabet':modelState.model=='num'?'Numbers': 'Glosses';
+      drawButton(canvas, text);
       }
   }, [modelState.model]);
 
@@ -65,7 +60,8 @@ export function useLandmarksDetection(videoRef, canvasRef) {
         canvas.width = video.videoWidth*0.5;
         canvas.height = video.videoHeight*0.5;
 
-        drawButton(canvas, modelState.model);
+        let text = modelState.model=='alpha'?'Alphabet':modelState.model=='num'?'Numbers': 'Glosses';
+        drawButton(canvas, text);
 
         if (video.currentTime === lastVideoTime.current) {
             animationFrameId = requestAnimationFrame(detect);
@@ -94,7 +90,6 @@ export function useLandmarksDetection(videoRef, canvasRef) {
                 direction = deltaX > 0 ? 'right' : 'left';
                 console.log(`Swipe detected: ${direction}`);
                 direction === "right" ? switchModel() : console.log("No model switch");
-                handleSwipe(direction);
                 handXHistory = []; 
               }
             }
@@ -113,7 +108,5 @@ export function useLandmarksDetection(videoRef, canvasRef) {
     animationFrameId = requestAnimationFrame(detect);
 
     return () => cancelAnimationFrame(animationFrameId);
-  }, [videoRef, canvasRef]);
-
-  // return {};
+  }, [videoRef, canvasRef,modelState.model]);
 }
