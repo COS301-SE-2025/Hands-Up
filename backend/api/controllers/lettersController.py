@@ -1,11 +1,6 @@
-import sys
-import struct
-import cv2
 import numpy as np
-import pickle
-import tensorflow as tf
-import mediapipe as mp
-import collections
+import pandas as pd
+import os
 import time
 import os
 import tensorflow_hub as hub
@@ -38,11 +33,12 @@ def detectFromImage(sequenceList):
         if image is None:
             continue 
 
-        imgRGB = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        results = hands.process(imgRGB)
+            lms_array = flat_lms.reshape(-1, coords_per_lm)
+            coords_for_mean = lms_array[:, :3] if coords_per_lm == 4 else lms_array
 
-        if not results.multi_hand_landmarks:
-            continue  
+            if np.all(coords_for_mean == 0):
+                normalized_frame_parts.append(np.array(template, dtype=np.float32))
+                continue
 
         handLandmarks = results.multi_hand_landmarks[0]  
 
