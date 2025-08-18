@@ -24,12 +24,12 @@ Thus, the system focuses on three core functionalities:
 <div align="Center">
 <h2 >Demo Videos & System Requirement Specifications</h2>
 
-| Demo # | Video Link                                                                 | SRS Link |
-|--------|----------------------------------------------------------------------------|------------------|
-| 1      | [Demo 1 Video](https://drive.google.com/file/d/1mFRqv6zRN1a6LuKWWXX5wu1XCvTVVWZ7/view) | [Demo 1 SRS](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_1) |
-| 2      | [Demo 2 Video](https://drive.google.com/file/d/1JdpGGRkO_d-04IrgbtnfarugVtxaAQ4w/view?usp=drive_link) | [Demo 2 SRS](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2) |
-| 3      | [Demo 3 Video] | [Demo 3 SRS](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3) |
-| 4      | [Demo 4 Video] | [Demo 4 SRS] |
+| Demo # | Video Link                                                                 | SRS Link         | View PDF         |
+|--------|----------------------------------------------------------------------------|------------------|------------------|
+| 1      | [Demo 1 Video](https://drive.google.com/file/d/1mFRqv6zRN1a6LuKWWXX5wu1XCvTVVWZ7/view) | [Demo 1 SRS](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_1) | - |
+| 2      | [Demo 2 Video](https://drive.google.com/file/d/1JdpGGRkO_d-04IrgbtnfarugVtxaAQ4w/view?usp=drive_link) | [Demo 2 SRS](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2) | - |
+| 3      | [Demo 3 Video] | [Demo 3 SRS](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3) | [Demo 3 SRS](#) |
+| 4      | [Demo 4 Video] | [Demo 4 SRS] | [Demo 4 SRS] |
 
 </div>
 
@@ -38,31 +38,31 @@ Thus, the system focuses on three core functionalities:
 
 | Resource                          | Description                             |
 |-----------------------------------|-----------------------------------------|
-| [SRS Document](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2) | Outlines the system's functional and non-functional requirements |
-| [User Stories](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2#user-stories) | Descriptions of system features from the user’s perspective |
-| [Functional Requirements](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2#functional-requirements) | Core functionalities the system must perform |
-| [Quality Requirements](#) | Quantifiable attributes ensuring usability, peformance, availability, security and maintainability |
-| [Use Case Diagram](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2#use-case-diagram) | Overview of system interactions with external actors |
-| [Domain Model](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2#domain-model) | Visual representation of key entities and their relationships |
-| [Architectural Requirements](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2#architectural-requirements) | High-level design constraints and objectives |
-| [Design Patterns](#) | Reusable solutions applied in system design |
-| [Technology Choices](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2#technology-choices) | Platforms, tools and languages required for implementation |
-| [Deployment Model](#) | System deployment details ensuring uptime and capacity |
+| [SRS Document](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3) | Outlines the system's functional and non-functional requirements |
+| [User Stories](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3#user-stories) | Descriptions of system features from the user’s perspective |
+| [Functional Requirements](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3#functional-requirements) | Core functionalities the system must perform |
+| [Quality Requirements](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3#quality-requirements) | Quantifiable attributes ensuring usability, peformance, availability, security and maintainability |
+| [Use Case Diagram](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3#use-case-diagram) | Overview of system interactions with external actors |
+| [Domain Model](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3#domain-model) | Visual representation of key entities and their relationships |
+| [Architectural Specification](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3#architecture-diagram) | High-level design constraints and objectives |
+| [Design Patterns](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3#design-patterns) | Reusable solutions applied in system design |
+| [Technology Choices](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3#technology-choices) | Platforms, tools and languages required for implementation |
+| [Deployment Model](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3#deployment-model) | System deployment details ensuring uptime and capacity |
 
 </div>
 
 <div align="Center">
 <h2>Additional Project Documentation and Development Resources</h2>
 
-| Resource                          | Description                             |
-|-----------------------------------|-----------------------------------------|
-| [Project Management](https://github.com/orgs/COS301-SE-2025/projects/264) | Scrum board for tracking tasks and progress |
-| [Contributions](#contributions) | Outlines each member's individual responsibilities |
-| [Coding Standards](#) | Coding rules and quality guidelines |
-| [Service Contracts](#) | Defined inputs, outputs and behaviors of services |
-| [User Manual](#) | Guide for using the system |
-| [Technical Installation Manual](#) | Steps to install and set up the system |
-| [References](#) | Citations of resources used in the project |
+| Resource                          | View PDF                                | Description                             | 
+|-----------------------------------|-----------------------------------------|-----------------------------------------|
+| [Project Management](https://github.com/orgs/COS301-SE-2025/projects/264) | - | Scrum board for tracking tasks and progress |
+| [Contributions](#contributions) | - | Outlines each member's individual responsibilities |
+| [Coding Standards](#) | [Coding Standards](#) | Coding rules and quality guidelines |
+| [Service Contracts](#) | [Service Contracts](#) | Defined inputs, outputs and behaviors of services |
+| [User Manual](#) | [User Manual](#) | Guide for using the system |
+| [Technical Installation Manual](#) | [Technical Installation Manual](#) | Steps to install and set up the system |
+| [References](https://github.com/COS301-SE-2025/Hands-Up/wiki/References) | - | Citations of resources used in the project |
 
 </div>
 
