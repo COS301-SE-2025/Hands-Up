@@ -1,6 +1,7 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from controllers.lettersController import detectFromImage
 from controllers.wordsController import detectWords
+from controllers.wordsController import detectWords
 import tempfile
 import os
 
