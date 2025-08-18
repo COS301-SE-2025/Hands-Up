@@ -32,6 +32,7 @@ function App() {
               <Route path="/" element={<Landing/>} />
               <Route path="/landing" element={<Landing/>} />
               <Route path="/login" element={
+                <ProtectedRoute>
                 <ErrorBoundary fallback={<ErrorFallback errorName="Login" />}>
                   <Login />
                 </ErrorBoundary>
