@@ -2,28 +2,24 @@ from fastapi import APIRouter, UploadFile, File, HTTPException
 from controllers.lettersController import detectFromImage
 import tempfile, os
 
-router = APIRouter(prefix="/sign")
+api_blueprint = Blueprint('sign', __name__, url_prefix='/sign')
 
-@router.post("/processImage")
-async def process_image(frames: list[UploadFile] = File(...)):
+@api_blueprint.route('/sign/processImage', methods=['POST'])
+def process_image():
+    files = request.files.getlist('frames')
+    
     sequenceNum = 20
 
     if len(frames) != sequenceNum:
         raise HTTPException(status_code=400, detail="Exactly 20 frames required")
 
-    temp_dir = tempfile.mkdtemp()
-    paths = []
+    image_file = request.files['image']
 
-    try:
-        for i, file in enumerate(frames):
-            path = os.path.join(temp_dir, f"frame_{i}.jpg")
-            with open(path, "wb") as f:
-                f.write(await file.read())
-            paths.append(path)
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as tmp:
+        image_path = tmp.name
+        image_file.save(image_path)
 
-        result = detectFromImage(paths)
-        return result
-    finally:
-        for path in paths:
-            os.remove(path)
-        os.rmdir(temp_dir)
+    result = detectFromImage(image_path)
+    os.remove(image_path)
+
+    return jsonify(result)

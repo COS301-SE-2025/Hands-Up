@@ -21,6 +21,9 @@ ai_model/letters
 ai_model/numbers
 ai_model/numbers2
 ai_model/letters_fine_tune
+ai_model/numbers
+ai_model/numbers2
+ai_model/numbers_fine_tune
 ai_model/alphabet_model/letters
 ai_model/alphabet_model/J_Z/
 ai_model/processed_data/trainData2.pickle
@@ -30,6 +33,7 @@ ai_model/llm/glosses
 ai_model2/dataset
 ai_model2/processed_dataset
 ai_model2/models/__pycache__
+.venv
 
 #uploads
 backend/api/uploads
@@ -54,3 +58,12 @@ ai_model2/notebook/Logs
 
 #uploads
 backend/uploads
+
+
+#module translate
+venv_signlang
+translate/videos
+translate/extracted_landmarks
+translate/processed_sequences
+translate/my_recorded_signs
+
