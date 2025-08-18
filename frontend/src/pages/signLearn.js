@@ -33,13 +33,13 @@ const COMMON_PHRASES = [
     { id: 'drink_water', phrase: 'Drink Water', words: ['drinkWater'] },
     { id: 'my_mother', phrase: 'My Mother', words: ['myMother'] },
     { id: 'my_father', phrase: 'My Father', words: ['myFather'] },
-    
     { id: 'brother_sister', phrase: 'My Brother and Sister', words: ['myBrotherAndSister'] },
     { id: 'go_sleep', phrase: 'Go To Sleep', words: ['goSleep'] },
-    { id: 'i_understand', phrase: 'I Understand', words: ['meunderstand'] },
+    { id: 'i_understand', phrase: 'I Understand', words: ['meUnderstand'] },
     { id: 'hot_weather', phrase: 'Hot Weather', words: ['hotWeather'] },
     { id: 'cold_weather', phrase: 'Cold Weather', words: ['coldWeather'] },
     { id: 'eat_apple', phrase: 'Eat an Apple', words: ['eatApple'] },
+
     { id: 'my_pet_is_a_dog', phrase: 'My Pet Is A Dog', words: ['myPetDog'] }
 ];
 
