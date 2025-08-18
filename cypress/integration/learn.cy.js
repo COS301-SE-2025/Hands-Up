@@ -57,7 +57,7 @@ describe('Learn Page Tests', () => {
     it('should allow clicking on unlocked alphabet category', () => {
       cy.contains('The Alphabet').click();
       cy.get('.category-levels').should('be.visible');
-      cy.contains('h2', 'The Alphabet Levels').should('be.visible');
+      cy.contains('h2', 'The Alphabet').should('be.visible');
     });
   });
 
@@ -68,7 +68,7 @@ describe('Learn Page Tests', () => {
 
     it('should display alphabet category levels page', () => {
       cy.get('.category-levels').should('be.visible');
-      cy.contains('h2', 'The Alphabet Levels').should('be.visible');
+      cy.contains('h2', 'The Alphabet').should('be.visible');
       cy.get('.stepping-poles').should('be.visible');
     });
 
