@@ -22,7 +22,6 @@ async function getLandmarks(letter) {
 }
 
 const COMMON_PHRASES = [
-
     { id: 'hello_my_name', phrase: 'Hello My Name', words: ['helloMyName'] },
     { id: 'nice_meet_you', phrase: 'Nice To Meet You', words: ['niceToMeetYou'] },
     { id: 'i_love_you', phrase: 'I Love You', words: ['iLoveYou'] },
@@ -39,7 +38,6 @@ const COMMON_PHRASES = [
     { id: 'hot_weather', phrase: 'Hot Weather', words: ['hotWeather'] },
     { id: 'cold_weather', phrase: 'Cold Weather', words: ['coldWeather'] },
     { id: 'eat_apple', phrase: 'Eat an Apple', words: ['eatApple'] },
-
     { id: 'my_pet_is_a_dog', phrase: 'My Pet Is A Dog', words: ['myPetDog'] }
 ];
 
@@ -53,6 +51,7 @@ export function SignLearn() {
     const [replayKey, setReplayKey] = useState(0);
     const [currentWordIndex, setCurrentWordIndex] = useState(0);
     const [isAutoPlaying, setIsAutoPlaying] = useState(false);
+    const [hasTrackedStats, setHasTrackedStats] = useState(false);
     const timeoutRef = useRef(null);
 
     const category = location.state?.category || new URLSearchParams(location.search).get('category');
@@ -66,9 +65,7 @@ export function SignLearn() {
         'colours': ['red', 'blue', 'green', 'yellow', 'black', 'white', 'pink', 'purple', 'orange', 'brown', 'gold', 'silver'],
         'introduce': ['hello', 'name', 'my', 'again', 'goodbye', 'nice', 'meet', 'you', 'this', 'sorry', 'and'],
         'family': ['brother', 'sister', 'mother', 'father', 'aunt', 'uncle', 'grandma', 'grandpa', 'child', 'siblings', 'boy', 'girl'],
-
         'feelings': ['happy', 'sad', 'angry', 'cry', 'sorry', 'like', 'love', 'hate', 'feel'],
-
         'actions': ['drive', 'watch','see', 'sleep', 'walk', 'stand', 'sit', 'give', 'understand', 'go', 'stay', 'talk'],
         'questions': ['why', 'tell', 'when', 'who', 'which'],
         'time': ['today', 'tomorrow', 'yesterday', 'year', 'now', 'future', 'oclock', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
@@ -76,7 +73,6 @@ export function SignLearn() {
         'things': ['shower', 'table', 'lights', 'computer', 'hat', 'chair', 'car', 'ambulance', 'window'],
         'animals': ['dog', 'cat', 'bird', 'fish', 'horse', 'cow', 'animal'],
         'seasons': ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 'snow', 'wind', 'sunrise', 'hot', 'cold', 'warm', 'cool', 'weather', 'freeze'],
-
         'phrases': COMMON_PHRASES.map(p => p.id)
     }), []);
 
@@ -159,7 +155,7 @@ export function SignLearn() {
     };
 
     const startAutoPlay = useCallback(() => {
-        if (!currentPhrase || isAutoPlaying) return;
+        if (!currentPhrase) return;
         
         setIsAutoPlaying(true);
         setCurrentWordIndex(0);
@@ -181,28 +177,30 @@ export function SignLearn() {
         };
         
         timeoutRef.current = setTimeout(playNext, 500);
-    }, [currentPhrase, isAutoPlaying]);
+    }, [currentPhrase]);
 
     const handleReplay = () => {
         if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
         }
         
-
-           if (isPhrase && currentPhrase) {
-            setIsAutoPlaying(true);
-            setTimeout(startAutoPlay, 100);
+        if (isPhrase && currentPhrase) {
+            setIsAutoPlaying(false); // Reset autoplay state
+            setTimeout(() => {
+                startAutoPlay();
+            }, 100);
         } else {
            setReplayKey(prev => prev + 1);
         }
     };
 
+    // Auto-start phrases immediately when data is loaded
     useEffect(() => {
-        if (isPhrase && currentPhrase && !isAutoPlaying && landmarks && landmarks.length > 0) {
-           const timer = setTimeout(startAutoPlay, 1000);
+        if (isPhrase && currentPhrase && landmarks && landmarks.length > 0 && !isAutoPlaying) {
+            const timer = setTimeout(startAutoPlay, 500); // Reduced delay for immediate start
             return () => clearTimeout(timer);
         }
-    }, [isPhrase, currentPhrase, isAutoPlaying, landmarks, startAutoPlay]);
+    }, [isPhrase, currentPhrase, landmarks, isAutoPlaying, startAutoPlay]);
 
     useEffect(() => {
         return () => {
@@ -211,6 +209,11 @@ export function SignLearn() {
             }
         };
     }, []);
+
+    // Reset hasTrackedStats when letter/phrase changes
+    useEffect(() => {
+        setHasTrackedStats(false);
+    }, [letter]);
 
     useEffect(() => {
         async function loadData() {
@@ -234,21 +237,26 @@ export function SignLearn() {
                 
                 setLandmarks(data);
 
-                if (isPhrase && currentPhrase) {
-                    const learnedPhrases = stats?.learnedPhrases || [];
-                    if (!learnedPhrases.includes(letter)) {
-                        updateStats({
-                            phrasesLearned: (stats?.phrasesLearned || 0) + 1,
-                            learnedPhrases: [...learnedPhrases, letter]
-                        });
-                    }
-                } else {
-                    const learnedSigns = stats?.learnedSigns || []; 
-                    if (!learnedSigns.includes(letter.toLowerCase())) {
-                        updateStats({
-                            signsLearned: (stats?.signsLearned || 0) + 1,
-                            learnedSigns: [...learnedSigns, letter.toLowerCase()]
-                        });
+                // Only update stats once per sign/phrase visit and only if not already learned
+                if (!hasTrackedStats) {
+                    if (isPhrase && currentPhrase) {
+                        const learnedPhrases = stats?.learnedPhrases || [];
+                        if (!learnedPhrases.includes(letter)) {
+                            updateStats({
+                                lessonsCompleted: (stats?.lessonsCompleted || 0) + 1, // Increment lessons for phrases
+                                learnedPhrases: [...learnedPhrases, letter]
+                            });
+                            setHasTrackedStats(true);
+                        }
+                    } else {
+                        const learnedSigns = stats?.learnedSigns || []; 
+                        if (!learnedSigns.includes(letter.toLowerCase())) {
+                            updateStats({
+                                signsLearned: (stats?.signsLearned || 0) + 1, // Increment signs for individual signs
+                                learnedSigns: [...learnedSigns, letter.toLowerCase()]
+                            });
+                            setHasTrackedStats(true);
+                        }
                     }
                 }
             } catch (error) {
@@ -258,7 +266,7 @@ export function SignLearn() {
             }
         }
         loadData();
-    }, [letter, currentWordIndex, isPhrase, currentPhrase, updateStats, stats]); 
+    }, [letter, currentWordIndex, isPhrase, currentPhrase, updateStats, stats, hasTrackedStats]); 
 
     if (loading) {
         return (
@@ -453,27 +461,12 @@ export function SignLearn() {
             }}>
                 {isPhrase ? (
                     <div>
-
-                        <div> {currentPhrase?.phrase}</div>
-
-                        <div style={{ 
-                            fontSize: '0.6em', 
-                            color: '#666', 
-                            fontWeight: 'normal',
-                            marginTop: '10px' 
-                        }}>
-
-                            {isAutoPlaying && (
-                                <span style={{ color: '#4caf50', marginLeft: '10px' }}>
-                                    ● Auto-playing...
-                                </span>
-                            )}
-                        </div>
+                        <div>{currentPhrase?.phrase}</div>
+                        {/* Removed the autoplay status indicator */}
                     </div>
                 ) : (
                     <div>
                          {letter.toUpperCase()}
-
                         {category && (
                             <div style={{ 
                                 fontSize: '0.6em', 
@@ -487,7 +480,6 @@ export function SignLearn() {
                     </div>
                 )}
             </h1>
-
 
             <div style={{
                 width: '100%',
@@ -515,32 +507,26 @@ export function SignLearn() {
             }}>
                 <button
                     onClick={handleReplay}
-                    disabled={isAutoPlaying}
                     style={{
                         padding: '12px 24px',
                         fontSize: '16px',
                         fontWeight: 'bold',
                         borderRadius: '10px',
-                        backgroundColor: isAutoPlaying ? '#ccc' : '#ffe44d',
-                        color: isAutoPlaying ? '#666' : 'black',
+                        backgroundColor: '#ffe44d',
+                        color: 'black',
                         border: 'none',
                         boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-                        cursor: isAutoPlaying ? 'not-allowed' : 'pointer',
+                        cursor: 'pointer',
                         transition: '0.3s',
                     }}
                     onMouseEnter={(e) => {
-                        if (!isAutoPlaying) {
-                            e.currentTarget.style.transform = 'scale(1.05)';
-                        }
+                        e.currentTarget.style.transform = 'scale(1.05)';
                     }}
                     onMouseLeave={(e) => {
                         e.currentTarget.style.transform = 'scale(1)';
                     }}
                 >
-                    {isPhrase ? 
-                        (isAutoPlaying ? 'Playing Phrase...' : 'Replay Full Phrase') : 
-                        'Replay Animation'
-                    }
+                    {isPhrase ? 'Replay Phrase' : 'Replay Animation'}
                 </button>
             </div>
 

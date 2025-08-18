@@ -34,8 +34,8 @@ const HelpMessage = ({ message, onClose, position }) => {
 
     return (
        <div className="help-message-backdrop fixed inset-0 bg-black bg-opacity-50 z-[9998] animate-fadeIn">
-            <div className={`help-message-overlay fixed z-[9999] p-6 rounded-2xl shadow-2xl flex flex-col items-center justify-center bg-gradient-to-br from-white to-gray-50 border border-gray-200 ${positionClasses} animate-fadeInScale`}>
-                <div className="w-full max-w-[200px] h-[200px] rounded-xl bg-white shadow-md mb-4 flex items-center justify-center">
+            <div className={`help-message-overlay fixed z-[9999] p-4 sm:p-6 rounded-2xl shadow-2xl flex flex-col items-center justify-center bg-gradient-to-br from-white to-gray-50 border border-gray-200 ${positionClasses} animate-fadeInScale max-w-[90vw] sm:max-w-md`}>
+                <div className="w-full max-w-[150px] sm:max-w-[200px] h-[150px] sm:h-[200px] rounded-xl bg-white shadow-md mb-4 flex items-center justify-center">
                     <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
                         {/* eslint-disable-next-line react/no-unknown-property */}
                         <ambientLight intensity={5} />
@@ -46,13 +46,13 @@ const HelpMessage = ({ message, onClose, position }) => {
                    </Canvas>
                 </div>
 
-                <p className="text-gray-800 text-lg text-center font-medium mb-6 leading-relaxed max-w-md">
+                <p className="text-gray-800 text-base sm:text-lg text-center font-medium mb-4 sm:mb-6 leading-relaxed max-w-md px-2">
                     {message}
                 </p>
 
                 <button
                     onClick={onClose}
-                    className="btn-secondary"
+                    className="btn-secondary text-sm sm:text-base px-4 py-2"
                 >
                     Okay!
                 </button>
@@ -65,6 +65,21 @@ HelpMessage.propTypes = {
     message: PropTypes.string,
     onClose: PropTypes.func.isRequired,
     position: PropTypes.string
+};
+
+
+const PageTitle = () => {
+    return (
+        <div className="page-title-container mb-6 sm:mb-8 text-center px-4">
+            <div className="title-wrapper relative">
+                <h1 className="page-title text-3xl sm:text-4xl md:text-5xl lg:text-6xl  text -center font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2 sm:mb-3">
+                    Learn with HandsUp
+                </h1>
+                
+            </div>
+            
+             </div>
+    );
 };
 
 const COLORS = [
@@ -99,23 +114,23 @@ const SEASONS_WEATHER = ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 
     'wind', 'sunrise', 'hot', 'cold', 'warm', 'cool','weather', 'freeze'];
 
 const COMMON_PHRASES = [
-    { id: 'hello_my_name', phrase: 'Hello My Name', words: ['hello', 'my', 'name'] },
-    { id: 'nice_meet_you', phrase: 'Nice To Meet You', words: ['nice', 'meet', 'you'] },
-    { id: 'i_love_you', phrase: 'I Love You', words: ['love', 'you'] },
-    { id: 'i_am_happy', phrase: 'I Am Happy', words: ['happy'] },
-    { id: 'i_am_sad', phrase: 'I Am Sad', words: ['sad'] },
-    { id: 'see_you_tomorrow', phrase: 'See You Tomorrow', words: ['you', 'tomorrow'] },
-    { id: 'i_am_hungry', phrase: 'I Am Hungry', words: ['hungry'] },
-    { id: 'drink_water', phrase: 'Drink Water', words: ['drink', 'water'] },
-    { id: 'my_mother', phrase: 'My Mother', words: ['my', 'mother'] },
-    { id: 'my_father', phrase: 'My Father', words: ['my', 'father'] },
-    { id: 'brother_sister', phrase: 'My Brother and Sister', words: ['brother', 'sister'] },
+    { id: 'hello_my_name', phrase: 'Hello My Name', words: ['helloMyName'] },
+    { id: 'nice_meet_you', phrase: 'Nice To Meet You', words: ['niceToMeetYou'] },
+    { id: 'i_love_you', phrase: 'I Love You', words: ['iLoveYou'] },
+    { id: 'i_am_happy', phrase: 'I Am Happy', words: ['meHappy'] },
+    { id: 'i_am_sad', phrase: 'I Am Sad', words: ['meSad'] },
+    { id: 'see_you_tomorrow', phrase: 'See You Tomorrow', words: ['seeYouTomorrow'] },
+    { id: 'i_am_hungry', phrase: 'I Am Hungry', words: ['meHungry'] },
+    { id: 'drink_water', phrase: 'Drink Water', words: ['drinkWater'] },
+    { id: 'my_mother', phrase: 'My Mother', words: ['myMother'] },
+    { id: 'my_father', phrase: 'My Father', words: ['myFather'] },
+    { id: 'brother_sister', phrase: 'My Brother and Sister', words: ['myBrotherAndSister'] },
     { id: 'go_sleep', phrase: 'Go Sleep', words: ['goSleep'] },
     { id: 'i_understand', phrase: 'I Understand', words: ['meUnderstand'] },
     { id: 'hot_weather', phrase: 'Hot Weather', words: ['hotWeather'] },
     { id: 'cold_weather', phrase: 'Cold Weather', words: ['coldWeather'] },
     { id: 'eat_apple', phrase: 'Eat an Apple', words: ['eatApple'] },
-    { id: 'my_pet_is_a_dog', phrase: 'My Pet Is A Dog', words: ['my', 'pet','dog'] }
+    { id: 'my_pet_is_a_dog', phrase: 'My Pet Is A Dog', words: ['myPetDog'] }
 ];
 
 const CATEGORY_HELP_MESSAGES = {
@@ -330,10 +345,11 @@ export function Learn() {
                 quizzesCompleted={quizzesCompleted}
             />
 
-            <div className="learn-main-content relative">
+            <div className="learn-main-content relative min-h-screen">
                 {selectedSection === 'dashboard' && !currentCategory && (
                     <div className="dashboard">
-                        <div className="category-tiles">
+                        <PageTitle />
+                        <div className="category-tiles grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 px-4 sm:px-6 lg:px-8">
                             {categories.map(cat => (
                                 <CategoryTile
                                     key={cat.id}
@@ -347,9 +363,19 @@ export function Learn() {
                 )}
 
                 {currentCategory && (
-                    <div className="category-levels">
-                        <h2>{currentCategory.name} Levels </h2>
-                        <div className={`stepping-poles ${currentCategory.id === 'phrases' ? 'phrases-layout' : ''}`}>
+                    <div className="category-levels px-4 sm:px-6 lg:px-8">
+                        <div className="category-header mb-6 sm:mb-8">
+                            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2">
+                                {currentCategory.name}
+                            </h2>
+                            <div className="category-subtitle-line w-16 sm:w-20 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
+                        </div>
+                        
+                        <div className={`stepping-poles grid gap-3 sm:gap-4 md:gap-6 ${
+                            currentCategory.id === 'phrases' 
+                                ? 'phrases-layout grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
+                                : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'
+                        }`}>
 
                             {currentCategory.id === 'alphabets' ? (
                                 <>
@@ -380,7 +406,7 @@ export function Learn() {
                                             backgroundColor: signsLearned >= 5 ? '#ffc107' : '#ccc',
                                             color: signsLearned >= 5 ? '#fff' : '#666',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
@@ -404,7 +430,7 @@ export function Learn() {
                                             backgroundColor: '#ffc107',
                                             color: '#fff',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
@@ -437,7 +463,7 @@ export function Learn() {
                                             animation: 'rainbow 3s ease infinite',
                                             color: '#fff',
                                             fontWeight: 'bold',
-                                            fontSize: '14px',
+                                            fontSize: '12px sm:14px',
                                             textShadow: '1px 1px 2px rgba(0,0,0,0.7)'
                                         }}
                                     />
@@ -445,31 +471,31 @@ export function Learn() {
                             ) : currentCategory.id === 'phrases' ? (
                                 <>
                                     {COMMON_PHRASES.map((phrase) => (
-
                                         <div
                                             key={phrase.id}
-                                            className="level-card phrase-card unlocked"
+                                            className="level-card phrase-card unlocked w-full"
                                             onClick={() => navigateToPhrase(phrase.id)}
                                         >
-                                            <div className="phrase-content">
-                                                <div className="phrase-icon">
-                                                    💬
+                                            <div className="phrase-content flex items-center justify-between p-3 sm:p-4">
+                                                <div className="flex items-center space-x-3">
+                                                    <div className="phrase-icon text-xl sm:text-2xl">
+                                                        💬
+                                                    </div>
+                                                    <div className="phrase-text">
+                                                        <h3 className="phrase-title text-sm sm:text-base font-semibold">{phrase.phrase}</h3>
+                                                        <p className="phrase-subtitle text-xs sm:text-sm text-gray-600">Learn this common phrase</p>
+                                                    </div>
                                                 </div>
-                                                <div className="phrase-text">
-                                                    <h3 className="phrase-title">{phrase.phrase}</h3>
-                                                    <p className="phrase-subtitle">Learn this common phrase</p>
-                                                </div>
+                                                <div className="phrase-arrow text-lg sm:text-xl">→</div>
                                             </div>
-                                            <div className="phrase-arrow">→</div>
                                         </div>
                                     ))}
                                     <div
-                                        className={`level-card phrase-card phrase-quiz ${
+                                        className={`level-card phrase-card phrase-quiz w-full ${
                                             COMMON_PHRASES.every(phrase => stats?.learnedPhrases?.includes(phrase.id))
                                                 ? 'unlocked' 
                                                 : 'locked'
                                         }`}
-
                                         onClick={() => {
                                             if (COMMON_PHRASES.every(phrase => stats?.learnedPhrases?.includes(phrase.id))) {
                                                 navigate(getQuizRoute(currentCategory.id));
@@ -481,25 +507,25 @@ export function Learn() {
                                                 );
                                             }
                                         }}
-
                                     >
-                                        <div className="phrase-content">
-                                            <div className="phrase-icon">
-                                              
+                                        <div className="phrase-content flex items-center justify-between p-3 sm:p-4">
+                                            <div className="flex items-center space-x-3">
+                                                <div className="phrase-icon text-xl sm:text-2xl">
+                                                    🏆
+                                                </div>
+                                                <div className="phrase-text">
+                                                    <h3 className="phrase-title text-sm sm:text-base font-semibold">Phrases Quiz</h3>
+                                                    <p className="phrase-subtitle text-xs sm:text-sm text-gray-600">
+                                                        {COMMON_PHRASES.every(phrase => stats?.learnedPhrases?.includes(phrase.id))
+                                                            ? 'Test your phrase knowledge!'
+                                                            : 'Complete all phrases to unlock'
+                                                        }
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div className="phrase-text">
-                                                <h3 className="phrase-title">Phrases Quiz</h3>
-                                                <p className="phrase-subtitle">
-                                                    {COMMON_PHRASES.every(phrase => stats?.learnedPhrases?.includes(phrase.id))
-                                                        ? 'Test your phrase knowledge!'
-                                                        : 'Complete all phrases to unlock'
-                                                    }
-                                                </p>
-                                            </div>
+                                            <div className="phrase-arrow text-lg sm:text-xl">→</div>
                                         </div>
-                                        <div className="phrase-arrow"> →</div>
                                     </div>
-
                                 </>
                             ) : currentCategory.id === 'introduce' ? ( 
                                 <>
@@ -532,7 +558,7 @@ export function Learn() {
                                             backgroundColor: INTRODUCTION_WORDS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
                                             color: INTRODUCTION_WORDS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
@@ -567,7 +593,7 @@ export function Learn() {
                                             backgroundColor: FAMILY_MEMBERS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
                                             color: FAMILY_MEMBERS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
@@ -603,7 +629,7 @@ export function Learn() {
                                             backgroundColor: EMOTIONS_FEELINGS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
                                             color: EMOTIONS_FEELINGS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
@@ -639,7 +665,7 @@ export function Learn() {
                                             backgroundColor: COMMON_ACTIONS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
                                             color: COMMON_ACTIONS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
@@ -675,7 +701,7 @@ export function Learn() {
                                             backgroundColor: ASKING_QUESTIONS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
                                             color: ASKING_QUESTIONS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
@@ -711,7 +737,7 @@ export function Learn() {
                                             backgroundColor: TIME_DAYS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
                                             color: TIME_DAYS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
@@ -747,7 +773,7 @@ export function Learn() {
                                             backgroundColor: FOOD_DRINKS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
                                             color: FOOD_DRINKS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
@@ -783,7 +809,7 @@ export function Learn() {
                                             backgroundColor: OBJECTS_THINGS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
                                             color: OBJECTS_THINGS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
@@ -819,7 +845,7 @@ export function Learn() {
                                             backgroundColor: ANIMALS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
                                             color: ANIMALS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
@@ -854,7 +880,7 @@ export function Learn() {
                                             backgroundColor: SEASONS_WEATHER.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
                                             color: SEASONS_WEATHER.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
@@ -879,14 +905,19 @@ export function Learn() {
                                             backgroundColor: '#ffc107',
                                             color: '#fff',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
                             )}
                         </div>
 
-                        <button onClick={goBack} className="back-button">← Back</button>
+                        <button 
+                            onClick={goBack} 
+                            className="back-button mt-6 sm:mt-8 mb-4 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                        >
+                            ← Back to Categories
+                        </button>
                     </div>
                 )}
 

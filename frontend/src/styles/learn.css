@@ -226,7 +226,7 @@ body {
 .level-card.phrase-card:hover {
     transform: translateY(-4px) scale(1.02);
     box-shadow: 0 16px 48px rgba(102, 126, 234, 0.3);
-    background: linear-gradient(135deg, #7c8ce8 0%, #8a5eb5 100%);
+    background: linear-gradient(135deg,    #fae152 0%, #ffe44d 100%);
 }
 
 .level-card.phrase-card:active {
