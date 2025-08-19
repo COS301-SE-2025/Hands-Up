@@ -402,3 +402,4 @@ export default signLanguageAPI;
 
 // Also export the class for custom instances
 export { SignLanguageAPI };
+
