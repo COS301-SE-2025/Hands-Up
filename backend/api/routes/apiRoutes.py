@@ -4,14 +4,14 @@ import tempfile, os
 
 api_blueprint = Blueprint('sign', __name__, url_prefix='/sign')
 
-@api_blueprint.route('/processImage', methods=['POST'])
+@api_blueprint.route('/sign/processImage', methods=['POST'])
 def process_image():
     files = request.files.getlist('frames')
     
     sequenceNum = 20
 
     if len(files) != sequenceNum:
-        abort(400,"Exactly 20 frames required")
+        abort(400, detail="Exactly 20 frames required")
 
     image_file = request.files['image']
 
