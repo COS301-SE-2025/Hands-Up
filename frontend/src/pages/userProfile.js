@@ -10,6 +10,7 @@ import {
     deleteUserAccount,
     uploadUserAvatar
 } from '../utils/apiCalls.js';
+import LoadingSpinner from '../components/loadingSpinner';
 
 const BACKEND_BASE_URL = "http://localhost:2000"; 
 
@@ -347,9 +348,9 @@ export function UserProfile() {
     };
 
 
-    if (authLoading) return <div className="containerP loading-state">Loading authentication...</div>;
+    if (authLoading) return <LoadingSpinner />;
     if (!isLoggedIn) return null;
-    if (loading) return <div className="containerP loading-state">Loading user profile...</div>;
+    if (loading) return <LoadingSpinner />;
     if (error) return <div className="containerP error-state">Error: {error}</div>;
     if (!currentUser) return <div className="containerP error-state">No user data available. Please log in.</div>;
 
