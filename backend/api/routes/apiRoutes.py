@@ -1,4 +1,5 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
+from flask import Blueprint, request, jsonify
 from controllers.lettersController import detectFromImage
 import tempfile, os
 
