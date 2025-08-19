@@ -300,7 +300,6 @@ export const processWords = async (formData) => {
   }
 };
 
-
 // Fixed uploadUserAvatar function
 export const uploadUserAvatar = async (userID, formData) => {
     try {
