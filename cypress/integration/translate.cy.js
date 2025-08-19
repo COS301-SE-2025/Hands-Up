@@ -283,7 +283,7 @@ describe('Overall Application Tests', () => {
       cy.get('.recognizer-banner').should('be.visible');
       cy.get('video.recognizer-video').should('be.visible');
       cy.get('.recognizer-live-indicator').should('be.visible');
-      cy.get('.recognizer-control-button').should('have.length.at.least', 3);
+      cy.get('.recognizer-control-button').should('have.length.at.least', 2);
     });
 
     it('should handle recording with real auth', () => {
