@@ -222,10 +222,10 @@ export function SignLearn() {
                 let data;
                 if (isPhrase && currentPhrase) {
                     const currentWord = currentPhrase.words[currentWordIndex];
-                    console.log('Loading landmarks for word:', currentWord);
+                    console.log('Loading animation for word:', currentWord);
                     data = await getLandmarks(currentWord);
                 } else {
-                    console.log('Loading landmarks for letter:', letter);
+                    console.log('Loading animation for letter:', letter);
                     data = await getLandmarks(letter);
                 }
                 
@@ -285,8 +285,8 @@ export function SignLearn() {
                     marginTop: '20px'
                 }}>
                     {isPhrase && currentPhrase ? 
-                        `Loading landmarks for "${currentPhrase.words[currentWordIndex]}"...` :
-                        'Loading landmarks...'
+                        `Loading animation for "${currentPhrase.words[currentWordIndex]}"...` :
+                        'Loading animation...'
                     }
                 </div>
             </div>
@@ -470,7 +470,7 @@ export function SignLearn() {
                                 fontWeight: 'normal',
                                 marginTop: '10px' 
                             }}>
-                                Category: {category}
+                                {/* Category: {category} */}
                             </div>
                         )}
                     </div>
