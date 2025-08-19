@@ -11,7 +11,7 @@ def process_image():
     
     sequenceNum = 20
 
-    if len(frames) != sequenceNum:
+    if len(files) != sequenceNum:
         raise HTTPException(status_code=400, detail="Exactly 20 frames required")
 
     image_file = request.files['image']
