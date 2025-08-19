@@ -476,18 +476,16 @@ export function Learn() {
                                             className="level-card phrase-card unlocked w-full"
                                             onClick={() => navigateToPhrase(phrase.id)}
                                         >
-                                            <div className="phrase-content flex items-center justify-between p-3 sm:p-4">
-                                                <div className="flex items-center space-x-3">
-                                                    <div className="phrase-icon text-xl sm:text-2xl">
-                                                        💬
-                                                    </div>
-                                                    <div className="phrase-text">
-                                                        <h3 className="phrase-title text-sm sm:text-base font-semibold">{phrase.phrase}</h3>
-                                                        <p className="phrase-subtitle text-xs sm:text-sm text-gray-600">Learn this common phrase</p>
-                                                    </div>
+                                            <div className="phrase-content">
+                                                <div className="phrase-icon">
+                                                    💬
                                                 </div>
-                                                <div className="phrase-arrow text-lg sm:text-xl">→</div>
+                                                <div className="phrase-text">
+                                                    <h3 className="phrase-title">{phrase.phrase}</h3>
+                                                    <p className="phrase-subtitle">Learn this common phrase</p>
+                                                </div>
                                             </div>
+                                            <div className="phrase-arrow">→</div>
                                         </div>
                                     ))}
                                     <div
