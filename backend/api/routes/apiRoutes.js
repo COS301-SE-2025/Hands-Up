@@ -18,8 +18,9 @@ import {
 
 import {
     testPython,
-    processSign,
-    processVideo,
+    processSignOrVideo,
+    // processSign,
+    // processVideo,
     healthCheck
 } from '../controllers/modelController.js';
 
@@ -67,7 +68,7 @@ router.use((req, res, next) => {
 
 //added to work for performance monitoring
 router.use((req, res, next) => {
-    const startTime = process.hrtime(); // High-resolution timer
+    const startTime = process.hrtime(); 
 
     res.on('finish', () => {
         const diff = process.hrtime(startTime);
@@ -108,26 +109,29 @@ router.get("/auth/unique-email/:email", uniqueEmail);
 
 // AI Processing Routes
 router.get('/test-python', testPython);
+// The /process-sign endpoint now handles both single-frame and multi-frame requests.
 router.post(
     '/process-sign',
-    upload.single('image'),
-    processSign
-);
-router.post(
-    '/process-video',
-    upload.single('video'),
-    (req, res, next) => {
-        console.log('>>> Route /process-video reached in routes.js <<<');
-        if (req.file) {
-            console.log(`Video file received: ${req.file.originalname}`);
+    upload.array('frames'), 
+    (req, res, ) => {
+        // We will call the same function but pass a different mode.
+        // req.body.mode will come from the frontend (e.g., in the form data)
+        const mode = req.body.mode;
+        if (mode === 'fingerspelling') {
+            // This route now expects frames to be sent from the frontend.
+            // You'll need to update your front-end to capture a single frame and send it as 'frames'.
+            processSignOrVideo(req, res, 'fingerspelling');
+        } else if (mode === 'words') {
+            // This route expects a sequence of frames for word detection.
+            processSignOrVideo(req, res, 'words');
         } else {
-            console.log('No video file attached to request (or multer failed).');
+            return res.status(400).json({ error: "Invalid mode specified" });
         }
-        next(); 
-    },
-    processVideo
+    }
 );
+
 router.get('/health', healthCheck);
+
 router.use((error, req, res, next) => { 
     if (error instanceof multer.MulterError) {
         if (error.code === 'LIMIT_FILE_SIZE') {
