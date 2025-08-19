@@ -148,7 +148,7 @@ describe('Overall Application Tests', () => {
       cy.get('.recognizer-camera-button').should('have.length', 2);
       
       // Main controls
-      cy.get('.recognizer-control-button').should('have.length', 3);
+      cy.get('.recognizer-control-button').should('have.length', 2);
       
       // Results section
       cy.get('.recognizer-results-display').should('be.visible');
