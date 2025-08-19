@@ -11,24 +11,23 @@ function Model({modelPath}) {
 
   useEffect(() => {
     if (actions && Object.keys(actions).length > 0) {
-      const firstAction = actions[Object.keys(actions)[0]]
-      firstAction.play()
+      actions[Object.keys(actions)[0]].play()
     }
   }, [actions])
 
-    return <primitive ref={group} object={scene} scale={1.85} />
+  return <primitive ref={group} object={scene} scale={1.85} />
 }
 
 Model.propTypes = {
   modelPath: PropTypes.string.isRequired
 }
 
-export default function ModelViewer({modelPath}) {
+export default function ModelViewer({modelPath }) {
   return (
     <Canvas camera={{ position: [-0.5, 3, 5] }}>
       <ambientLight />
-      <ambientLight intensity={10} color="white" />
-      <Model modelPath={modelPath}/>
+      <ambientLight intensity={8} color="white" />
+      <Model modelPath={modelPath} />
     </Canvas>
   )
 }

@@ -11,7 +11,7 @@ mpDrawingStyles = mp.solutions.drawing_styles
 
 hands = mpHands.Hands(static_image_mode=True, min_detection_confidence=0.3)
 
-DATADIR = '../letters/asl_alphabet_train'
+DATADIR = '../numbers/nums_test'
 
 data = []
 labels = []
@@ -31,6 +31,7 @@ for dir in os.listdir(DATADIR):
             print("Failed to load:", imgPath)
             continue  
 
+        img = cv2.imread(imgPath) # this iwwill read image and save to img variable
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         results = hands.process(imgRGB)
@@ -57,7 +58,7 @@ for dir in os.listdir(DATADIR):
             # cv2.waitKey(0)
 print(labels)
 
-file = open('../processed_data/trainData.pickle', 'wb')
+file = open('../processed_data/numTestData.pickle', 'wb')
 pickle.dump({'data': data, 'labels': labels}, file)
 file.close()
 
