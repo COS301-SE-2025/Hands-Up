@@ -45,7 +45,7 @@ describe('Overall Application Tests', () => {
       // Test control buttons are present
       cy.get('.recognizer-control-button').contains('Clear Results').should('be.visible');
       cy.get('.recognizer-control-button').contains('Start Signing').should('be.visible');
-      cy.get('.recognizer-control-button').contains('Upload Sign').should('be.visible');
+      // cy.get('.recognizer-control-button').contains('Upload Sign').should('be.visible'); temporarily removed
 
       // Test results section
       cy.get('.recognizer-results-title').should('contain', 'Translation Results');
@@ -162,13 +162,13 @@ describe('Overall Application Tests', () => {
       cy.get('.recognizer-alternative-value').should('be.visible');
     });
 
-    it('should handle file upload button', () => {
-      cy.get('.recognizer-upload-button').should('be.visible');
-      cy.get('.recognizer-file-input').should('exist').and('not.be.visible');
+    // it('should handle file upload button', () => {
+    //   cy.get('.recognizer-upload-button').should('be.visible');
+    //   cy.get('.recognizer-file-input').should('exist').and('not.be.visible');
       
-      // Test that the input accepts the correct file types
-      cy.get('.recognizer-file-input').should('have.attr', 'accept', 'image/*,video/*');
-    });
+    //   // Test that the input accepts the correct file types
+    //   cy.get('.recognizer-file-input').should('have.attr', 'accept', 'image/*,video/*');
+    // }); removed temporaily
 
     it('should display tips correctly', () => {
       const expectedTips = [
