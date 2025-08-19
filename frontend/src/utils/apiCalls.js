@@ -261,38 +261,23 @@ export const translateSequence = async (blobs) => {
     }
 };
 
-// Fixed processImage function
-export const processImage = async (image) => {
-    console.log("Processing captured image...");
-    console.log('Image details:', {
-        size: image?.size,
-        type: image?.type,
-        constructor: image?.constructor?.name
+export const processImage = async (formData) => {
+  console.log("Processing captured image...");
+
+  try {
+    const response = await fetch('http://127.0.0.1:5000/handsUPApi/sign/processImage', {
+      method: 'POST',
+      body: formData
     });
 
-    const formData = new FormData();
-    const filename = `sign_${Date.now()}.jpg`;
-    formData.append('image', image, filename);
+    const data = await response.json();
+    console.log("Response:", data);
+    return (data);
 
-    try {
-        const response = await fetch('http://127.0.0.1:5000/handsUPApi/sign/processImage', {
-            method: 'POST',
-            body: formData
-        });
-
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
-        }
-
-        const data = await response.json();
-        console.log("Response:", data);
-        return data;
-    } catch (error) {
-        console.error('Error processing image:', error);
-        return { error: 'Error processing image', details: error.message };
-    }
+  } catch (error) {
+    console.error(error);
+    return ('Error processing image');
+  }
 };
 
 // Fixed uploadUserAvatar function
