@@ -4,6 +4,7 @@ import tempfile
 import os
 
 api_blueprint = Blueprint('sign', __name__, url_prefix='/sign')
+api_blueprint = Blueprint('sign', __name__, url_prefix='/sign')
 
 @api_blueprint.route('/sign/processImage', methods=['POST'])
 def process_image():

@@ -358,7 +358,7 @@ describe('Login API', () => {
       json: () => Promise.resolve({}),
     });
 
-    await expect(login(mockCredentials)).rejects.toThrow('An unknown error occurred');
+    await expect(login(mockCredentials)).rejects.toThrow('Login failed');
 
     expect(fetch).toHaveBeenCalledWith(
       'http://localhost:2000/handsUPApi/auth/login',

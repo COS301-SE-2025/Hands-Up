@@ -100,6 +100,7 @@ export function Home(){
                     <div className="home-buttons">
                         <Link to="/translator" className="btn-primary">Start Translating</Link>
                         <Link to="/learn" className="btn-secondary">Begin Learning</Link>
+                        <Link to="/game" className="btn-secondary">Sign Surfers</Link>
                     </div>
                 </div>
                 <div className="home-image">
@@ -111,7 +112,7 @@ export function Home(){
                 <>
                     <hr className="divider" />
                     <section className="learning-overview-section animated-section">
-                        <h2 className="section-title">Your Learning Journey 🚀</h2>
+                        <h2 className="section-title">Your Learning Journey</h2>
 
                         <div className="learning-overview-grid">
                             <div className="learning-progress-card">

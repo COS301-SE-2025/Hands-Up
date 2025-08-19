@@ -1,10 +1,10 @@
 /* eslint-disable react/no-unknown-property */
 
-import React, { useEffect, useState, useCallback } from 'react'; 
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState, useCallback, useMemo } from 'react'; 
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useLearningStats } from '../contexts/learningStatsContext'; 
-// import { AngieSigns } from '../components/angieSigns';
-import { PhilSigns } from '../components/philSigns';
+import { AngieSigns } from '../components/angieSigns';
+//import { PhilSigns } from '../components/philSigns';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 
@@ -22,42 +22,85 @@ async function getLandmarks(letter) {
 export function SignLearn() {
     const { letter } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const [landmarks, setLandmarks] = useState({});
     const [loading, setLoading] = useState(true);
     const { updateStats, stats } = useLearningStats();
     const [replayKey, setReplayKey] = useState(0);
 
-    const getNextLetter = useCallback((currentLetter) => {
-        if (!currentLetter) return 'a';
-        const alphabet = 'abcdefghijklmnopqrstuvwxyz';
-        const currentIndex = alphabet.indexOf(currentLetter.toLowerCase());
-        const nextIndex = (currentIndex + 1) % alphabet.length;
-        return alphabet[nextIndex];
-    }, []); 
+    const category = location.state?.category || new URLSearchParams(location.search).get('category');
 
-    const getPreviousLetter = useCallback((currentLetter) => {
-        if (!currentLetter) return 'z';
-        const alphabet = 'abcdefghijklmnopqrstuvwxyz';
-        const currentIndex = alphabet.indexOf(currentLetter.toLowerCase());
-        const prevIndex = (currentIndex - 1 + alphabet.length) % alphabet.length;
-        return alphabet[prevIndex];
-    }, []); 
+    const categoryWords = useMemo(() => ({
+        'alphabets': 'abcdefghijklmnopqrstuvwxyz'.split(''),
+        'numbers': ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'],
+        'colours': ['red', 'blue', 'green', 'yellow', 'black', 'white', 'pink', 'purple', 'orange', 'brown', 'grey', 'cyan', 'magenta', 'lime', 'gold', 'silver'],
+        'introduce': ['hello', 'name', 'my', 'again', 'goodbye', 'nice', 'meet', 'you', 'this', 'sorry', 'and'],
+        'family': ['brother', 'sister', 'mother', 'father', 'aunt', 'uncle', 'grandma', 'grandpa', 'child', 'siblings', 'boy', 'girl'],
+        'feelings': ['happy', 'sad', 'angry', 'cry', 'hurt', 'sorry', 'like', 'love', 'hate', 'feel'],
+        'actions': ['drive', 'watch', 'sleep', 'walk', 'stand', 'sit', 'give', 'understand', 'go', 'stay', 'talk'],
+        'questions': ['why', 'tell', 'when', 'who', 'which'],
+        'time': ['morning', 'afternoon', 'evening', 'night', 'today', 'tomorrow', 'yesterday', 'year', 'now', 'future', 'oclock', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
+        'food': ['water', 'apple', 'drink', 'cereal', 'eggs', 'eat', 'hungry', 'full', 'cup', 'popcorn', 'candy', 'soup', 'juice', 'milk', 'pizza'],
+        'things': ['shower', 'table', 'lights', 'computer', 'hat', 'chair', 'car', 'ambulance', 'window'],
+        'animals': ['dog', 'cat', 'bird', 'fish', 'horse', 'cow', 'animal'],
+        'seasons': ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 'cloudy', 'snow', 'wind', 'sunrise', 'hot', 'cold', 'warm', 'cool', 'weather', 'freeze']
+    }), []);
 
-    const showPreviousButton = letter && letter.toLowerCase() !== 'a';
-    const showNextButton = letter && letter.toLowerCase() !== 'z';
+    const getNextSign = useCallback((currentSign) => {
+        if (!currentSign || !category) return null;
+        
+        const categoryList = categoryWords[category];
+        if (!categoryList) return null;
+        
+        const currentIndex = categoryList.findIndex(sign => 
+            sign.toLowerCase() === currentSign.toLowerCase()
+        );
+        
+        if (currentIndex === -1 || currentIndex === categoryList.length - 1) return null;
+        return categoryList[currentIndex + 1];
+    }, [category, categoryWords]);
+
+    const getPreviousSign = useCallback((currentSign) => {
+        if (!currentSign || !category) return null;
+        
+        const categoryList = categoryWords[category];
+        if (!categoryList) return null;
+        
+        const currentIndex = categoryList.findIndex(sign => 
+            sign.toLowerCase() === currentSign.toLowerCase()
+        );
+        
+        if (currentIndex <= 0) return null;
+        return categoryList[currentIndex - 1];
+    }, [category, categoryWords]);
+
+    const showPreviousButton = getPreviousSign(letter) !== null;
+    const showNextButton = getNextSign(letter) !== null;
 
     const handleBackToLearn = () => {
-        navigate('/learn');
+        if (category) {
+            navigate('/learn', { state: { selectedCategory: category } });
+        } else {
+           navigate('/learn');
+        }
     };
 
-    const handleNextAlphabet = () => {
-        const nextLetter = getNextLetter(letter);
-        navigate(`/sign/${nextLetter}`);
+    const handleNextSign = () => {
+        const nextSign = getNextSign(letter);
+        if (nextSign) {
+            navigate(`/sign/${nextSign}${category ? `?category=${category}` : ''}`, {
+                state: { category }
+            });
+        }
     };
 
-    const handlePreviousAlphabet = () => {
-        const prevLetter = getPreviousLetter(letter);
-        navigate(`/sign/${prevLetter}`);
+    const handlePreviousSign = () => {
+        const prevSign = getPreviousSign(letter);
+        if (prevSign) {
+            navigate(`/sign/${prevSign}${category ? `?category=${category}` : ''}`, {
+                state: { category }
+            });
+        }
     };
 
     const handleReplay = () => {
@@ -72,7 +115,6 @@ export function SignLearn() {
             try {
                 const data = await getLandmarks(letter);
                 setLandmarks(data);
-                // console.log(data); 
 
                 const learnedSigns = stats?.learnedSigns || []; 
                 if (!learnedSigns.includes(letter.toLowerCase())) {
@@ -88,7 +130,7 @@ export function SignLearn() {
             }
         }
         loadData();
-    }, [letter, updateStats, stats, getNextLetter]); 
+    }, [letter, updateStats, stats]); 
 
     if (loading) {
         return (
@@ -136,6 +178,7 @@ export function SignLearn() {
         );
     }
 
+
     return (
         <div className="sign-learn-container" style={{
             display: 'flex',
@@ -178,12 +221,12 @@ export function SignLearn() {
                     e.currentTarget.style.transform = 'translateY(0)';
                 }}
             >
-                ← Back to Learn
+                ← Back 
             </button>
 
             {showPreviousButton && (
                 <button
-                    onClick={handlePreviousAlphabet}
+                    onClick={handlePreviousSign}
                     style={{
                         position: 'absolute',
                         left: '20px',
@@ -214,7 +257,7 @@ export function SignLearn() {
                         e.currentTarget.style.backgroundColor = '#ffc107';
                         e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
                     }}
-                    title={`Previous: ${getPreviousLetter(letter).toUpperCase()}`}
+                    title={`Previous: ${getPreviousSign(letter)?.toUpperCase()}`}
                 >
                     ‹
                 </button>
@@ -222,7 +265,7 @@ export function SignLearn() {
 
             {showNextButton && (
                 <button
-                    onClick={handleNextAlphabet}
+                    onClick={handleNextSign}
                     style={{
                         position: 'absolute',
                         right: '20px',
@@ -253,7 +296,7 @@ export function SignLearn() {
                         e.currentTarget.style.backgroundColor = '#28a745';
                         e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
                     }}
-                    title={`Next: ${getNextLetter(letter).toUpperCase()}`}
+                    title={`Next: ${getNextSign(letter)?.toUpperCase()}`}
                 >
                     ›
                 </button>
@@ -268,6 +311,16 @@ export function SignLearn() {
                 marginTop: '40px'
             }}>
                 Learning Sign: {letter.toUpperCase()}
+                {category && (
+                    <div style={{ 
+                        fontSize: '0.6em', 
+                        color: '#666', 
+                        fontWeight: 'normal',
+                        marginTop: '10px' 
+                    }}>
+                 
+                    </div>
+                )}
             </h1>
 
             <div style={{
@@ -281,8 +334,8 @@ export function SignLearn() {
                 <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
                     <ambientLight intensity={5} />
                     <group position={[0, -1.1, 0]}>
-                        {/* <AngieSigns landmarks={landmarks} replay={replayKey}/> */}
-                        <PhilSigns landmarks={landmarks} replay={replayKey}/>
+                        {/* <PhilSigns landmarks={landmarks} replay={replayKey}/> */}
+                        <AngieSigns landmarks={landmarks} replay={replayKey}/>
                     </group>
                     <OrbitControls enablePan={false} maxPolarAngle={Math.PI / 2} minDistance={2} maxDistance={3} />
                 </Canvas>

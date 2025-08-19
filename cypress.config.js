@@ -8,8 +8,9 @@ export default defineConfig({
       "cypress/e2e/**/*.cy.{js,jsx,ts,tsx}",
       "cypress/integration/**/*.cy.{js,jsx,ts,tsx}",
     ],
+    // Add these simple retry and timeout configurations
   },
-
+  
   component: {
     devServer: {
       framework: "react",

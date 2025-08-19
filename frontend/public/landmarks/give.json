@@ -1,0 +1,176 @@
+{
+  "mixamorigRightArm": {
+    "keyframes": [
+      [0.9, 0, -0.3],
+      [0.9, 0, -0.3],
+      [0.9, 0, -0.3],
+      [0.9, 0, -0.3],
+      [0.9, 0, -0.3]
+
+    ]
+  },
+  "mixamorigRightForeArm": {
+    "keyframes": [
+      [-1.1, 0.52, -2],
+      [-1.1, 0.52, -2],
+      [-1.1, 0.52, -2],
+      [-1.1, -0.25, -1.8],
+      [-1.1, -0.25, -1.8],
+      [-1.1, -0.25, -1.8]
+    ]
+  },
+  "mixamorigRightHand": {
+    "keyframes": [
+      [0, 2.4, 0],
+      [0, 2.4, 0],
+      [0, 2.4, 0],
+      [0, 2.4, 0],
+      [0, 2.4, 0]
+    ]
+  },
+ "mixamorigRightHandThumb1": {
+    "keyframes": [
+      [1, -2, 0],
+      [1, -2, 0],
+      [1, -2, 0],
+      [1, -2, 0],
+      [1, -2, 0]
+    ]
+  },
+  "mixamorigRightHandThumb2": {
+    "keyframes": [
+      
+      [0, 1, 0,5],
+      [0, 1, 0,5],
+      [0, 1, 0,5],
+      [0, 1, 0,5],
+      [0, 1, 0,5]
+    ]
+  },
+  "mixamorigRightHandThumb3": {
+    "keyframes": [
+      [0, 0, 0.5],
+      [0, 0, 0.5],
+      [0, 0, 0.5],
+      [0, 0, 0.5],
+      [0, 0, 0.5]
+    ]
+  },
+  "mixamorigRightHandIndex1": {
+    "keyframes": [
+      
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+     [1, 0, 0] 
+    ]
+  },
+  "mixamorigRightHandIndex2": {
+    "keyframes": [
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0]
+    ]
+  },
+  "mixamorigRightHandIndex3": {
+    "keyframes": [
+
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigRightHandMiddle1": {
+    "keyframes": [
+      
+      [1, 0,0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0]
+    ]
+  },
+  "mixamorigRightHandMiddle2": {
+    "keyframes": [
+    
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0]
+    ]
+  },
+  "mixamorigRightHandMiddle3": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigRightHandRing1": {
+    "keyframes": [
+      
+      [1, 0,0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0]
+    ]
+  },
+  "mixamorigRightHandRing2": {
+    "keyframes": [
+      
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0]
+    ]
+  },
+  "mixamorigRightHandRing3": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigRightHandPinky1": {
+    "keyframes": [
+      
+      [1, 0,0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0]
+
+    ]
+  },
+  "mixamorigRightHandPinky2": {
+    "keyframes": [
+      
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0]
+    ]
+  },
+  "mixamorigRightHandPinky3": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+
+    ]
+  }}

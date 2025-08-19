@@ -110,7 +110,7 @@ export function useUserProfile() {
     // Check for unique username
     if (username !== userData.username) {
       try {
-        const data = await uniqueUsername(username);
+        const data = await uniqueUsername(username);  
         if (data) {
           errors.username = "Username already taken.";
           setFormErrors(errors);

@@ -79,7 +79,7 @@ export function Signup() {
 
         const { name, surname, username, email, password, confirmPassword } = formData;
         const specialCharRegex = /[^A-Za-z0-9]/;
-
+        console.log(password);
         if (!name || !surname || !username || !email || !password || !confirmPassword) {
             setError('Please fill in all fields.');
             setIsLoading(false);

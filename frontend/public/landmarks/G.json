@@ -8,13 +8,13 @@
   "mixamorigRightHandThumb1": {
     "keyframes": [
       [0, 0, -1],
-      [0.3, 0, -0.4]
+      [1.2, 0, -0.25]
     ]
   },
   "mixamorigRightHandThumb2": {
     "keyframes": [
       [0, 0, 0],
-      [0, 0, 0.2]
+      [0, 0, 0]
     ]
   },
   "mixamorigRightHandThumb3": {
@@ -26,7 +26,7 @@
   "mixamorigRightHandIndex1": {
     "keyframes": [
       [0, 0, 0],
-      [0, 0, 0]
+      [1.4, 0, 0]
     ]
   },
   "mixamorigRightHandIndex2": {
@@ -93,6 +93,109 @@
     "keyframes": [
       [0, 0, 0],
       [2, 0, 0]
+    ]
+  },
+  "mixamorigLeftForeArm": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0]
+
+    ]
+  },
+  "mixamorigLeftHand": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHandThumb1": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHandThumb2": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHandThumb3": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHandIndex1": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHandIndex2": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHandIndex3": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHandMiddle1": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHandMiddle2": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHandMiddle3": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHandRing1": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHandRing2": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHandRing3": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+    "mixamorigLeftHandPinky1": {
+        "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0]
+        ]
+},
+  "mixamorigLeftHandPinky2": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+    "mixamorigLeftHandPinky3": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0]
     ]
   }
 }
