@@ -1,5 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify,abort
 from controllers.lettersController import detectFromImage
 import tempfile, os
 
@@ -12,7 +11,7 @@ def process_image():
     sequenceNum = 20
 
     if len(files) != sequenceNum:
-        raise HTTPException(status_code=400, detail="Exactly 20 frames required")
+        abort(400,"Exactly 20 frames required")
 
     image_file = request.files['image']
 
