@@ -8,7 +8,6 @@ import mediapipe as mp
 import collections
 import time
 import os
-import tensorflow_hub as hub
 from collections import deque
 
 lettersModel = tf.keras.models.load_model('../../ai_model/models/detectLettersModel.keras')
