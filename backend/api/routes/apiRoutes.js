@@ -65,6 +65,20 @@ router.use((req, res, next) => {
     next();
 });
 
+//added to work for performance monitoring
+router.use((req, res, next) => {
+    const startTime = process.hrtime(); // High-resolution timer
+
+    res.on('finish', () => {
+        const diff = process.hrtime(startTime);
+        const nanoseconds = diff[0] * 1e9 + diff[1];
+        const milliseconds = nanoseconds / 1e6;
+        console.log(`[PERFORMANCE] ${req.method} ${req.originalUrl} finished in ${milliseconds.toFixed(2)}ms`);
+    });
+
+    next();
+});
+
 // ========================================
 // API Routes
 // ========================================
