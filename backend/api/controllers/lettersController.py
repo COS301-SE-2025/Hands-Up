@@ -94,7 +94,8 @@ def detectFromImage(sequenceList):
         return {'letter': '', 'confidence': 0.0}
        
     inputData2 = np.array(processedSequence, dtype=np.float32).reshape(1, sequenceNum, 63)
-    prediction2 = model2.predict(inputData2, verbose=0)
+    # ... (rest of the code)
+    prediction2 = lettersModel2.predict(inputData2, verbose=0) 
 
     index2 = np.argmax(prediction2, axis=1)[0]
     confidence2 = float(np.max(prediction2))
