@@ -11,6 +11,7 @@ def process_image():
     files = request.files.getlist('frames')
     sequenceNum = 20
     
+    print("Landed")
     if len(files) != sequenceNum:
         return jsonify({'error': 'Exactly 20 frames required'}), 400
 
