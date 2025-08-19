@@ -261,6 +261,7 @@ export const translateSequence = async (blobs) => {
     }
 };
 
+// Fixed processImage function
 export const processImage = async (formData) => {
   console.log("Processing captured image...");
 
@@ -277,6 +278,25 @@ export const processImage = async (formData) => {
   } catch (error) {
     console.error(error);
     return ('Error processing image');
+  }
+};
+
+export const processWords = async (formData) => {
+  console.log("Processing captured image...");
+
+  try {
+    const response = await fetch('http://127.0.0.1:5000/handsUPApi/sign/processWords', {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await response.json();
+    console.log("Response:", data);
+    return (data);
+
+  } catch (error){
+    console.error(error);
+    return ('Error processing words');
   }
 };
 
