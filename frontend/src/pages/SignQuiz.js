@@ -658,11 +658,9 @@ export function SignQuiz() {
                     <ambientLight intensity={5} />
                     {/* eslint-disable-next-line react/no-unknown-property */}
                     <group position={[0, -1.1, 0]}>             
-                        {landmarks && Object.keys(landmarks).length > 0  (
-                          
-                                <AngieSigns key={replayKey} landmarks={landmarks} />
-                            
-                        )}
+                        {landmarks && Object.keys(landmarks).length > 0 && (
+                         <AngieSigns key={replayKey} landmarks={landmarks} />
+                         )}
                     </group>  
                     <OrbitControls enablePan={false} maxPolarAngle={Math.PI / 2} minDistance={2} maxDistance={3} />
                 </Canvas>

@@ -169,7 +169,7 @@ export function SignLearn() {
                 index++;
                 
                 if (index < currentPhrase.words.length) {
-                    timeoutRef.current = setTimeout(playNext, 3000); // 3 second delay between words
+                    timeoutRef.current = setTimeout(playNext, 3000);
                 } else {
                     setIsAutoPlaying(false);
                 }
@@ -185,7 +185,7 @@ export function SignLearn() {
         }
         
         if (isPhrase && currentPhrase) {
-            setIsAutoPlaying(false); // Reset autoplay state
+            setIsAutoPlaying(false); 
             setTimeout(() => {
                 startAutoPlay();
             }, 100);
@@ -194,10 +194,9 @@ export function SignLearn() {
         }
     };
 
-    // Auto-start phrases immediately when data is loaded
     useEffect(() => {
         if (isPhrase && currentPhrase && landmarks && landmarks.length > 0 && !isAutoPlaying) {
-            const timer = setTimeout(startAutoPlay, 500); // Reduced delay for immediate start
+            const timer = setTimeout(startAutoPlay, 500);
             return () => clearTimeout(timer);
         }
     }, [isPhrase, currentPhrase, landmarks, isAutoPlaying, startAutoPlay]);
@@ -210,7 +209,6 @@ export function SignLearn() {
         };
     }, []);
 
-    // Reset hasTrackedStats when letter/phrase changes
     useEffect(() => {
         setHasTrackedStats(false);
     }, [letter]);
@@ -237,7 +235,6 @@ export function SignLearn() {
                 
                 setLandmarks(data);
 
-                // Only update stats once per sign/phrase visit and only if not already learned
                 if (!hasTrackedStats) {
                     if (isPhrase && currentPhrase) {
                         const learnedPhrases = stats?.learnedPhrases || [];
@@ -252,7 +249,7 @@ export function SignLearn() {
                         const learnedSigns = stats?.learnedSigns || []; 
                         if (!learnedSigns.includes(letter.toLowerCase())) {
                             updateStats({
-                                signsLearned: (stats?.signsLearned || 0) + 1, // Increment signs for individual signs
+                                signsLearned: (stats?.signsLearned || 0) + 1, 
                                 learnedSigns: [...learnedSigns, letter.toLowerCase()]
                             });
                             setHasTrackedStats(true);
@@ -462,7 +459,6 @@ export function SignLearn() {
                 {isPhrase ? (
                     <div>
                         <div>{currentPhrase?.phrase}</div>
-                        {/* Removed the autoplay status indicator */}
                     </div>
                 ) : (
                     <div>
