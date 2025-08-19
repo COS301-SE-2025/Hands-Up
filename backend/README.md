@@ -9,6 +9,16 @@ the values can be found on the drive-> SPRINT 2-> DB Passwords
 
 2. Do the same thing in the api directory
 
+3. Add the following to the .env file in the api directory
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASS=
+SMTP_FROM=
+FRONTEND_URL=http://localhost:3000
+NODE_ENV=development
+
+the values for SMTP_USER, SMTP_PASS and SMTP_FROM can be found on the drive-> SPRINT 2-> DB Passwords
 
 #### For userID issues:
 1.In the database directory
@@ -18,10 +28,9 @@ the values can be found on the drive-> SPRINT 2-> DB Passwords
   1.4 exit
   1.5 exit
 
-### FOR SSL Certificates
-## Open powershell as administrator and run the following commands
-      1. Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-      2. choco install mkcert
-      3. mkcert -install
-      4. mkcert localhost 127.0.0.1 ::1
-## Then move the certificate files(you can find them in the file explorer in same folder as the one in powershell) to the frontend and backend api directory of your project.
+
+## How to run the models
+2 models the need to be run:
+1) Go navigate to api/controllers/ readme for steps
+2) go to the api readme for steps 
+
