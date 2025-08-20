@@ -213,7 +213,9 @@ export function useTranslator() {
             }
             setRecording(false);
         } else if (isImage) {
-            const imgResult = await processImage(file);
+            const formData = new FormData();
+            formData.append('image', file);
+            const imgResult = await processImage(formData);
             setResult(imgResult.phrase || "No sign detected");
             setConfidence((imgResult.confidence * 100).toFixed(2) + "%");
         } else {
