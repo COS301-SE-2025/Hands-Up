@@ -54,12 +54,11 @@ Thus, the system focuses on three core functionalities:
 <div align="Center">
 <h2 id="demo-videos--system-requirement-specifications">Demo Videos & System Requirement Specifications</h2>
 
-| Demo         | Video Link                                                                 | SRS Link         | View PDF         |
-|--------------|----------------------------------------------------------------------------|------------------|------------------|
-| 1 - 28/05/25 | [Demo 1 Video](https://drive.google.com/file/d/1mFRqv6zRN1a6LuKWWXX5wu1XCvTVVWZ7/view) | [Demo 1 SRS](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_1) | - |
-| 2 - 27/06/25 | [Demo 2 Video](https://drive.google.com/file/d/1JdpGGRkO_d-04IrgbtnfarugVtxaAQ4w/view) | [Demo 2 SRS](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2) | - |
-| 3 - 20/08/25 | [Demo 3 Video](https://drive.google.com/file/d/1UzKJ2eb65tCrih3R_o-OOuDO28rkJWYC/view) | [Demo 3 SRS](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3) | [Demo 3 SRS](https://github.com/COS301-SE-2025/Hands-Up/blob/main/docs/Hands%20UP%20SRS.pdf) |
-| 4            | [Demo 4 Video] | [Demo 4 SRS] | [Demo 4 SRS] |
+| Demo         | Video Link                                                                 | SRS Link                                                                                     | View PDF                                                                                                      |
+|--------------|----------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
+| 3 - 20/08/25 | [Demo 3 Video](https://drive.google.com/file/d/1UzKJ2eb65tCrih3R_o-OOuDO28rkJWYC/view) | [Demo 3 SRS](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3)              | [Demo 3 SRS](https://github.com/COS301-SE-2025/Hands-Up/blob/main/docs/Hands%20UP%20SRS.pdf)                 |
+| 2 - 27/06/25 | [Demo 2 Video](https://drive.google.com/file/d/1JdpGGRkO_d-04IrgbtnfarugVtxaAQ4w/view) | [Demo 2 SRS](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2)              | -                                                                                                             |
+| 1 - 28/05/25 | [Demo 1 Video](https://drive.google.com/file/d/1mFRqv6zRN1a6LuKWWXX5wu1XCvTVVWZ7/view) | [Demo 1 SRS](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_1)              | -                                                                                                             |
 
 </div>
 
