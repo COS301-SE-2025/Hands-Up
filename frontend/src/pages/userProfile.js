@@ -25,11 +25,7 @@ export function UserProfile() {
         confirmPassword: ''
     });
 
-    const [avatarurl, setAvatarUrl] = useState(
-        currentUser?.avatarurl
-            ? `${BACKEND_BASE_URL}/${currentUser.avatarurl}`
-            : ''
-    );
+    const [avatarurl, setAvatarUrl] = useState(null);
     const [avatarFile, setAvatarFile] = useState(null);
     const fileInputRef = useRef(null);
 
@@ -102,8 +98,12 @@ export function UserProfile() {
                 newPassword: '',
                 confirmPassword: ''
             });
-            setAvatarUrl(`${BACKEND_BASE_URL}/${currentUser.avatarurl?.replace(/^\/+/, '') ?? ''}`);
 
+            if (currentUser.avatarurl && currentUser.avatarurl.trim()) {
+            setAvatarUrl(`${BACKEND_BASE_URL}/${currentUser.avatarurl?.replace(/^\/+/, '') ?? ''}`);
+            } else {
+                setAvatarUrl(null);
+            }
             setLoading(false);
         } else {
             setError("User data not available after authentication.");
@@ -323,8 +323,9 @@ export function UserProfile() {
 
                 setFormSuccess("Avatar uploaded successfully!");
                 if (newAvatarResult && newAvatarResult.data && newAvatarResult.data.avatarurl) {
-                    updateUser({ ...currentUser, avatarurl: newAvatarResult.data.avatarurl });
-                    setAvatarUrl(`${BACKEND_BASE_URL}/${currentUser.avatarurl.replace(/^\/+/, '')}`);
+                   const updatedUser={ ...currentUser, avatarurl: newAvatarResult.data.avatarurl };
+                      updateUser(updatedUser);
+                    setAvatarUrl(`${BACKEND_BASE_URL}/${newAvatarResult.data.avatarurl.replace(/^\/+/, '')}`);
 
                     setAvatarFile(null);
                 }
@@ -552,7 +553,15 @@ export function UserProfile() {
                 <div className="profile-header">
                     <div className="avatar-wrapper" >
                         {avatarurl ? (
-                            <img src={avatarurl} alt="User Avatar" className="avatar-img" />
+                           <img 
+            src={avatarurl} 
+            alt="User Avatar" 
+            className="avatar-img"
+            onError={(e) => {
+               e.target.style.display = 'none';
+                setAvatarUrl(null);
+            }}
+        />
                         ) : (
                             <div className="avatar">
                                 {currentUser.name ? currentUser.name[0].toUpperCase() : ''}

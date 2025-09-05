@@ -146,7 +146,17 @@
       [0, 0, 0]
     ]
   },
-   "mixamorigLeftForeArm": {
+     "mixamorigLeftArm": {
+    "keyframes": [
+      [1.1, 0, 0],
+      [1.1, 0, 0],
+      [1.1, 0, 0],
+      [1.1, 0, 0],
+      [1.1, 0, 0]
+    ]
+  },
+
+ "mixamorigLeftForeArm": {
     "keyframes": [
       [0, 0, 0],
       [0, 0, 0],

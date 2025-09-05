@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {useTranslator} from '../hooks/translateResults';
 import {renderMediaPreview} from '../components/mediaPreview';
 import {renderHistoryItem} from '../components/historyItem';
-import {FingerspellingToggle} from '../components/fingerSpellingToggle'
+// import {FingerspellingToggle} from '../components/fingerSpellingToggle'
+import { useLandmarksDetection } from '../hooks/landmarksDetection';
 import '../styles/translator.css';
 
 export function Translator(){
@@ -11,7 +12,8 @@ export function Translator(){
 
   const {
     videoRef,
-    canvasRef,
+    canvasRef1,
+    canvasRef2,
     result,
     confidence,
     recording,
@@ -20,11 +22,10 @@ export function Translator(){
     captureHistory,
     capturedBlob,
     startRecording,
-    handleFileUpload,
     setResult,
-    fingerspellingMode,
-    setFingerspellingMode
   } = useTranslator();
+
+  useLandmarksDetection(videoRef, canvasRef2);
 
   const speakDisabled = result === "";
   const [availableVoices, setAvailableVoices] = useState([]);
@@ -67,19 +68,22 @@ export function Translator(){
 
             <div className="recognizer-banner">
               <i className="fas fa-lightbulb recognizer-banner-icon"></i>
-              <p>Position your hand clearly in frame for best recognition results</p>
+              <p>Swipe your hand in the camera to switch models</p>
             </div>
 
-            <div className="recognizer-camera-container">
+            <div className="recognizer-camera-container relative">
               <video 
                 ref={videoRef} 
                 autoPlay 
                 playsInline 
                 className="recognizer-video"
               ></video>
-              {/* Hidden canvas for capturing video frames */}
               <canvas 
-                ref={canvasRef} 
+                ref={canvasRef2} 
+                style={{  position: 'absolute', top: 0, left: '15%', zIndex: 1  }}
+              ></canvas>
+              <canvas 
+                ref={canvasRef1} 
                 style={{ display: 'none' }}
               ></canvas>
               
@@ -106,10 +110,10 @@ export function Translator(){
 
             <div className="recognizer-controls">
               <div>
-                <FingerspellingToggle 
+                {/* <FingerspellingToggle 
                   fingerspellingMode={fingerspellingMode} 
                   setFingerspellingMode={setFingerspellingMode} 
-                />
+                /> */}
             </div>
               <button onClick={() => setResult("")} className="recognizer-control-button recognizer-capture-button">
                 <i></i> Clear Results
@@ -121,7 +125,7 @@ export function Translator(){
                 <i className={`fas ${recording ? 'fa-stop' : 'fa-video'}`}></i> 
                 {recording ? 'Stop Signing' : 'Start Signing'}
               </button>
-              <label className="recognizer-control-button recognizer-upload-button">
+              {/* <label className="recognizer-control-button recognizer-upload-button">
                 <i className="fas fa-upload"></i> Upload Sign
                 <input 
                   type="file" 
@@ -129,7 +133,7 @@ export function Translator(){
                   className="recognizer-file-input" 
                   onChange={handleFileUpload}
                 />
-              </label>
+              </label> */}
             </div>
 
             <div className="recognizer-history">

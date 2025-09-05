@@ -9,7 +9,6 @@ import { AngieSigns } from '../components/angieSigns';
 import { Canvas } from '@react-three/fiber';
 import PropTypes from 'prop-types';
 
-// Define landmarks at the top level to avoid the undefined error
 const landmarks = {};
 
 const HelpMessage = ({ message, onClose, position }) => {
@@ -35,8 +34,8 @@ const HelpMessage = ({ message, onClose, position }) => {
 
     return (
        <div className="help-message-backdrop fixed inset-0 bg-black bg-opacity-50 z-[9998] animate-fadeIn">
-            <div className={`help-message-overlay fixed z-[9999] p-6 rounded-2xl shadow-2xl flex flex-col items-center justify-center bg-gradient-to-br from-white to-gray-50 border border-gray-200 ${positionClasses} animate-fadeInScale`}>
-                <div className="w-full max-w-[200px] h-[200px] rounded-xl bg-white shadow-md mb-4 flex items-center justify-center">
+            <div className={`help-message-overlay fixed z-[9999] p-4 sm:p-6 rounded-2xl shadow-2xl flex flex-col items-center justify-center bg-gradient-to-br from-white to-gray-50 border border-gray-200 ${positionClasses} animate-fadeInScale max-w-[90vw] sm:max-w-md`}>
+                <div className="w-full max-w-[150px] sm:max-w-[200px] h-[150px] sm:h-[200px] rounded-xl bg-white shadow-md mb-4 flex items-center justify-center">
                     <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
                         {/* eslint-disable-next-line react/no-unknown-property */}
                         <ambientLight intensity={5} />
@@ -47,13 +46,13 @@ const HelpMessage = ({ message, onClose, position }) => {
                    </Canvas>
                 </div>
 
-                <p className="text-gray-800 text-lg text-center font-medium mb-6 leading-relaxed max-w-md">
+                <p className="text-gray-800 text-base sm:text-lg text-center font-medium mb-4 sm:mb-6 leading-relaxed max-w-md px-2">
                     {message}
                 </p>
 
                 <button
                     onClick={onClose}
-                    className="btn-secondary"
+                    className="btn-secondary text-sm sm:text-base px-4 py-2"
                 >
                     Okay!
                 </button>
@@ -62,16 +61,30 @@ const HelpMessage = ({ message, onClose, position }) => {
     );
 };
 
-// Add PropTypes validation
 HelpMessage.propTypes = {
     message: PropTypes.string,
     onClose: PropTypes.func.isRequired,
     position: PropTypes.string
 };
 
+
+const PageTitle = () => {
+    return (
+        <div className="page-title-container mb-6 sm:mb-8 text-center px-4">
+            <div className="title-wrapper relative">
+                <h1 className="page-title text-3xl sm:text-4xl md:text-5xl lg:text-6xl  text -center font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2 sm:mb-3">
+                    Learn with HandsUp
+                </h1>
+                
+            </div>
+            
+             </div>
+    );
+};
+
 const COLORS = [
     'Red', 'Blue', 'Green', 'Yellow', 'Black', 'White', 'Pink', 'Purple',
-    'Orange', 'Brown', 'Grey', 'Cyan', 'Magenta', 'Lime', 'Gold', 'Silver'
+    'Orange', 'Brown', 'Gold', 'Silver'
 ];
 
 const INTRODUCTION_WORDS = ['hello', 'name', 'my','again', 'goodbye', 'nice', 'meet', 'you', 'this', 'sorry', 'and'];
@@ -79,14 +92,14 @@ const INTRODUCTION_WORDS = ['hello', 'name', 'my','again', 'goodbye', 'nice', 'm
 const FAMILY_MEMBERS = ['brother', 'sister', 'mother','father', 'aunt', 'uncle', 'grandma', 'grandpa', 'child',
      'siblings','boy','girl',];
 
-const EMOTIONS_FEELINGS = ['happy', 'sad', 'angry','cry','hurt', 'sorry', 'like', 'love', 'hate', 'feel'];
+const EMOTIONS_FEELINGS = ['happy', 'sad', 'angry','cry', 'sorry', 'like', 'love', 'hate', 'feel'];
 
-const COMMON_ACTIONS = ['drive', 'watch', 'sleep', 'walk', 'stand', 'sit', 'give', 'understand', 'go', 'stay',
+const COMMON_ACTIONS = ['drive', 'watch','see', 'sleep', 'walk', 'stand', 'sit', 'give', 'understand', 'go', 'stay',
     'talk'];
 
 const ASKING_QUESTIONS = ['why', 'tell', 'when', 'who', 'which'];
 
-const TIME_DAYS = ['morning', 'afternoon', 'evening', 'night', 'today', 'tomorrow', 'yesterday', 'year',
+const TIME_DAYS = [ 'today', 'tomorrow', 'yesterday', 'year',
     'now', 'future','Oclock', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 const FOOD_DRINKS = ['water', 'apple', 'drink', 'cereal', 'eggs', 'eat', 'hungry', 'full', 'cup',
@@ -97,10 +110,29 @@ const OBJECTS_THINGS = ['shower', 'table', 'lights', 'computer', 'hat', 'chair',
 
 const ANIMALS = ['dog', 'cat', 'bird', 'fish', 'horse', 'cow', 'animal'];
 
-const SEASONS_WEATHER = ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 'cloudy', 'snow',
+const SEASONS_WEATHER = ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 'snow',
     'wind', 'sunrise', 'hot', 'cold', 'warm', 'cool','weather', 'freeze'];
 
-// Help message content for each category
+const COMMON_PHRASES = [
+    { id: 'hello_my_name', phrase: 'Hello My Name', words: ['helloMyName'] },
+    { id: 'nice_meet_you', phrase: 'Nice To Meet You', words: ['niceToMeetYou'] },
+    { id: 'i_love_you', phrase: 'I Love You', words: ['iLoveYou'] },
+    { id: 'i_am_happy', phrase: 'I Am Happy', words: ['meHappy'] },
+    { id: 'i_am_sad', phrase: 'I Am Sad', words: ['meSad'] },
+    { id: 'see_you_tomorrow', phrase: 'See You Tomorrow', words: ['seeYouTomorrow'] },
+    { id: 'i_am_hungry', phrase: 'I Am Hungry', words: ['meHungry'] },
+    { id: 'drink_water', phrase: 'Drink Water', words: ['drinkWater'] },
+    { id: 'my_mother', phrase: 'My Mother', words: ['myMother'] },
+    { id: 'my_father', phrase: 'My Father', words: ['myFather'] },
+    { id: 'brother_sister', phrase: 'My Brother and Sister', words: ['myBrotherAndSister'] },
+    { id: 'go_sleep', phrase: 'Go Sleep', words: ['goSleep'] },
+    { id: 'i_understand', phrase: 'I Understand', words: ['meUnderstand'] },
+    { id: 'hot_weather', phrase: 'Hot Weather', words: ['hotWeather'] },
+    { id: 'cold_weather', phrase: 'Cold Weather', words: ['coldWeather'] },
+    { id: 'eat_apple', phrase: 'Eat an Apple', words: ['eatApple'] },
+    { id: 'my_pet_is_a_dog', phrase: 'My Pet Is A Dog', words: ['myPetDog'] }
+];
+
 const CATEGORY_HELP_MESSAGES = {
     dashboard: "Welcome to the Learn page! Here you can explore different categories of sign language. Click on any unlocked category to start your learning journey.",
     alphabets: "Welcome to the Alphabet category! Here you'll learn the basic letter signs. You need to learn at least 5 letters before you can attempt the quiz. Click on any letter to start practicing!",
@@ -115,7 +147,8 @@ const CATEGORY_HELP_MESSAGES = {
     food: "Welcome to Food & Drinks! Learn signs for various foods and beverages. Master all food signs to unlock the quiz!",
     things: "Welcome to Objects & Things! Learn signs for common objects around you. Complete all object signs to unlock the quiz!",
     animals: "Welcome to Animals! Learn signs for different animals. Master all animal signs to unlock the quiz!",
-    seasons: "Welcome to Weather & Seasons! Learn signs for weather conditions and seasons. Complete all weather signs to unlock the quiz!"
+    seasons: "Welcome to Weather & Seasons! Learn signs for weather conditions and seasons. Complete all weather signs to unlock the quiz!",
+    phrases: "Welcome to Common Phrases! Learn to combine words into meaningful phrases. Master the art of signing complete thoughts and sentences!"
 };
 
 export function Learn() {
@@ -141,8 +174,8 @@ export function Learn() {
 
     const unlockedCategories =  useMemo(() => {
         return stats?.unlockedCategories
-        ? [...stats.unlockedCategories, 'numbers', 'colours', 'introduce', 'family', 'feelings', 'actions', 'questions', 'time', 'food', 'things', 'animals', 'seasons']
-        : ['alphabets', 'numbers', 'colours', 'introduce', 'family', 'feelings', 'actions', 'questions', 'time', 'food', 'things', 'animals', 'seasons'];
+        ? [...stats.unlockedCategories, 'numbers', 'colours', 'introduce', 'family', 'feelings', 'actions', 'questions', 'time', 'food', 'things', 'animals', 'seasons', 'phrases']
+        : ['alphabets', 'numbers', 'colours', 'introduce', 'family', 'feelings', 'actions', 'questions', 'time', 'food', 'things', 'animals', 'seasons', 'phrases'];
  }, [stats?.unlockedCategories]);
  
     const categories = useMemo(() => [
@@ -159,6 +192,7 @@ export function Learn() {
         { id: 'things', name: 'Objects & Things', unlocked: unlockedCategories.includes('things') },
         { id: 'animals', name: 'Animals', unlocked: unlockedCategories.includes('animals') },
         { id: 'seasons', name: 'Weather & Seasons', unlocked: unlockedCategories.includes('seasons') },
+        { id: 'phrases', name: 'Common Phrases', unlocked: unlockedCategories.includes('phrases') },
     ], [unlockedCategories]);
 
     const TOTAL_ALPHABET_SIGNS = 26;
@@ -174,11 +208,12 @@ export function Learn() {
     const TOTAL_OBJECTS_THINGS = OBJECTS_THINGS.length;
     const TOTAL_ANIMALS = ANIMALS.length;
     const TOTAL_SEASONS_WEATHER = SEASONS_WEATHER.length;
+    const TOTAL_PHRASES = COMMON_PHRASES.length;
 
     const TOTAL_SIGNS_AVAILABLE = TOTAL_ALPHABET_SIGNS + TOTAL_NUMBER_SIGNS + TOTAL_COLOUR_SIGNS + TOTAL_INTRODUCTION_WORDS + TOTAL_FAMILY_MEMBERS + TOTAL_EMOTIONS_FEELINGS +
-        TOTAL_COMMON_ACTIONS + TOTAL_ASKING_QUESTIONS + TOTAL_TIME_DAYS + TOTAL_FOOD_DRINKS + TOTAL_OBJECTS_THINGS + TOTAL_ANIMALS + TOTAL_SEASONS_WEATHER;
+        TOTAL_COMMON_ACTIONS + TOTAL_ASKING_QUESTIONS + TOTAL_TIME_DAYS + TOTAL_FOOD_DRINKS + TOTAL_OBJECTS_THINGS + TOTAL_ANIMALS + TOTAL_SEASONS_WEATHER + TOTAL_PHRASES;
 
-    const TOTAL_LESSONS = 12 * 30; 
+    const TOTAL_LESSONS = 13 * 30; 
     const calcLessonsCompleted = Math.min(lessonsCompleted, TOTAL_LESSONS);
     const calcSignsLearned = Math.min(signsLearned, TOTAL_SIGNS_AVAILABLE); 
     const lessonProgress = (calcLessonsCompleted + calcSignsLearned) / (TOTAL_LESSONS + TOTAL_SIGNS_AVAILABLE) * 100;
@@ -216,6 +251,12 @@ export function Learn() {
             state: { category: categoryId }
         });
     };
+
+    const navigateToPhrase = (phraseId) => {
+        navigate(`/phrase/${phraseId}`, {
+            state: { category: 'phrases' }
+        });
+    };
     
     const getQuizRoute = (categoryId) => {
         switch (categoryId) {
@@ -245,6 +286,8 @@ export function Learn() {
                 return '/animals-quiz';
             case 'seasons':
                 return '/seasons-quiz';
+            case 'phrases':
+                return '/phrases-quiz';
             default:
                 return '/quiz'; 
         }
@@ -302,10 +345,11 @@ export function Learn() {
                 quizzesCompleted={quizzesCompleted}
             />
 
-            <div className="learn-main-content relative">
+            <div className="learn-main-content relative min-h-screen">
                 {selectedSection === 'dashboard' && !currentCategory && (
                     <div className="dashboard">
-                        <div className="category-tiles">
+                        <PageTitle />
+                        <div className="category-tiles grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 px-4 sm:px-6 lg:px-8">
                             {categories.map(cat => (
                                 <CategoryTile
                                     key={cat.id}
@@ -319,9 +363,19 @@ export function Learn() {
                 )}
 
                 {currentCategory && (
-                    <div className="category-levels">
-                        <h2>{currentCategory.name} Levels </h2>
-                        <div className="stepping-poles">
+                    <div className="category-levels px-4 sm:px-6 lg:px-8">
+                        <div className="category-header mb-6 sm:mb-8">
+                            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2">
+                                {currentCategory.name}
+                            </h2>
+                            <div className="category-subtitle-line w-16 sm:w-20 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
+                        </div>
+                        
+                        <div className={`stepping-poles grid gap-3 sm:gap-4 md:gap-6 ${
+                            currentCategory.id === 'phrases' 
+                                ? 'phrases-layout grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
+                                : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'
+                        }`}>
 
                             {currentCategory.id === 'alphabets' ? (
                                 <>
@@ -352,7 +406,7 @@ export function Learn() {
                                             backgroundColor: signsLearned >= 5 ? '#ffc107' : '#ccc',
                                             color: signsLearned >= 5 ? '#fff' : '#666',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
@@ -376,7 +430,7 @@ export function Learn() {
                                             backgroundColor: '#ffc107',
                                             color: '#fff',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
@@ -409,10 +463,67 @@ export function Learn() {
                                             animation: 'rainbow 3s ease infinite',
                                             color: '#fff',
                                             fontWeight: 'bold',
-                                            fontSize: '14px',
+                                            fontSize: '12px sm:14px',
                                             textShadow: '1px 1px 2px rgba(0,0,0,0.7)'
                                         }}
                                     />
+                                </>
+                            ) : currentCategory.id === 'phrases' ? (
+                                <>
+                                    {COMMON_PHRASES.map((phrase) => (
+                                        <div
+                                            key={phrase.id}
+                                            className="level-card phrase-card unlocked w-full"
+                                            onClick={() => navigateToPhrase(phrase.id)}
+                                        >
+                                            <div className="phrase-content">
+                                                <div className="phrase-icon">
+                                                    💬
+                                                </div>
+                                                <div className="phrase-text">
+                                                    <h3 className="phrase-title">{phrase.phrase}</h3>
+                                                    <p className="phrase-subtitle">Learn this common phrase</p>
+                                                </div>
+                                            </div>
+                                            <div className="phrase-arrow">→</div>
+                                        </div>
+                                    ))}
+                                    <div
+                                        className={`level-card phrase-card phrase-quiz w-full ${
+                                            COMMON_PHRASES.every(phrase => stats?.learnedPhrases?.includes(phrase.id))
+                                                ? 'unlocked' 
+                                                : 'locked'
+                                        }`}
+                                        onClick={() => {
+                                            if (COMMON_PHRASES.every(phrase => stats?.learnedPhrases?.includes(phrase.id))) {
+                                                navigate(getQuizRoute(currentCategory.id));
+                                            } else {
+                                                showHelp(
+                                                    `You need to learn all phrases in the 'Common Phrases' category to unlock this quiz. Keep practicing!`,
+                                                    'center',
+                                                    'phrases_quiz_locked'
+                                                );
+                                            }
+                                        }}
+                                    >
+                                        <div className="phrase-content flex items-center justify-between p-3 sm:p-4">
+                                            <div className="flex items-center space-x-3">
+                                                <div className="phrase-icon text-xl sm:text-2xl">
+                                                    🏆
+                                                </div>
+                                                <div className="phrase-text">
+                                                    <h3 className="phrase-title text-sm sm:text-base font-semibold">Phrases Quiz</h3>
+                                                    <p className="phrase-subtitle text-xs sm:text-sm text-gray-600">
+                                                        {COMMON_PHRASES.every(phrase => stats?.learnedPhrases?.includes(phrase.id))
+                                                            ? 'Test your phrase knowledge!'
+                                                            : 'Complete all phrases to unlock'
+                                                        }
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="phrase-arrow text-lg sm:text-xl">→</div>
+                                        </div>
+                                    </div>
                                 </>
                             ) : currentCategory.id === 'introduce' ? ( 
                                 <>
@@ -445,7 +556,7 @@ export function Learn() {
                                             backgroundColor: INTRODUCTION_WORDS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
                                             color: INTRODUCTION_WORDS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
@@ -480,7 +591,7 @@ export function Learn() {
                                             backgroundColor: FAMILY_MEMBERS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
                                             color: FAMILY_MEMBERS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
@@ -516,7 +627,7 @@ export function Learn() {
                                             backgroundColor: EMOTIONS_FEELINGS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
                                             color: EMOTIONS_FEELINGS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
@@ -552,7 +663,7 @@ export function Learn() {
                                             backgroundColor: COMMON_ACTIONS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
                                             color: COMMON_ACTIONS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
@@ -588,7 +699,7 @@ export function Learn() {
                                             backgroundColor: ASKING_QUESTIONS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
                                             color: ASKING_QUESTIONS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
@@ -624,7 +735,7 @@ export function Learn() {
                                             backgroundColor: TIME_DAYS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
                                             color: TIME_DAYS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
@@ -660,7 +771,7 @@ export function Learn() {
                                             backgroundColor: FOOD_DRINKS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
                                             color: FOOD_DRINKS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
@@ -696,7 +807,7 @@ export function Learn() {
                                             backgroundColor: OBJECTS_THINGS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
                                             color: OBJECTS_THINGS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
@@ -732,7 +843,7 @@ export function Learn() {
                                             backgroundColor: ANIMALS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
                                             color: ANIMALS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
@@ -767,7 +878,7 @@ export function Learn() {
                                             backgroundColor: SEASONS_WEATHER.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
                                             color: SEASONS_WEATHER.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
@@ -792,14 +903,19 @@ export function Learn() {
                                             backgroundColor: '#ffc107',
                                             color: '#fff',
                                             fontWeight: 'bold',
-                                            fontSize: '14px'
+                                            fontSize: '12px sm:14px'
                                         }}
                                     />
                                 </>
                             )}
                         </div>
 
-                        <button onClick={goBack} className="back-button">← Back</button>
+                        <button 
+                            onClick={goBack} 
+                            className="back-button mt-6 sm:mt-8 mb-4 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                        >
+                            ← Back to Categories
+                        </button>
                     </div>
                 )}
 

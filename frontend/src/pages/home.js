@@ -182,7 +182,7 @@ export function Home(){
                         </div>
                             <div className="sign-description">
                                 <p>{signOfTheDay.description}</p>
-                                <Link to="/learnVideo" className="btn-secondary">Explore More Signs</Link>
+                                <Link to="/learn" className="btn-secondary">Explore More Signs</Link>
                             </div>
                         </div>
                     </section>
