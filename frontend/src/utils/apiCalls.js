@@ -57,6 +57,7 @@ export const handleApiResponse = async (response) => {
 //     }
 // };
 
+// Fixed processImage function
 export const processImage = async (formData) => {
   console.log("Processing captured image...");
     console.log("form_data ",formData);
@@ -76,7 +77,48 @@ export const processImage = async (formData) => {
   }
 };
 
+export const processWords = async (formData) => {
+  console.log("Processing captured image...");
 
+  try {
+    const response = await fetch('http://127.0.0.1:5000/handsUPApi/sign/processWords', {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await response.json();
+    console.log("Response:", data);
+    return (data);
+
+  } catch (error){
+    console.error(error);
+    return ('Error processing words');
+  }
+};
+
+// Fixed uploadUserAvatar function
+export const uploadUserAvatar = async (userID, formData) => {
+    try {
+        console.log('Uploading avatar for user:', userID);
+        console.log('FormData entries:');
+        for (let [key, value] of formData.entries()) {
+            console.log(`${key}:`, value instanceof File ? `File: ${value.name} (${value.size} bytes)` : value);
+        }
+
+        const response = await fetch(`${API_BASE_URL_USER}/${userID}/avatar`, {
+            method: 'PUT',
+            body: formData,
+            credentials: 'include',
+        });
+
+        return handleApiResponse(response);
+    } catch (error) {
+        console.error("Error in uploadUserAvatar:", error);
+        throw error;
+    }
+};
+
+// Rest of your existing functions remain the same...
 export const getLearningProgress = async (username) => {
     try {
         const response = await fetch(`${API_BASE_URL_LEARNING}/progress/${username}`, {

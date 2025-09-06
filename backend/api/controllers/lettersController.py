@@ -1,15 +1,8 @@
-import sys
-import struct
 import cv2
 import numpy as np
 import pickle
 import tensorflow as tf
 import mediapipe as mp
-import collections
-import time
-import os
-import tensorflow_hub as hub
-from collections import deque
 
 lettersModel = tf.keras.models.load_model('../../ai_model/models/detectLettersModel.keras')
 with open('../../ai_model/models/labelEncoder.pickle', 'rb') as f:
@@ -91,11 +84,10 @@ def detectFromImage(sequenceList):
 
     if len(processedSequence) != sequenceNum:
         print("incomplete sequence: ", len(processedSequence))
-        return {'letter': '', 'confidence': 0.0}
+        return {'letter': '', 'confidenceLetter': 0.0, 'number': '', 'confidenceNumber': 0.0}
        
     inputData2 = np.array(processedSequence, dtype=np.float32).reshape(1, sequenceNum, 63)
-    # ... (rest of the code)
-    prediction2 = lettersModel2.predict(inputData2, verbose=0) 
+    prediction2 = lettersModel2.predict(inputData2, verbose=0)
 
     index2 = np.argmax(prediction2, axis=1)[0]
     confidence2 = float(np.max(prediction2))

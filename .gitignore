@@ -11,6 +11,7 @@ tests/coverage/
 
 #python cache
 **/pycache/
+backend/api/tfjs_env
 
 #model files
 ai_model/llm/gloss2eng

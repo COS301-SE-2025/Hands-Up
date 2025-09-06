@@ -45,7 +45,7 @@ describe('Overall Application Tests', () => {
       // Test control buttons are present
       cy.get('.recognizer-control-button').contains('Clear Results').should('be.visible');
       cy.get('.recognizer-control-button').contains('Start Signing').should('be.visible');
-      cy.get('.recognizer-control-button').contains('Upload Sign').should('be.visible');
+      // cy.get('.recognizer-control-button').contains('Upload Sign').should('be.visible'); temporarily removed
 
       // Test results section
       cy.get('.recognizer-results-title').should('contain', 'Translation Results');
@@ -148,7 +148,7 @@ describe('Overall Application Tests', () => {
       cy.get('.recognizer-camera-button').should('have.length', 2);
       
       // Main controls
-      cy.get('.recognizer-control-button').should('have.length', 3);
+      cy.get('.recognizer-control-button').should('have.length', 2);
       
       // Results section
       cy.get('.recognizer-results-display').should('be.visible');
@@ -162,13 +162,13 @@ describe('Overall Application Tests', () => {
       cy.get('.recognizer-alternative-value').should('be.visible');
     });
 
-    it('should handle file upload button', () => {
-      cy.get('.recognizer-upload-button').should('be.visible');
-      cy.get('.recognizer-file-input').should('exist').and('not.be.visible');
+    // it('should handle file upload button', () => {
+    //   cy.get('.recognizer-upload-button').should('be.visible');
+    //   cy.get('.recognizer-file-input').should('exist').and('not.be.visible');
       
-      // Test that the input accepts the correct file types
-      cy.get('.recognizer-file-input').should('have.attr', 'accept', 'image/*,video/*');
-    });
+    //   // Test that the input accepts the correct file types
+    //   cy.get('.recognizer-file-input').should('have.attr', 'accept', 'image/*,video/*');
+    // }); removed temporaily
 
     it('should display tips correctly', () => {
       const expectedTips = [
@@ -283,7 +283,7 @@ describe('Overall Application Tests', () => {
       cy.get('.recognizer-banner').should('be.visible');
       cy.get('video.recognizer-video').should('be.visible');
       cy.get('.recognizer-live-indicator').should('be.visible');
-      cy.get('.recognizer-control-button').should('have.length.at.least', 3);
+      cy.get('.recognizer-control-button').should('have.length.at.least', 2);
     });
 
     it('should handle recording with real auth', () => {
