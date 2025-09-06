@@ -270,19 +270,7 @@ export const updateUserPassword = async (userID, name, surname, username, email,
     }
 };
 
-export const uploadUserAvatar = async (userID, formData) => {
-    try {
-        const response = await fetch(`${API_BASE_URL_USER}/${userID}/avatar`, {
-            method: 'PUT',
-            body: formData,
-            credentials: 'include',
-        });
-        return handleApiResponse(response);
-    } catch (error) {
-        console.error("Error in uploadUserAvatar:", error);
-        throw error;
-    }
-};
+
 
 export const updateLearningProgress = async (username, progressData) => {
     try {
