@@ -3,11 +3,10 @@ import { HandLandmarker, FilesetResolver} from '@mediapipe/tasks-vision';
 import {drawButton } from '../utils/drawButton';
 import { useModelSwitch } from '../contexts/modelContext';
 
-let direction = ""
 const SWIPE_HISTORY_LIMIT = 10;
 const SWIPE_THRESHOLD = 100;
-const MAX_VERTICAL_DEVIATION = 10;  // pixels
-const SWIPE_TIME_LIMIT = 2000;       // ms
+const MAX_VERTICAL_DEVIATION = 10;  
+const SWIPE_TIME_LIMIT = 2000;       
 
 let handXHistory = [];
 let handYHistory = [];
@@ -114,13 +113,12 @@ export function useLandmarksDetection(videoRef, canvasRef) {
               console.log("Ending:", video.videoWidth * 0.3, endX);
 
               if (
-                duration < SWIPE_TIME_LIMIT &&             // ✅ fast enough
-                Math.abs(deltaX) > SWIPE_THRESHOLD &&      // ✅ strong horizontal movement
-                Math.abs(deltaY) < MAX_VERTICAL_DEVIATION 
-                && // ✅ not too vertical
-                startX < video.videoWidth * 0.3 &&             // ✅ start on right side
-                endX > video.videoWidth * 0.3 &&               // ✅ end on left side
-                deltaX > 0                                 // ✅ moving left
+                duration < SWIPE_TIME_LIMIT &&             
+                Math.abs(deltaX) > SWIPE_THRESHOLD &&      
+                Math.abs(deltaY) < MAX_VERTICAL_DEVIATION &&
+                startX < video.videoWidth * 0.3 &&             
+                endX > video.videoWidth * 0.3 &&               
+                deltaX > 0                                 
               ) {
                 console.log("Right hand swipe LEFT detected → switching model");
                 switchModel();
