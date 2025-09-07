@@ -9,7 +9,7 @@ api_blueprint = Blueprint('sign', __name__, url_prefix='/sign')
 # Load the base Hugging Face URL from an environment variable
 HUGGINGFACE_BASE_URL = os.environ.get("HUGGINGFACE_BASE_URL")
 
-@api_blueprint.route('/processImage', methods=['POST'])
+@api_blueprint.route('/sign/processImage', methods=['POST'])
 def process_image():
     """
     Handles the image processing request for letters.
@@ -41,7 +41,7 @@ def process_image():
             'status_code': status_code
         }), status_code
 
-@api_blueprint.route('/processWords', methods=['POST'])
+@api_blueprint.route('/sign/processWords', methods=['POST'])
 def process_words():
     """
     Handles the image processing request for words.
