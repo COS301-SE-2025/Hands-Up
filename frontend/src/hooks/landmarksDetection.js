@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { HandLandmarker, FilesetResolver} from '@mediapipe/tasks-vision';
-import {drawButton } from '../utils/drawButton';
+import {drawDisplay } from '../utils/drawDisplay';
 import { useModelSwitch } from '../contexts/modelContext';
 
 const SWIPE_HISTORY_LIMIT = 10;
 const SWIPE_THRESHOLD = 100;
-const MAX_VERTICAL_DEVIATION = 10;  
+const MAX_VERTICAL_DEVIATION = 5;  
 const SWIPE_TIME_LIMIT = 2000;       
 
 let handXHistory = [];
@@ -45,7 +45,7 @@ export function useLandmarksDetection(videoRef, canvasRef) {
       if (canvas && modelState.model) {
       console.log("Redrawing button for model:", modelState.model);
       let text = modelState.model==='alpha'?'Alphabet':modelState.model==='num'?'Numbers': 'Glosses';
-      drawButton(canvas, text);
+      drawDisplay(canvas, text);
       }
   }, [modelState.model, canvasRef, switchModel]);
 
@@ -60,11 +60,11 @@ export function useLandmarksDetection(videoRef, canvasRef) {
         const video = videoRef.current;
         const canvas = canvasRef.current;
 
-        canvas.width = video.videoWidth*0.5;
-        canvas.height = video.videoHeight*0.5;
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
 
         let text = modelState.model==='alpha'?'Alphabet':modelState.model==='num'?'Numbers': 'Glosses';
-        drawButton(canvas, text);
+        drawDisplay(canvas, text);
 
         if (video.currentTime === lastVideoTime.current) {
             animationFrameId = requestAnimationFrame(detect);
