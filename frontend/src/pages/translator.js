@@ -79,7 +79,7 @@ export function Translator(){
               ></video>
               <canvas 
                 ref={canvasRef2} 
-                style={{  position: 'absolute', top: 0, left: '15%', zIndex: 1  }}
+                style={{  position: 'absolute', top: 0, left: '5%', zIndex: 1  }}
               ></canvas>
               <canvas 
                 ref={canvasRef1} 

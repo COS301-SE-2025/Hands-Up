@@ -24,21 +24,46 @@ export function useTranslator() {
     const [sequenceNum, setSequenceNum] = useState(90);
 
     const stopRecording = useCallback(async () => {
-        setRecording(false);
-        setAutoCaptureEnabled(false);
-        setLandmarkFrames([]);
+    setRecording(false);
+    setAutoCaptureEnabled(false);
+    setLandmarkFrames([]);
 
-        if (result.trim()) {
-            try {
-                const translation = await produceSentence(result);
-                if (translation) {
-                    setResult(translation.translation); 
-                }
-            } catch (err) {
-                console.error("Error producing sentence:", err);
-            }
+    if (result.trim()) {
+        const hasAlphabets = /[a-zA-Z]/.test(result);
+        const wordCount = result.trim().split(/\s+/).length;
+
+        const video = videoRef.current;
+        const canvas = canvasRef1.current;
+
+        if (!hasAlphabets || wordCount < 2) {
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = 'rgba(0,0,0,0.5)'; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+
+            ctx.font = 'bold 24px Sans-serif';
+            ctx.fillStyle = 'red';
+            ctx.textAlign = 'center';
+            ctx.fillText('ENGLISH NOT AVAILABLE...', canvas.width / 2, canvas.height / 2);
         }
-    }, [result, setRecording, setLandmarkFrames, setAutoCaptureEnabled]);
+
+        try {
+            const translation = await produceSentence(result);
+            if (translation) {
+                setResult(translation.translation);
+            }
+        } catch (err) {
+            console.error("Error producing sentence:", err);
+        }
+    }
+}, [result, setRecording, setLandmarkFrames, setAutoCaptureEnabled]);
 
     const startRecording = useCallback(async () => {
         if (recording) {
@@ -160,37 +185,37 @@ export function useTranslator() {
     ]);
 
     useEffect(() => {
-    const canvas = canvasRef1.current;
-    const video = videoRef.current;
-    if (!canvas || !video) return;
+        const canvas = canvasRef1.current;
+        const video = videoRef.current;
+        if (!canvas || !video) return;
 
-    const ctx = canvas.getContext('2d');
-    let animationFrameId;
+        const ctx = canvas.getContext('2d');
+        let animationFrameId;
 
-    const draw = () => {
-        if (video.readyState >= 2) {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const draw = () => {
+            if (video.readyState >= 2) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            if (isProcessing) {
-                ctx.fillStyle = 'rgba(0,0,0,0.5)'; 
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.translate(canvas.width, 0);
-                ctx.scale(-1, 1);
+                if (isProcessing) {
+                    ctx.fillStyle = 'rgba(0,0,0,0.5)'; 
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.translate(canvas.width, 0);
+                    ctx.scale(-1, 1);
 
-                ctx.font = 'bold 24px Sans-serif';
-                ctx.fillStyle = 'green';
-                ctx.textAlign = 'center';
-                ctx.fillText('Processing...', canvas.width / 2, canvas.height / 2);
+                    ctx.font = 'bold 24px Sans-serif';
+                    ctx.fillStyle = 'green';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('PROCESSING...', canvas.width / 2, canvas.height / 2);
+                }
             }
-        }
-        animationFrameId = requestAnimationFrame(draw);
-    };
+            animationFrameId = requestAnimationFrame(draw);
+        };
 
-    draw();
-    return () => cancelAnimationFrame(animationFrameId);
-}, [isProcessing, canvasRef1, videoRef]);
+        draw();
+        return () => cancelAnimationFrame(animationFrameId);
+    }, [isProcessing, canvasRef1, videoRef]);
 
     useEffect(() => {
         setIsSwitching(true);
