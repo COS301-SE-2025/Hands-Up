@@ -62,7 +62,7 @@ export const processImage = async (formData) => {
   console.log("Processing captured image...");
     console.log("form_data ",formData);
   try {
-    const response = await fetch('https://handup-service.onrender.com/handsUPApi/processImage', {
+    const response = await fetch('https://handup-service.onrender.com/handsUPApi/sign/processImage', {
       method: 'POST',
       body: formData
     });
@@ -81,7 +81,7 @@ export const processWords = async (formData) => {
   console.log("Processing captured image...");
 
   try {
-    const response = await fetch('https://handup-service.onrender.com/handsUPApi/processWords', {
+    const response = await fetch('https://handup-service.onrender.com/handsUPApi/sign/processWords', {
       method: 'POST',
       body: formData
     });

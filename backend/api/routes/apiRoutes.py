@@ -1,17 +1,21 @@
-from flask import Flask, Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify
 import requests
 import os
 
-app = Flask(__name__)
-
-# Load a single environment variable for the base Hugging Face URL
-HUGGINGFACE_BASE_URL = os.environ.get("HUGGINGFACE_BASE_URL")
-
+# Define the blueprint with the second part of the URL prefix.
+# All routes defined within this blueprint will automatically have /sign prepended.
 api_blueprint = Blueprint('sign', __name__, url_prefix='/sign')
+
+# Load the base Hugging Face URL from an environment variable
+HUGGINGFACE_BASE_URL = os.environ.get("HUGGINGFACE_BASE_URL")
 
 @api_blueprint.route('/processImage', methods=['POST'])
 def process_image():
-    print("entered process image")
+    """
+    Handles the image processing request for letters.
+    Requires a POST request with exactly 20 frames.
+    """
+    print("Entered process_image endpoint")
     files = request.files.getlist('frames')
     sequenceNum = 20
     
@@ -20,9 +24,9 @@ def process_image():
 
     files_to_send = [('frames', (file.filename, file.stream.read(), file.content_type)) for file in files]
     
-    # Construct the full URL by appending the endpoint
     url = f"{HUGGINGFACE_BASE_URL}/detect-letters"
-    print("about to send data")
+    print("About to send data to Hugging Face model")
+    
     try:
         response = requests.post(url, files=files_to_send, timeout=300)
         response.raise_for_status()
@@ -39,6 +43,11 @@ def process_image():
 
 @api_blueprint.route('/processWords', methods=['POST'])
 def process_words():
+    """
+    Handles the image processing request for words.
+    Requires a POST request with exactly 90 frames.
+    """
+    print("Entered process_words endpoint")
     files = request.files.getlist('frames')
     sequenceNum = 90
     
@@ -47,8 +56,8 @@ def process_words():
 
     files_to_send = [('frames', (file.filename, file.stream.read(), file.content_type)) for file in files]
     
-    # Construct the full URL by appending the endpoint
     url = f"{HUGGINGFACE_BASE_URL}/detect-words"
+    print("About to send data to Hugging Face model")
     
     try:
         response = requests.post(url, files=files_to_send, timeout=300)
@@ -63,8 +72,3 @@ def process_words():
             'details': str(e),
             'status_code': status_code
         }), status_code
-
-app.register_blueprint(api_blueprint)
-
-if __name__ == '__main__':
-    app.run(debug=True)
