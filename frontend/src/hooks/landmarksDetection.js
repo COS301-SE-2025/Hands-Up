@@ -61,7 +61,7 @@ export function useLandmarksDetection(videoRef, canvasRef) {
         const canvas = canvasRef.current;
 
         canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+        canvas.height = video.videoHeight*0.6;
 
         let text = modelState.model==='alpha'?'Alphabet':modelState.model==='num'?'Numbers': 'Glosses';
         drawDisplay(canvas, text);
@@ -76,6 +76,16 @@ export function useLandmarksDetection(videoRef, canvasRef) {
         
 
         if (results.landmarks && results.landmarks.length > 0) {
+
+          if (results.landmarks.length > 1) {
+            console.log("Two hands detected → disabling swipe switching");
+            handXHistory = [];
+            handYHistory = [];
+            handTimeHistory = [];
+            animationFrameId = requestAnimationFrame(detect);
+            return; // skip swipe detection this frame
+          }
+          
           for (let i = 0; i < results.landmarks.length; i++) {
             const landmarks = results.landmarks[i];
             const handedness = results.handedness[0][0].categoryName; 

@@ -11,7 +11,7 @@ export function drawDisplay(canvas, text) {
   ctx.fillText(text, 100, 40);
 
   const boxWidth = canvas.width * 0.2;
-  const boxHeight = canvas.height * 0.4;
+  const boxHeight = canvas.height * 0.6;
   const boxY = canvas.height * 0.2;
 
   const startBox = { x: canvas.width * 0.78, y: boxY, width: boxWidth, height: boxHeight }; 
