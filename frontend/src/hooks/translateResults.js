@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { processImage, processWords} from '../utils/apiCalls';
-// import SignLanguageAPI  from '../utils/apiCalls';
+import { processLetters, processWords, produceSentence} from '../utils/apiCalls';
 import { useModelSwitch } from '../contexts/modelContext';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -24,11 +23,22 @@ export function useTranslator() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [sequenceNum, setSequenceNum] = useState(90);
 
-    const stopRecording = useCallback(() => {
+    const stopRecording = useCallback(async () => {
         setRecording(false);
         setAutoCaptureEnabled(false);
         setLandmarkFrames([]);
-    }, [setRecording, setLandmarkFrames, setAutoCaptureEnabled]);
+
+        if (result.trim()) {
+            try {
+                const translation = await produceSentence(result);
+                if (translation) {
+                    setResult(translation.translation); 
+                }
+            } catch (err) {
+                console.error("Error producing sentence:", err);
+            }
+        }
+    }, [result, setRecording, setLandmarkFrames, setAutoCaptureEnabled]);
 
     const startRecording = useCallback(async () => {
         if (recording) {
@@ -65,7 +75,7 @@ export function useTranslator() {
             if (currentModel === 'glosses') {
                 response = await processWords(formData);
             } else {
-                response = await processImage(formData);
+                response = await processLetters(formData);
             }
             if (!response) {
                 console.error("Invalid response from API:", response);
