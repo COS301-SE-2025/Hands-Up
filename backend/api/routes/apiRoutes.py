@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from controllers.lettersController import detectFromImage
 from controllers.wordsController import detectWords
+from controllers.glossController import translateGloss
 import tempfile
 import os
 
@@ -57,3 +58,14 @@ def process_words():
         os.rmdir(temp_dir)
 
 
+@api_blueprint.route('/sign/sentence', methods=['POST'])
+def sign_sentence():
+    data = request.get_json()
+    gloss_input = data.get("gloss")
+
+    if not gloss_input:
+        return jsonify({"error": "No gloss provided"}), 400
+
+    translation = translateGloss(gloss_input)
+
+    return jsonify(translation)
