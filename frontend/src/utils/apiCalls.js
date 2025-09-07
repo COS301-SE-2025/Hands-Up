@@ -2,6 +2,7 @@ const API_BASE_URL_AUTH = 'http://localhost:2000/handsUPApi/auth';
 const API_BASE_URL_USER = 'http://localhost:2000/handsUPApi/user';
 const API_BASE_URL_LEARNING = 'http://localhost:2000/handsUPApi/learning';
 const API_BASE_URL = "http://localhost:2000/handsUPApi";
+const TRANSLATE_API_ROUTE = 'http://127.0.0.1:5000/handsUPApi/sign';
 
 export const handleApiResponse = async (response) => {
     const data = await response.json();
@@ -33,7 +34,7 @@ export const translateSequence = async (blobs) => {
     });
 
     try {
-        const response = await fetch('http://127.0.0.1:5000/handsUPApi/sign/processFrames', {
+        const response = await fetch(`${TRANSLATE_API_ROUTE}/processFrames`, {
             method: 'POST',
             body: formData,
         });
@@ -61,11 +62,11 @@ export const translateSequence = async (blobs) => {
 };
 
 
-export const processImage = async (formData) => {
-  
+export const processLetters = async (formData) => {
+  console.log("Processing captured image...");
 
   try {
-    const response = await fetch('http://127.0.0.1:5000/handsUPApi/sign/processImage', {
+    const response = await fetch(`${TRANSLATE_API_ROUTE}/processLetters`, {
       method: 'POST',
       body: formData
     });
@@ -84,7 +85,7 @@ export const processWords = async (formData) => {
   
 
   try {
-    const response = await fetch('http://127.0.0.1:5000/handsUPApi/sign/processWords', {
+    const response = await fetch(`${TRANSLATE_API_ROUTE}/processWords`, {
       method: 'POST',
       body: formData
     });
@@ -460,6 +461,25 @@ export const deleteUserAccount = async (userID) => {
         console.error("Error deleting user account:", error);
         throw error;
     }
+};
+
+export const produceSentence = async (glossToConvert) => {
+  console.log("Converting sentence...");
+
+  try {
+    const response = await fetch(`${TRANSLATE_API_ROUTE}/sentence`, {
+      method: 'POST',
+      body: {'gloss': glossToConvert}
+    });
+
+    const data = await response.json();
+    console.log("Response:", data);
+    return (data);
+
+  } catch (error) {
+    console.error(error);
+    return ('Error converting gloss');
+  }
 };
 
 // export const resetPassword = async (email) => {
