@@ -231,44 +231,6 @@ export function useTranslator() {
         };
     }, [setResult]);
 
-    // const handleFileUpload = async (e) => {
-    //     const file = e.target.files?.[0];
-    //     if (!file) return;
-
-    //     const isVideo = file.type.includes('video');
-    //     const isImage = file.type.includes('image');
-    //     const url = URL.createObjectURL(file);
-
-    //     setResult(`Processing uploaded ${isVideo ? 'video' : 'image'}...`);
-    //     setCapturedImage(url);
-    //     setCapturedType(isVideo ? 'video' : 'image');
-    //     setCapturedBlob(file);
-
-    //     setCaptureHistory(prev => [
-    //         { id: uuidv4(), url, type: isVideo ? 'video' : 'image', blob: file, timestamp: new Date().toLocaleTimeString() },
-    //         ...prev.slice(0, 4)
-    //     ]);
-
-    //     if (isVideo) {
-    //         const videoResult = await SignLanguageAPI.processVideo(file);
-            
-    //         setResult(videoResult.phrase !== "Nothing detected" ? videoResult.phrase : "No sign detected");
-    //         if (videoResult.confidence> 0) {
-    //             const avg = videoResult.confidence*100;
-    //             setConfidence(avg.toFixed(2) + "%");
-    //         } else {
-    //             setConfidence("0%");
-    //         }
-    //         setRecording(false);
-    //     } else if (isImage) {
-    //         const imgResult = await processImage(file);
-    //         setResult(imgResult.phrase || "No sign detected");
-    //         setConfidence((imgResult.confidence * 100).toFixed(2) + "%");
-    //     } else {
-    //         setResult("Unsupported file type. Please upload an image or video.");
-    //     }
-    // };
-
     return {
         videoRef,
         canvasRef1,

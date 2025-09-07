@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {useTranslator} from '../hooks/translateResults';
 import {renderMediaPreview} from '../components/mediaPreview';
 import {renderHistoryItem} from '../components/historyItem';
-// import {FingerspellingToggle} from '../components/fingerSpellingToggle'
 import { useLandmarksDetection } from '../hooks/landmarksDetection';
 import '../styles/translator.css';
 
@@ -110,10 +109,6 @@ export function Translator(){
 
             <div className="recognizer-controls">
               <div>
-                {/* <FingerspellingToggle 
-                  fingerspellingMode={fingerspellingMode} 
-                  setFingerspellingMode={setFingerspellingMode} 
-                /> */}
             </div>
               <button onClick={() => setResult("")} className="recognizer-control-button recognizer-capture-button">
                 <i></i> Clear Results
@@ -125,15 +120,6 @@ export function Translator(){
                 <i className={`fas ${recording ? 'fa-stop' : 'fa-video'}`}></i> 
                 {recording ? 'Stop Signing' : 'Start Signing'}
               </button>
-              {/* <label className="recognizer-control-button recognizer-upload-button">
-                <i className="fas fa-upload"></i> Upload Sign
-                <input 
-                  type="file" 
-                  accept="image/*,video/*" 
-                  className="recognizer-file-input" 
-                  onChange={handleFileUpload}
-                />
-              </label> */}
             </div>
 
             <div className="recognizer-history">
