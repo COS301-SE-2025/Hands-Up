@@ -9,7 +9,7 @@ HUGGINGFACE_BASE_URL = os.environ.get("HUGGINGFACE_BASE_URL")
 
 api_blueprint = Blueprint('sign', __name__, url_prefix='/sign')
 
-@api_blueprint.route('/processImage', methods=['POST'])
+@api_blueprint.route('/sign/processImage', methods=['POST'])
 def process_image():
     files = request.files.getlist('frames')
     sequenceNum = 20
@@ -36,7 +36,7 @@ def process_image():
             'status_code': status_code
         }), status_code
 
-@api_blueprint.route('/processWords', methods=['POST'])
+@api_blueprint.route('/sign/processWords', methods=['POST'])
 def process_words():
     files = request.files.getlist('frames')
     sequenceNum = 90
