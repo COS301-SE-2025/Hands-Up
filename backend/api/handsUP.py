@@ -12,10 +12,11 @@ CORS(app, origins="https://handsup.onrender.com", supports_credentials=True)
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['SESSION_COOKIE_SECURE'] = True
 
-# Register the blueprint and apply the first URL prefix.
+# Register the blueprint with the first part of the URL prefix.
 # This makes all blueprint routes start with /handsUPApi.
 app.register_blueprint(api_blueprint, url_prefix='/handsUPApi')
 
+# This line is crucial for debugging! It shows you the final, registered routes.
 print("Registered routes:")
 print(app.url_map)
 
