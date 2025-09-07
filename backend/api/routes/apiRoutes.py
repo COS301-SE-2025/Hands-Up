@@ -20,7 +20,7 @@ def process_image():
     files_to_send = [('frames', (file.filename, file.stream.read(), file.content_type)) for file in files]
     
     # Construct the full URL by appending the endpoint
-    url = f"{HUGGINGFACE_BASE_URL}/letters"
+    url = f"{HUGGINGFACE_BASE_URL}/detect-letters"
     
     try:
         response = requests.post(url, files=files_to_send, timeout=300)
@@ -47,7 +47,7 @@ def process_words():
     files_to_send = [('frames', (file.filename, file.stream.read(), file.content_type)) for file in files]
     
     # Construct the full URL by appending the endpoint
-    url = f"{HUGGINGFACE_BASE_URL}/words"
+    url = f"{HUGGINGFACE_BASE_URL}/detect-words"
     
     try:
         response = requests.post(url, files=files_to_send, timeout=300)
