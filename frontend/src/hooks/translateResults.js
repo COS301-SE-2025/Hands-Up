@@ -62,7 +62,7 @@ export function useTranslator() {
             });
 
             let response;
-            console.log("formdata:", formdata);
+            console.log("formdata:", formData);
             if (currentModel === 'glosses') {
                 response = await processWords(formData);
             } else {
