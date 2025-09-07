@@ -11,6 +11,7 @@ api_blueprint = Blueprint('sign', __name__, url_prefix='/sign')
 
 @api_blueprint.route('/processImage', methods=['POST'])
 def process_image():
+    print("entered process image")
     files = request.files.getlist('frames')
     sequenceNum = 20
     
@@ -21,7 +22,7 @@ def process_image():
     
     # Construct the full URL by appending the endpoint
     url = f"{HUGGINGFACE_BASE_URL}/detect-letters"
-    
+    print("about to send data")
     try:
         response = requests.post(url, files=files_to_send, timeout=300)
         response.raise_for_status()
