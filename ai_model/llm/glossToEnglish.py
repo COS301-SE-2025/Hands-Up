@@ -11,7 +11,7 @@ def translateGloss(gloss: str, model: str = "o3-mini") -> str:
   response = client.chat.completions.create(
       model=model,
       messages=[
-          {"role": "user", "content": f"Translate this asl gloss to English: '{gloss}, output as 'English sentence : '"}
+          {"role": "user", "content": f"Translate this asl gloss to English: '{gloss}, output as 'English:'"}
       ]
   )
   return response.choices[0].message.content
