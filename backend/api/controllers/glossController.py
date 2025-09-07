@@ -19,4 +19,4 @@ def translateGloss(gloss: str, model: str = "o3-mini") -> str:
     if result.upper().startswith("ENG:"):
         result = result[4:].strip()
 
-    return {'Translation': result}
+    return {'translation': result}

@@ -456,7 +456,8 @@ export const produceSentence = async (glossToConvert) => {
   try {
     const response = await fetch(`${TRANSLATE_API_ROUTE}/sentence`, {
       method: 'POST',
-      body: {'gloss': glossToConvert}
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({'gloss': glossToConvert})
     });
 
     const data = await response.json();
