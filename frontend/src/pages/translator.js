@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {useTranslator} from '../hooks/translateResults';
 import {renderMediaPreview} from '../components/mediaPreview';
 import {renderHistoryItem} from '../components/historyItem';
-import { useLandmarksDetection } from '../hooks/landmarksDetection';
+import { useSwitchLandmarks } from '../hooks/switchLandmarks';
 import '../styles/translator.css';
 
 export function Translator(){
@@ -24,7 +24,7 @@ export function Translator(){
     setResult,
   } = useTranslator();
 
-  useLandmarksDetection(videoRef, canvasRef2);
+  useSwitchLandmarks(videoRef, canvasRef2);
 
   const speakDisabled = result === "";
   const [availableVoices, setAvailableVoices] = useState([]);
