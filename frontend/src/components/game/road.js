@@ -5,8 +5,8 @@ import { useFrame } from '@react-three/fiber';
 import { useTexture } from '@react-three/drei';
 
 export default function Road() {
-  const roadTexture = useTexture('/models/game models/textures/road.png');
-  const grassTexture = useTexture('/models/game models/textures/grass.png');
+  const roadTexture = useTexture('/models/game_models/textures/road.png');
+  const grassTexture = useTexture('/models/game_models/textures/grass.png');
 
   const roadMaterialRef = useRef();
   const grassMaterialRef = useRef();
