@@ -14,6 +14,13 @@ import GameOverScreen from '../components/game/gameOver';
 import PauseScreen from '../components/game/gamePaused';
 import StopScreen from '../components/game/gameStopped';
 
+const wordList = ["ALBERTON", "BALLITO", "BENONI", "BLOEMFONTEIN", "BOKSBURG", 
+  "CAPE TOWN", "DURBAN", "EAST LONDON", "FOURWAYS", "GEORGE", "GQEBERHA", "HOWZIT", 
+  "IZIKO", "JOHANNESBURG", "KIMBERLEY", "KNYSNA", "LEKKER", "MAHIKENG", "MAKHANDA", 
+  "MBOMBELA", "MOSSEL BAY", "NEWCASTLE", "PIETERMARITZBURG", "POLOKWANE", "PRETORIA", 
+  "RICHARDS BAY", "ROBOT", "RUSTENBURG", "SOSHANGUVE", "SOWETO", "STELLENBOSCH", 
+  "THEMBISA", "UPINGTON", "VEREENIGING", "ZULU LAND"];
+
 export function Game() {
     const [gameStarted, setGameStarted] = useState(false);
     const [gameOver, setGameOver] = useState(false);
@@ -26,7 +33,6 @@ export function Game() {
     const [carSpeed, setCarSpeed] = useState(10);
     const maxSpeed = 20;
 
-    const wordList = ["THE", "QUICK", "BROWN", "FOX", "JUMPS", "OVER", "THE", "LAZY", "DOG"];
     const [currentWord, setCurrentWord] = useState(wordList[0]);
     const [letterIndex, setLetterIndex] = useState(0);
     const [wordsCollected, setWordsCollected] = useState(0);
@@ -94,7 +100,7 @@ export function Game() {
 
           {lifeLost && <LifeLostSign />}
 
-          <div style={{ position: 'absolute', left: '1%', color: '#ffcc00', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ position: 'absolute', left: '1%', color: 'yellow', display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '20px 20px 0px', fontSize: '28px', fontWeight: 'bold' }}>
               Distance: {distance} m
             </div>
@@ -103,22 +109,21 @@ export function Game() {
             </div>
           </div>
 
-          {/* Word display */}
           <div style={{
             position: 'absolute',
             top: '20px',
             left: '10%',
             width: '80%',
             textAlign: 'center',
-            fontSize: '48px',
-            fontFamily: 'monospace',
+            fontSize: '6vw',
+            fontFamily: 'Lilita One, sans-serif',            
             color: 'white',
             zIndex: 100,
-           }}>
+          }}>
             {currentWord?.split("").map((l, i) => (
               <span key={i} style={{ 
-                textDecoration: i === letterIndex ? 'underline' : 'none', 
-                color: i === letterIndex ? 'yellow' : 'white'
+                color: i === letterIndex ? 'yellow' : 'white', 
+                transition: 'color 0.2s ease',
               }}>
                 {l}
               </span>
