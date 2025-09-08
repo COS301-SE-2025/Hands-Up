@@ -25,7 +25,21 @@ export function Game() {
     const [distance, setDistance] = useState(0);
     const [carSpeed, setCarSpeed] = useState(10);
     const maxSpeed = 20;
+
+    const wordList = ["THE", "QUICK", "BROWN", "FOX", "JUMPS", "OVER", "THE", "LAZY", "DOG"];
+    const [currentWord, setCurrentWord] = useState(wordList[0]);
+    const [letterIndex, setLetterIndex] = useState(0);
     const [wordsCollected, setWordsCollected] = useState(0);
+
+    function pickNewWord(prevWord) {
+      let newWord;
+      do {
+        newWord = wordList[Math.floor(Math.random() * wordList.length)];
+      } while (newWord === prevWord);
+      setCurrentWord(newWord);
+      setLetterIndex(0);
+      setWordsCollected(w => w + 1);
+    }
 
     const handleCollision = () => {
       setLives(l => {
@@ -52,6 +66,8 @@ export function Game() {
       setGamePaused(false);
       setGameStopped(false); 
       setGameStarted(true);
+      setLetterIndex(0);
+      setCurrentWord(wordList[Math.floor(Math.random() * wordList.length)]);
     };
 
     // increase distance travelled
@@ -87,6 +103,28 @@ export function Game() {
             </div>
           </div>
 
+          {/* Word display */}
+          <div style={{
+            position: 'absolute',
+            top: '20px',
+            left: '10%',
+            width: '80%',
+            textAlign: 'center',
+            fontSize: '48px',
+            fontFamily: 'monospace',
+            color: 'white',
+            zIndex: 100,
+           }}>
+            {currentWord?.split("").map((l, i) => (
+              <span key={i} style={{ 
+                textDecoration: i === letterIndex ? 'underline' : 'none', 
+                color: i === letterIndex ? 'yellow' : 'white'
+              }}>
+                {l}
+              </span>
+            ))}
+          </div>
+
           <div style={{ position: 'absolute', top: 0, right: '1.5%', display: 'flex', flexDirection: 'column', zIndex: 10 }}>
             <svg width="80" height="80" viewBox="0 0 120 104" style={{ cursor: 'pointer' }} onClick={() => { if (!gameStarted) return; setGameStarted(false); setGameStopped(true); }} >
               <polygon points="60,0 115,30 115,74 60,104 5,74 5,30" fill="red" transform="translate(60 52) scale(0.85) translate(-60 -52)" stroke='white' strokeWidth={12} />
@@ -100,23 +138,23 @@ export function Game() {
           </div>
           
           <RunnerPosProvider>
-          <Canvas camera={{ position: [0, 3, 58], fov: 55 }}>
-            <Suspense fallback={null}>
-              <ambientLight intensity={1.5} />
-              <directionalLight position={[0, 10, 5]} intensity={1} />
+            <Canvas camera={{ position: [0, 3, 58], fov: 55 }}>
+              <Suspense fallback={null}>
+                <ambientLight intensity={1.5} />
+                <directionalLight position={[0, 10, 5]} intensity={1} />
 
-              <Road />
-              <Runner gameStarted={gameStarted}/>
-              {!gamePaused && !gameStopped && (
-                <>
-                  <VehicleSpawner onCollision={handleCollision} speed={carSpeed} />
-                  <CoinSpawner />
-                  {/* <CoinSpawner onCollect={handleCollection} /> */}
-                </>
-              )}
+                <Road />
+                <Runner gameStarted={gameStarted}/>
+                {!gamePaused && !gameStopped && (
+                  <>
+                    <VehicleSpawner onCollision={handleCollision} speed={carSpeed} />
+                    <CoinSpawner onWrongLetter={handleCollision} currentWord={currentWord} letterIndex={letterIndex} setLetterIndex={setLetterIndex} pickNewWord={pickNewWord}/>
+                    {/* <CoinSpawner /> */}
+                  </>
+                )}
 
-            </Suspense>
-          </Canvas>
+              </Suspense>
+            </Canvas>
           </RunnerPosProvider>
         </div>
         <Loader />
