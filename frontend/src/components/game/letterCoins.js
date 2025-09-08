@@ -85,7 +85,12 @@ export function CoinSpawner({ onWrongLetter, currentWord, letterIndex, setLetter
                         if (c.texture.image.src.includes(getTargetLetter())) {
                             // correct letter 
                             setLetterIndex(idx => {
-                                const nextIndex = idx + 1;
+                                let nextIndex = idx + 1;
+                                
+                                while (currentWord[nextIndex] === ' ') {
+                                    nextIndex += 1;
+                                }
+
                                 if (nextIndex >= currentWord.length) {
                                     pickNewWord(currentWord);
                                     return 0; 
