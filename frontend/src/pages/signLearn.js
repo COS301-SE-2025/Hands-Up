@@ -199,7 +199,7 @@ export function SignLearn() {
                 index++;
                 
                 if (index < currentPhrase.words.length) {
-                    timeoutRef.current = setTimeout(playNext, 3000); // 3 second delay between words
+                    timeoutRef.current = setTimeout(playNext, 3000);
                 } else {
                     setIsAutoPlaying(false);
                 }
@@ -267,7 +267,7 @@ export function SignLearn() {
                         const learnedSigns = stats?.learnedSigns || []; 
                         if (!learnedSigns.includes(letter.toLowerCase())) {
                             updateStats({
-                                signsLearned: (stats?.signsLearned || 0) + 1, // Increment signs for individual signs
+                                signsLearned: (stats?.signsLearned || 0) + 1, 
                                 learnedSigns: [...learnedSigns, letter.toLowerCase()]
                             });
                             setHasTrackedStats(true);
