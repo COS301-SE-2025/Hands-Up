@@ -143,7 +143,7 @@ export function Game() {
           </div>
           
           <RunnerPosProvider>
-            <Canvas camera={{ position: [0, 3, 58], fov: 55 }}>
+            <Canvas camera={{ position: [0, 2, 54], fov: 60 }}>
               <Suspense fallback={null}>
                 <ambientLight intensity={1.5} />
                 <directionalLight position={[0, 10, 5]} intensity={1} />
@@ -154,7 +154,6 @@ export function Game() {
                   <>
                     <VehicleSpawner onCollision={handleCollision} speed={carSpeed} />
                     <CoinSpawner onWrongLetter={handleCollision} currentWord={currentWord} letterIndex={letterIndex} setLetterIndex={setLetterIndex} pickNewWord={pickNewWord}/>
-                    {/* <CoinSpawner /> */}
                   </>
                 )}
 

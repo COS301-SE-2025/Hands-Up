@@ -52,6 +52,7 @@ export default function Runner({ gameStarted }) {
 
   useEffect(() => {
     if (!gameStarted) return;
+
     const handleKey = (e) => {
       if (e.key === 'ArrowLeft' || e.key === 'a') {
         const laneID = lanes.indexOf(runnerX.current);
@@ -68,6 +69,50 @@ export default function Runner({ gameStarted }) {
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
+  }, [gameStarted, runnerX]);
+
+  useEffect(() => {
+    if (!gameStarted) return;
+
+    let startX = 0;
+    let startY = 0;
+
+    const handleTouchStart = (e) => {
+      const touch = e.touches[0];
+      startX = touch.clientX;
+      startY = touch.clientY;
+    };
+
+    const handleTouchEnd = (e) => {
+      const touch = e.changedTouches[0];
+      const diffX = touch.clientX - startX;
+      const diffY = touch.clientY - startY;
+
+      if (Math.abs(diffX) > Math.abs(diffY)) {
+        if (diffX > 50) {
+          const laneID = lanes.indexOf(runnerX.current);
+          if (laneID < lanes.length - 1) runnerX.current = lanes[laneID + 1];
+        } 
+        else if (diffX < -50) {
+          const laneID = lanes.indexOf(runnerX.current);
+          if (laneID > 0) runnerX.current = lanes[laneID - 1];
+        }
+      } 
+      else {
+        if (diffY < -50 && !isJumpingRef.current) {
+          isJumpingRef.current = true;
+          jumpStartTimeRef.current = performance.now() / 1000;
+        }
+      }
+    };
+
+    window.addEventListener('touchstart', handleTouchStart);
+    window.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
   }, [gameStarted, runnerX]);
 
   useFrame((_, delta) => {
