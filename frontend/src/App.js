@@ -15,13 +15,15 @@ import { Translator } from "./pages/translator";
 import { Learn } from "./pages/learn";
 import { SignLearn } from "./pages/signLearn";
 import { Home} from "./pages/home";
-import { SignQuiz} from "./pages/signQuiz";
+import { SignQuiz} from "./pages/SignQuiz";
 import { Layout } from "./pages/layout"; 
 import { Game } from "./pages/game"; 
 import ErrorBoundary from "./components/errorBoundary";
 import ErrorFallback from "./components/errorFallback";
+import { useGLTF } from "@react-three/drei";
 
 function App() {
+  useGLTF.preload('/models/angieWaving.glb');
   return (
  
     <Router>

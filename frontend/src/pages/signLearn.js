@@ -6,6 +6,8 @@ import { useLearningStats } from '../contexts/learningStatsContext';
 import { AngieSigns } from '../components/angieSigns';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
+import {Suspense} from 'react';
+
 
 async function getLandmarks(letter) {
     try {
@@ -106,6 +108,34 @@ export function SignLearn() {
 
     const showPreviousButton = getPreviousSign(letter) !== null;
     const showNextButton = getNextSign(letter) !== null;
+     
+    const ModelLoadingFallback = () => (
+  <div style={{
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    borderRadius: '15px',
+    color: 'white',
+    fontSize: '18px',
+    fontWeight: 'bold'
+  }}>
+    <div style={{ textAlign: 'center' }}>
+      <div style={{ 
+        width: '40px', 
+        height: '40px', 
+        border: '3px solid rgba(255,255,255,0.3)',
+        borderTop: '3px solid white',
+        borderRadius: '50%',
+        animation: 'spin 1s linear infinite',
+        margin: '0 auto 15px'
+      }}></div>
+      Loading 3D Model...
+    </div>
+  </div>
+);
 
     const handleBackToLearn = () => {
         if (timeoutRef.current) {
@@ -184,23 +214,10 @@ export function SignLearn() {
             clearTimeout(timeoutRef.current);
         }
         
-        if (isPhrase && currentPhrase) {
-            setIsAutoPlaying(false); // Reset autoplay state
-            setTimeout(() => {
-                startAutoPlay();
-            }, 100);
-        } else {
+        
            setReplayKey(prev => prev + 1);
-        }
+        
     };
-
-    // Auto-start phrases immediately when data is loaded
-    useEffect(() => {
-        if (isPhrase && currentPhrase && landmarks && landmarks.length > 0 && !isAutoPlaying) {
-            const timer = setTimeout(startAutoPlay, 500); // Reduced delay for immediate start
-            return () => clearTimeout(timer);
-        }
-    }, [isPhrase, currentPhrase, landmarks, isAutoPlaying, startAutoPlay]);
 
     useEffect(() => {
         return () => {
@@ -210,7 +227,6 @@ export function SignLearn() {
         };
     }, []);
 
-    // Reset hasTrackedStats when letter/phrase changes
     useEffect(() => {
         setHasTrackedStats(false);
     }, [letter]);
@@ -237,8 +253,7 @@ export function SignLearn() {
                 
                 setLandmarks(data);
 
-                // Only update stats once per sign/phrase visit and only if not already learned
-                if (!hasTrackedStats) {
+               if (!hasTrackedStats) {
                     if (isPhrase && currentPhrase) {
                         const learnedPhrases = stats?.learnedPhrases || [];
                         if (!learnedPhrases.includes(letter)) {
@@ -462,7 +477,6 @@ export function SignLearn() {
                 {isPhrase ? (
                     <div>
                         <div>{currentPhrase?.phrase}</div>
-                        {/* Removed the autoplay status indicator */}
                     </div>
                 ) : (
                     <div>
@@ -481,21 +495,23 @@ export function SignLearn() {
                 )}
             </h1>
 
-            <div style={{
-                width: '100%',
-                maxWidth: '640px',
-                height: '480px',
-                borderRadius: '15px',
-                boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
-                overflow: 'hidden'
-                }}>
+<div style={{
+    width: '100%',
+    maxWidth: '640px',
+    height: '480px',
+    borderRadius: '15px',
+    boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
+    overflow: 'hidden'
+}}>
+    <Suspense fallback={<ModelLoadingFallback />}>
                 <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
                     <ambientLight intensity={5} />
                     <group position={[0, -1.1, 0]}>
-                        <AngieSigns landmarks={landmarks} replay={replayKey}/>
+                        <AngieSigns landmarks={landmarks} replay={replayKey}  duration={isPhrase ? 6.0 : 2.5} />
                     </group>
                     <OrbitControls enablePan={false} maxPolarAngle={Math.PI / 2} minDistance={2} maxDistance={3} />
                 </Canvas>
+                 </Suspense>
             </div>
 
             <div className="controls-container" style={{
@@ -531,6 +547,10 @@ export function SignLearn() {
             </div>
 
             <style jsx>{`
+            @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
                 @keyframes pulse {
                     0% { transform: scale(1); opacity: 1; }
                     50% { transform: scale(1.2); opacity: 0.7; }
