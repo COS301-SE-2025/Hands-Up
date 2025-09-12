@@ -89,15 +89,22 @@ export default function Runner({ gameStarted }) {
       const diffY = touch.clientY - startY;
 
       if (Math.abs(diffX) > Math.abs(diffY)) {
+        // swipe right         
         if (diffX > 50) {
           const laneID = lanes.indexOf(runnerX.current);
-          if (laneID < lanes.length - 1) runnerX.current = lanes[laneID + 1];
-        } 
-        else if (diffX < -50) {
+          if (laneID < lanes.length - 1) {
+            runnerX.current = lanes[laneID + 1];
+          }
+        }
+        // swipe left 
+        else if (diffX < -50) { 
           const laneID = lanes.indexOf(runnerX.current);
-          if (laneID > 0) runnerX.current = lanes[laneID - 1];
+          if (laneID > 0) {
+            runnerX.current = lanes[laneID - 1];
+          }
         }
       } 
+      // swipe up 
       else {
         if (diffY < -50 && !isJumpingRef.current) {
           isJumpingRef.current = true;
