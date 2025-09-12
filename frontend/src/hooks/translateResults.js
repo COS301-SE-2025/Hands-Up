@@ -232,7 +232,7 @@ export function useTranslator() {
    useEffect(() => {
         let intervalId;
 
-        const requiredFrames = modelState.model === 'glosses' ? 90 : 20;
+        const requiredFrames = modelState.model === 'glosses' ? 40 : 20;
         const intervalDuration = 600 / requiredFrames; 
 
         if (autoCaptureEnabled && videoRef.current) {

@@ -52,7 +52,6 @@ def process_words():
         result = detectWords(paths)
         return jsonify(result)
     finally:
-        # Clean up all files
         for path in paths:
             os.remove(path)
         os.rmdir(temp_dir)
@@ -68,4 +67,4 @@ def sign_sentence():
 
     translation = translateGloss(gloss_input)
 
-    return jsonify(translation)
+    return jsonify({"translation": translation})
