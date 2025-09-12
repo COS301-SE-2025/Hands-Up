@@ -3,17 +3,16 @@ import React, { useState, useRef } from 'react';
 import PropTypes from "prop-types";
 import { useFrame, useLoader } from '@react-three/fiber';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+// import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { clone as skeletonClone } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { useRunnerX, useRunnerY } from '../../contexts/game/runnerPosition';
 
 const lanes = [-5, -2, 2, 5];
 const carModels = [
   'bus.glb', 
-  'peugeot 207.glb',
-  'suzuki swift.glb',
   'taxi.glb',
-  'toyota fortuner.glb',
-  'toyota hilux.glb',
   'vw golf gti.glb',
+  'tambi.glb'
 ];
 
 export function VehicleSpawner({ onCollision, speed }) {
@@ -23,8 +22,14 @@ export function VehicleSpawner({ onCollision, speed }) {
   const idCounter = useRef(0);
   const lastCollisionTime = useRef(0);
 
-  const modelPaths = carModels.map((name) => encodeURI(`/models/game models/${name}`));
+  // const dracoLoader = new DRACOLoader();
+  // dracoLoader.setDecoderPath('/draco/');
+  // dracoLoader.preload();
+
+  const modelPaths = carModels.map((name) => encodeURI(`/models/game_models/${name}`));
   const gltfs = useLoader(GLTFLoader, modelPaths);
+  // const gltfs = useLoader(GLTFLoader, modelPaths, loader => { loader.setDRACOLoader(dracoLoader); });
+  
   const scenes = useRef(gltfs.map((g) => g.scene)).current;
 
   const [vehicles, setVehicles] = useState([]);
@@ -37,7 +42,8 @@ export function VehicleSpawner({ onCollision, speed }) {
       if (Math.random() < 0.02) {
         const lane = lanes[Math.floor(Math.random() * lanes.length)];
         const modelIndex = Math.floor(Math.random() * scenes.length);
-        const clone = scenes[modelIndex].clone(true);
+        
+        const clone = skeletonClone(scenes[modelIndex]);
 
         idCounter.current += 1;
         next.push({
