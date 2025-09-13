@@ -13,8 +13,9 @@ const LOCKOUT_DURATION_MS = LOCKOUT_DURATION_MINUTES * 60 * 1000;
 
 const loginAttempts = new Map();
 
+
 const createEmailTransporter = () => {
-    return nodemailer.createTransporter({
+    return nodemailer.createTransport({
         host: process.env.SMTP_HOST,
         port: process.env.SMTP_PORT || 587,
         secure: process.env.SMTP_PORT == 465, 
@@ -34,9 +35,7 @@ export const learningProgress = async (req, res) => {
                 return res.status(400).json({ status: "error", message: 'Username is required' });
             }
             const result = await pool.query(
-                `SELECT "lessonsCompleted", "signsLearned", streak, "currentLevel", 
-                        "quizzesCompleted", "completedQuizzes", "unlockedCategories", 
-                        "learnedSigns", "learnedPhrases"
+                `SELECT "lessonsCompleted", "signsLearned", streak, "currentLevel"
                  FROM learn
                  JOIN users ON learn."userID"= users."userID"
                  WHERE users.username = $1`,
@@ -44,32 +43,13 @@ export const learningProgress = async (req, res) => {
             );
 
             if (result.rowCount === 0) {
-                return res.status(200).json({ 
-                    status: "success", 
-                    message: 'No learning progress found for this user.', 
-                    data: [] 
-                });
-            }
-
-            // Parse JSON fields if they exist
-            const progressData = result.rows[0];
-            if (progressData.completedQuizzes && typeof progressData.completedQuizzes === 'string') {
-                progressData.completedQuizzes = JSON.parse(progressData.completedQuizzes);
-            }
-            if (progressData.unlockedCategories && typeof progressData.unlockedCategories === 'string') {
-                progressData.unlockedCategories = JSON.parse(progressData.unlockedCategories);
-            }
-            if (progressData.learnedSigns && typeof progressData.learnedSigns === 'string') {
-                progressData.learnedSigns = JSON.parse(progressData.learnedSigns);
-            }
-            if (progressData.learnedPhrases && typeof progressData.learnedPhrases === 'string') {
-                progressData.learnedPhrases = JSON.parse(progressData.learnedPhrases);
+                return res.status(200).json({ status: "success", message: 'No learning progress found for this user.', data: [] });
             }
 
             res.status(200).json({
                 status: "success",
                 message: 'Learning progress retrieved successfully',
-                data: [progressData],
+                data: result.rows,
             });
 
         } catch (err) {
@@ -84,22 +64,16 @@ export const learningProgress = async (req, res) => {
         
         try {
             const progressData = req.body;
-            console.log("Backend received progressData for update:", progressData);
+            console.log("Backend received progressData for update:", progressData); // Debugging line
 
             if (!username || !progressData) {
                 return res.status(400).json({ status: "error", message: 'Username and progress data are required' });
             }
-
             const {
                 lessonsCompleted = 0,
                 signsLearned = 0,
                 streak = 0,
-                currentLevel = 'Bronze',
-                quizzesCompleted = 0,
-                completedQuizzes = [],
-                unlockedCategories = ['alphabets'],
-                learnedSigns = [],
-                learnedPhrases = []
+                currentLevel = 'Bronze' 
             } = progressData;
 
             if (typeof lessonsCompleted !== 'number' || typeof signsLearned !== 'number' || typeof streak !== 'number') {
@@ -111,24 +85,14 @@ export const learningProgress = async (req, res) => {
                     "lessonsCompleted" = $1,
                     "signsLearned" = $2,
                     streak = $3,
-                    "currentLevel" = $4,
-                    "quizzesCompleted" = $5,
-                    "completedQuizzes" = $6,
-                    "unlockedCategories" = $7,
-                    "learnedSigns" = $8,
-                    "learnedPhrases" = $9
+                    "currentLevel" = $4
                  FROM users
-                 WHERE learn."userID" = users."userID" AND users.username = $10`,
+                 WHERE learn."userID" = users."userID" AND users.username = $5`,
                 [
                     lessonsCompleted,
                     signsLearned,
                     streak,
                     currentLevel,
-                    quizzesCompleted,
-                    JSON.stringify(completedQuizzes),
-                    JSON.stringify(unlockedCategories),
-                    JSON.stringify(learnedSigns),
-                    JSON.stringify(learnedPhrases),
                     username
                 ]
             );
@@ -144,7 +108,9 @@ export const learningProgress = async (req, res) => {
             res.status(500).json({ status: "error", message: 'Internal Server Error' });
         }
     }
+    
 };
+
 
 export const signUpUser = async (req, res) => {
     try {
@@ -171,22 +137,9 @@ export const signUpUser = async (req, res) => {
 
         const userID = userResult.rows[0].userID;
         await pool.query(
-            `INSERT INTO learn ("userID", "lessonsCompleted", "signsLearned", "streak", "currentLevel", 
-                               "quizzesCompleted", "completedQuizzes", "unlockedCategories", 
-                               "learnedSigns", "learnedPhrases")
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-            [
-                userID, 
-                0, 
-                0, 
-                0, 
-                'Bronze', 
-                0, 
-                JSON.stringify([]), 
-                JSON.stringify(['alphabets']), 
-                JSON.stringify([]), 
-                JSON.stringify([])
-            ]
+            `INSERT INTO learn ("userID", "lessonsCompleted", "signsLearned", "streak", "currentLevel")
+             VALUES ($1, $2, $3, $4, $5)`,
+            [userID, 0, 0, 0, 'Bronze']
         );
 
         await pool.query('COMMIT');
@@ -321,6 +274,7 @@ export const logoutUser = async (req, res) => {
     res.status(200).json({ message: 'Logged out successfully' });
 };
 
+
 export const authenticateUser = async (req, res, next) => {
     const sessionId = req.cookies.sessionId;
 
@@ -370,6 +324,7 @@ export const authenticateUser = async (req, res, next) => {
     }
 };
 
+
 export const getUserData = async (req, res) => {
     if (req.user) {
         console.log(`[BACKEND - GET_USER_DATA] User data retrieved for: ${req.user.username}`);
@@ -382,6 +337,7 @@ export const getUserData = async (req, res) => {
         res.status(401).json({ error: 'User not authenticated.' });
     }
 };
+
 
 export const uniqueUsername = async (req, res) => {
     try {
@@ -469,6 +425,7 @@ export const updateUserPassword = async (req, res) => {
         res.status(500).json({ error: 'Internal server error.' });
     }
 };
+
 
 export const deleteUserAccount = async (req, res) => {
     const { id } = req.params;
@@ -685,3 +642,106 @@ export const confirmPasswordReset = async (req, res) => {
                 activeSessions.delete(sessionId);
                 console.log(`[BACKEND - CONFIRM_RESET] Session ${sessionId} invalidated for user ${tokenData.userId}`);
             }
+        }
+
+        console.log(`[BACKEND - CONFIRM_RESET] Password reset successful for user: ${updateResult.rows[0].username}`);
+
+        res.status(200).json({
+            success: true,
+            message: 'Password reset successful. You can now log in with your new password.'
+        });
+
+    } catch (error) {
+        console.error('[BACKEND - CONFIRM_RESET] Error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error. Please try again later.'
+        });
+    }
+};
+
+setInterval(() => {
+    const now = Date.now();
+    for (const [token, data] of resetTokens.entries()) {
+        if (now > data.expires) {
+            resetTokens.delete(token);
+            console.log(`[BACKEND - CLEANUP] Expired reset token cleaned up: ${token}`);
+        }
+    }
+}, 1000 * 60 * 5);
+
+
+setInterval(() => {
+    const now = Date.now();
+    for (const [email, data] of loginAttempts.entries()) {
+        if (data.lockoutUntil && now > data.lockoutUntil) {
+            loginAttempts.delete(email);
+            console.log(`[BACKEND - CLEANUP] Expired lockout for ${email} cleaned up.`);
+        }
+      
+        else if (!data.lockoutUntil && (now - data.lastAttemptTime > LOCKOUT_DURATION_MS * 5)) {
+            loginAttempts.delete(email);
+            console.log(`[BACKEND - CLEANUP] Stale login attempts for ${email} cleared.`);
+        }
+    }
+}, 1000 * 30);
+
+
+export const uploadUserAvatar = async (req, res) => {
+    console.log('[dbController.js] uploadUserAvatar function entered.');
+    console.log('req.file:', req.file); 
+
+    if (!req.file) {
+        console.error('[dbController.js] No file uploaded to uploadUserAvatar.');
+        return res.status(400).json({ status: "error", message: 'No file uploaded.' });
+    }
+
+    if (!req.user || req.user.id !== parseInt(req.params.id)) {
+        console.warn(`[dbController.js] Unauthorized avatar upload attempt for user ID ${req.params.id} by user ${req.user ? req.user.id : 'N/A'}`);
+        return res.status(403).json({ error: 'Forbidden: You can only upload an avatar for your own account.' });
+    }
+
+    const userID = parseInt(req.params.id);
+    const originalname = req.file.originalname;
+    const buffer = req.file.buffer;
+    const uploadDir = path.join(process.cwd(), 'uploads', 'avatars');
+    
+    const filename = `${userID}-${Date.now()}-${originalname.replace(/[^a-zA-Z0-9.-]/g, '_')}`; 
+    const filePath = path.join(uploadDir, filename);
+
+    try {
+        await fs.mkdir(uploadDir, { recursive: true });
+        console.log(`[dbController.js] Ensured directory exists: ${uploadDir}`);
+        await fs.writeFile(filePath, buffer);
+        console.log(`[dbController.js] Avatar saved to: ${filePath}`);
+        const avatarUrl = `/uploads/avatars/${filename}`; 
+        const result = await pool.query(
+            `UPDATE users SET "avatarurl" = $1 WHERE "userID" = $2 RETURNING "userID", username, "avatarurl"`,
+            [avatarUrl, userID]
+        );
+        console.log('[dbController.js] Database update result:', result.rows[0]);
+
+        if (result.rows.length === 0) {
+            console.warn(`[dbController.js] User with ID ${userID} not found in DB after file save. Attempting to delete file: ${filePath}`);
+            await fs.unlink(filePath).catch(unlinkErr => console.error("Error deleting orphaned avatar file:", unlinkErr));
+            return res.status(404).json({ status: "error", message: 'User not found.' });
+        }
+
+        res.status(200).json({
+            status: "success",
+            message: 'Avatar uploaded successfully',
+            data: {
+                userID: result.rows[0].userID,
+                username: result.rows[0].username,
+                avatarurl: result.rows[0].avatarurl,
+            },
+        });
+
+    } catch (error) {
+        console.error('[dbController.js] Error in uploadUserAvatar:', error);
+        if (filePath) {
+            await fs.unlink(filePath).catch(unlinkErr => console.error("Error deleting partially saved avatar file during error:", unlinkErr));
+        }
+        res.status(500).json({ status: "error", message: 'Internal Server Error during avatar upload: ' + error.message });
+    }
+};
