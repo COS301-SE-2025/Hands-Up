@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {useTranslator} from '../hooks/translateResults';
 import {renderMediaPreview} from '../components/mediaPreview';
 import {renderHistoryItem} from '../components/historyItem';
+import { SupportSection } from '../components/contactForm';
 import { useLandmarksDetection } from '../hooks/landmarksDetection';
 import '../styles/translator.css';
 
@@ -206,7 +207,7 @@ export function Translator(){
 
             <div className="recognizer-support">
               <p className="recognizer-support-text">
-                Need help? <button className="recognizer-support-link">Contact Support</button>
+              <SupportSection />
               </p>
             </div>
           </div>
