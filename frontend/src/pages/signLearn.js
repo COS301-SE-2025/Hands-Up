@@ -6,20 +6,7 @@ import { useLearningStats } from '../contexts/learningStatsContext';
 import { AngieSigns } from '../components/angieSigns';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-
-async function getLandmarks(letter) {
-    try {
-        const response = await fetch(`/landmarks/${letter}.json`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error(`Error loading landmarks for ${letter}:`, error);
-        return [];
-    }
-}
+import { getLandmarks } from '../utils/apiCalls'; 
 
 const COMMON_PHRASES = [
     { id: 'hello_my_name', phrase: 'Hello My Name', words: ['helloMyName'] },
@@ -240,7 +227,7 @@ export function SignLearn() {
                         const learnedPhrases = stats?.learnedPhrases || [];
                         if (!learnedPhrases.includes(letter)) {
                             updateStats({
-                                lessonsCompleted: (stats?.lessonsCompleted || 0) + 1, // Increment lessons for phrases
+                                lessonsCompleted: (stats?.lessonsCompleted || 0) + 1,
                                 learnedPhrases: [...learnedPhrases, letter]
                             });
                             setHasTrackedStats(true);
@@ -319,7 +306,7 @@ export function SignLearn() {
                     color: '#666',
                     marginTop: '10px'
                 }}>
-                    Make sure the landmarks file exists: /landmarks/{isPhrase ? currentPhrase?.words[currentWordIndex] : letter}.json
+                    Make sure the landmarks exist in the backend curriculum data.
                 </div>
             </div>
         );
