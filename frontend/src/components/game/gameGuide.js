@@ -27,7 +27,7 @@ export default function GameGuide() {
     ];
 
     const subSteps = [
-        "Press any key to begin... ", 
+        "Tutorial will start soon... ", 
         "Press ↑ (Up Arrow), W or Swipe Up",
         "Press ← (Left Arrow), A or Swipe Left",
         "Press → (Right Arrow), D or Swipe Right",
@@ -36,21 +36,57 @@ export default function GameGuide() {
     ]
 
     useEffect(() => {
+        if (step === 0) setTimeout(() => setStep(1), 3000);
+
         const handleAction = (action) => {
             if (step === 1 && action === "jump") setStep(2);
             else if (step === 2 && action === "left") setStep(3);
             else if (step === 3 && action === "right") setStep(4);
         };
 
+        // keyboard input
         const handleKeyDown = (e) => {
-            if (step === 0) setTimeout(() => setStep(1), 500);
             if (e.key === "ArrowUp" || e.key === "w") setTimeout(() => handleAction("jump"), 500);
             if (e.key === "ArrowLeft" || e.key === "a") setTimeout(() => handleAction("left"), 500);
             if (e.key === "ArrowRight" || e.key === "d") setTimeout(() => handleAction("right"), 500);
         };
 
+        // touch input
+        let startX = 0;
+        let startY = 0;
+        const THRESHOLD = 50;
+
+        const handleTouchStart = (e) => {
+            const touch = e.touches[0];
+            startX = touch.clientX;
+            startY = touch.clientY;
+        };
+
+        const handleTouchEnd = (e) => {
+            const touch = e.changedTouches[0];
+            const diffX = touch.clientX - startX;
+            const diffY = touch.clientY - startY;
+
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                // horizontal swipe
+                if (diffX > THRESHOLD) setTimeout(() => handleAction("right"), 500);
+                else if (diffX < -THRESHOLD) setTimeout(() => handleAction("left"), 500);
+            } 
+            else {
+                // vertical swipe
+                if (diffY < -THRESHOLD) setTimeout(() => handleAction("jump"), 500);
+            }
+        };
+
         window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
+        window.addEventListener("touchstart", handleTouchStart);
+        window.addEventListener("touchend", handleTouchEnd);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+            window.removeEventListener("touchstart", handleTouchStart);
+            window.removeEventListener("touchend", handleTouchEnd);
+        };
     }, [step]);
 
     return (
