@@ -33,18 +33,35 @@ export function Game() {
     const [carSpeed, setCarSpeed] = useState(10);
     const maxSpeed = 20;
 
-    const [currentWord, setCurrentWord] = useState(wordList[Math.floor(Math.random() * wordList.length)]);
+    const initialWord = wordList[Math.floor(Math.random() * wordList.length)];
+    const [usedWords, setUsedWords] = useState(new Set([initialWord]));
+    const [currentWord, setCurrentWord] = useState(initialWord);
     const [letterIndex, setLetterIndex] = useState(0);
     const [wordsCollected, setWordsCollected] = useState(0);
 
-    function pickNewWord(prevWord) {
-      let newWord;
-      do {
-        newWord = wordList[Math.floor(Math.random() * wordList.length)];
-      } while (newWord === prevWord);
+    // function pickNewWord(prevWord) {
+    //   let newWord;
+    //   do {
+    //     newWord = wordList[Math.floor(Math.random() * wordList.length)];
+    //   } while (newWord === prevWord);
+    //   setCurrentWord(newWord);
+    //   setLetterIndex(0);
+    //   setWordsCollected(w => w + 1);
+    // }
+
+    function pickNewWord() {
+      let remainingWords = wordList.filter(w => !usedWords.has(w));
+      if (remainingWords.length === 0) {
+        setUsedWords(new Set());
+        remainingWords = [...wordList];
+      }
+
+      const newWord = remainingWords[Math.floor(Math.random() * remainingWords.length)];
       setCurrentWord(newWord);
       setLetterIndex(0);
       setWordsCollected(w => w + 1);
+      setUsedWords(prev => new Set(prev).add(newWord));
+      console.log("Remaining words:", remainingWords.filter(w => w !== newWord));
     }
 
     const handleCollision = () => {
@@ -73,7 +90,9 @@ export function Game() {
       setGameStopped(false); 
       setGameStarted(true);
       setLetterIndex(0);
-      setCurrentWord(wordList[Math.floor(Math.random() * wordList.length)]);
+      const initialWord = wordList[Math.floor(Math.random() * wordList.length)];
+      setCurrentWord(initialWord);
+      setUsedWords(new Set([initialWord]));
     };
 
     // increase distance travelled
