@@ -1,23 +1,24 @@
 /* eslint-disable react/no-unknown-property */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { RunnerPosProvider } from "../../contexts/game/runnerPosition";
-import Runner from "./runner";
-import Road from "./road";
 import { VehicleSpawner } from "./spawnCars";
 import { CoinSpawner } from "./letterCoins";
+import LifeLostSign from './removeLife';
+import Runner from "./runner";
+import Road from "./road";
 
 export default function GameGuide({ onComplete }) {
     const [step, setStep] = useState(0); 
     const [letterIndex, setLetterIndex] = useState(0);
+    const [lifeLost, setLifeLost] = useState(false);
 
     const steps = [
         "Let’s learn how to play Sign Surfers!",
         "JUMP",
         "MOVE LEFT",
         "MOVE RIGHT",
-        "MAKE WORDS",
-        "ASL"
+        "Now try collecting letters while avoiding cars."
     ];
 
     const subSteps = [
@@ -25,8 +26,7 @@ export default function GameGuide({ onComplete }) {
         "Press ↑ (Up Arrow), W or Swipe Up",
         "Press ← (Left Arrow), A or Swipe Left",
         "Press → (Right Arrow), D or Swipe Right",
-        "Try collecting letters while avoiding cars.", 
-        ""
+        "If you hit a car or collect an incorrect letter, you will lose a life.", 
     ]
 
     const handleAction = (action) => {
@@ -41,7 +41,6 @@ export default function GameGuide({ onComplete }) {
         if (e.key === "ArrowUp" || e.key === "w") handleAction("jump");
         if (e.key === "ArrowLeft" || e.key === "a") handleAction("left");
         if (e.key === "ArrowRight" || e.key === "d") handleAction("right");
-        if (step === 4) setStep(5);
         };
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
@@ -81,11 +80,23 @@ export default function GameGuide({ onComplete }) {
             {subSteps[step]}
         </div>
 
+        {lifeLost && <LifeLostSign />}
+
         <RunnerPosProvider>
             <Canvas camera={{ position: [0, 2, 56], fov: 60 }}>
-            <ambientLight intensity={1.5} />
-            <Road />
-            <Runner gameStarted={true} />
+                <Suspense fallback={null}>
+                    <ambientLight intensity={1.5} />
+                    <Road />
+                    <Runner gameStarted={true} />
+
+                    {step >= 4 && (
+                        <>
+                            <VehicleSpawner onCollision={() => {setLifeLost(true); setTimeout(() => setLifeLost(false), 2500);}} speed={10} />
+                            <CoinSpawner onWrongLetter={() => {setLifeLost(true); setTimeout(() => setLifeLost(false), 2500);}} currentWord={"ASL"} letterIndex={letterIndex} setLetterIndex={setLetterIndex}
+                                        pickNewWord={() => {onComplete?.(); }}/>
+                        </>
+                    )}
+            </Suspense>
             </Canvas>
         </RunnerPosProvider>
         </div>
