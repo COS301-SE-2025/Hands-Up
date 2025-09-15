@@ -20,7 +20,7 @@ export default function Road() {
     <>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.51, 0]}>
         <planeGeometry args={[200, 200]} />
-        <meshStandardMaterial color="#228B22" roughness={1} metalness={0.75}/>
+        <meshStandardMaterial color="#228B22" roughness={1} metalness={0.25}/>
       </mesh>
 
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]}>
