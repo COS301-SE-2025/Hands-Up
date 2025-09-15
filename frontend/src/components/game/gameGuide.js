@@ -1,5 +1,6 @@
 /* eslint-disable react/no-unknown-property */
 import React, { useState, useEffect, Suspense } from "react";
+import { useNavigate } from 'react-router-dom';
 import { Canvas } from "@react-three/fiber";
 import { RunnerPosProvider } from "../../contexts/game/runnerPosition";
 import { VehicleSpawner } from "./spawnCars";
@@ -9,16 +10,20 @@ import Runner from "./runner";
 import Road from "./road";
 
 export default function GameGuide({ onComplete }) {
+    const navigate = useNavigate();
+    
     const [step, setStep] = useState(0); 
     const [letterIndex, setLetterIndex] = useState(0);
     const [lifeLost, setLifeLost] = useState(false);
+    const currentWord = "ASL";
 
     const steps = [
         "Let’s learn how to play Sign Surfers!",
         "JUMP",
         "MOVE LEFT",
         "MOVE RIGHT",
-        "Now try collecting letters while avoiding cars."
+        "Now try collecting letters while avoiding cars.",
+        "Well Done!"
     ];
 
     const subSteps = [
@@ -27,15 +32,16 @@ export default function GameGuide({ onComplete }) {
         "Press ← (Left Arrow), A or Swipe Left",
         "Press → (Right Arrow), D or Swipe Right",
         "If you hit a car or collect an incorrect letter, you will lose a life.", 
+        "Now you're ready to play Sign Surfers."
     ]
 
-    const handleAction = (action) => {
-        if (step === 1 && action === "jump") setStep(2);
-        else if (step === 2 && action === "left") setStep(3);
-        else if (step === 3 && action === "right") setStep(4);
-    };
-
     useEffect(() => {
+        const handleAction = (action) => {
+            if (step === 1 && action === "jump") setStep(2);
+            else if (step === 2 && action === "left") setStep(3);
+            else if (step === 3 && action === "right") setStep(4);
+        };
+
         const handleKeyDown = (e) => {
         if (step === 0) setStep(1);
         if (e.key === "ArrowUp" || e.key === "w") handleAction("jump");
@@ -80,6 +86,39 @@ export default function GameGuide({ onComplete }) {
             {subSteps[step]}
         </div>
 
+        {step === 4 && (
+            <div style={{
+                position: 'absolute',
+                top: '20%',
+                left: '10%',
+                width: '80%',
+                textAlign: 'center',
+                fontSize: '6vw',
+                fontFamily: 'Lilita One, sans-serif',            
+                color: 'white',
+                zIndex: 100,
+            }}>
+                {currentWord?.split("").map((l, i) => (
+                <span key={i} style={{ 
+                    color: i < letterIndex ? 'yellow' : i === letterIndex ? 'white' : 'grey',
+                    fontSize: i === letterIndex ? '7vw' : '6vw',
+                    transition: 'color 0.2s ease',
+                }}>
+                    {l}
+                </span>
+                ))}
+            </div>
+        )}
+
+        <div style={{ position: 'absolute', top: '1%', right: '1.5%', display: 'flex', flexDirection: 'column', zIndex: 100 }}>
+            <svg width="80" height="80" viewBox="0 0 120 104" style={{ cursor: 'pointer', pointerEvents: 'auto' }} onClick={() => { navigate('/game'); }} >
+                <polygon points="60,0 115,30 115,74 60,104 5,74 5,30" fill="red" transform="translate(60 52) scale(0.85) translate(-60 -52)" stroke='white' strokeWidth={12} />
+                <text x="60" y="54" textAnchor="middle" dominantBaseline="middle" fill="white" fontSize="22" fontWeight="bold" pointerEvents="none">
+                    STOP
+                </text>
+            </svg>
+        </div>
+
         {lifeLost && <LifeLostSign />}
 
         <RunnerPosProvider>
@@ -93,7 +132,7 @@ export default function GameGuide({ onComplete }) {
                         <>
                             <VehicleSpawner onCollision={() => {setLifeLost(true); setTimeout(() => setLifeLost(false), 2500);}} speed={10} />
                             <CoinSpawner onWrongLetter={() => {setLifeLost(true); setTimeout(() => setLifeLost(false), 2500);}} currentWord={"ASL"} letterIndex={letterIndex} setLetterIndex={setLetterIndex}
-                                        pickNewWord={() => {onComplete?.(); }}/>
+                                        pickNewWord={() => {setStep(5); setTimeout(() => navigate('/game'), 2500);}}/>
                         </>
                     )}
             </Suspense>
