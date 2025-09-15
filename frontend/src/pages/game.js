@@ -33,7 +33,7 @@ export function Game() {
     const [carSpeed, setCarSpeed] = useState(10);
     const maxSpeed = 20;
 
-    const [currentWord, setCurrentWord] = useState(wordList[0]);
+    const [currentWord, setCurrentWord] = useState(wordList[Math.floor(Math.random() * wordList.length)]);
     const [letterIndex, setLetterIndex] = useState(0);
     const [wordsCollected, setWordsCollected] = useState(0);
 
@@ -111,7 +111,7 @@ export function Game() {
 
           <div style={{
             position: 'absolute',
-            top: '20px',
+            top: '5%',
             left: '10%',
             width: '80%',
             textAlign: 'center',
@@ -122,7 +122,8 @@ export function Game() {
           }}>
             {currentWord?.split("").map((l, i) => (
               <span key={i} style={{ 
-                color: i === letterIndex ? 'yellow' : 'white', 
+                color: i < letterIndex ? 'yellow' : i === letterIndex ? 'white' : 'grey',
+                fontSize: i === letterIndex ? '7vw' : '6vw',
                 transition: 'color 0.2s ease',
               }}>
                 {l}
