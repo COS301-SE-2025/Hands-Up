@@ -200,6 +200,10 @@ video {
   border: none;
 }
 
+.recognizer-test-button {
+  background-color: #F9C74F;
+}
+
 .recognizer-capture-button,
 .recognizer-record-button 
 {

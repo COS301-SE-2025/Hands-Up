@@ -1,0 +1,63 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.modal-content {
+    font-weight: 500;
+    background: white;
+    padding: 2rem;
+    max-width: 30%;
+    border-color:rgba(0, 255, 20, 0.4);
+    width: 50%;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.video-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+video {
+    width: 100%;
+    transform: scaleX(-1); 
+    display: none;
+    border-radius: 8px;
+    display: block;
+}
+
+.modal-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;  
+    height: 100%; 
+    transform: scaleX(-1);
+    pointer-events: none;
+}
+
+.modal-text {
+  text-shadow: 0 0 8px rgba(0, 255, 0, 0.8),
+               0 0 16px rgba(0, 255, 0, 0.6),
+               0 0 24px rgba(0, 255, 0, 0.4);
+}
+
+.modal-overlay::-webkit-scrollbar {
+    display: none;
+}
+
+.modal-overlay{
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    overflow-y: hidden;
+}
