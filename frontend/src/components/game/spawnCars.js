@@ -3,16 +3,18 @@ import React, { useState, useRef } from 'react';
 import PropTypes from "prop-types";
 import { useFrame, useLoader } from '@react-three/fiber';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-// import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { clone as skeletonClone } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { useRunnerX, useRunnerY } from '../../contexts/game/runnerPosition';
 
 const lanes = [-5, -2, 2, 5];
 const carModels = [
-  'bus.glb', 
-  'taxi.glb',
+  'bakkie.glb',
+  'bmw m3.glb',
+  'bmw m4.glb',
+  'bus.glb',
+  'jeep.glb', 
+  // 'taxi.glb',
   'vw golf gti.glb',
-  'tambi.glb'
 ];
 
 export function VehicleSpawner({ onCollision, speed }) {
@@ -21,17 +23,11 @@ export function VehicleSpawner({ onCollision, speed }) {
 
   const idCounter = useRef(0);
   const lastCollisionTime = useRef(0);
-
-  // const dracoLoader = new DRACOLoader();
-  // dracoLoader.setDecoderPath('/draco/');
-  // dracoLoader.preload();
+  const lastSpawnTime = useRef(0);
 
   const modelPaths = carModels.map((name) => encodeURI(`/models/game_models/${name}`));
   const gltfs = useLoader(GLTFLoader, modelPaths);
-  // const gltfs = useLoader(GLTFLoader, modelPaths, loader => { loader.setDRACOLoader(dracoLoader); });
-  
   const scenes = useRef(gltfs.map((g) => g.scene)).current;
-
   const [vehicles, setVehicles] = useState([]);
 
   useFrame((state, delta) => {
@@ -39,7 +35,8 @@ export function VehicleSpawner({ onCollision, speed }) {
       const next = [...prev];
 
       // spawn new vehicle
-      if (Math.random() < 0.02) {
+      const now = state.clock.elapsedTime;
+      if (now - lastSpawnTime.current > 0.8 && Math.random() < 0.02) {
         const lane = lanes[Math.floor(Math.random() * lanes.length)];
         const modelIndex = Math.floor(Math.random() * scenes.length);
         
@@ -53,6 +50,8 @@ export function VehicleSpawner({ onCollision, speed }) {
           speed: speed,
           object: clone, 
         });
+
+        lastSpawnTime.current = now;
       }
 
       const runnerZ = 50;
