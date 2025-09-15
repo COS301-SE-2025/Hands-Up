@@ -9,7 +9,7 @@ import LifeLostSign from './removeLife';
 import Runner from "./runner";
 import Road from "./road";
 
-export default function GameGuide({ onComplete }) {
+export default function GameGuide() {
     const navigate = useNavigate();
     
     const [step, setStep] = useState(0); 
@@ -43,11 +43,12 @@ export default function GameGuide({ onComplete }) {
         };
 
         const handleKeyDown = (e) => {
-        if (step === 0) setStep(1);
-        if (e.key === "ArrowUp" || e.key === "w") handleAction("jump");
-        if (e.key === "ArrowLeft" || e.key === "a") handleAction("left");
-        if (e.key === "ArrowRight" || e.key === "d") handleAction("right");
+            if (step === 0) setTimeout(() => setStep(1), 500);
+            if (e.key === "ArrowUp" || e.key === "w") setTimeout(() => handleAction("jump"), 500);
+            if (e.key === "ArrowLeft" || e.key === "a") setTimeout(() => handleAction("left"), 500);
+            if (e.key === "ArrowRight" || e.key === "d") setTimeout(() => handleAction("right"), 500);
         };
+
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [step]);
@@ -57,7 +58,6 @@ export default function GameGuide({ onComplete }) {
                       background: `linear-gradient(to bottom, lightblue 0%, deepskyblue 40%, #4CAF50 54%, #2E7D32 100%)`}}>
         <div
             style={{
-            whiteSpace: "pre-line",
             position: "absolute",
             top: "5%",
             width: "100%",
