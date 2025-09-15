@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import {TestSetup} from '../components/testSetup';
 import {useTranslator} from '../hooks/translateResults';
 import {renderMediaPreview} from '../components/mediaPreview';
 import {renderHistoryItem} from '../components/historyItem';
@@ -8,6 +9,7 @@ import '../styles/translator.css';
 export function Translator(){
 
   const [audioProgressWidth] = useState(0);
+  const [lightingTestOpen, setLightingTestOpen] = useState(false);
 
   const {
     videoRef,
@@ -174,6 +176,13 @@ export function Translator(){
                 </div>
               </div>
             </div>
+
+            <button className="recognizer-control-button recognizer-test-button" onClick={() => setLightingTestOpen(true)}>Test Your Environment</button>
+            
+            <TestSetup
+                isOpen={lightingTestOpen}
+                onClose={() => setLightingTestOpen(false)}
+            />
 
             <div className="recognizer-tips">
               <h3 className="recognizer-tips-title">
