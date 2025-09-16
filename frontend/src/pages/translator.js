@@ -32,8 +32,11 @@ export function Translator(){
   const [availableVoices, setAvailableVoices] = useState([]);
 
   useEffect(() => {
-    if (justSignedUp) {
-      setShowTest(true); 
+    const alreadySeenTest = localStorage.getItem("translatorTestSeen");
+
+    if (!alreadySeenTest && justSignedUp) {
+      setShowTest(true);
+      localStorage.setItem("translatorTestSeen", "true"); 
     }
   }, [justSignedUp]);
 
