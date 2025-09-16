@@ -69,7 +69,7 @@ export function useLandmarksDetection(videoRef, canvasRef) {
         lastVideoTime.current = video.currentTime;
 
         const results = landmarkerRef.current.detectForVideo(video, performance.now());
-        // console.log("Landmarks Detection Results:", results);
+        
 
         if (results.landmarks && results.landmarks.length > 0) {
           // handVisisble = true;
