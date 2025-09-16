@@ -54,7 +54,7 @@ export function Signup() {
     const [mounted, setMounted] = useState(false);
     const [termsAccepted, setTermsAccepted] = useState(false);
     const [showTermsModal, setShowTermsModal] = useState(false);
-  
+    const {setJustSignedUp } = useAuth();    
 
     const navigate = useNavigate();
     const { login } = useAuth();
