@@ -72,7 +72,7 @@ export function useTranslator() {
                 return;
             }
 
-            console.log(response)
+            
             setResult(prev => {
                 if (activeModelRef.current === 'alpha') {
                     if (response?.letter === 'SPACE') return prev + ' ';
