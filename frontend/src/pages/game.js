@@ -39,16 +39,6 @@ export function Game() {
     const [letterIndex, setLetterIndex] = useState(0);
     const [wordsCollected, setWordsCollected] = useState(0);
 
-    // function pickNewWord(prevWord) {
-    //   let newWord;
-    //   do {
-    //     newWord = wordList[Math.floor(Math.random() * wordList.length)];
-    //   } while (newWord === prevWord);
-    //   setCurrentWord(newWord);
-    //   setLetterIndex(0);
-    //   setWordsCollected(w => w + 1);
-    // }
-
     function pickNewWord() {
       let remainingWords = wordList.filter(w => !usedWords.has(w));
       if (remainingWords.length === 0) {
@@ -120,10 +110,10 @@ export function Game() {
           {lifeLost && <LifeLostSign />}
 
           <div style={{ position: 'absolute', left: '1%', color: 'yellow', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ padding: '20px 20px 0px', fontSize: '28px', fontWeight: 'bold' }}>
+            <div style={{ padding: '20px 20px 0px', fontSize: '2vw', fontWeight: 'bold' }}>
               Distance: {distance} m
             </div>
-            <div style={{ padding: '0px 20px', fontSize: '28px', fontWeight: 'bold' }}>
+            <div style={{ padding: '0px 20px', fontSize: '2vw', fontWeight: 'bold' }}>
               Lives: {lives}
             </div>
           </div>
