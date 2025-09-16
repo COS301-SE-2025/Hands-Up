@@ -184,19 +184,6 @@ export function useTranslator() {
         sendSequenceToBackend,
     ]);
 
-    const zoomOut = useCallback(async () => {
-        const video = videoRef.current;
-        if (!video || !video.srcObject) return;
-
-        const track = video.srcObject.getVideoTracks()[0];
-        const capabilities = track.getCapabilities();
-
-        if (capabilities.zoom) {
-            const newZoom = capabilities.zoom.min;
-            await track.applyConstraints({ advanced: [{ zoom: newZoom }] });
-        }
-    }, []);
-
     useEffect(() => {
         const canvas = canvasRef1.current;
         const video = videoRef.current;
@@ -282,7 +269,7 @@ export function useTranslator() {
                 videoRefStore.srcObject.getTracks().forEach(track => track.stop());
             }
         };
-    }, [setResult, zoomOut]);
+    }, [setResult]);
 
     return {
         videoRef,
@@ -301,6 +288,5 @@ export function useTranslator() {
         autoCaptureEnabled,
         setAutoCaptureEnabled,
         landmarkFrames,
-        zoomOut,
     };
 }
