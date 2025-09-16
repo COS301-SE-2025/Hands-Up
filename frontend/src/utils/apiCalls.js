@@ -307,7 +307,19 @@ export const uploadUserAvatar = async (userID, formData) => {
     }
 };
 
-
+export const deleteUserAvatar = async (userID) => {
+    
+    try {
+        const response = await fetch(`${API_BASE_URL_USER}/${userID}/avatar`, {
+            method: 'DELETE',
+            credentials: 'include',
+        });
+        return handleApiResponse(response);
+    } catch (error) {
+        console.error("Error in deleteUserAvatar:", error);
+        throw error;
+    }
+};
 
 // Rest of your existing functions remain the same...
 export const getLearningProgress = async (username) => {
