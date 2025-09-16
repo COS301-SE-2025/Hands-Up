@@ -221,12 +221,13 @@ export function Translator(){
 
             <div className="recognizer-support">
               <p className="recognizer-support-text">
-              Need help? 
+              Need help? &nbsp; 
               <a 
                 className="recognizer-support-link" 
                 href="https://mail.google.com/mail/?view=cm&fs=1&to=tmkdt.cos301@gmail.com&su=Support%20Request&body=Hi%20Support%20Team,%0D%0A%0D%0AI%20need%20help%20with%20..." 
                 target="_blank" 
                 rel="noopener noreferrer"
+                style={{ textDecoration: 'none' }}
               >
                 Contact Support
               </a>
