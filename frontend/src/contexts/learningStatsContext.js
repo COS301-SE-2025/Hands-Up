@@ -31,39 +31,34 @@ function LearningStatsProvider({ children }) {
     }, [username]);
 
     useEffect(() => {
-        console.log('LearningStatsContext useEffect triggered:', { 
-            authLoading, 
-            isLoggedIn, 
-            username, 
-            hasFetchedStats: hasFetchedStats.current 
-        });
+       
 
         if (authLoading) {
-            console.log('Auth is still loading, waiting...');
+            
             return;
         }
 
         if (!isLoggedIn) {
-            console.log('User is logged out. Resetting stats to defaults.');
+            
             setStats(DEFAULT_STATS);
             return;
         }
 
         if (!username) {
-            console.log('User is logged in but username not available yet, waiting...');
+           
             return;
         }
         
         if (!hasFetchedStats.current) {
             const loadStats = async () => {
-                console.log(`Loading persistent stats for user: ${username}`);
+                
                 try {
                     const progress = await getLearningProgress(username);
-                    console.log('Raw progress data from API:', progress);
+                   
 
                     if (progress?.data?.[0]) {
                         const fetchedData = progress.data[0];
-                        console.log('Fetched persistent stats:', fetchedData);
+                        
 
                         setStats({
                             lessonsCompleted: fetchedData.lessonsCompleted || 0,
@@ -75,13 +70,13 @@ function LearningStatsProvider({ children }) {
                             unlockedCategories: fetchedData.unlockedCategories || ['alphabets'],
                         });
                     } else {
-                        console.log('No learning progress found in DB. Using defaults.');
+                        
                         setStats(DEFAULT_STATS);
                     }
                     
                     hasFetchedStats.current = true;
                 } catch (error) {
-                    console.error("Failed to load learning stats:", error);
+                    
                     setStats(DEFAULT_STATS);
                 }
             };
@@ -102,7 +97,7 @@ function LearningStatsProvider({ children }) {
         };
 
         setStats(newStats);
-        console.log('Optimistically updated stats:', newStats);
+        
 
         try {
             const response = await updateLearningProgress(username, newStats);
