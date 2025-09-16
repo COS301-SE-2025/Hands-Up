@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useLearningStats } from '../contexts/learningStatsContext';
 import { AngieSigns } from '../components/angieSigns';
 import { Canvas } from '@react-three/fiber';
@@ -97,8 +97,10 @@ async function getLandmarks(item) {
 
 export function SignQuiz() {
     const navigate = useNavigate();
-    const { category } = useParams();
+    const location = useLocation();
     const { updateStats, stats } = useLearningStats();
+    const category = location.state?.category || new URLSearchParams(location.search).get('category') || 'alphabets';
+    const isPhrasesQuiz = category === 'phrases';
 
     const [quizQuestions, setQuizQuestions] = useState([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -115,7 +117,6 @@ export function SignQuiz() {
     
     const timeoutRef = useRef(null);
     const currentCategoryData = CATEGORIES[category] || CATEGORIES['alphabets'];
-    const isPhrasesQuiz = category === 'phrases';
 
     const generateQuizQuestions = useCallback(() => {
         if (isPhrasesQuiz) {
@@ -364,11 +365,7 @@ export function SignQuiz() {
         fontWeight: 'bold',
         cursor: 'pointer',
         boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-        transition: 'all 0.3s ease',
-        '&:hover': {
-            backgroundColor: '#218838',
-            transform: 'translateY(-2px)'
-        }
+        transition: 'all 0.3s ease'
     };
 
     if (loading) {
