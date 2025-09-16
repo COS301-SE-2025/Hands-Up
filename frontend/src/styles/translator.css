@@ -201,7 +201,11 @@ video {
 }
 
 .recognizer-test-button {
-  background-color: #F9C74F;
+  background-color: var(--light-yellow);
+}
+
+.recognizer-test-button:hover {
+  background-color: var(--dark-yellow);
 }
 
 .recognizer-capture-button,

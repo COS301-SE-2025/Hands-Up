@@ -8,9 +8,20 @@ export function TestSetup({ isOpen, onClose }) {
   const landmarkerRef = useRef(null);
 
   const [brightness, setBrightness] = useState(0);
-  const [detectionStatus, setDetectionStatus] = useState('Checking lighting...');
-  const [stage, setStage] = useState('lighting');
+  const [detectionStatus, setDetectionStatus] = useState('Press start to begin the test');
+  const [stage, setStage] = useState('start');
   const timeoutRef = useRef(null);
+
+  const updateStatus = (newStatus) => {
+    setDetectionStatus((prev) => (prev === newStatus ? prev : newStatus));
+  };
+
+  const handleOverlayClick = (e) => {
+    if (e.target.classList.contains("modal-overlay")) {
+      onClose();
+      setStage("start");
+    }
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -35,7 +46,7 @@ export function TestSetup({ isOpen, onClose }) {
   }, [isOpen]);
 
   useEffect(() => {
-    if (!isOpen || stage !== 'landmarks') return;
+    if (!isOpen || (stage !== 'hands' && stage !== 'peace')) return;
 
     const loadLandmarker = async () => {
       const vision = await FilesetResolver.forVisionTasks(
@@ -61,6 +72,22 @@ export function TestSetup({ isOpen, onClose }) {
     loadLandmarker();
   }, [isOpen, stage]);
 
+  const isPeaceSign = (hand) => {
+    if (!hand) return false;
+
+    const [indexTip, indexMcp] = [hand[8], hand[5]];
+    const [middleTip, middleMcp] = [hand[12], hand[9]];
+    const [ringTip, ringMcp] = [hand[16], hand[13]];
+    const [pinkyTip, pinkyMcp] = [hand[20], hand[17]];
+
+    const indexExtended = indexTip.y < indexMcp.y;
+    const middleExtended = middleTip.y < middleMcp.y;
+    const ringExtended = ringTip.y < ringMcp.y;
+    const pinkyExtended = pinkyTip.y < pinkyMcp.y;
+
+    return indexExtended && middleExtended && !ringExtended && !pinkyExtended;
+  };
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -82,48 +109,47 @@ export function TestSetup({ isOpen, onClose }) {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
       if (stage === 'lighting') {
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
+        const faceRegion = ctx.getImageData(
+          canvas.width * 0.3,
+          canvas.height * 0.2,
+          canvas.width * 0.4,
+          canvas.height * 0.3
+        );
+        const data = faceRegion.data;
         let total = 0;
         for (let i = 0; i < data.length; i += 4) {
           total += (data[i] + data[i + 1] + data[i + 2]) / 3;
         }
         const currentBrightness = total / (data.length / 4);
-        setBrightness(currentBrightness); 
+        setBrightness(currentBrightness);
 
         if (currentBrightness >= 80 && currentBrightness <= 200) {
-          setDetectionStatus('Lighting is good');
+          updateStatus('Lighting is good');
           if (!timeoutRef.current) {
             timeoutRef.current = setTimeout(() => {
-              setStage('landmarks');
-              setDetectionStatus('Hold up your hands');
+              setStage('hands');
+              updateStatus('Hold up your hands');
               timeoutRef.current = null;
             }, 1000);
           }
-        } else if (currentBrightness < 80) { 
-          setDetectionStatus('Move to better lighting');
-          if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-            timeoutRef.current = null;
-          }
-        } else { 
-          setDetectionStatus('Too bright, move to a dimmer area');
-          if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-            timeoutRef.current = null;
-          }
+        } else if (currentBrightness < 80) {
+          updateStatus('Too dark, move to better lighting');
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        } else {
+          updateStatus('Too bright, move to a dimmer area');
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
         }
-      } else if (stage === 'landmarks') {
-        if (!landmarker) {
-          animationFrameId = requestAnimationFrame(detectFrame);
-          return;
-        }
+      }
 
+      if ((stage === 'hands' || stage === 'peace') && landmarker) {
         const results = await landmarker.detectForVideo(video, performance.now());
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
         if (results.landmarks?.length > 0) {
-          setDetectionStatus("Hands detectable. You're all set.");
           for (const hand of results.landmarks) {
             ctx.fillStyle = 'green';
             for (const lm of hand) {
@@ -132,8 +158,34 @@ export function TestSetup({ isOpen, onClose }) {
               ctx.fill();
             }
           }
+
+          if (stage === 'hands') {
+            updateStatus("Hands detected");
+            if (!timeoutRef.current) {
+              timeoutRef.current = setTimeout(() => {
+                setStage('peace');
+                updateStatus('Now show a peace sign');
+                timeoutRef.current = null;
+              }, 500);
+            }
+          } else if (stage === 'peace') {
+            if (results.landmarks.some(isPeaceSign)) {
+              if (!timeoutRef.current) {
+                timeoutRef.current = setTimeout(() => {
+                  updateStatus("Peace sign detected");
+                  timeoutRef.current = null;
+                }, 500);
+              }
+              setStage('done');
+              updateStatus("All tests passed!");
+            } else {
+              updateStatus("Show a peace sign");
+            }
+          }
         } else {
-          setDetectionStatus('Hold up your hands');
+          updateStatus('Hold up your hands');
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
         }
       }
 
@@ -151,26 +203,61 @@ export function TestSetup({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <h3>Test Setup</h3>
-        <p>Ensure that your face is visible.</p>
-        <br></br>
+    <div className="modal-overlay" onClick={handleOverlayClick}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <h3 style={{ color: 'black' }}>Test Setup</h3>
+        <p style={{ color: 'black' }}>Follow the steps below</p>
+        <br />
         <div className="video-container">
           <video ref={videoRef} autoPlay muted playsInline />
-          <canvas className="modal-canvas" ref={canvasRef} />
+          <canvas className="modal-canvas bordered-canvas" ref={canvasRef} />
         </div>
         <br></br>
-        <p className="modal-text">{detectionStatus}</p>
-        <br></br>
-        <button
-          onClick={() => {
-            onClose();
-            setStage('lighting');
-          }}
-          className="recognizer-control-button recognizer-test-button">
-          Close
-        </button>
+        <p className={`modal-text stage-${stage}`}>{detectionStatus}</p>
+        <br />
+        {stage === 'start' && (
+          <button
+            onClick={() => {
+              if (!timeoutRef.current) {
+                timeoutRef.current = setTimeout(() => {
+                  setStage("lighting");
+                  updateStatus("Checking lighting...");
+                  timeoutRef.current = null;
+                }, 1500);
+              }
+            }}
+            className="recognizer-control-button recognizer-test-button stage-complete"
+          >
+            Start
+          </button>
+        )}
+
+        {stage === 'done' ? (
+          <button
+            onClick={() => {
+              onClose();
+              setStage('start');
+              updateStatus('Press start to begin.');
+            }}
+            className="recognizer-control-button recognizer-test-button stage-complete"
+          >
+            Continue To Translate
+          </button>
+        ) : (
+          stage !== 'start' && (
+            <button
+              onClick={() => {
+                onClose();
+                setStage('start');
+                updateStatus('Press start to begin.');
+
+              }}
+              className="recognizer-control-button recognizer-test-button"
+            >
+              Close
+            </button>
+          )
+        )}
       </div>
     </div>
   );

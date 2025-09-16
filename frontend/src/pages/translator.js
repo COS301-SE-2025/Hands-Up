@@ -2,14 +2,15 @@ import React, { useState, useEffect } from 'react';
 import {TestSetup} from '../components/testSetup';
 import {useTranslator} from '../hooks/translateResults';
 import {renderMediaPreview} from '../components/mediaPreview';
-import {renderHistoryItem} from '../components/historyItem';
 import { useLandmarksDetection } from '../hooks/landmarksDetection';
+import { useAuth } from '../contexts/authContext.js';
 import '../styles/translator.css';
 
 export function Translator(){
 
   const [audioProgressWidth] = useState(0);
-  const [lightingTestOpen, setLightingTestOpen] = useState(false);
+  const { justSignedUp } = useAuth();
+  const [showTest, setShowTest] = useState(false);
 
   const {
     videoRef,
@@ -20,7 +21,6 @@ export function Translator(){
     recording,
     capturedImage,
     capturedType,
-    captureHistory,
     capturedBlob,
     startRecording,
     setResult,
@@ -30,6 +30,12 @@ export function Translator(){
 
   const speakDisabled = result === "";
   const [availableVoices, setAvailableVoices] = useState([]);
+
+  useEffect(() => {
+    if (justSignedUp) {
+      setShowTest(true); 
+    }
+  }, [justSignedUp]);
 
   useEffect(() => {
     const loadVoices = () => {
@@ -177,11 +183,11 @@ export function Translator(){
               </div>
             </div>
 
-            <button className="recognizer-control-button recognizer-test-button" onClick={() => setLightingTestOpen(true)}>Test Your Environment</button>
-            
+            <button className="recognizer-control-button recognizer-test-button" onClick={() => setShowTest(true)}>Test Your Environment</button>
+
             <TestSetup
-                isOpen={lightingTestOpen}
-                onClose={() => setLightingTestOpen(false)}
+              isOpen={showTest}
+              onClose={() => setShowTest(false)}
             />
 
             <div className="recognizer-tips">
