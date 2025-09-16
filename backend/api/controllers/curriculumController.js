@@ -6,13 +6,14 @@ import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-console.log('CurriculumController loaded, __dirname:', __dirname);
+const LANDMARKS_DIR = path.join(__dirname, '../data/curriculum/landmarks');
+console.log('CurriculumController loaded, looking for landmarks in:', LANDMARKS_DIR);
 
 class CurriculumController {
+
   static async getLandmarks(req, res) {
     try {
       const { letter } = req.params;
-      
       if (!letter) {
         return res.status(400).json({
           success: false,
@@ -20,113 +21,60 @@ class CurriculumController {
         });
       }
 
-      console.log(`Looking for landmarks for: "${letter}"`);
-      
+      if (!fs.existsSync(LANDMARKS_DIR)) {
+        return res.status(404).json({
+          success: false,
+          message: 'Landmarks directory not found',
+          checkedPath: LANDMARKS_DIR
+        });
+      }
+
       const possibleFilenames = [
         `${letter.toLowerCase()}.json`,
         `${letter.toUpperCase()}.json`,
         `${letter}.json`
       ];
 
-     
-      const landmarksDir = path.join(__dirname, '../data/landmarks');
-      console.log('Landmarks directory:', landmarksDir);
-      
-      if (!fs.existsSync(landmarksDir)) {
-        console.error('Landmarks directory does not exist:', landmarksDir);
-        
-        const alternativePaths = [
-          path.join(__dirname, '../data/curriculum/landmarks'),
-          path.join(__dirname, '../../data/landmarks'),
-          path.join(__dirname, '../../api/data/landmarks')
-        ];
-        
-        let foundPath = null;
-        for (const altPath of alternativePaths) {
-          if (fs.existsSync(altPath)) {
-            foundPath = altPath;
-            console.log('Found alternative landmarks directory:', foundPath);
-            break;
-          }
-        }
-        
-        if (!foundPath) {
-          return res.status(404).json({
-            success: false,
-            message: 'Landmarks directory not found in any expected location',
-            checkedPaths: [landmarksDir, ...alternativePaths]
-          });
-        }
-        
-        const finalLandmarksDir = foundPath;
-      }
-
-      const finalLandmarksDir = fs.existsSync(landmarksDir) ? landmarksDir : 
-        path.join(__dirname, '../data/curriculum/landmarks');
-
       let landmarkData = null;
       let foundFilename = null;
 
       for (const filename of possibleFilenames) {
-        const filePath = path.join(finalLandmarksDir, filename);
-        console.log(`Checking for file: ${filePath}`);
-        
+        const filePath = path.join(LANDMARKS_DIR, filename);
         if (fs.existsSync(filePath)) {
           try {
-            const fileContent = fs.readFileSync(filePath, 'utf8');
-            landmarkData = JSON.parse(fileContent);
+            landmarkData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
             foundFilename = filename;
-            console.log(`Found landmarks in: ${filename}`);
-            console.log('Landmark data type:', typeof landmarkData);
-            console.log('Is array:', Array.isArray(landmarkData));
-            console.log('Data keys:', Object.keys(landmarkData || {}));
             break;
-          } catch (parseError) {
-            console.error(`Error parsing JSON from ${filename}:`, parseError);
-            continue;
+          } catch (err) {
+            console.error('Error parsing JSON:', err);
           }
         }
       }
 
       if (!landmarkData) {
-        try {
-          const availableFiles = fs.readdirSync(finalLandmarksDir).filter(file => file.endsWith('.json'));
-          console.log('Available JSON files:', availableFiles);
-          
-          return res.status(404).json({
-            success: false,
-            message: `No landmarks found for "${letter}". Available files: ${availableFiles.join(', ')}`,
-            availableFiles: availableFiles,
-            searchedPath: finalLandmarksDir,
-            searchedFilenames: possibleFilenames
-          });
-        } catch (readError) {
-          return res.status(404).json({
-            success: false,
-            message: `No landmarks found for "${letter}" and couldn't read directory`,
-            searchedPath: finalLandmarksDir,
-            error: readError.message
-          });
-        }
+        const availableFiles = fs.existsSync(LANDMARKS_DIR) 
+          ? fs.readdirSync(LANDMARKS_DIR).filter(f => f.endsWith('.json')) 
+          : [];
+        return res.status(404).json({
+          success: false,
+          message: `No landmarks found for "${letter}". Available files: ${availableFiles.join(', ')}`,
+          availableFiles
+        });
       }
-      console.log('Returning landmark data structure:', {
-        type: typeof landmarkData,
-        isArray: Array.isArray(landmarkData),
-        hasFrames: landmarkData && landmarkData.frames ? landmarkData.frames.length : 'no frames property',
-        keys: Object.keys(landmarkData || {})
-      });
 
       res.json({
         success: true,
-        letter: letter,
+        letter,
         filename: foundFilename,
         landmarks: landmarkData,
-        count: Array.isArray(landmarkData) ? landmarkData.length : 
-               (landmarkData && landmarkData.frames ? landmarkData.frames.length : 1)
+        count: Array.isArray(landmarkData) 
+          ? landmarkData.length 
+          : (landmarkData.frames ? landmarkData.frames.length : 1),
+        directory: LANDMARKS_DIR
       });
 
     } catch (error) {
-      console.error('Error getting landmarks:', error);
+      console.error('Error in getLandmarks:', error);
       res.status(500).json({
         success: false,
         message: 'Internal server error while fetching landmarks',
@@ -135,43 +83,65 @@ class CurriculumController {
     }
   }
 
-  static async getCurriculumStructure(req, res) {
+  static async listLandmarks(req, res) {
     try {
-      const possiblePaths = [
-        path.join(__dirname, '../data/landmarks'),
-        path.join(__dirname, '../data/curriculum/landmarks'),
-        path.join(__dirname, '../../data/landmarks'),
-        path.join(__dirname, '../../api/data/landmarks')
-      ];
-      
-      let landmarksDir = null;
-      
-      for (const possiblePath of possiblePaths) {
-        if (fs.existsSync(possiblePath)) {
-          landmarksDir = possiblePath;
-          break;
-        }
-      }
-      
-      if (!landmarksDir) {
+      if (!fs.existsSync(LANDMARKS_DIR)) {
         return res.status(404).json({
           success: false,
           message: 'Landmarks directory not found',
-          checkedPaths: possiblePaths
+          checkedPath: LANDMARKS_DIR
         });
       }
 
-      const files = fs.readdirSync(landmarksDir);
-      const jsonFiles = files.filter(file => file.endsWith('.json'));
-      
-      const availableItems = jsonFiles.map(file => path.parse(file).name);
+      const files = fs.readdirSync(LANDMARKS_DIR)
+        .filter(f => f.endsWith('.json'))
+        .map(file => {
+          const stats = fs.statSync(path.join(LANDMARKS_DIR, file));
+          return {
+            name: path.parse(file).name,
+            filename: file,
+            size: stats.size,
+            modified: stats.mtime
+          };
+        })
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+      res.json({
+        success: true,
+        total: files.length,
+        landmarks: files,
+        directory: LANDMARKS_DIR
+      });
+
+    } catch (error) {
+      console.error('Error listing landmarks:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error listing landmarks',
+        error: error.message
+      });
+    }
+  }
+
+  static async getCurriculumStructure(req, res) {
+    try {
+      if (!fs.existsSync(LANDMARKS_DIR)) {
+        return res.status(404).json({
+          success: false,
+          message: 'Landmarks directory not found',
+          checkedPath: LANDMARKS_DIR
+        });
+      }
+
+      const jsonFiles = fs.readdirSync(LANDMARKS_DIR).filter(f => f.endsWith('.json'));
+      const landmarks = jsonFiles.map(f => path.parse(f).name).sort();
 
       res.json({
         success: true,
         structure: {
-          landmarks: availableItems.sort(),
-          total: availableItems.length,
-          directory: landmarksDir
+          landmarks,
+          total: landmarks.length,
+          directory: LANDMARKS_DIR
         }
       });
 
@@ -187,23 +157,19 @@ class CurriculumController {
 
   static async healthCheck(req, res) {
     try {
-      const possiblePaths = [
-        path.join(__dirname, '../data/landmarks'),
-        path.join(__dirname, '../data/curriculum/landmarks'),
-        path.join(__dirname, '../../data/landmarks'),
-        path.join(__dirname, '../../api/data/landmarks')
-      ];
-      
-      const existingPaths = possiblePaths.filter(p => fs.existsSync(p));
-      
+      const exists = fs.existsSync(LANDMARKS_DIR);
+      const files = exists ? fs.readdirSync(LANDMARKS_DIR).filter(f => f.endsWith('.json')) : [];
       res.json({
         success: true,
         message: 'Curriculum API is working',
-        checkedPaths: possiblePaths,
-        existingPaths: existingPaths,
-        landmarksDirExists: existingPaths.length > 0
+        timestamp: new Date().toISOString(),
+        landmarksDir: LANDMARKS_DIR,
+        exists,
+        landmarkFilesFound: files.length,
+        files
       });
     } catch (error) {
+      console.error('Health check error:', error);
       res.status(500).json({
         success: false,
         message: 'Health check failed',
@@ -211,6 +177,7 @@ class CurriculumController {
       });
     }
   }
+
 }
 
 export default CurriculumController;
