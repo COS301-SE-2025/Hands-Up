@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 import path from 'path'; 
 import fs from 'fs/promises';
+import { sendRegistrationEmail } from './emailService.js';
 
 const activeSessions = new Map();
 const resetTokens = new Map();
@@ -143,6 +144,14 @@ export const signUpUser = async (req, res) => {
         );
 
         await pool.query('COMMIT');
+
+        try {
+            await sendRegistrationEmail(email, username);
+            console.log(`Registration email sent to ${email}`);
+        } catch (emailErr) {
+            console.error('Failed to send registration email:', emailErr);
+            // Don't return an error here; the user is already registered
+        }
 
         res.status(200).json({
             success: true,
