@@ -3,6 +3,7 @@ import React, { useState, useRef } from 'react';
 import { useFrame, useLoader } from '@react-three/fiber';
 import { useRunnerX } from '../../contexts/game/runnerPosition';
 import * as THREE from 'three';
+import PropTypes from 'prop-types';
 
 const lanes = [-5, -2, 2, 5];
 const coinImages = [
@@ -132,3 +133,11 @@ export function CoinSpawner({ onWrongLetter, currentWord, letterIndex, setLetter
         </>
     );
 }
+
+CoinSpawner.propTypes = {
+  onWrongLetter: PropTypes.func,
+  currentWord: PropTypes.string.isRequired,
+  letterIndex: PropTypes.number.isRequired,
+  setLetterIndex: PropTypes.func.isRequired,
+  pickNewWord: PropTypes.func.isRequired,
+};

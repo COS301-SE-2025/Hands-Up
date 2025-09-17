@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useThree } from '@react-three/fiber';
+import PropTypes from 'prop-types';
 
 export default function CameraPOV({
   laptopPos = [0, 5, 58],
@@ -34,3 +35,21 @@ export default function CameraPOV({
 
   return null;
 }
+
+CameraPOV.propTypes = {
+  laptopPos: PropTypes.arrayOf(PropTypes.number),
+  mobilePos: PropTypes.arrayOf(PropTypes.number),
+  laptopRot: PropTypes.arrayOf(PropTypes.number),
+  mobileRot: PropTypes.arrayOf(PropTypes.number),
+  fovLaptop: PropTypes.number,
+  fovMobile: PropTypes.number,
+};
+
+CameraPOV.defaultProps = {
+  laptopPos: [0, 5, 58],
+  mobilePos: [0, 6, 50],
+  laptopRot: [-0.2, 0, 0],
+  mobileRot: [-0.25, 0, 0],
+  fovLaptop: 50,
+  fovMobile: 60,
+};
