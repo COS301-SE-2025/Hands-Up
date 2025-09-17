@@ -3,10 +3,15 @@ import React, { createContext, useState, useContext } from 'react';
 const DexterityContext = createContext();
 
 export function DexterityProvider({ children }) {
-    const [dexterity, setDexterity] = useState('right'); 
+    
+    const [dexterity, setDexterity] = useState(() => {
+        return localStorage.getItem('dexterity') || 'right';
+    });
+
 
     const toggleDexterity = () => {
         setDexterity(prev => (prev === 'right' ? 'left' : 'right'));
+        localStorage.setItem('dexterity', dexterity === 'right' ? 'left' : 'right');
     };
 
     return (

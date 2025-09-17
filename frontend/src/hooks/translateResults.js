@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { processLetters, processWords, produceSentence} from '../utils/apiCalls';
 import { useModelSwitch } from '../contexts/modelContext';
+import { useDexterity } from '../contexts/dexterityContext';
 import { v4 as uuidv4 } from 'uuid';
 
 export function useTranslator() {
@@ -22,6 +23,15 @@ export function useTranslator() {
     const [isSwitching, setIsSwitching] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [sequenceNum, setSequenceNum] = useState(90);
+    const [flipEnabled, setFlipEnabled] = useState(true); // toggle for flipping
+    const offscreenCanvasRef = useRef(null);
+    const { dexterity } = useDexterity();
+
+    console.log("Current dexterity from context:", dexterity);
+
+    useEffect(() => {
+        offscreenCanvasRef.current = document.createElement("canvas");
+    }, []);
 
     const convertGloss = async () => {
 
@@ -51,14 +61,14 @@ export function useTranslator() {
                 ctx.fillText('ENGLISH NOT AVAILABLE...', canvas.width / 2, canvas.height / 2);
             }
 
-            try {
-                const translation = await produceSentence(result);
-                if (translation) {
-                    setResult(translation.translation);
-                }
-            } catch (err) {
-                console.error("Error producing sentence:", err);
-            }
+            // try {
+            //     const translation = await produceSentence(result);
+            //     if (translation) {
+            //         setResult(translation.translation);
+            //     }
+            // } catch (err) {
+            //     console.error("Error producing sentence:", err);
+            // }
         }
     }
 
@@ -143,8 +153,45 @@ export function useTranslator() {
         const canvas = canvasRef1.current;
         const currentModel = activeModelRef.current;
         const requiredFrames = currentModel === 'glosses' ? 90 : 20;
+        const offscreenCanvas = offscreenCanvasRef.current;
 
         if (video && canvas) {
+
+            offscreenCanvas.width = video.videoWidth;
+            offscreenCanvas.height = video.videoHeight;
+            const ctx = offscreenCanvas.getContext("2d");
+
+            if (dexterity === 'left') {
+                ctx.translate(offscreenCanvas.width, 0);
+                ctx.scale(-1, 1);
+            }
+
+            ctx.drawImage(video, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
+            ctx.setTransform(1, 0, 0, 1, 0, 0); 
+
+            if(dexterity === 'left') {
+
+                offscreenCanvas.toBlob(async (blob) => {
+                    if (!blob) {
+                        console.error("Canvas toBlob failed to create a blob.");
+                        return;
+                    }
+
+                    setLandmarkFrames(prevFrames => {
+                    const updated = [...prevFrames, blob];
+
+                    if (updated.length === requiredFrames) {
+                        sendSequenceToBackend(updated);
+                        setLandmarkFrames([]);
+                        // stopRecording();
+                        return [];
+                    }
+
+                    return updated;
+                });
+                
+                }, 'image/jpeg', 0.8);
+            } 
 
             canvas.toBlob(async (blob) => {
                 if (!blob) {
@@ -160,19 +207,22 @@ export function useTranslator() {
                     ...prev.slice(0, 4)
                 ]);
 
-                setLandmarkFrames(prevFrames => {
-                    const updated = [...prevFrames, blob];
+                if(dexterity === 'right') {
 
-                    if (updated.length === requiredFrames) {
-                        sendSequenceToBackend(updated);
-                        setLandmarkFrames([]);
-                        // stopRecording();
-                        return [];
-                    }
+                    setLandmarkFrames(prevFrames => {
+                        const updated = [...prevFrames, blob];
 
-                    return updated;
-                });
-               
+                        if (updated.length === requiredFrames) {
+                            sendSequenceToBackend(updated);
+                            setLandmarkFrames([]);
+                            // stopRecording();
+                            return [];
+                        }
+
+                        return updated;
+                    });
+                }
+            
             }, 'image/jpeg', 0.8);
         }
     }, [
