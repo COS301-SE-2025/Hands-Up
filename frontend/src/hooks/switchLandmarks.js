@@ -62,10 +62,14 @@ export function useSwitchLandmarks(videoRef, canvasRef) {
 
         canvas.width = video.videoWidth*0.55;
 <<<<<<< HEAD
+<<<<<<< HEAD
         canvas.height = video.videoHeight*0.8;
 =======
         canvas.height = video.videoHeight*0.5;
 >>>>>>> a4d9a9851 (resized camera)
+=======
+        canvas.height = video.videoHeight*0.8;
+>>>>>>> edb832b75 (translate canvas update)
 
         let text = modelState.model==='alpha'?'Alphabet':modelState.model==='num'?'Numbers': 'Glosses';
         drawDisplay(canvas, text);
