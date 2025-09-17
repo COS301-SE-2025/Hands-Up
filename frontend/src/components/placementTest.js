@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Canvas } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
 import { AngieSigns } from './angieSigns';
+import { getLandmarks } from '../utils/apiCalls';
 import '../styles/learn.css';
-
-
-const landmarks = {};
 
 const PlacementTest = ({ onComplete, onSkip }) => {
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [answers, setAnswers] = useState([]);
     const [showResults, setShowResults] = useState(false);
     const [testCompleted, setTestCompleted] = useState(false);
+    const [landmarks, setLandmarks] = useState({});
+    const [replayKey, setReplayKey] = useState(0);
+    const [loading, setLoading] = useState(false);
 
     const placementQuestions = [
         {
@@ -105,28 +107,61 @@ const PlacementTest = ({ onComplete, onSkip }) => {
         }
     ];
 
+    const loadAnimationLandmarks = useCallback(async (questionSign) => {
+        try {
+            setLoading(true);
+            console.log('Loading animation for sign:', questionSign);
+            const data = await getLandmarks(questionSign);
+            
+            if (!data || data.length === 0) {
+                console.warn('No landmarks found for:', questionSign);
+                setLandmarks({});
+            } else {
+                setLandmarks(data);
+            }
+            setReplayKey(prev => prev + 1);
+        } catch (error) {
+            console.error('Failed to load landmarks:', error);
+            setLandmarks({});
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (currentQuestion < placementQuestions.length) {
+            const currentQ = placementQuestions[currentQuestion];
+            loadAnimationLandmarks(currentQ.sign.toLowerCase());
+        }
+    }, [currentQuestion, loadAnimationLandmarks]);
+
+    const handleReplay = () => {
+        setReplayKey(prev => prev + 1);
+    };
+
     const handleAnswer = (selectedAnswer) => {
         const currentQ = placementQuestions[currentQuestion];
         const isCorrect = selectedAnswer === currentQ.correct;
         
-        setAnswers([...answers, {
+        const newAnswers = [...answers, {
             questionId: currentQ.id,
             correct: isCorrect,
             level: currentQ.level,
             category: currentQ.category
-        }]);
+        }];
+        
+        setAnswers(newAnswers);
 
         if (currentQuestion < placementQuestions.length - 1) {
             setCurrentQuestion(currentQuestion + 1);
         } else {
             setShowResults(true);
-            calculatePlacement();
+            calculatePlacement(newAnswers);
         }
     };
 
-    const calculatePlacement = () => {
-        const correctAnswers = answers.filter(a => a.correct).length + 
-                              (placementQuestions[currentQuestion].options.includes(placementQuestions[currentQuestion].correct) ? 1 : 0);
+    const calculatePlacement = (finalAnswers) => {
+        const correctAnswers = finalAnswers.filter(a => a.correct).length;
         const totalQuestions = placementQuestions.length;
         const percentage = (correctAnswers / totalQuestions) * 100;
 
@@ -174,13 +209,13 @@ const PlacementTest = ({ onComplete, onSkip }) => {
     };
 
     if (showResults) {
-        const correctCount = answers.filter(a => a.correct).length + 1; 
+        const correctCount = answers.filter(a => a.correct).length;
         const percentage = Math.round((correctCount / placementQuestions.length) * 100);
 
         return (
-            <div className="placement-test-container fixed inset-0 bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center z-50">
-                <div className="placement-test-card bg-white rounded-3xl shadow-2xl p-8 max-w-2xl mx-4 text-center">
-                    <div className="w-32 h-32 rounded-2xl bg-white shadow-lg mb-6 mx-auto flex items-center justify-center">
+            <div className="placement-test-overlay">
+                <div className="results-card">
+                    <div className="angie-avatar-container">
                         <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
                             <ambientLight intensity={5} />
                             <group position={[0, -1.1, 0]}>
@@ -189,29 +224,29 @@ const PlacementTest = ({ onComplete, onSkip }) => {
                         </Canvas>
                     </div>
 
-                    <h2 className="text-3xl font-bold text-gray-800 mb-4">
-                        Placement Test Complete!
-                    </h2>
+                    <div className="results-content">
+                        <h2 className="results-title">Placement Test Complete!</h2>
 
-                    <div className="results-summary mb-6">
-                        <div className="score-circle mx-auto mb-4 w-24 h-24 rounded-full bg-gradient-to-r from-green-400 to-blue-500 flex items-center justify-center">
-                            <span className="text-2xl font-bold text-white">{percentage}%</span>
+                        <div className="score-display">
+                            <div className="score-circle">
+                                <span className="score-percentage">{percentage}%</span>
+                            </div>
+                            
+                            <div className="score-details">
+                                <p className="score-text">
+                                    You got {correctCount} out of {placementQuestions.length} questions correct!
+                                </p>
+                                
+                                <p className="analysis-text">
+                                    Analyzing your results to customize your learning experience...
+                                </p>
+                            </div>
                         </div>
-                        
-                        <p className="text-lg text-gray-600 mb-2">
-                            You got {correctCount} out of {placementQuestions.length} questions correct!
-                        </p>
-                        
-                        <p className="text-gray-500">
-                            Analyzing your results to customize your learning experience...
-                        </p>
-                    </div>
 
-                    <div className="loading-animation">
-                        <div className="flex justify-center space-x-2">
-                            <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
-                            <div className="w-3 h-3 bg-purple-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                            <div className="w-3 h-3 bg-pink-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                        <div className="loading-dots">
+                            <div className="dot dot-1"></div>
+                            <div className="dot dot-2"></div>
+                            <div className="dot dot-3"></div>
                         </div>
                     </div>
                 </div>
@@ -223,63 +258,100 @@ const PlacementTest = ({ onComplete, onSkip }) => {
     const progress = ((currentQuestion + 1) / placementQuestions.length) * 100;
 
     return (
-        <div className="placement-test-container fixed inset-0 bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center z-50">
-            <div className="placement-test-card bg-white rounded-3xl shadow-2xl p-8 max-w-2xl mx-4">
-                {/* Header */}
-                <div className="test-header mb-8 text-center">
-                    <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                        Sign Language Placement Test
-                    </h1>
-                    <p className="text-gray-600 mb-4">
+        <div className="placement-test-overlay">
+            <div className="test-card">
+                {/* Header Section */}
+                <div className="test-header">
+                    <h1 className="test-title">Sign Language Placement Test</h1>
+                    <p className="test-description">
                         Let's see what you already know to customize your learning journey!
                     </p>
                     
-                    {/* Progress bar */}
-                    <div className="progress-bar w-full bg-gray-200 rounded-full h-3 mb-4">
-                        <div 
-                            className="progress-fill bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-300"
-                            style={{ width: `${progress}%` }}
-                        ></div>
+                    <div className="PTprogress-section">
+                        <div className="PTprogress-bar">
+                            <div 
+                                className="PTprogress-fill"
+                                style={{ width: `${progress}%` }}
+                            ></div>
+                        </div>
+                        <span className="progress-text">
+                            Question {currentQuestion + 1} of {placementQuestions.length}
+                        </span>
                     </div>
-                    
-                    <span className="text-sm text-gray-500">
-                        Question {currentQuestion + 1} of {placementQuestions.length}
-                    </span>
                 </div>
 
-                {/* Question */}
-                <div className="question-section mb-8">
-                    <div className="sign-display w-48 h-48 rounded-2xl bg-white shadow-lg mb-6 mx-auto flex items-center justify-center border-4 border-gray-100">
-                        <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
-                            <ambientLight intensity={5} />
-                            <group position={[0, -1.1, 0]}>
-                                <AngieSigns landmarks={landmarks} />
-                            </group>
-                        </Canvas>
+                {/* Animation Section */}
+                <div className="animation-section">
+                    <div className="animation-container">
+                        {loading && (
+                            <div className="animation-loading">
+                                <div className="loading-spinner"></div>
+                                <p>Loading animation...</p>
+                            </div>
+                        )}
+                        
+                        <div className="canvas-wrapper" style={{ opacity: loading ? 0.3 : 1 }}>
+                            <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
+                                <ambientLight intensity={5} />
+                                <group position={[0, -1.1, 0]}>
+                                    {landmarks && Object.keys(landmarks).length > 0 && (
+                                        <AngieSigns key={replayKey} landmarks={landmarks} />
+                                    )}
+                                </group>
+                                <OrbitControls 
+                                    enablePan={false} 
+                                    maxPolarAngle={Math.PI / 2} 
+                                    minDistance={2} 
+                                    maxDistance={3} 
+                                />
+                            </Canvas>
+                        </div>
+                        
+                        <button 
+                            onClick={handleReplay} 
+                            className="replay-button"
+                            disabled={loading}
+                        >
+                            Replay Animation
+                        </button>
                     </div>
+                </div>
 
-                    <h2 className="text-xl font-semibold text-gray-800 mb-6 text-center">
-                        {currentQ.question}
-                    </h2>
+                {/* Question Section */}
+                <div className="question-section">
+                    <h2 className="qquestion-title">{currentQ.question}</h2>
 
-                    <div className="options-grid grid grid-cols-2 gap-4">
+                    <div className="options-container">
                         {currentQ.options.map((option, index) => (
                             <button
                                 key={index}
                                 onClick={() => handleAnswer(option)}
-                                className="option-button p-4 bg-gray-50 hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl transition-all duration-200 text-lg font-medium text-gray-700 hover:text-blue-700"
+                                className="option-button"
+                                disabled={loading}
                             >
-                                {option}
+                                <span className="option-letter">
+                                    {String.fromCharCode(65 + index)}
+                                </span>
+                                <span className="option-text">{option}</span>
                             </button>
                         ))}
                     </div>
                 </div>
 
-                {/* Skip option */}
-                <div className="test-footer text-center">
+                {/* Footer Section */}
+                <div className="test-footer">
+                    <div className="level-indicator">
+                        <span className={`level-badge level-${currentQ.level}`}>
+                            {currentQ.level} level
+                        </span>
+                        <span className="category-badge">
+                            {currentQ.category}
+                        </span>
+                    </div>
+                    
                     <button
                         onClick={skipTest}
-                        className="skip-button text-gray-500 hover:text-gray-700 underline text-sm"
+                        className="skip-test-button"
                     >
                         Skip test and start from the beginning
                     </button>
