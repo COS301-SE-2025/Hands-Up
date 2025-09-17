@@ -6,103 +6,16 @@ import { useLandmarksDetection } from '../hooks/landmarksDetection';
 import { AngieSigns } from '../components/angieSigns';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-
-const COMMON_PHRASES = [
-    { id: 'hello_my_name', phrase: 'Hello My Name', words: ['helloMyName'] },
-    { id: 'nice_meet_you', phrase: 'Nice To Meet You', words: ['niceToMeetYou'] },
-    { id: 'i_love_you', phrase: 'I Love You', words: ['iLoveYou'] },
-    { id: 'i_am_happy', phrase: 'I Am Happy', words: ['meHappy'] },
-    { id: 'i_am_sad', phrase: 'I Am Sad', words: ['meSad'] },
-    { id: 'see_you_tomorrow', phrase: 'See You Tomorrow', words: ['seeYouTomorrow'] },
-    { id: 'i_am_hungry', phrase: 'I Am Hungry', words: ['meHungry'] },
-    { id: 'drink_water', phrase: 'Drink Water', words: ['drinkWater'] },
-    { id: 'my_mother', phrase: 'My Mother', words: ['myMother'] },
-    { id: 'my_father', phrase: 'My Father', words: ['myFather'] },
-    { id: 'brother_sister', phrase: 'My Brother and Sister', words: ['myBrotherAndSister'] },
-    { id: 'go_sleep', phrase: 'Go To Sleep', words: ['goSleep'] },
-    { id: 'i_understand', phrase: 'I Understand', words: ['meUnderstand'] },
-    { id: 'hot_weather', phrase: 'Hot Weather', words: ['hotWeather'] },
-    { id: 'cold_weather', phrase: 'Cold Weather', words: ['coldWeather'] },
-    { id: 'eat_apple', phrase: 'Eat an Apple', words: ['eatApple'] },
-    { id: 'my_pet_is_a_dog', phrase: 'My Pet Is A Dog', words: ['myPetDog'] }
-];
-
-const CATEGORIES = {
-    alphabets: {
-        name: 'The Alphabet',
-        items: 'abcdefghijklmnopqrstuvwxyz'.split('')
-    },
-    numbers: {
-        name: 'Numbers & Counting',
-        items: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20']
-    },
-    colours: {
-        name: 'Colours',
-        items: ['Red', 'Blue', 'Green', 'Yellow', 'Black', 'White', 'Pink', 'Purple', 'Orange', 'Brown', 'Gold', 'Silver']
-    },
-    introduce: {
-        name: 'Introduce Yourself',
-        items: ['hello', 'name', 'my', 'again', 'goodbye', 'nice', 'meet', 'you', 'this', 'sorry', 'and']
-    },
-    family: {
-        name: 'Family Members',
-        items: ['brother', 'sister', 'mother', 'father', 'aunt', 'uncle', 'grandma', 'grandpa', 'child', 'siblings', 'boy', 'girl']
-    },
-    feelings: {
-        name: 'Emotions & Feelings',
-        items: ['happy', 'sad', 'angry', 'cry', 'sorry', 'like', 'love', 'hate', 'feel']
-    },
-    actions: {
-        name: 'Common Actions',
-        items: ['drive', 'watch', 'sleep', 'walk', 'stand', 'sit', 'give', 'understand', 'go', 'stay', 'talk']
-    },
-    questions: {
-        name: 'Asking Questions',
-        items: ['why', 'tell', 'when', 'who', 'which']
-    },
-    time: {
-        name: 'Time & Days',
-        items: ['today', 'tomorrow', 'yesterday', 'year', 'now', 'future', 'Oclock', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-    },
-    food: {
-        name: 'Food & Drinks',
-        items: ['water', 'apple', 'drink', 'cereal', 'eggs', 'eat', 'hungry', 'full', 'cup', 'popcorn', 'candy', 'soup', 'juice', 'milk', 'pizza']
-    },
-    things: {
-        name: 'Objects & Things',
-        items: ['shower', 'table', 'lights', 'computer', 'hat', 'chair', 'car', 'ambulance', 'window']
-    },
-    animals: {
-        name: 'Animals',
-        items: ['dog', 'cat', 'bird', 'fish', 'horse', 'cow', 'animal']
-    },
-    seasons: {
-        name: 'Weather & Seasons',
-        items: ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 'cloudy', 'snow', 'wind', 'sunrise', 'hot', 'cold', 'warm', 'cool', 'weather', 'freeze']
-    },
-    phrases: {
-        name: 'Common Phrases',
-        items: COMMON_PHRASES
-    }
-};
-
-async function getLandmarks(item) {
-    try {
-        const response = await fetch(`/landmarks/${item}.json`);
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error(`Error loading landmarks for ${item}:`, error);
-        return [];
-    }
-}
+import { getLandmarks } from '../utils/apiCalls';
+import { COMMON_PHRASES, CATEGORIES } from '../components/quizData';
+import '../styles/signQuiz.css';
 
 export function SignQuiz() {
     const navigate = useNavigate();
     const { category } = useParams();
     const { updateStats, stats } = useLearningStats();
 
-    // Animation-related states
+    // Quiz states
     const [quizQuestions, setQuizQuestions] = useState([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [userAnswers, setUserAnswers] = useState([]);
@@ -112,29 +25,43 @@ export function SignQuiz() {
     const [loading, setLoading] = useState(true);
     const [quizStarted, setQuizStarted] = useState(false);
     const [hasTrackedQuizStats, setHasTrackedQuizStats] = useState(false);
-    const [landmarks, setLandmarks] = useState({});
-    const [replayKey, setReplayKey] = useState(0);
-    const [isAutoPlaying, setIsAutoPlaying] = useState(false);
-    
-    const [cameraQuizMode, setCameraQuizMode] = useState(false);
-    const cameraVideoRef = useRef(null);
-    const cameraCanvasRef1 = useRef(null);
-    const cameraCanvasRef2 = useRef(null);
-    
-    const {
-        videoRef: translatorVideoRef,
-        canvasRef1: translatorCanvasRef1,
-        canvasRef2: translatorCanvasRef2,
-        result: translatorResult,
-        confidence: translatorConfidence,
-        recording: translatorRecording,
-        startRecording: translatorStartRecording,
-        setResult: setTranslatorResult,
-    } = useTranslator();
 
-    useLandmarksDetection(cameraQuizMode ? cameraVideoRef : null, cameraCanvasRef2);
+    // Animation states
+    const [landmarks, setLandmarks] = useState([]);
+    const [replayKey, setReplayKey] = useState(0);
     
-    const timeoutRef = useRef(null);
+    // Camera states
+    const [cameraReady, setCameraReady] = useState(false);
+    const [cameraError, setCameraError] = useState(null);
+    const [recordingTimeout, setRecordingTimeout] = useState(null);
+    const [countdown, setCountdown] = useState(0);
+    
+    // Use a more specific translator hook based on category
+    const {
+        videoRef,
+        canvasRef1,
+        canvasRef2,
+        result,
+        confidence,
+        recording,
+        startRecording,
+        setResult,
+    } = useTranslator({
+        // Pass category context to translator if it supports it
+        detectionScope: category
+    });
+
+    const shouldUseLandmarksDetection = cameraReady && 
+                                       quizStarted && 
+                                       quizQuestions[currentQuestionIndex]?.type === 'camera';
+    
+    const dummyVideoRef = useRef(null);
+    
+    useLandmarksDetection(
+        shouldUseLandmarksDetection ? videoRef : dummyVideoRef, 
+        canvasRef2
+    );
+    
     const currentCategoryData = CATEGORIES[category] || CATEGORIES['alphabets'];
     const isPhrasesQuiz = category === 'phrases';
 
@@ -147,7 +74,7 @@ export function SignQuiz() {
             animationQuestions = shuffledPhrases.slice(0, 3).map((phrase, index) => ({
                 id: index + 1,
                 type: 'animation',
-                item: phrase.id,
+                item: phrase.words[0],
                 phrase: phrase,
                 correctAnswer: phrase.phrase,
                 displayAnswer: phrase.phrase
@@ -156,7 +83,7 @@ export function SignQuiz() {
             cameraQuestions = shuffledPhrases.slice(3, 5).map((phrase, index) => ({
                 id: index + 4,
                 type: 'camera',
-                item: phrase.id,
+                item: phrase.words[0],
                 phrase: phrase,
                 correctAnswer: phrase.phrase,
                 displayAnswer: phrase.phrase
@@ -185,102 +112,168 @@ export function SignQuiz() {
         return [...animationQuestions, ...cameraQuestions].sort(() => Math.random() - 0.5);
     }, [currentCategoryData, isPhrasesQuiz]);
 
-    const setupCameraForQuiz = useCallback(async () => {
+    // Enhanced camera setup with better error handling
+    const setupCamera = useCallback(async () => {
         try {
+            setCameraError(null);
+            console.log('Setting up camera...');
+            
+            // Request camera permission with specific constraints
             const stream = await navigator.mediaDevices.getUserMedia({
-                video: { width: 640, height: 480 }
+                video: { 
+                    width: { ideal: 640 },
+                    height: { ideal: 480 },
+                    facingMode: 'user'
+                }
             });
             
-            if (cameraVideoRef.current) {
-                cameraVideoRef.current.srcObject = stream;
+            if (videoRef.current) {
+                videoRef.current.srcObject = stream;
+                
+                // Wait for video to be ready
+                videoRef.current.onloadedmetadata = () => {
+                    console.log('Video metadata loaded');
+                    setCameraReady(true);
+                };
+                
+                videoRef.current.oncanplay = () => {
+                    console.log('Video can play');
+                    videoRef.current.play().catch(console.error);
+                };
             }
             
-            if (translatorVideoRef.current) {
-                translatorVideoRef.current.srcObject = stream;
-            }
-            
-            setCameraQuizMode(true);
         } catch (error) {
-            console.error('Error accessing camera:', error);
-            alert('Camera access required for camera-based questions. Please allow camera access.');
-        }
-    }, [translatorVideoRef]);
-
-    const stopCameraForQuiz = useCallback(() => {
-        if (cameraVideoRef.current && cameraVideoRef.current.srcObject) {
-            const stream = cameraVideoRef.current.srcObject;
-            const tracks = stream.getTracks();
-            tracks.forEach(track => track.stop());
-            cameraVideoRef.current.srcObject = null;
-        }
-        
-        if (translatorVideoRef.current && translatorVideoRef.current.srcObject) {
-            const stream = translatorVideoRef.current.srcObject;
-            const tracks = stream.getTracks();
-            tracks.forEach(track => track.stop());
-            translatorVideoRef.current.srcObject = null;
-        }
-        
-        setCameraQuizMode(false);
-    }, [translatorVideoRef]);
-
-    const loadCurrentQuestionLandmarks = useCallback(async (question) => {
-        try {
-            if (isPhrasesQuiz && question.phrase) {
-                const firstWord = question.phrase.words[0];
-                const data = await getLandmarks(firstWord);
-                setLandmarks(data);
-                setReplayKey(prev => prev + 1);
+            console.error('Camera setup error:', error);
+            setCameraError(error.message);
+            setCameraReady(false);
+            
+            let errorMessage = 'Camera access failed. ';
+            if (error.name === 'NotAllowedError') {
+                errorMessage += 'Please allow camera access and try again.';
+            } else if (error.name === 'NotFoundError') {
+                errorMessage += 'No camera found on your device.';
             } else {
-                const data = await getLandmarks(question.item);
-                setLandmarks(data);
-                setReplayKey(prev => prev + 1);
+                errorMessage += 'Please check your camera settings.';
             }
+            
+            alert(errorMessage);
+        }
+    }, [videoRef]);
+
+    const stopCamera = useCallback(() => {
+        console.log('Stopping camera...');
+        if (videoRef.current && videoRef.current.srcObject) {
+            const stream = videoRef.current.srcObject;
+            const tracks = stream.getTracks();
+            tracks.forEach(track => {
+                track.stop();
+                console.log('Stopped track:', track.kind);
+            });
+            videoRef.current.srcObject = null;
+        }
+        setCameraReady(false);
+        setCameraError(null);
+    }, [videoRef]);
+
+    const loadAnimationLandmarks = useCallback(async (question) => {
+        try {
+            console.log('Loading animation for item:', question.item);
+            const data = await getLandmarks(question.item);
+            
+            if (!data || data.length === 0) {
+                console.warn('No landmarks found for:', question.item);
+                setLandmarks([]);
+            } else {
+                setLandmarks(data);
+            }
+            setReplayKey(prev => prev + 1);
         } catch (error) {
             console.error('Failed to load landmarks:', error);
-            setLandmarks({});
+            setLandmarks([]);
         }
-    }, [isPhrasesQuiz]);
+    }, []);
 
-    const startPhraseAutoPlay = useCallback((phrase) => {
-        if (!phrase || isAutoPlaying) return;
+    // Enhanced recording management with timeout and category context
+    const handleStartRecording = useCallback(() => {
+        // Clear any existing timeout
+        if (recordingTimeout) {
+            clearTimeout(recordingTimeout);
+        }
 
-        setIsAutoPlaying(true);
+        if (recording) {
+            // Stop recording
+            startRecording();
+            setRecordingTimeout(null);
+            setCountdown(0);
+        } else {
+            // Start recording with 5-second timeout
+            console.log(`Starting recording for ${category} category`);
+            startRecording();
+            setCountdown(5);
+            
+            const countdownInterval = setInterval(() => {
+                setCountdown(prev => {
+                    if (prev <= 1) {
+                        clearInterval(countdownInterval);
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
 
-        let index = 0;
-        const playNext = async () => {
-            if (index < phrase.words.length) {
-                try {
-                    const data = await getLandmarks(phrase.words[index]);
-                    setLandmarks(data);
-                    setReplayKey(prev => prev + 1);
-                } 
-                catch (error) {
-                    console.error('Failed to load landmarks for word:', phrase.words[index], error);
+            const timeout = setTimeout(() => {
+                console.log('Auto-stopping recording after 5 seconds');
+                if (recording) {
+                    startRecording(); // This will stop the recording
                 }
+                clearInterval(countdownInterval);
+                setRecordingTimeout(null);
+                setCountdown(0);
+            }, 5000);
 
-                index++;
-
-                if (index < phrase.words.length) {
-                    timeoutRef.current = setTimeout(playNext, 3000);
-                } else {
-                    setIsAutoPlaying(false);
-                }
-            }
-        };
-
-        timeoutRef.current = setTimeout(playNext, 500);
-    }, [isAutoPlaying]);
+            setRecordingTimeout(timeout);
+        }
+    }, [recording, startRecording, recordingTimeout, category]);
 
     const handleReplay = () => {
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-        }
+        setReplayKey(prev => prev + 1);
+    };
 
-        if (isPhrasesQuiz && quizQuestions[currentQuestionIndex]?.phrase) {
-            startPhraseAutoPlay(quizQuestions[currentQuestionIndex].phrase);
+    const skipQuestion = () => {
+        const currentQuestion = quizQuestions[currentQuestionIndex];
+        
+        const skippedAnswer = {
+            questionId: currentQuestion.id,
+            userAnswer: 'SKIPPED',
+            correctAnswer: currentQuestion.correctAnswer,
+            isCorrect: false,
+            questionItem: isPhrasesQuiz ? currentQuestion.phrase.phrase : currentQuestion.item,
+            type: currentQuestion.type,
+            skipped: true
+        };
+
+        const newUserAnswers = [...userAnswers, skippedAnswer];
+        setUserAnswers(newUserAnswers);
+
+        setCurrentAnswer('');
+        setResult("Awaiting sign capture...");
+        stopCamera();
+
+        if (currentQuestionIndex + 1 < quizQuestions.length) {
+            setCurrentQuestionIndex(currentQuestionIndex + 1);
         } else {
-            setReplayKey(prev => prev + 1);
+            setShowResults(true);
+            const finalScore = newUserAnswers.filter(answer => answer.isCorrect).length;
+
+            if (!hasTrackedQuizStats) {
+                updateStats({
+                    quizzesCompleted: (stats?.quizzesCompleted || 0) + 1,
+                    quizScore: finalScore,
+                    totalQuizQuestions: (stats?.totalQuizQuestions || 0) + quizQuestions.length,
+                    [`${category}QuizCompleted`]: true
+                });
+                setHasTrackedQuizStats(true);
+            }
         }
     };
 
@@ -295,34 +288,25 @@ export function SignQuiz() {
             const currentQuestion = quizQuestions[currentQuestionIndex];
             
             if (currentQuestion.type === 'animation') {
-                stopCameraForQuiz();
-                loadCurrentQuestionLandmarks(currentQuestion);
+                stopCamera();
+                loadAnimationLandmarks(currentQuestion);
             } else if (currentQuestion.type === 'camera') {
-                setupCameraForQuiz();
-                setTranslatorResult("Awaiting sign capture...");
+                setupCamera();
+                setResult("Awaiting sign capture...");
             }
         }
-    }, [quizStarted, currentQuestionIndex, quizQuestions, loadCurrentQuestionLandmarks, setupCameraForQuiz, stopCameraForQuiz, setTranslatorResult]);
+    }, [quizStarted, currentQuestionIndex, quizQuestions, loadAnimationLandmarks, setupCamera, stopCamera, setResult]);
 
-    useEffect(() => {
-        if (isPhrasesQuiz && quizStarted && quizQuestions[currentQuestionIndex]?.phrase && 
-            quizQuestions[currentQuestionIndex]?.type === 'animation' && 
-            landmarks && Object.keys(landmarks).length > 0) {
-            const timer = setTimeout(() => {
-                startPhraseAutoPlay(quizQuestions[currentQuestionIndex].phrase);
-            }, 1000);
-            return () => clearTimeout(timer);
-        }
-    }, [isPhrasesQuiz, quizStarted, currentQuestionIndex, quizQuestions, landmarks, startPhraseAutoPlay]);
-
+    // Cleanup on unmount
     useEffect(() => {
         return () => {
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
+            console.log('Cleaning up SignQuiz component...');
+            stopCamera();
+            if (recordingTimeout) {
+                clearTimeout(recordingTimeout);
             }
-            stopCameraForQuiz();
         };
-    }, [stopCameraForQuiz]);
+    }, [stopCamera, recordingTimeout]);
 
     const startQuiz = () => {
         setQuizStarted(true);
@@ -332,7 +316,7 @@ export function SignQuiz() {
         setShowResults(false);
         setScore(0);
         setHasTrackedQuizStats(false);
-        setTranslatorResult("Awaiting sign capture...");
+        setResult("Awaiting sign capture...");
     };
 
     const handleAnswerSubmit = (answer = null) => {
@@ -341,7 +325,22 @@ export function SignQuiz() {
         
         if (!answerToCheck.trim()) return;
 
-        const isCorrect = answerToCheck.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase();
+        // More flexible answer checking for different categories
+        let isCorrect;
+        if (category === 'alphabets') {
+            // For alphabets, check single character match (case insensitive)
+            isCorrect = answerToCheck.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase();
+        } else if (isPhrasesQuiz) {
+            // For phrases, allow more flexible matching
+            const userWords = answerToCheck.toLowerCase().trim().split(/\s+/);
+            const correctWords = currentQuestion.correctAnswer.toLowerCase().trim().split(/\s+/);
+            // Check if at least 70% of words match
+            const matchCount = userWords.filter(word => correctWords.includes(word)).length;
+            isCorrect = matchCount >= Math.ceil(correctWords.length * 0.7);
+        } else {
+            // For other categories, exact match
+            isCorrect = answerToCheck.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase();
+        }
 
         const newAnswer = {
             questionId: currentQuestion.id,
@@ -360,13 +359,8 @@ export function SignQuiz() {
         }
 
         setCurrentAnswer('');
-        setTranslatorResult("Awaiting sign capture...");
-
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-        }
-        setIsAutoPlaying(false);
-        stopCameraForQuiz();
+        setResult("Awaiting sign capture...");
+        stopCamera();
 
         if (currentQuestionIndex + 1 < quizQuestions.length) {
             setCurrentQuestionIndex(currentQuestionIndex + 1);
@@ -387,12 +381,14 @@ export function SignQuiz() {
     };
 
     const handleCameraAnswerSubmit = () => {
-        let cleanResult = translatorResult
+        let cleanResult = result
             .replace('Detected: ', '')
             .replace('Detected phrase: ', '')
             .replace('API Result: ', '')
             .trim();
             
+        console.log(`Camera result for ${category}:`, cleanResult);
+        
         if (cleanResult && cleanResult !== "Awaiting sign capture...") {
             handleAnswerSubmit(cleanResult);
         }
@@ -405,126 +401,59 @@ export function SignQuiz() {
     };
 
     const restartQuiz = () => {
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-        }
-        setIsAutoPlaying(false);
         setHasTrackedQuizStats(false);
-        stopCameraForQuiz();
+        stopCamera();
         const questions = generateQuizQuestions();
         setQuizQuestions(questions);
         startQuiz();
     };
 
     const goBackToCategory = () => {
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-        }
-        stopCameraForQuiz();
+        stopCamera();
         navigate('/learn', { state: { selectedCategory: category } });
     };
 
     const goBackToLearn = () => {
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-        }
-        stopCameraForQuiz();
+        stopCamera();
         navigate('/learn');
-    };
-
-    const containerStyle = {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        padding: '20px',
-        backgroundColor: '#f5f5f5',
-        minHeight: '100vh',
-        justifyContent: 'center',
-        fontFamily: 'Inter, sans-serif'
-    };
-
-    const backButtonStyle = {
-        position: 'absolute',
-        top: '20px',
-        left: '20px',
-        padding: '10px 20px',
-        backgroundColor: '#6c757d',
-        color: 'white',
-        border: 'none',
-        borderRadius: '8px',
-        cursor: 'pointer',
-        fontSize: '16px'
-    };
-
-    const quizCardStyle = {
-        backgroundColor: 'white',
-        padding: '40px',
-        borderRadius: '15px',
-        boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
-        textAlign: 'center',
-        maxWidth: '500px'
-    };
-
-    const startButtonStyle = {
-        padding: '15px 30px',
-        backgroundColor: '#28a745',
-        color: 'white',
-        border: 'none',
-        borderRadius: '10px',
-        fontSize: '20px',
-        fontWeight: 'bold',
-        cursor: 'pointer',
-        boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-        transition: 'all 0.3s ease'
     };
 
     if (loading) {
         return (
-            <div style={containerStyle}>
-                <h1 style={{ color: '#333' }}>Loading {currentCategoryData.name} Quiz...</h1>
+            <div className="quizcontainer">
+                <h1 className="loading-text">Loading {currentCategoryData.name} Quiz...</h1>
             </div>
         );
     }
 
     if (!quizStarted) {
         return (
-            <div style={containerStyle}>
-                <button onClick={goBackToCategory} style={backButtonStyle}>
-                    Back to {currentCategoryData.name}
+            <div className="quizcontainer">
+                <button onClick={goBackToCategory} className="quizback-button">
+                    ← Back to {currentCategoryData.name}
                 </button>
 
-                <div style={quizCardStyle}>
-                    <h2 style={{ color: '#333', marginBottom: '20px' }}>
+                <div className="quiz-card">
+                    <h2 className="quiz-title">
                         {currentCategoryData.name} QUIZ
                     </h2>
-                    <p style={{ color: '#666', fontSize: '18px', marginBottom: '30px' }}>
+                    <p className="quiz-description">
                         This quiz has 5 questions:
                         <br />
                         <strong>3 questions:</strong> Watch animations and type answers
                         <br />
                         <strong>2 questions:</strong> Sign with your camera
                         <br />
-                        <small style={{ color: '#888' }}>
+                        <small className="quiz-subtitle">
                             {isPhrasesQuiz ? 
                                 "Watch phrase animations or sign phrases yourself!" :
-                                "Identify signs or sign them yourself!"
+                                `Test your knowledge of ${currentCategoryData.name.toLowerCase()} signs!`
                             }
                         </small>
                     </p>
 
-                    <button
-                        onClick={startQuiz}
-                        style={startButtonStyle}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#218838';
-                            e.currentTarget.style.transform = 'translateY(-2px)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = '#28a745';
-                            e.currentTarget.style.transform = 'translateY(0)';
-                        }}
-                    >
-                        Start Hybrid Quiz!
+                    <button onClick={startQuiz} className="start-button">
+                        Start Quiz!
                     </button>
                 </div>
             </div>
@@ -535,154 +464,78 @@ export function SignQuiz() {
         const percentage = Math.round((score / quizQuestions.length) * 100);
         const passed = percentage >= 60;
 
-        const resultCardStyle = {
-            ...quizCardStyle,
-            maxWidth: '700px',
-            width: '100%'
-        };
-
-        const correctAnswerStyle = {
-            padding: '12px',
-            margin: '8px 0',
-            backgroundColor: '#d4edda',
-            borderRadius: '8px',
-            border: '2px solid #c3e6cb',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-        };
-
-        const incorrectAnswerStyle = {
-            ...correctAnswerStyle,
-            backgroundColor: '#f8d7da',
-            border: '2px solid #f5c6cb'
-        };
-
         return (
-            <div style={containerStyle}>
-                <div style={resultCardStyle}>
-                    <h1 style={{ 
-                        color: passed ? '#28a745' : '#dc3545', 
-                        marginBottom: '20px',
-                        fontSize: '2.5em'
-                    }}>
+            <div className="quizcontainer">
+                <div className="result-card">
+                    <h1 className={`result-title ${passed ? 'passed' : 'failed'}`}>
                         {passed ? 'Great Job!' : 'Keep Learning!'}
                     </h1>
 
-                    <h2 style={{ color: '#333', marginBottom: '20px' }}>
-                        {currentCategoryData.name} Hybrid Quiz Results
+                    <h2 className="category-title">
+                        {currentCategoryData.name} Quiz Results
                     </h2>
 
-                    <div style={{
-                        fontSize: '24px',
-                        color: '#333',
-                        marginBottom: '30px',
-                        padding: '20px',
-                        backgroundColor: '#f8f9fa',
-                        borderRadius: '10px'
-                    }}>
+                    <div className="score-summary">
                         <p><strong>Total Score: {score}/{quizQuestions.length} ({percentage}%)</strong></p>
-                        <p style={{ fontSize: '16px', color: '#666', marginTop: '10px' }}>
+                        <p className="score-breakdown">
                             Animation Questions: {userAnswers.filter(a => a.type === 'animation' && a.isCorrect).length}/3
                             <br />
                             Camera Questions: {userAnswers.filter(a => a.type === 'camera' && a.isCorrect).length}/2
                         </p>
                     </div>
 
-                    <div style={{ textAlign: 'left', marginBottom: '30px' }}>
-                        <h3 style={{ color: '#333', marginBottom: '15px' }}>Questions You Got Correct:</h3>
+                    <div className="answers-section">
+                        <h3 className="section-title">Questions You Got Correct:</h3>
                         {userAnswers.filter(answer => answer.isCorrect).length > 0 ? (
-                            <div style={{ marginBottom: '20px' }}>
+                            <div className="answers-list">
                                 {userAnswers.filter(answer => answer.isCorrect).map((answer, index) => (
-                                    <div key={index} style={correctAnswerStyle}>
+                                    <div key={index} className="answer-item correct">
                                         <div>
                                             <strong>Question {userAnswers.indexOf(answer) + 1}: {answer.correctAnswer}</strong>
                                             <br />
-                                            <span style={{ color: '#155724', fontSize: '14px' }}>
+                                            <span className="answer-details">
                                                 Your answer: {answer.userAnswer} ({answer.type === 'camera' ? 'Camera' : 'Animation'})
                                             </span>
                                         </div>
-                                        <div style={{ fontSize: '24px', color: '#155724', fontWeight: 'bold' }}>
-                                            ✓
-                                        </div>
+                                        <div className="check-mark">✓</div>
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <p style={{ color: '#666', fontStyle: 'italic' }}>No correct answers this time.</p>
+                            <p className="no-answers">No correct answers this time.</p>
                         )}
 
                         {userAnswers.filter(answer => !answer.isCorrect).length > 0 && (
                             <>
-                                <h3 style={{ color: '#333', marginBottom: '15px' }}>Questions You Got Wrong:</h3>
+                                <h3 className="section-title">Questions You Got Wrong:</h3>
                                 {userAnswers.filter(answer => !answer.isCorrect).map((answer, index) => (
-                                    <div key={index} style={incorrectAnswerStyle}>
+                                    <div key={index} className="answer-item incorrect">
                                         <div>
                                             <strong>Question {userAnswers.indexOf(answer) + 1}: {answer.correctAnswer}</strong>
                                             <br />
-                                            <span style={{ color: '#721c24', fontSize: '14px' }}>
-                                                Your answer: {answer.userAnswer} ({answer.type === 'camera' ? 'Camera' : 'Animation'})
+                                            <span className="answer-details wrong">
+                                                Your answer: {answer.skipped ? 'SKIPPED' : answer.userAnswer} ({answer.type === 'camera' ? 'Camera' : 'Animation'})
                                             </span>
                                             <br />
-                                            <span style={{ color: '#155724', fontSize: '14px' }}>
+                                            <span className="answer-details correct-answer">
                                                 Correct answer: {answer.correctAnswer}
                                             </span>
                                         </div>
-                                        <div style={{ fontSize: '24px', color: '#721c24', fontWeight: 'bold' }}>
-                                            ✗
-                                        </div>
+                                        <div className="x-mark">✗</div>
                                     </div>
                                 ))}
                             </>
                         )}
                     </div>
 
-                    <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                        <button
-                            onClick={restartQuiz}
-                            style={{
-                                padding: '12px 24px',
-                                backgroundColor: '#007bff',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                fontSize: '16px',
-                                fontWeight: 'bold',
-                                cursor: 'pointer'
-                            }}
-                        >
+                    <div className="result-buttons">
+                        <button onClick={restartQuiz} className="button primary">
                             Try Again
                         </button>
-
-                        <button
-                            onClick={goBackToCategory}
-                            style={{
-                                padding: '12px 24px',
-                                backgroundColor: '#ffc107',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                fontSize: '16px',
-                                fontWeight: 'bold',
-                                cursor: 'pointer'
-                            }}
-                        >
+                        <button onClick={goBackToCategory} className="button secondary">
                             Back to {currentCategoryData.name}
                         </button>
-
-                        <button
-                            onClick={goBackToLearn}
-                            style={{
-                                padding: '12px 24px',
-                                backgroundColor: '#6c757d',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                fontSize: '16px',
-                                fontWeight: 'bold',
-                                cursor: 'pointer'
-                            }}
-                        >
+                        <button onClick={goBackToLearn} className="button tertiary">
                             Back to Learn
                         </button>
                     </div>
@@ -695,379 +548,233 @@ export function SignQuiz() {
     const isAnimationQuestion = currentQuestion?.type === 'animation';
     const isCameraQuestion = currentQuestion?.type === 'camera';
 
-    const quizContainerStyle = {
-        ...containerStyle,
-        justifyContent: 'flex-start'
-    };
-
-    const canvasContainerStyle = {
-        width: '640px',
-        height: '480px',
-        maxWidth: '90%',
-        border: '2px solid #ddd',
-        borderRadius: '15px',
-        backgroundColor: '#fff',
-        boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
-        marginBottom: '20px',
-        overflow: 'hidden',
-        position: 'relative'
-    };
-
-    const progressBarStyle = {
-        backgroundColor: '#e9ecef',
-        borderRadius: '10px',
-        padding: '5px',
-        width: '300px',
-        margin: '0 auto'
-    };
-
-    const replayButtonStyle = {
-        padding: '8px 16px',
-        backgroundColor: isAutoPlaying ? '#ccc' : '#17a2b8',
-        color: 'white',
-        border: 'none',
-        borderRadius: '6px',
-        cursor: isAutoPlaying ? 'not-allowed' : 'pointer',
-        fontSize: '14px',
-        fontWeight: 'bold',
-        marginBottom: '20px',
-        transition: 'all 0.3s ease'
-    };
-
-    const cleanTranslatorResult = translatorResult
+    const cleanResult = result
         .replace('Detected: ', '')
         .replace('Detected phrase: ', '')
         .replace('API Result: ', '')
         .trim();
     
-    const hasValidCameraResult = cleanTranslatorResult && cleanTranslatorResult !== "Awaiting sign capture...";
+    const hasValidCameraResult = cleanResult && cleanResult !== "Awaiting sign capture...";
 
     return (
-        <div style={quizContainerStyle}>
-            <button onClick={goBackToCategory} style={backButtonStyle}>
-                Back to {currentCategoryData.name}
+        <div className="quiz-container">
+            <button onClick={goBackToCategory} className="quizback-button">
+                ← Back to {currentCategoryData.name}
             </button>
 
-            <div style={{ textAlign: 'center', marginBottom: '20px', marginTop: '40px' }}>
-                <h1 style={{ color: '#333', marginBottom: '5px' }}>
-                    {currentCategoryData.name} Hybrid Quiz
+            <div className="quiz-header">
+                <h1 className="quiz-title-active">
+                    {currentCategoryData.name} Quiz
                 </h1>
-                <p style={{ color: '#666', marginBottom: '10px' }}>
+                <p className="question-info">
                     Question {currentQuestionIndex + 1} of {quizQuestions.length} 
                     ({isAnimationQuestion ? 'Watch & Type' : 'Sign with Camera'})
                 </p>
-                {isPhrasesQuiz && isAutoPlaying && (
-                    <p style={{ color: '#4caf50', fontSize: '14px', fontWeight: 'bold' }}>
-                        Auto-playing phrase...
-                    </p>
-                )}
-                <div style={progressBarStyle}>
-                    <div style={{
-                        backgroundColor: '#28a745',
-                        height: '20px',
-                        borderRadius: '8px',
-                        width: `${((currentQuestionIndex + 1) / quizQuestions.length) * 100}%`,
-                        transition: 'width 0.3s ease'
-                    }}></div>
+                <div className="progress-bar">
+                    <div 
+                        className="progress-fill"
+                        style={{ width: `${((currentQuestionIndex + 1) / quizQuestions.length) * 100}%` }}
+                    ></div>
                 </div>
             </div>
 
             {isAnimationQuestion && (
-                <>
-                    <h2 style={{ color: '#333', marginBottom: '20px' }}>
+                <div className="animation-section">
+                    <h2 className="question-title">
                         {isPhrasesQuiz ? 'What phrase is being signed?' : 'What is this sign?'}
                     </h2>
 
-                    <div style={canvasContainerStyle}>
+                    <div className="canvas-container">
                         <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
                             <ambientLight intensity={5} />
                             <group position={[0, -1.1, 0]}>             
                                 {landmarks && Object.keys(landmarks).length > 0 && (
-                                <AngieSigns key={replayKey} landmarks={landmarks} />
+                                    <AngieSigns key={replayKey} landmarks={landmarks} />
                                 )}
                             </group>  
                             <OrbitControls enablePan={false} maxPolarAngle={Math.PI / 2} minDistance={2} maxDistance={3} />
                         </Canvas>
                     </div>
 
-                    <button
-                        onClick={handleReplay}
-                        disabled={isAutoPlaying}
-                        style={replayButtonStyle}
-                        onMouseEnter={(e) => {
-                            if (!isAutoPlaying) {
-                                e.currentTarget.style.backgroundColor = '#138496';
-                            }
-                        }}
-                        onMouseLeave={(e) => {
-                            if (!isAutoPlaying) {
-                                e.currentTarget.style.backgroundColor = '#17a2b8';
-                            }
-                        }}
-                    >
-                        {isPhrasesQuiz ? 
-                            (isAutoPlaying ? 'Playing Phrase...' : 'Replay Phrase') : 
-                            'Replay'
-                        }
+                    <button onClick={handleReplay} className="replay-button">
+                        🔄 Replay Animation
                     </button>
 
-                    <div style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '15px'
-                    }}>
+                    <div className="answer-input-section">
                         <input
                             type="text"
                             value={currentAnswer}
                             onChange={(e) => setCurrentAnswer(e.target.value)}
                             onKeyPress={handleKeyPress}
                             placeholder="Type your answer..."
+                            className="answer-input"
                             style={{
-                                padding: '15px',
-                                fontSize: '18px',
-                                textAlign: 'center',
-                                border: '2px solid #ddd',
-                                borderRadius: '10px',
-                                width: '200px',
                                 textTransform: category === 'alphabets' ? 'uppercase' : 'none'
                             }}
                             autoFocus
                         />
 
-                        <button
-                            onClick={() => handleAnswerSubmit()}
-                            disabled={!currentAnswer.trim()}
-                            style={{
-                                padding: '12px 30px',
-                                backgroundColor: currentAnswer.trim() ? '#28a745' : '#ccc',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                fontSize: '18px',
-                                fontWeight: 'bold',
-                                cursor: currentAnswer.trim() ? 'pointer' : 'not-allowed',
-                                transition: 'all 0.3s ease'
-                            }}
-                        >
-                            Submit Answer
-                        </button>
+                        <div className="button-row">
+                            <button
+                                onClick={() => handleAnswerSubmit()}
+                                disabled={!currentAnswer.trim()}
+                                className={`button primary ${!currentAnswer.trim() ? 'disabled' : ''}`}
+                            >
+                                Submit Answer
+                            </button>
+                            <button onClick={skipQuestion} className="button skip">
+                                Skip Question →
+                            </button>
+                        </div>
                     </div>
-                </>
+                </div>
             )}
 
             {isCameraQuestion && (
-                <>
-                    <h2 style={{ color: '#333', marginBottom: '20px' }}>
+                <div className="camera-section">
+                    <h2 className="question-title">
                         Sign: "{currentQuestion.correctAnswer}"
                     </h2>
 
-                    <div style={canvasContainerStyle}>
+                    <div className="camera-container">
                         <video 
-                            ref={translatorVideoRef}
+                            ref={videoRef}
                             autoPlay 
                             playsInline 
                             muted
-                            style={{ 
-                                width: '100%', 
-                                height: '100%', 
-                                objectFit: 'cover' 
-                            }}
+                            className="video-feed"
+                            style={{ display: cameraReady ? 'block' : 'none' }}
+                        />
+                        
+                        {!cameraReady && !cameraError && (
+                            <div style={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)',
+                                color: 'white',
+                                fontSize: '18px',
+                                textAlign: 'center'
+                            }}>
+                                Setting up camera...
+                            </div>
+                        )}
+                        
+                        {cameraError && (
+                            <div style={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)',
+                                color: 'red',
+                                fontSize: '16px',
+                                textAlign: 'center',
+                                padding: '20px'
+                            }}>
+                                Camera Error: {cameraError}
+                                <br />
+                                <button 
+                                    onClick={setupCamera}
+                                    className="button secondary"
+                                    style={{ marginTop: '10px' }}
+                                >
+                                    Try Again
+                                </button>
+                            </div>
+                        )}
+                        
+                        <canvas 
+                            ref={canvasRef2} 
+                            className="landmarks-overlay"
+                            style={{ display: cameraReady ? 'block' : 'none' }}
                         />
                         <canvas 
-                            ref={translatorCanvasRef2} 
-                            style={{  
-                                position: 'absolute', 
-                                top: 0, 
-                                left: '15%', 
-                                zIndex: 1,
-                                pointerEvents: 'none'
-                            }}
-                        />
-                        <canvas 
-                            ref={translatorCanvasRef1} 
+                            ref={canvasRef1} 
                             style={{ display: 'none' }}
                         />
                         
-                        {translatorRecording && (
-                            <div style={{
-                                position: 'absolute',
-                                top: '10px',
-                                right: '10px',
-                                backgroundColor: 'red',
-                                color: 'white',
-                                padding: '5px 10px',
-                                borderRadius: '5px',
-                                fontSize: '12px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '5px'
-                            }}>
-                                <div style={{
-                                    width: '8px',
-                                    height: '8px',
-                                    backgroundColor: 'white',
-                                    borderRadius: '50%',
-                                    animation: 'pulse 1s infinite'
-                                }}></div>
-                                Recording...
+                        {recording && cameraReady && (
+                            <div className="recording-indicator">
+                                <div className="recording-dot"></div>
+                                Recording... {countdown > 0 && `(${countdown}s)`}
                             </div>
                         )}
                     </div>
 
-                    <div style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '15px',
-                        marginBottom: '20px'
-                    }}>
-                        {!translatorRecording && !hasValidCameraResult && (
+                    <div className="camera-controls">
+                        {cameraReady && !hasValidCameraResult && (
                             <button
-                                onClick={translatorStartRecording}
-                                style={{
-                                    padding: '15px 30px',
-                                    backgroundColor: '#dc3545',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '10px',
-                                    fontSize: '18px',
-                                    fontWeight: 'bold',
-                                    cursor: 'pointer',
-                                    boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-                                    transition: 'all 0.3s ease'
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.backgroundColor = '#c82333';
-                                    e.currentTarget.style.transform = 'translateY(-2px)';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.backgroundColor = '#dc3545';
-                                    e.currentTarget.style.transform = 'translateY(0)';
-                                }}
+                                onClick={handleStartRecording}
+                                className={`button ${recording ? 'stop' : 'record'}`}
                             >
-                                Start Signing
+                                {recording ? 'Stop Signing' : 'Start Signing'}
                             </button>
                         )}
 
-                        {translatorRecording && (
-                            <button
-                                onClick={translatorStartRecording}
-                                style={{
-                                    padding: '15px 30px',
-                                    backgroundColor: '#6c757d',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '10px',
-                                    fontSize: '18px',
-                                    fontWeight: 'bold',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                Stop Signing
-                            </button>
-                        )}
-
-                        {hasValidCameraResult && (
-                            <div style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                gap: '10px'
-                            }}>
-                                <div style={{
-                                    padding: '15px 30px',
-                                    backgroundColor: '#17a2b8',
-                                    color: 'white',
-                                    borderRadius: '10px',
-                                    fontSize: '18px',
-                                    fontWeight: 'bold'
-                                }}>
-                                    Detected: "{cleanTranslatorResult}"
+                        {hasValidCameraResult && cameraReady && (
+                            <div className="result-section">
+                                <div className="detection-result">
+                                    Detected: "{cleanResult}"
                                 </div>
                                 
-                                <div style={{ 
-                                    fontSize: '14px', 
-                                    color: '#666',
-                                    marginBottom: '10px'
-                                }}>
-                                    Confidence: {translatorConfidence}
+                                <div className="confidence-score">
+                                    Confidence: {confidence}
                                 </div>
                                 
-                                <div style={{ display: 'flex', gap: '10px' }}>
+                                <div className="button-row">
                                     <button
                                         onClick={handleCameraAnswerSubmit}
-                                        style={{
-                                            padding: '12px 24px',
-                                            backgroundColor: '#28a745',
-                                            color: 'white',
-                                            border: 'none',
-                                            borderRadius: '8px',
-                                            fontSize: '16px',
-                                            fontWeight: 'bold',
-                                            cursor: 'pointer'
-                                        }}
+                                        className="button primary"
                                     >
-                                        Submit This Answer
+                                        ✓ Submit This Answer
                                     </button>
-                                    
                                     <button
-                                        onClick={translatorStartRecording}
-                                        style={{
-                                            padding: '12px 24px',
-                                            backgroundColor: '#6c757d',
-                                            color: 'white',
-                                            border: 'none',
-                                            borderRadius: '8px',
-                                            fontSize: '16px',
-                                            fontWeight: 'bold',
-                                            cursor: 'pointer'
-                                        }}
+                                        onClick={handleStartRecording}
+                                        className="button secondary"
                                     >
-                                        Try Again
+                                      Try Again
+                                    </button>
+                                    <button onClick={skipQuestion} className="button skip">
+                                        Skip Question →
                                     </button>
                                 </div>
                             </div>
                         )}
+
+                        {cameraReady && !hasValidCameraResult && !recording && (
+                            <button onClick={skipQuestion} className="button skip">
+                                Skip Question →
+                            </button>
+                        )}
+                        
+                        {!cameraReady && !cameraError && (
+                            <div style={{ color: 'rgba(255,255,255,0.8)', textAlign: 'center' }}>
+                                Initializing camera for {category} detection...
+                            </div>
+                        )}
                     </div>
 
-                    <div style={{
-                        backgroundColor: '#f8f9fa',
-                        padding: '15px',
-                        borderRadius: '10px',
-                        marginBottom: '20px',
-                        textAlign: 'center'
-                    }}>
-                        <p style={{ color: '#666', margin: '0', fontSize: '14px' }}>
+                    <div className="instructions">
+                        <p>
                             <strong>Instructions:</strong> Position your hands clearly in the camera frame and sign "{currentQuestion.correctAnswer}".
                             <br />
-                            Click "Start Signing" when ready, then perform the sign and hold it steady for recognition.
+                            The recording will automatically stop after 5 seconds, or click "Stop Signing" to end early.
+                            <br />
+                            <small>Detection scope: {currentCategoryData.name}</small>
                         </p>
                     </div>
-                </>
+                </div>
             )}
 
-            <div style={{
-                marginTop: '30px',
-                color: '#666',
-                textAlign: 'center'
-            }}>
+            <div className="quiz-footer">
                 <p>Current Score: {score}/{quizQuestions.length}</p>
-                <p style={{ fontSize: '14px' }}>
+                <p className="question-type-info">
                     Question Type: {isAnimationQuestion ? 'Watch and Type' : 'Sign with Camera'}
                     {isCameraQuestion && (
-                        <><br />Target: {currentQuestion.correctAnswer}</>
+                        <><br />Target: {currentQuestion.correctAnswer} | Category: {category}</>
                     )}
                 </p>
             </div>
-
-            <style jsx>{`
-                @keyframes pulse {
-                    0% { opacity: 1; }
-                    50% { opacity: 0.5; }
-                    100% { opacity: 1; }
-                }
-            `}</style>
         </div>
     );
 }

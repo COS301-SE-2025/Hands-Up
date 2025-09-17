@@ -76,7 +76,7 @@ class SignLanguageAPI {
     }
   }
 
-  
+
   /**
    * Process an image for sign language recognition
    * @param {Blob} imageBlob - The image blob to process
@@ -172,7 +172,7 @@ class SignLanguageAPI {
 
   /**
    * Health check for the API
-   * @returns {Promise<boolean>} 
+   * @returns {Promise<boolean>}
    */
   async healthCheck() {
     try {
