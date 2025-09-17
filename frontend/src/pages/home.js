@@ -18,7 +18,7 @@ const features = [
 ];
 
 export function Home(){
-    const { currentUser, isLoggedIn} = useAuth();
+    const { currentUser, isLoggedIn, justSignedUp} = useAuth();
     const { stats } = useLearningStats() || {};
 
     // Updated state to hold the word and the landmark data for the sign of the day
