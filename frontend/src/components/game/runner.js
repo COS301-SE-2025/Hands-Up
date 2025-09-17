@@ -153,7 +153,7 @@ export default function Runner({ gameStarted }) {
 
   });
 
-  return (<primitive object={scene} position={[currentX, currentY, 50]} rotation={[0, Math.PI, 0]} scale={[1.1, 1.1, 1.1]}/>);
+  return (<primitive object={scene} position={[currentX, currentY, 50]} rotation={[0, Math.PI, 0]} scale={1}/>);
 }
 
 Runner.propTypes = {
