@@ -95,7 +95,7 @@ export default function GameGuide() {
         <div
             style={{
             position: "absolute",
-            top: "5%",
+            top: "0%",
             width: "100%",
             textAlign: "center",
             fontSize: "3vw",
@@ -110,7 +110,7 @@ export default function GameGuide() {
             style={{
             whiteSpace: "pre-line",
             position: "absolute",
-            top: "15%",
+            top: "10%",
             width: "100%",
             textAlign: "center",
             fontSize: "2vw",
@@ -125,7 +125,7 @@ export default function GameGuide() {
         {step === 4 && (
             <div style={{
                 position: 'absolute',
-                top: '20%',
+                top: '12%',
                 left: '10%',
                 width: '80%',
                 textAlign: 'center',
@@ -158,7 +158,7 @@ export default function GameGuide() {
         {lifeLost && <LifeLostSign />}
 
         <RunnerPosProvider>
-            <Canvas camera={{ position: [0, 2, 56], fov: 60 }}>
+            <Canvas camera={{ position: [0, 5, 58], fov: 50, rotation: [-0.2, 0, 0] }}>
                 <Suspense fallback={null}>
                     <ambientLight intensity={1.5} />
                     <Road />
