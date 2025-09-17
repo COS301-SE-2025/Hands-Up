@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from '../contexts/authContext.js';
+import { DexterityToggle } from '../components/dexterityToggle.js';
 import "../styles/userProfile.css"; 
 import {
     uniqueUsername,
@@ -686,6 +687,7 @@ export function UserProfile() {
                         <p className="username">@{currentUser.username}</p>
                         <p className="email">{currentUser.email}</p>
                         <p className="member-since">Member since: {currentUser?.createdAt ? new Date(currentUser.createdAt).toLocaleDateString() : new Date().toLocaleDateString()}.</p>
+                        <DexterityToggle />
                     </div>
                 </div>
 
