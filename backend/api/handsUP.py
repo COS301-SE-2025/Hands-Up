@@ -12,7 +12,3 @@ app.add_middleware(
     allow_methods=["*"],  
     allow_headers=["*"],  
 )
-
-@app.get("/handsUPApi")
-async def root():
-    return {"message": "Welcome to the Hands UP API"}

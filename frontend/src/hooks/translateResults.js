@@ -23,10 +23,7 @@ export function useTranslator() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [sequenceNum, setSequenceNum] = useState(90);
 
-    const stopRecording = useCallback(async () => {
-        setRecording(false);
-        setAutoCaptureEnabled(false);
-        setLandmarkFrames([]);
+    const convertGloss = async () => {
 
         if (result.trim()) {
             const hasAlphabets = /[a-zA-Z]/.test(result);
@@ -63,7 +60,13 @@ export function useTranslator() {
                 console.error("Error producing sentence:", err);
             }
         }
-    }, [result, setRecording, setLandmarkFrames, setAutoCaptureEnabled]);
+    }
+
+    const stopRecording = useCallback(async () => {
+        setRecording(false);
+        setAutoCaptureEnabled(false);
+        setLandmarkFrames([]);
+    }, [setRecording, setLandmarkFrames, setAutoCaptureEnabled]);
 
     const startRecording = useCallback(async () => {
         if (recording) {
@@ -106,7 +109,6 @@ export function useTranslator() {
                 console.error("Invalid response from API:", response);
                 return;
             }
-
             
             setResult(prev => {
                 if (activeModelRef.current === 'alpha') {
@@ -197,6 +199,28 @@ export function useTranslator() {
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            }
+            animationFrameId = requestAnimationFrame(draw);
+        };
+
+        draw();
+        return () => cancelAnimationFrame(animationFrameId);
+    }, [isProcessing, canvasRef1, videoRef]);
+
+
+    useEffect(() => {
+        const canvas = canvasRef1.current;
+        const video = videoRef.current;
+        if (!canvas || !video) return;
+
+        const ctx = canvas.getContext('2d');
+        let animationFrameId;
+
+        const draw = () => {
+            if (video.readyState >= 2) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
                 if (isProcessing) {
                     ctx.fillStyle = 'rgba(0,0,0,0.5)'; 
@@ -232,8 +256,8 @@ export function useTranslator() {
    useEffect(() => {
         let intervalId;
 
-        const requiredFrames = modelState.model === 'glosses' ? 40 : 20;
-        const intervalDuration = 600 / requiredFrames; 
+        const requiredFrames = modelState.model === 'glosses' ? 90 : 20;
+        const intervalDuration = 500 / requiredFrames; 
 
         if (autoCaptureEnabled && videoRef.current) {
             intervalId = setInterval(() => {
@@ -288,5 +312,6 @@ export function useTranslator() {
         autoCaptureEnabled,
         setAutoCaptureEnabled,
         landmarkFrames,
+        convertGloss,
     };
 }

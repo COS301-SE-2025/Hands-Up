@@ -24,6 +24,7 @@ export function Translator(){
     capturedBlob,
     startRecording,
     setResult,
+    convertGloss
   } = useTranslator();
 
   useSwitchLandmarks(videoRef, canvasRef2);
@@ -158,6 +159,7 @@ export function Translator(){
                   aria-label='Volume Up'
                   className="recognizer-speak-button" 
                   disabled={speakDisabled}
+                  title="Play translation audio"
                   onClick={speak} 
                 >
                   <i className="fas fa-volume-up"></i>
@@ -165,10 +167,11 @@ export function Translator(){
                 <button 
                   className="recognizer-speak-button" 
                   disabled={!capturedBlob}
-                  title="Send to API for processing"
+                  title="Translate Gloss to English"
                   style={{ marginLeft: '10px' }}
+                  onClick={convertGloss}
                 >
-                  <i className="fas fa-cloud-upload-alt"></i>
+                  <i className="fas fa-comment"></i>
                 </button>
                 <div className="recognizer-audio-progress-container">
                   <div 

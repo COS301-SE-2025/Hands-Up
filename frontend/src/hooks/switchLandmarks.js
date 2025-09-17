@@ -61,7 +61,7 @@ export function useSwitchLandmarks(videoRef, canvasRef) {
         const canvas = canvasRef.current;
 
         canvas.width = video.videoWidth*0.55;
-        canvas.height = video.videoHeight*0.8;
+        canvas.height = video.videoHeight*0.5;
 
         let text = modelState.model==='alpha'?'Alphabet':modelState.model==='num'?'Numbers': 'Glosses';
         drawDisplay(canvas, text);
@@ -78,18 +78,17 @@ export function useSwitchLandmarks(videoRef, canvasRef) {
         if (results.landmarks && results.landmarks.length > 0) {
 
           if (results.landmarks.length > 1) {
-            console.log("Two hands detected → disabling swipe switching");
             handXHistory = [];
             handYHistory = [];
             handTimeHistory = [];
             animationFrameId = requestAnimationFrame(detect);
-            return; // skip swipe detection this frame
+            return; 
           }
           
           for (let i = 0; i < results.landmarks.length; i++) {
             const landmarks = results.landmarks[i];
             const handedness = results.handedness[0][0].categoryName; 
-            console.log("Handedness:", handedness);
+           
             if (handedness !== "Right") continue; 
 
             const keypoints = [landmarks[0], landmarks[5], landmarks[9], landmarks[13], landmarks[17]];
@@ -107,7 +106,7 @@ export function useSwitchLandmarks(videoRef, canvasRef) {
             }
 
             if (handXHistory.length === SWIPE_HISTORY_LIMIT) {
-              console.log("Swipe history full");
+              
               const startX = handXHistory[0];
               const endX   = handXHistory[SWIPE_HISTORY_LIMIT - 1];
               const startY = handYHistory[0];
@@ -119,9 +118,6 @@ export function useSwitchLandmarks(videoRef, canvasRef) {
               const deltaY = endY - startY;
               const duration = endTime - startTime;
 
-              console.log("Starting:", video.videoWidth * 0.3, startX);
-              console.log("Ending:", video.videoWidth * 0.3, endX);
-
               if (
                 duration < SWIPE_TIME_LIMIT &&             
                 Math.abs(deltaX) > SWIPE_THRESHOLD &&      
@@ -130,13 +126,10 @@ export function useSwitchLandmarks(videoRef, canvasRef) {
                 endX > video.videoWidth * 0.3 &&               
                 deltaX > 0                                 
               ) {
-                console.log("Right hand swipe LEFT detected → switching model");
                 switchModel();
                 handXHistory = [];
                 handYHistory = [];
                 handTimeHistory = [];
-              } else{
-                console.log("Swipe not detected or criteria not met:", { deltaX, deltaY, duration });
               }
             }
           }
