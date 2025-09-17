@@ -6,6 +6,7 @@ import { Loader } from '@react-three/drei';
 import { RunnerPosProvider } from '../contexts/game/runnerPosition';
 import { VehicleSpawner } from '../components/game/spawnCars';
 import { CoinSpawner } from '../components/game/letterCoins';
+import CameraPOV from '../components/game/cameraPOV';
 import Road from '../components/game/road';
 import Runner from '../components/game/runner';
 import LifeLostSign from '../components/game/removeLife';
@@ -127,7 +128,7 @@ export function Game() {
             fontSize: '6vw',
             fontFamily: 'Lilita One, sans-serif',            
             color: 'white',
-            zIndex: 100,
+            zIndex: 10,
           }}>
             {currentWord?.split("").map((l, i) => (
               <span key={i} style={{ 
@@ -140,7 +141,7 @@ export function Game() {
             ))}
           </div>
 
-          <div style={{ position: 'absolute', top: 0, right: '1.5%', display: 'flex', flexDirection: 'column', zIndex: 10 }}>
+          <div style={{ position: 'absolute', top: 0, right: '1.5%', display: 'flex', flexDirection: 'column', zIndex: 11 }}>
             <svg width="80" height="80" viewBox="0 0 120 104" style={{ cursor: 'pointer' }} onClick={() => { if (!gameStarted) return; setGameStarted(false); setGameStopped(true); }} >
               <polygon points="60,0 115,30 115,74 60,104 5,74 5,30" fill="red" transform="translate(60 52) scale(0.85) translate(-60 -52)" stroke='white' strokeWidth={12} />
               <text x="60" y="54" textAnchor="middle" dominantBaseline="middle" fill="white" fontSize="22" fontWeight="bold" pointerEvents="none">
@@ -153,7 +154,8 @@ export function Game() {
           </div>
           
           <RunnerPosProvider>
-            <Canvas camera={{ position: [0, 5, 58], fov: 50, rotation: [-0.2, 0, 0] }}>
+            <Canvas>
+              <CameraPOV />
               <Suspense fallback={null}>
                 <ambientLight intensity={1.5} />
                 <directionalLight position={[0, 10, 5]} intensity={1} />

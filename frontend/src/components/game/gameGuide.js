@@ -5,6 +5,7 @@ import { Canvas } from "@react-three/fiber";
 import { RunnerPosProvider } from "../../contexts/game/runnerPosition";
 import { VehicleSpawner } from "./spawnCars";
 import { CoinSpawner } from "./letterCoins";
+import CameraPOV from './cameraPOV';
 import LifeLostSign from './removeLife';
 import Runner from "./runner";
 import Road from "./road";
@@ -175,7 +176,8 @@ export default function GameGuide() {
         {lifeLost && <LifeLostSign />}
 
         <RunnerPosProvider>
-            <Canvas camera={{ position: [0, 5, 58], fov: 50, rotation: [-0.2, 0, 0] }}>
+            <Canvas>
+                <CameraPOV />
                 <Suspense fallback={null}>
                     <ambientLight intensity={1.5} />
                     <Road />
