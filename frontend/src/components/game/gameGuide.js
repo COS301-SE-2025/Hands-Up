@@ -96,7 +96,7 @@ export default function GameGuide() {
         <div
             style={{
             position: "absolute",
-            top: "0%",
+            top: "2vh",
             width: "100%",
             textAlign: "center",
             fontSize: "3vw",
@@ -111,7 +111,7 @@ export default function GameGuide() {
             style={{
             whiteSpace: "pre-line",
             position: "absolute",
-            top: "10%",
+            top: "10vh",
             width: "100%",
             textAlign: "center",
             fontSize: "2vw",
@@ -126,7 +126,7 @@ export default function GameGuide() {
         {step === 1 && (
             <div style={{
                 position: 'absolute',
-                top: '18%',
+                top: '18vh',
                 left: '10%',
                 width: '80%',
                 textAlign: 'center',
@@ -143,7 +143,7 @@ export default function GameGuide() {
         {step === 4 && (
             <div style={{
                 position: 'absolute',
-                top: '12%',
+                top: '12vh',
                 left: '10%',
                 width: '80%',
                 textAlign: 'center',
