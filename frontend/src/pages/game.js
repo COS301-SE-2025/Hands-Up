@@ -120,7 +120,7 @@ export function Game() {
 
           <div style={{
             position: 'absolute',
-            top: '5%',
+            top: '2%',
             left: '10%',
             width: '80%',
             textAlign: 'center',
@@ -153,7 +153,7 @@ export function Game() {
           </div>
           
           <RunnerPosProvider>
-            <Canvas camera={{ position: [0, 2, 54], fov: 60 }}>
+            <Canvas camera={{ position: [0, 5, 58], fov: 48, rotation: [-0.2, 0, 0] }}>
               <Suspense fallback={null}>
                 <ambientLight intensity={1.5} />
                 <directionalLight position={[0, 10, 5]} intensity={1} />
