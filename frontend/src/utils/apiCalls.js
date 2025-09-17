@@ -24,13 +24,13 @@ export const handleApiResponse = async (response) => {
 
 
 export const translateSequence = async (blobs) => {
-    console.log('translateSequence called with blobs:', blobs?.length);
+    
 
     const formData = new FormData();
     blobs.forEach((blob, i) => {
         const filename = `frame${i}.jpg`;
         formData.append('frames', blob, filename);
-        console.log(`Added frame ${i}: ${filename}, size: ${blob.size}`);
+        
     });
 
     try {
@@ -53,7 +53,7 @@ export const translateSequence = async (blobs) => {
         }
 
         const data = await response.json();
-        console.log("Prediction result:", data);
+        
         return data;
     } catch (err) {
         console.error("Error during fetch or response processing:", err);
@@ -72,17 +72,17 @@ export const processLetters = async (formData) => {
     });
 
     const data = await response.json();
-    console.log("Response:", data);
+    console.log(data);
     return (data);
 
   } catch (error) {
-    console.error(error);
+    
     return ('Error processing image');
   }
 };
 
 export const processWords = async (formData) => {
-  console.log("Processing captured image...");
+  
 
   try {
     const response = await fetch(`${TRANSLATE_API_ROUTE}/processWords`, {
@@ -91,11 +91,11 @@ export const processWords = async (formData) => {
     });
 
     const data = await response.json();
-    console.log("Response:", data);
+    
     return (data);
 
   } catch (error){
-    console.error(error);
+    
     return ('Error processing words');
   }
 };
@@ -103,8 +103,7 @@ export const processWords = async (formData) => {
 
 export const uploadUserAvatar = async (userID, formData) => {
     try {
-        console.log('Uploading avatar for user:', userID);
-        console.log('FormData entries:');
+        
         for (let [key, value] of formData.entries()) {
             console.log(`${key}:`, value instanceof File ? `File: ${value.name} (${value.size} bytes)` : value);
         }
@@ -117,7 +116,21 @@ export const uploadUserAvatar = async (userID, formData) => {
 
         return handleApiResponse(response);
     } catch (error) {
-        console.error("Error in uploadUserAvatar:", error);
+        
+        throw error;
+    }
+};
+
+export const deleteUserAvatar = async (userID) => {
+    
+    try {
+        const response = await fetch(`${API_BASE_URL_USER}/${userID}/avatar`, {
+            method: 'DELETE',
+            credentials: 'include',
+        });
+        return handleApiResponse(response);
+    } catch (error) {
+        console.error("Error in deleteUserAvatar:", error);
         throw error;
     }
 };
@@ -260,7 +273,7 @@ export const signup = async ({ name, surname, username, email, password }) => {
 };
 
 export const resetPassword = async (email) => {
-    console.log("[API_CALLS - resetPassword] Sending password reset request for:", email);
+    
     
     try {
         const response = await fetch(`${API_BASE_URL_AUTH}/reset-password`, {
@@ -353,7 +366,7 @@ export const logout = async () => {
 };
 
 export const getUserData = async () => {
-    console.log("apiCalls - getUserData: Attempting to fetch current user data...");
+    
     try {
         const response = await fetch(`${API_BASE_URL_USER}/me`, {
             method: 'GET',

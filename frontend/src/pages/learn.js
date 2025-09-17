@@ -167,7 +167,7 @@ export function Learn() {
         return saved ? JSON.parse(saved) : {};
     });
 
-    console.log(stats);
+    
     const lessonsCompleted = stats?.lessonsCompleted || 0;
     const signsLearned = stats?.signsLearned || 0;
     const quizzesCompleted = stats?.quizzesCompleted || 0;

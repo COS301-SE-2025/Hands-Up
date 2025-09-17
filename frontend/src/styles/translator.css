@@ -95,7 +95,7 @@ video {
 {
   border-radius: 0.75rem;
   width: 100%;
-  height: 20rem;
+  height: 35rem;
   background-color: #f3f4f6;
   object-fit: cover;
   border: 4px solid #2da335;
@@ -198,6 +198,14 @@ video {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   transition: background-color 0.3s;
   border: none;
+}
+
+.recognizer-test-button {
+  background-color: var(--light-yellow);
+}
+
+.recognizer-test-button:hover {
+  background-color: var(--dark-yellow);
 }
 
 .recognizer-capture-button,

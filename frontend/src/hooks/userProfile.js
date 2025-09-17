@@ -10,7 +10,6 @@ export function useUserProfile() {
   const [formSuccess, setFormSuccess] = useState("");
   const navigate = useNavigate();
 
-  // Effect to handle initial user data loading and authentication check
   useEffect(() => {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
     const storedUser = localStorage.getItem('userData');
@@ -32,7 +31,7 @@ export function useUserProfile() {
     }
   }, [navigate]);
 
-  // Effect to clear form success message after a delay
+
   useEffect(() => {
     if (formSuccess) {
       const timer = setTimeout(() => {
@@ -42,7 +41,7 @@ export function useUserProfile() {
     }
   }, [formSuccess]);
 
-  // Function to fetch user data from the API
+
   const fetchUserData = async (userID) => {
     try {
       const response = await fetch(`http://localhost:2000/handsUPApi/user/${userID}`);
@@ -56,7 +55,6 @@ export function useUserProfile() {
     }
   };
 
-  // Function to handle saving changes to user profile
   const handleSaveChanges = async (e) => {
     e.preventDefault();
 
@@ -68,7 +66,7 @@ export function useUserProfile() {
     const confirmPassword = document.getElementById("confirmPassword").value;
     const errors = {};
 
-    // Check if details actually changed
+
     if (
       name === userData.name &&
       surname === userData.surname &&
@@ -82,7 +80,6 @@ export function useUserProfile() {
       return;
     }
 
-    // Validate empty fields
     if (!name) errors.name = "Name is required.";
     if (!surname) errors.surname = "Surname is required.";
     if (!username) errors.username = "Username is required.";
@@ -93,7 +90,7 @@ export function useUserProfile() {
       return;
     }
 
-    // Validate name and surname format
+
     const nameRegex = /^[A-Za-z]+$/;
     if (name && !nameRegex.test(name)) {
       errors.name = "Name must contain only letters.";
@@ -107,7 +104,6 @@ export function useUserProfile() {
       return;
     }
 
-    // Check for unique username
     if (username !== userData.username) {
       try {
         const data = await uniqueUsername(username);  
@@ -124,7 +120,7 @@ export function useUserProfile() {
       }
     }
 
-    // Validate email format and uniqueness
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (email && !emailRegex.test(email)) {
       errors.email = "Invalid email format.";
@@ -147,7 +143,6 @@ export function useUserProfile() {
       }
     }
 
-    // Handle password updates
     if (newPassword || confirmPassword) {
       if (!newPassword) errors.newPassword = "Password is required.";
       if (!confirmPassword) errors.confirmPassword = "Confirm password is required.";
@@ -160,7 +155,6 @@ export function useUserProfile() {
         return;
       }
 
-      // Update user details with password
       try {
         await updateUserPassword(userData.userID, name, surname, username, email, newPassword);
         const updatedUser = {
@@ -178,7 +172,7 @@ export function useUserProfile() {
         return;
       }
     } else {
-      // Update user details without password
+
       try {
         await updateUserDetails(userData.userID, name, surname, username, email);
         const updatedUser = {
@@ -196,7 +190,7 @@ export function useUserProfile() {
         return;
       }
     }
-    setFormErrors({}); // Clear errors on successful update
+    setFormErrors({}); 
   };
 
   return {

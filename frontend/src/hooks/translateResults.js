@@ -24,46 +24,46 @@ export function useTranslator() {
     const [sequenceNum, setSequenceNum] = useState(90);
 
     const stopRecording = useCallback(async () => {
-    setRecording(false);
-    setAutoCaptureEnabled(false);
-    setLandmarkFrames([]);
+        setRecording(false);
+        setAutoCaptureEnabled(false);
+        setLandmarkFrames([]);
 
-    if (result.trim()) {
-        const hasAlphabets = /[a-zA-Z]/.test(result);
-        const wordCount = result.trim().split(/\s+/).length;
+        if (result.trim()) {
+            const hasAlphabets = /[a-zA-Z]/.test(result);
+            const wordCount = result.trim().split(/\s+/).length;
 
-        const video = videoRef.current;
-        const canvas = canvasRef1.current;
+            const video = videoRef.current;
+            const canvas = canvasRef1.current;
 
-        if (!hasAlphabets || wordCount < 2) {
-            const ctx = canvas.getContext('2d');
+            if (!hasAlphabets || wordCount < 2) {
+                const ctx = canvas.getContext('2d');
 
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = 'rgba(0,0,0,0.5)'; 
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.translate(canvas.width, 0);
-            ctx.scale(-1, 1);
+                ctx.fillStyle = 'rgba(0,0,0,0.5)'; 
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.translate(canvas.width, 0);
+                ctx.scale(-1, 1);
 
-            ctx.font = 'bold 24px Sans-serif';
-            ctx.fillStyle = 'red';
-            ctx.textAlign = 'center';
-            ctx.fillText('ENGLISH NOT AVAILABLE...', canvas.width / 2, canvas.height / 2);
-        }
-
-        try {
-            const translation = await produceSentence(result);
-            if (translation) {
-                setResult(translation.translation);
+                ctx.font = 'bold 24px Sans-serif';
+                ctx.fillStyle = 'red';
+                ctx.textAlign = 'center';
+                ctx.fillText('ENGLISH NOT AVAILABLE...', canvas.width / 2, canvas.height / 2);
             }
-        } catch (err) {
-            console.error("Error producing sentence:", err);
+
+            try {
+                const translation = await produceSentence(result);
+                if (translation) {
+                    setResult(translation.translation);
+                }
+            } catch (err) {
+                console.error("Error producing sentence:", err);
+            }
         }
-    }
-}, [result, setRecording, setLandmarkFrames, setAutoCaptureEnabled]);
+    }, [result, setRecording, setLandmarkFrames, setAutoCaptureEnabled]);
 
     const startRecording = useCallback(async () => {
         if (recording) {
@@ -107,7 +107,7 @@ export function useTranslator() {
                 return;
             }
 
-            console.log(response)
+            
             setResult(prev => {
                 if (activeModelRef.current === 'alpha') {
                     if (response?.letter === 'SPACE') return prev + ' ';
@@ -248,8 +248,13 @@ export function useTranslator() {
     useEffect(() => {
         const enableCamera = async () => {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                if (videoRef.current) videoRef.current.srcObject = stream;
+                const stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    width: { ideal: 1920 }, 
+                    height: { ideal: 1080 },
+                }
+                });
+                videoRef.current.srcObject = stream;
             } catch (err) {
                 console.error(err);
                 setResult('Camera access denied.');

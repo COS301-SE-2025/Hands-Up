@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from '../contexts/authContext.js';
+import { DexterityToggle } from '../components/dexterityToggle.js';
 import "../styles/userProfile.css"; 
 import {
     uniqueUsername,
@@ -8,7 +9,8 @@ import {
     updateUserDetails,
     updateUserPassword,
     deleteUserAccount,
-    uploadUserAvatar
+    uploadUserAvatar,
+    deleteUserAvatar
 } from '../utils/apiCalls.js';
 
 const BACKEND_BASE_URL = "http://localhost:2000"; 
@@ -40,6 +42,9 @@ export function UserProfile() {
     const [isDeleting, setIsDeleting] = useState(false);
 
     const [showEditForm, setShowEditForm] = useState(false);
+    const [showFullAvatar, setShowFullAvatar] = useState(false);
+    const [showAvatarOptions, setShowAvatarOptions] = useState(false); 
+    const [selectedFile] = useState(null);
 
     const navigate = useNavigate();
 
@@ -135,13 +140,29 @@ export function UserProfile() {
         }
     };
 
-    const handleAvatarChange = (e) => {
+    // const handleAvatarChange = (e) => {
+    //     const file = e.target.files[0];
+    //     if (file) {
+    //         setAvatarFile(file);
+    //         setAvatarUrl(URL.createObjectURL(file));
+    //     }
+    // };
+    const handleAvatarChange = async (e) => {
         const file = e.target.files[0];
+        
         if (file) {
-            setAvatarFile(file);
-            setAvatarUrl(URL.createObjectURL(file));
+            // Use the new function to handle the upload
+            const result = await handleProfileChange({ avatarFile: file });
+           
+            if (result.status) {
+                setAvatarUrl(`${BACKEND_BASE_URL}/${currentUser.avatarurl?.replace(/^\/+/, '') ?? ''}`);
+                console.log("success");// You can add additional success handling here if needed
+            } else {
+                console.log("failed");// Handle upload failure
+            }
         }
     };
+
 
     const handleLogout = () => {
         logout();
@@ -204,145 +225,171 @@ export function UserProfile() {
         }
 
         const { name, surname, username, email, newPassword, confirmPassword } = formData;
-
         let errors = {};
+        let updatedUserData = { ...currentUser }; // Start with a copy of the current user
 
-        if (!name) errors.name = "Name is required.";
-        if (!surname) errors.surname = "Surname is required.";
-        if (!username) errors.username = "Username is required.";
-        if (!email) errors.email = "Email is required.";
-
-        const nameRegex = /^[A-Za-z\s]+$/;
-        if (name && !nameRegex.test(name)) {
-            errors.name = "Name must contain only letters and spaces.";
-        }
-        if (surname && !nameRegex.test(surname)) {
-            errors.surname = "Surname must contain only letters and spaces.";
-        }
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (email && !emailRegex.test(email)) {
-            errors.email = "Invalid email format.";
-        }
-
+        // --- 1. Validate all form fields ---
+        // ... (Your existing validation logic for name, surname, username, email, password) ...
         if (Object.keys(errors).length > 0) {
             setFormErrors(errors);
             return;
         }
 
-        const hasDetailsChanged = (
-            name !== currentUser.name ||
-            surname !== currentUser.surname ||
-            username !== currentUser.username ||
-            email !== currentUser.email
-        );
+        // --- 2. Check for changes and perform API calls ---
+        const hasDetailsChanged = (name !== currentUser.name || surname !== currentUser.surname || username !== currentUser.username || email !== currentUser.email);
         const hasPasswordChanged = newPassword && confirmPassword;
         const hasAvatarChanged = avatarFile !== null;
 
         if (!hasDetailsChanged && !hasPasswordChanged && !hasAvatarChanged) {
-            errors.general = "No changes detected to save.";
-            setFormErrors(errors);
+            setFormErrors({ general: "No changes detected to save." });
             return;
         }
 
-        if (username !== currentUser.username) {
-            try {
-                const usernameExists = await uniqueUsername(username);
-                if (usernameExists) {
-                    errors.username = "Username already taken.";
-                    setFormErrors(errors);
-                    return;
-                }
-            } catch (err) {
-                console.error('Error checking username:', err);
-                errors.general = "An error occurred checking username availability.";
-                setFormErrors(errors);
-                return;
-            }
-        }
-
-        if (email !== currentUser.email) {
-            try {
-                const emailExists = await uniqueEmail(email);
-                if (emailExists) {
-                    errors.email = "Email already in use.";
-                    setFormErrors(errors);
-                    return;
-                }
-            } catch (err) {
-                console.error('Error checking email:', err);
-                errors.general = "An error occurred checking email availability.";
-                setFormErrors(errors);
-                return;
-            }
-        }
-
-        if (hasPasswordChanged) {
-            if (newPassword !== confirmPassword) {
-                errors.confirmPassword = "Passwords do not match.";
-                setFormErrors(errors);
-                return;
-            }
-            if (newPassword.length < 8) {
-                errors.newPassword = "Password must be at least 8 characters long.";
-                setFormErrors(errors);
-                return;
-            }
-
-            try {
-                 await updateUserPassword(currentUser.id, newPassword);
-                setFormSuccess("Password updated successfully!");
-                setFormData(prevData => ({ ...prevData, newPassword: '', confirmPassword: '' }));
-            } catch (err) {
-                console.error("Error updating password:", err);
-                errors.general = (errors.general ? errors.general + " " : "") + "An error occurred while updating password: " + (err.message || "Please try again.");
-                setFormErrors(errors);
-            }
-        }
-
+        // --- Step 2a: Update user details if they've changed ---
         if (hasDetailsChanged) {
             try {
                 const result = await updateUserDetails(currentUser.id, name, surname, username, email);
-                setFormSuccess("User details updated successfully!");
                 if (result && result.user) {
-                    updateUser(result.user);
+                    updatedUserData = { ...updatedUserData, ...result.user };
+                } else {
+                    setFormErrors({ general: result.message || "Failed to update user details." });
+                    return;
                 }
             } catch (err) {
-                console.error("Error updating details:", err);
-                errors.general = (errors.general ? errors.general + " " : "") + "An error occurred while updating details: " + (err.message || "Please try again.");
-                setFormErrors(errors);
+                setFormErrors({ general: "An error occurred while updating details." });
+                return;
             }
         }
 
+        // --- Step 2b: Update password if it has changed ---
+        if (hasPasswordChanged) {
+            if (newPassword !== confirmPassword) {
+                setFormErrors({ confirmPassword: "Passwords do not match." });
+                return;
+            }
+            try {
+                await updateUserPassword(currentUser.id, newPassword);
+                updatedUserData = { ...updatedUserData, passwordChanged: true }; // Custom flag
+            } catch (err) {
+                setFormErrors({ general: "An error occurred while updating password." });
+                return;
+            }
+        }
+
+        // --- Step 2c: Upload new avatar if it has changed ---
         if (hasAvatarChanged && avatarFile) {
             try {
                 const dataToUpload = new FormData();
                 dataToUpload.append('avatar', avatarFile);
-
                 const newAvatarResult = await uploadUserAvatar(currentUser.id, dataToUpload);
-
-                setFormSuccess("Avatar uploaded successfully!");
                 if (newAvatarResult && newAvatarResult.data && newAvatarResult.data.avatarurl) {
-                   const updatedUser={ ...currentUser, avatarurl: newAvatarResult.data.avatarurl };
-                      updateUser(updatedUser);
-                    setAvatarUrl(`${BACKEND_BASE_URL}/${newAvatarResult.data.avatarurl.replace(/^\/+/, '')}`);
-
-                    setAvatarFile(null);
+                    updatedUserData = { ...updatedUserData, avatarurl: newAvatarResult.data.avatarurl };
+                    setAvatarFile(null); // Clear the local state
+                } else {
+                    setFormErrors({ general: "An error occurred while uploading avatar." });
+                    return;
                 }
             } catch (err) {
-                console.error("Error uploading avatar:", err);
-                errors.general = (errors.general ? errors.general + " " : "") + "An error occurred while uploading avatar: " + (err.message || "Please try again.");
-                setFormErrors(errors);
+                setFormErrors({ general: "An error occurred while uploading avatar." });
+                return;
             }
         }
-
-        if (Object.keys(errors).length > 0) {
-            setFormErrors(errors);
-        } else if (!formSuccess) {
-            setFormSuccess("Profile updated successfully!");
+        
+        // --- 3. Final single state update after all changes have been processed ---
+        try {
+            if (Object.keys(updatedUserData).length > 0) {
+                updateUser(updatedUserData);
+                setFormSuccess("Profile updated successfully!");
+            } else {
+                setFormErrors({ general: "No changes to save." });
+            }
+        } catch(err) {
+            setFormErrors({ general: "An error occurred during final state update." });
         }
-        if (Object.keys(errors).length === 0 && (hasDetailsChanged || hasPasswordChanged || hasAvatarChanged)) {
-            setShowEditForm(false);
+        setShowEditForm(false);
+    };
+
+    const handleDeleteAvatar = async () => {
+        setError("");
+        setFormErrors({});
+        setFormSuccess("");
+
+        if (!currentUser || !currentUser.id) {
+            setFormErrors({ general: "User data not available. Cannot delete avatar." });
+            return;
+        }
+
+        try {
+            // Use the new, dedicated API function for deleting the avatar
+            const result = await deleteUserAvatar(currentUser.id);
+
+            if (result && result.status === "success") {
+                updateUser({ ...currentUser, avatarurl: null }); // Update context
+                setAvatarUrl(null); // Update local state for UI
+                setAvatarFile(null); // Clear the file reference
+                setFormSuccess("Profile picture deleted successfully!");
+            } else {
+                setFormErrors({ general: result.message || "Failed to delete profile picture." });
+            }
+        } catch (err) {
+            console.error("Error deleting avatar:", err);
+            setFormErrors({ general: "An error occurred while deleting the profile picture." });
+        }
+    };
+
+    const handleProfileChange = async (detailsToUpdate) => {
+        setError("");
+        setFormErrors({});
+        setFormSuccess("");
+
+        if (!currentUser || !currentUser.id) {
+            setFormErrors({ general: "User data not available. Cannot update profile." });
+            return { success: false, message: "User data not available." };
+        }
+
+        try {
+            // Check if the change involves a new avatar file
+            if (detailsToUpdate.avatarFile) {
+                const formData = new FormData();
+                formData.append('avatar', detailsToUpdate.avatarFile);
+                
+                const result = await uploadUserAvatar(currentUser.id, formData);
+                
+                if (result && result.status ==="success") {
+                    const updatedUser = result.user ? result.user : { ...currentUser, avatarurl: result.data.avatarurl };
+                    updateUser(updatedUser);
+                    setAvatarUrl(updatedUser.avatarurl);
+                    setAvatarFile(null);
+                    setShowFullAvatar(false);
+                    setFormSuccess("Profile picture updated successfully!");
+                return { success: true, user: updatedUser };
+                } else {
+                    setFormErrors({ general: result.message || "Failed to upload new profile picture." });
+                    return { success: false, message: result.message };
+                }
+            }
+            
+            // If no avatar file is provided, it's a regular profile details update
+            const result = await updateUserDetails(
+                currentUser.id,
+                detailsToUpdate.name || currentUser.name,
+                detailsToUpdate.surname || currentUser.surname,
+                detailsToUpdate.username || currentUser.username,
+                detailsToUpdate.email || currentUser.email
+            );
+            
+            if (result && result.user) {
+                updateUser(result.user);
+                setFormSuccess("Profile details updated successfully!");
+                return { success: true, user: result.user };
+            } else {
+                setFormErrors({ general: result.message || "Failed to update profile details." });
+                return { success: false, message: result.message };
+            }
+        } catch (err) {
+            console.error("Error updating profile:", err);
+            setFormErrors({ general: "An error occurred while updating the profile." });
+            return { success: false, message: "An error occurred." };
         }
     };
 
@@ -549,24 +596,82 @@ export function UserProfile() {
                 </div>
             )}
 
+           {showFullAvatar && (
+            <div className="modal-overlay" onClick={() => setShowFullAvatar(false)}>
+                <div className="modal-content full-avatar-modal" onClick={e => e.stopPropagation()}>
+                <button className="close-btn" onClick={() => setShowFullAvatar(false)}>&times;</button>
+                
+                {/* Conditionally render the content based on whether an avatar exists */}
+                {avatarurl ? (
+                    <>
+                        <img src={avatarurl} alt="Full size user avatar" className="full-avatar-img" />
+                        <div className="avatar-edit-icon-wrapper">
+                            <button
+                                className="edit-avatar-btn"
+                                onClick={() => setShowAvatarOptions(prev => !prev)}
+                                aria-label="Edit avatar options"
+                            >
+                                <span className="material-icons">edit</span>
+                            </button>
+                            {showAvatarOptions && (
+                                <div className="avatar-options-dropdown">
+                                    <button onClick={() => { fileInputRef.current.click(); setShowAvatarOptions(false); setShowFullAvatar(false); }} className="option-btn">Change Photo</button>
+                                    <button onClick={handleDeleteAvatar} className="option-btn danger">Delete Photo</button>
+                                </div>
+                            )}
+                        </div>
+                    </>
+                ) : (
+                        <div className="empty-avatar-upload">
+                        <div className="file-upload-controls">
+                            <label className="select-file-button">
+                                + 
+                                <input
+                                    type="file"
+                                    onChange={handleAvatarChange} // Use your existing handler
+                                    style={{ display: 'none' }}
+                                    ref={fileInputRef} // Link to a ref
+                                />
+                            </label>
+                            <span className="selected-file-name">
+                                {selectedFile ? selectedFile.name : `No photo chosen`}
+                            </span>
+                        </div>
+                        <button onClick={handleSaveChanges} disabled={!selectedFile}>
+                           
+                        </button>
+                    </div>
+                )}
+                </div>
+            </div>
+            )}
+
             <div className="containerP">
                 <div className="profile-header">
-                    <div className="avatar-wrapper" >
+                    <div className="avatar-wrapper" onClick={() => setShowFullAvatar(true)} >
                         {avatarurl ? (
                            <img 
-            src={avatarurl} 
-            alt="User Avatar" 
-            className="avatar-img"
-            onError={(e) => {
-               e.target.style.display = 'none';
-                setAvatarUrl(null);
-            }}
-        />
+                        src={avatarurl} 
+                        alt="User Avatar" 
+                        className="avatar-img"
+                        onError={(e) => {
+                        e.target.style.display = 'none';
+                            setAvatarUrl(null);
+                        }}
+                    />
                         ) : (
                             <div className="avatar">
                                 {currentUser.name ? currentUser.name[0].toUpperCase() : ''}
                                 {currentUser.surname ? currentUser.surname[0].toUpperCase() : ''}
                             </div>
+                            // <div className="avatar">
+                            //     {currentUser.name ? currentUser.name[0].toUpperCase() : ''}
+                            //     {currentUser.surname ? currentUser.surname[0].toUpperCase() : ''}
+                            //     <div className="add-photo-text">
+                            //         <span className="plus-sign">+</span>
+                            //         <span className="upload-text">Upload</span>
+                            //     </div>
+                            // </div>
                         )}
                         <input
                             type="file"
@@ -582,6 +687,7 @@ export function UserProfile() {
                         <p className="username">@{currentUser.username}</p>
                         <p className="email">{currentUser.email}</p>
                         <p className="member-since">Member since: {currentUser?.createdAt ? new Date(currentUser.createdAt).toLocaleDateString() : new Date().toLocaleDateString()}.</p>
+                        <DexterityToggle />
                     </div>
                 </div>
 

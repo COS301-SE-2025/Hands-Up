@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import {TestSetup} from '../components/testSetup';
 import {useTranslator} from '../hooks/translateResults';
 import {renderMediaPreview} from '../components/mediaPreview';
-import {renderHistoryItem} from '../components/historyItem';
-import { useSwitchLandmarks } from '../hooks/switchLandmarks';
+import { useLandmarksDetection } from '../hooks/landmarksDetection';
+import { useAuth } from '../contexts/authContext.js';
 import '../styles/translator.css';
 
 export function Translator(){
 
   const [audioProgressWidth] = useState(0);
+  const { justSignedUp } = useAuth();
+  const [showTest, setShowTest] = useState(false);
 
   const {
     videoRef,
@@ -18,7 +21,6 @@ export function Translator(){
     recording,
     capturedImage,
     capturedType,
-    captureHistory,
     capturedBlob,
     startRecording,
     setResult,
@@ -28,6 +30,15 @@ export function Translator(){
 
   const speakDisabled = result === "";
   const [availableVoices, setAvailableVoices] = useState([]);
+
+  useEffect(() => {
+    const alreadySeenTest = localStorage.getItem("translatorTestSeen");
+
+    if (!alreadySeenTest && justSignedUp) {
+      setShowTest(true);
+      localStorage.setItem("translatorTestSeen", "true"); 
+    }
+  }, [justSignedUp]);
 
   useEffect(() => {
     const loadVoices = () => {
@@ -122,59 +133,7 @@ export function Translator(){
               </button>
             </div>
 
-            <div className="recognizer-history">
-              <h3 className="recognizer-history-title">
-                <i className="fas fa-history recognizer-history-icon"></i> Recent Captures
-              </h3>
-              <div className="recognizer-history-items">
-                {captureHistory.map((capture) => (
-                  <div 
-                    key={capture.id} 
-                    className="recognizer-history-item" 
-                    title={`${capture.type} - ${capture.timestamp}`}
-                    //onClick={() => handleHistoryClick(capture)}
-                    style={{ cursor: 'pointer', position: 'relative' }}
-                  >
-                    {renderHistoryItem(capture)}
-                    <div style={{ 
-                      position: 'absolute', 
-                      top: '2px', 
-                      right: '2px', 
-                      background: 'rgba(0,0,0,0.7)', 
-                      color: 'white', 
-                      padding: '2px 4px', 
-                      borderRadius: '3px', 
-                      fontSize: '10px' 
-                    }}>
-                      {capture.type === 'video' ? '🎥' : '📷'}
-                    </div>
-                    <div style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      background: 'rgba(0,0,0,0.3)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      opacity: 0,
-                      transition: 'opacity 0.2s',
-                      color: 'white',
-                      fontSize: '12px',
-                      fontWeight: 'bold'
-                    }}
-                    className="history-hover-overlay"
-                    >
-                    
-                    </div>
-                  </div>
-                ))}
-                {Array.from({ length: Math.max(0, 5 - captureHistory.length) }, (_, i) => (
-                  <div key={`empty-${i}`} className="recognizer-history-item"></div>
-                ))}
-              </div>
-            </div>
+            
           </div>
 
           <div className="recognizer-right-column">
@@ -227,6 +186,13 @@ export function Translator(){
               </div>
             </div>
 
+            <button className="recognizer-control-button recognizer-test-button" onClick={() => setShowTest(true)}>Test Your Environment</button>
+
+            <TestSetup
+              isOpen={showTest}
+              onClose={() => setShowTest(false)}
+            />
+
             <div className="recognizer-tips">
               <h3 className="recognizer-tips-title">
                 <i className="fas fa-lightbulb recognizer-tips-icon"></i> Tips for Better Recognition
@@ -258,7 +224,16 @@ export function Translator(){
 
             <div className="recognizer-support">
               <p className="recognizer-support-text">
-                Need help? <button className="recognizer-support-link">Contact Support</button>
+              Need help? &nbsp; 
+              <a 
+                className="recognizer-support-link" 
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=tmkdt.cos301@gmail.com&su=Support%20Request&body=Hi%20Support%20Team,%0D%0A%0D%0AI%20need%20help%20with%20..." 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{ textDecoration: 'none' }}
+              >
+                Contact Support
+              </a>
               </p>
             </div>
           </div>

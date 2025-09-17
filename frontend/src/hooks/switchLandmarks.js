@@ -60,8 +60,8 @@ export function useSwitchLandmarks(videoRef, canvasRef) {
         const video = videoRef.current;
         const canvas = canvasRef.current;
 
-        canvas.width = video.videoWidth*1.1;
-        canvas.height = video.videoHeight*0.6;
+        canvas.width = video.videoWidth*0.55;
+        canvas.height = video.videoHeight*0.8;
 
         let text = modelState.model==='alpha'?'Alphabet':modelState.model==='num'?'Numbers': 'Glosses';
         drawDisplay(canvas, text);
@@ -73,7 +73,7 @@ export function useSwitchLandmarks(videoRef, canvasRef) {
         lastVideoTime.current = video.currentTime;
 
         const results = landmarkerRef.current.detectForVideo(video, performance.now());
-        // console.log("Landmarks Detection Results:", results);
+        
 
         if (results.landmarks && results.landmarks.length > 0) {
 
