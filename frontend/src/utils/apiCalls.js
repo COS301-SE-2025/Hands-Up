@@ -10,12 +10,7 @@ class SignLanguageAPI {
    * @returns {Promise<Object>} - API response with phrase detection results
    */
   async processVideo(videoBlob) {
-    console.log('--- Entering SignLanguageAPI.processVideo ---');
-    console.log('Video blob received:', {
-      size: videoBlob?.size,
-      type: videoBlob?.type,
-      constructor: videoBlob?.constructor?.name
-    });
+   
 
     try {
       // Validate input
@@ -29,7 +24,7 @@ class SignLanguageAPI {
       const filename = `sign_${Date.now()}.webm`;
       formData.append('video', videoBlob, filename);
 
-      console.log('FormData created, sending request to:', `${this.baseURL}/process-video`);
+     
 
       const response = await fetch(`${this.baseURL}/process-video`, {
         method: 'POST',
@@ -37,11 +32,7 @@ class SignLanguageAPI {
         // Don't set Content-Type header - let browser set it with boundary
       });
 
-      console.log('Response received:', {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok
-      });
+     
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -58,7 +49,7 @@ class SignLanguageAPI {
       }
 
       const data = await response.json();
-      console.log('Success response data:', data);
+      
 
       if (data.error) {
         throw new Error(data.error);
@@ -71,7 +62,7 @@ class SignLanguageAPI {
         rawData: data
       };
     } catch (error) {
-      console.error('Error processing video:', error);
+     
       return {
         success: false,
         error: error.message || 'Error processing video. Please check your connection.',
@@ -87,12 +78,7 @@ class SignLanguageAPI {
    * @returns {Promise<Object>} - API response
    */
   async processImage(imageBlob) {
-    console.log('--- Entering SignLanguageAPI.processImage ---');
-    console.log('Image blob received:', {
-      size: imageBlob?.size,
-      type: imageBlob?.type,
-      constructor: imageBlob?.constructor?.name
-    });
+   
 
     try {
       if (!imageBlob || !(imageBlob instanceof Blob)) {
@@ -132,7 +118,7 @@ class SignLanguageAPI {
         rawData: data
       };
     } catch (error) {
-      console.error('Error processing image:', error);
+      
       return {
         success: false,
         error: error.message || 'Error processing image. Please check your connection.',
@@ -191,7 +177,7 @@ class SignLanguageAPI {
       clearTimeout(timeoutId);
       return response.ok;
     } catch (error) {
-      console.error('API health check failed:', error);
+      
       return false;
     }
   }
@@ -224,13 +210,13 @@ export const handleApiResponse = async (response) => {
 
 // Fixed translateSequence function
 export const translateSequence = async (blobs) => {
-    console.log('translateSequence called with blobs:', blobs?.length);
+    
 
     const formData = new FormData();
     blobs.forEach((blob, i) => {
         const filename = `frame${i}.jpg`;
         formData.append('frames', blob, filename);
-        console.log(`Added frame ${i}: ${filename}, size: ${blob.size}`);
+        
     });
 
     try {
@@ -253,7 +239,7 @@ export const translateSequence = async (blobs) => {
         }
 
         const data = await response.json();
-        console.log("Prediction result:", data);
+        
         return data;
     } catch (err) {
         console.error("Error during fetch or response processing:", err);
@@ -263,7 +249,7 @@ export const translateSequence = async (blobs) => {
 
 // Fixed processImage function
 export const processImage = async (formData) => {
-  console.log("Processing captured image...");
+  
 
   try {
     const response = await fetch('http://127.0.0.1:5000/handsUPApi/sign/processImage', {
@@ -272,17 +258,17 @@ export const processImage = async (formData) => {
     });
 
     const data = await response.json();
-    console.log("Response:", data);
+    console.log(data);
     return (data);
 
   } catch (error) {
-    console.error(error);
+    
     return ('Error processing image');
   }
 };
 
 export const processWords = async (formData) => {
-  console.log("Processing captured image...");
+  
 
   try {
     const response = await fetch('http://127.0.0.1:5000/handsUPApi/sign/processWords', {
@@ -291,11 +277,11 @@ export const processWords = async (formData) => {
     });
 
     const data = await response.json();
-    console.log("Response:", data);
+    
     return (data);
 
   } catch (error){
-    console.error(error);
+    
     return ('Error processing words');
   }
 };
@@ -303,8 +289,7 @@ export const processWords = async (formData) => {
 // Fixed uploadUserAvatar function
 export const uploadUserAvatar = async (userID, formData) => {
     try {
-        console.log('Uploading avatar for user:', userID);
-        console.log('FormData entries:');
+        
         for (let [key, value] of formData.entries()) {
             console.log(`${key}:`, value instanceof File ? `File: ${value.name} (${value.size} bytes)` : value);
         }
@@ -317,7 +302,21 @@ export const uploadUserAvatar = async (userID, formData) => {
 
         return handleApiResponse(response);
     } catch (error) {
-        console.error("Error in uploadUserAvatar:", error);
+        
+        throw error;
+    }
+};
+
+export const deleteUserAvatar = async (userID) => {
+    
+    try {
+        const response = await fetch(`${API_BASE_URL_USER}/${userID}/avatar`, {
+            method: 'DELETE',
+            credentials: 'include',
+        });
+        return handleApiResponse(response);
+    } catch (error) {
+        console.error("Error in deleteUserAvatar:", error);
         throw error;
     }
 };
@@ -460,7 +459,7 @@ export const signup = async ({ name, surname, username, email, password }) => {
 };
 
 export const resetPassword = async (email) => {
-    console.log("[API_CALLS - resetPassword] Sending password reset request for:", email);
+    
     
     try {
         const response = await fetch(`${API_BASE_URL_AUTH}/reset-password`, {
@@ -553,7 +552,7 @@ export const logout = async () => {
 };
 
 export const getUserData = async () => {
-    console.log("apiCalls - getUserData: Attempting to fetch current user data...");
+    
     try {
         const response = await fetch(`${API_BASE_URL_USER}/me`, {
             method: 'GET',
