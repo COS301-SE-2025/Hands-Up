@@ -122,6 +122,23 @@ export default function GameGuide() {
             {subSteps[step]}
         </div>
 
+        {step === 1 && (
+            <div style={{
+                position: 'absolute',
+                top: '18%',
+                left: '10%',
+                width: '80%',
+                textAlign: 'center',
+                fontSize: '1.2vw',
+                fontFamily: 'Lilita One, sans-serif',            
+                color: 'white',
+                zIndex: 100,
+                fontStyle: 'italic',
+            }}>
+                Hint: Jump twice to avoid a bus
+            </div>
+        )}
+
         {step === 4 && (
             <div style={{
                 position: 'absolute',

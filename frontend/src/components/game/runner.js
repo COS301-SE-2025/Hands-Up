@@ -23,7 +23,7 @@ export default function Runner({ gameStarted }) {
   currentYRef.current = currentY;
 
   const isJumpingRef = useRef(false);
-
+  const jumpStartYRef = useRef(0);
   const jumpStartTimeRef = useRef(0);
   const JUMP_DURATION = 2; 
   const JUMP_HEIGHT = 3; 
@@ -62,9 +62,12 @@ export default function Runner({ gameStarted }) {
         const laneID = lanes.indexOf(runnerX.current);
         if (laneID < lanes.length - 1) runnerX.current = lanes[laneID + 1];
       }
-      if ((e.key === 'ArrowUp' || e.key === 'w') && !isJumpingRef.current) {
-        isJumpingRef.current = true;
-        jumpStartTimeRef.current = performance.now() / 1000;
+      if (e.key === 'ArrowUp' || e.key === 'w') {
+        if (currentYRef.current < JUMP_HEIGHT) { 
+          isJumpingRef.current = true;
+          jumpStartTimeRef.current = performance.now() / 1000;
+          jumpStartYRef.current = currentYRef.current;
+        }
       }
     };
     window.addEventListener('keydown', handleKey);
@@ -106,9 +109,12 @@ export default function Runner({ gameStarted }) {
       } 
       // swipe up 
       else {
-        if (diffY < -50 && !isJumpingRef.current) {
-          isJumpingRef.current = true;
-          jumpStartTimeRef.current = performance.now() / 1000;
+        if (diffY < -50) {
+          if (currentYRef.current < JUMP_HEIGHT) {
+            isJumpingRef.current = true;
+            jumpStartTimeRef.current = performance.now() / 1000;
+            jumpStartYRef.current = currentYRef.current;
+          }
         }
       }
     };
@@ -139,10 +145,11 @@ export default function Runner({ gameStarted }) {
 
       if (elapsed >= JUMP_DURATION) {
         isJumpingRef.current = false;
-        setCurrentY(0);
+        setCurrentY(0); 
         runnerY.current = 0;
-      } else {
-        const newY = JUMP_HEIGHT * Math.sin(Math.PI * elapsed / JUMP_DURATION);
+      } 
+      else {
+        const newY = jumpStartYRef.current + (JUMP_HEIGHT * Math.sin(Math.PI * elapsed / JUMP_DURATION));
         setCurrentY(newY);
         runnerY.current = newY;
       }
