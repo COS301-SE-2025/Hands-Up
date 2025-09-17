@@ -36,7 +36,7 @@ export function VehicleSpawner({ onCollision, speed }) {
 
       // spawn new vehicle
       const now = state.clock.elapsedTime;
-      if (now - lastSpawnTime.current > 0.8 && Math.random() < 0.02) {
+      if (now - lastSpawnTime.current > 1 && Math.random() < 0.02) {
         const lane = lanes[Math.floor(Math.random() * lanes.length)];
         const modelIndex = Math.floor(Math.random() * scenes.length);
         
@@ -86,7 +86,7 @@ export function VehicleSpawner({ onCollision, speed }) {
 
   return (
     <>
-      {vehicles.map((v) => (<primitive key={v.id} object={v.object} scale={1} dispose={null} />))}
+      {vehicles.map((v) => (<primitive key={v.id} object={v.object} scale={1.1} dispose={null} />))}
     </>
   );
 }
