@@ -37,7 +37,7 @@ export function CoinSpawner({ onWrongLetter, currentWord, letterIndex, setLetter
         const tex = textures.find(t => t.image.src.includes(letter));
         // const tex = textures[Math.floor(Math.random() * textures.length)];
         tex.center.set(0.5, 0.5);
-        tex.repeat.set(0.5, 0.5); 
+        tex.repeat.set(0.55, 0.55); 
         tex.needsUpdate = true;
         return tex;
     }
@@ -56,7 +56,7 @@ export function CoinSpawner({ onWrongLetter, currentWord, letterIndex, setLetter
                     lane,
                     z: -60,
                     speed: 10,
-                    baseY: 1, 
+                    baseY: 1.5, 
                     jumpOffset: Math.random() * Math.PI * 2,
                     texture: getRandomTexture(),
                 },
@@ -120,7 +120,7 @@ export function CoinSpawner({ onWrongLetter, currentWord, letterIndex, setLetter
         <>
         {coins.map((c) => (
             <mesh key={c.id} position={[c.lane, c.y, c.z]}>
-                <circleGeometry args={[0.7, 32]} />
+                <circleGeometry args={[1.23, 32]} />
                 <meshStandardMaterial 
                     map={c.texture}
                     color={c.texture ? undefined : "gold"} 
