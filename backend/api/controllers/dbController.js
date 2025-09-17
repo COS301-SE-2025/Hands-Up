@@ -754,3 +754,54 @@ export const uploadUserAvatar = async (req, res) => {
         res.status(500).json({ status: "error", message: 'Internal Server Error during avatar upload: ' + error.message });
     }
 };
+
+export const deleteUserAvatar = async (req, res) => {
+    console.log('[dbController.js] deleteUserAvatar function entered.');
+    const userID = parseInt(req.params.id);
+
+    // 1. Authorization Check
+    if (!req.user || req.user.id !== userID) {
+        console.warn(`[dbController.js] Unauthorized avatar deletion attempt for user ID ${userID} by user ${req.user ? req.user.id : 'N/A'}`);
+        return res.status(403).json({ error: 'Forbidden: You can only delete the avatar for your own account.' });
+    }
+
+    try {
+        // Fetch the current avatar URL from the database
+        const userResult = await pool.query('SELECT avatarurl FROM users WHERE "userID" = $1', [userID]);
+        const currentAvatarUrl = userResult.rows[0]?.avatarurl;
+
+        if (!currentAvatarUrl) {
+            console.log(`[dbController.js] No avatar found to delete for user ID ${userID}.`);
+            return res.status(200).json({ status: "success", message: 'No avatar found to delete.' });
+        }
+        
+        // 2. Delete the physical file from the server
+        const filePath = path.join(process.cwd(), currentAvatarUrl);
+        if (await fs.stat(filePath).catch(() => false)) { // Check if file exists
+            await fs.unlink(filePath);
+            console.log(`[dbController.js] Old avatar file deleted: ${filePath}`);
+        }
+
+        // 3. Update the database to set avatarurl to NULL
+        const result = await pool.query(
+            `UPDATE users SET "avatarurl" = NULL WHERE "userID" = $1 RETURNING "userID", username, "avatarurl"`,
+            [userID]
+        );
+        console.log('[dbController.js] Database updated to clear avatar URL:', result.rows[0]);
+
+        // 4. Send success response
+        res.status(200).json({
+            status: "success",
+            message: 'Avatar deleted successfully',
+            data: {
+                userID: result.rows[0].userID,
+                username: result.rows[0].username,
+                avatarurl: result.rows[0].avatarurl,
+            },
+        });
+
+    } catch (error) {
+        console.error('[dbController.js] Error in deleteUserAvatar:', error);
+        res.status(500).json({ status: "error", message: 'Internal Server Error during avatar deletion: ' + error.message });
+    }
+};
