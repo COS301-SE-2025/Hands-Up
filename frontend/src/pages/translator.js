@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {TestSetup} from '../components/testSetup';
 import {useTranslator} from '../hooks/translateResults';
 import {renderMediaPreview} from '../components/mediaPreview';
-import { useLandmarksDetection } from '../hooks/landmarksDetection';
+import { useSwitchLandmarks } from '../hooks/switchLandmarks.js';
 import { useAuth } from '../contexts/authContext.js';
 import '../styles/translator.css';
 
