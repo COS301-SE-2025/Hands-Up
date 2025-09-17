@@ -1,22 +1,19 @@
-import os
-import dotenv
-from openai import OpenAI
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+import torch
 
-dotenv.load_dotenv()
+def translateGloss(gloss: str, model_id: str = "rrrr66254/Glossa-BART") -> str:
+    
+    tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
+    model = AutoModelForSeq2SeqLM.from_pretrained(model_id, trust_remote_code=True)
+    model.eval()
+    if torch.cuda.is_available():
+        model = model.to("cuda")
+    
+    inputs = tokenizer(gloss, return_tensors="pt", padding=True, truncation=True)
+    if torch.cuda.is_available():
+        inputs = {k: v.to("cuda") for k,v in inputs.items()}
+    
+    outputs = model.generate(**inputs, max_new_tokens=50, do_sample=False)
+    result = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    return result
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
-def translateGloss(gloss: str, model: str = "o3-mini") -> str:
-
-    response = client.chat.completions.create(
-        model=model,
-        messages=[
-            {"role": "user", "content": f"Translate this asl gloss to English: '{gloss}, output as 'ENG:'"}
-        ]
-    )
-    result = response.choices[0].message.content.strip()
-
-    if result.upper().startswith("ENG:"):
-        result = result[4:].strip()
-
-    return {'translation': result}

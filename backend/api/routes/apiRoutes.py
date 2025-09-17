@@ -1,71 +1,65 @@
-from flask import Blueprint, request, jsonify
-from controllers.lettersController import detectFromImage
-from controllers.wordsController import detectWords
-from controllers.glossController import translateGloss
-import tempfile
 import os
+from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi.responses import JSONResponse
+from typing import List
+from dotenv import load_dotenv
+import httpx
 
-api_blueprint = Blueprint('sign', __name__, url_prefix='/sign')
+router = APIRouter(prefix="/handsUPApi/sign")
 
-@api_blueprint.route('/sign/processLetters', methods=['POST'])
-def process_image():
-    files = request.files.getlist('frames')
-    sequenceNum = 20
-    
-    print("Landed")
-    if len(files) != sequenceNum:
-        return jsonify({'error': 'Exactly 20 frames required'}), 400
+load_dotenv()
+HUGGINGFACE_BASE_URL = os.getenv("HUGGINGFACE_BASE_URL")
 
-    temp_dir = tempfile.mkdtemp()
-    paths = []
+async def sendToHF(url: str, frames: List[UploadFile]):
+    files_to_send = [
+        ('frames', (frame.filename, await frame.read(), frame.content_type))
+        for frame in frames
+    ]
 
-    try:
-        for i, file in enumerate(files):
-            path = os.path.join(temp_dir, f'frame_{i}.jpg')
-            file.save(path)
-            paths.append(path)
-
-        result = detectFromImage(paths)
-        return jsonify(result)
-    finally:
-        for path in paths:
-            os.remove(path)
-        os.rmdir(temp_dir)
-
-@api_blueprint.route('/sign/processWords', methods=['POST'])
-def process_words():
-    files = request.files.getlist('frames')
-    sequenceNum = 90
-    
-    if len(files) != sequenceNum:
-        return jsonify({'error': 'Exactly 90 frames required'}), 400
-
-    temp_dir = tempfile.mkdtemp()
-    paths = []
-
-    try:
-        for i, file in enumerate(files):
-            path = os.path.join(temp_dir, f'frame_{i}.jpg')
-            file.save(path)
-            paths.append(path)
-
-        result = detectWords(paths)
-        return jsonify(result)
-    finally:
-        # Clean up all files
-        for path in paths:
-            os.remove(path)
-        os.rmdir(temp_dir)
+    async with httpx.AsyncClient(timeout=300) as client:
+        try:
+            response = await client.post(url, files=files_to_send)
+            response.raise_for_status()
+            return response.json()
+        except httpx.RequestError as e:
+            print(f"Request error: {e}")
+            raise HTTPException(status_code=500, detail=str(e))
+        except httpx.HTTPStatusError as e:
+            print(f"HTTP error: {e.response.text}")
+            raise HTTPException(status_code=e.response.status_code, detail=e.response.text)
 
 
-@api_blueprint.route('/sign/sentence', methods=['POST'])
-def sign_sentence():
-    data = request.get_json()
+@router.post("/processLetters")
+async def process_letters(frames: List[UploadFile] = File(...)):
+    sequence_num = 20
+    if len(frames) != sequence_num:
+        raise HTTPException(status_code=400, detail=f"Exactly {sequence_num} frames required")
+
+    url = f"{HUGGINGFACE_BASE_URL}/detect-letters"
+
+    result = await sendToHF(url, frames)
+    print(f"Received result: {result}")
+    return JSONResponse(content=result)
+
+
+@router.post("/processWords")
+async def process_words(frames: List[UploadFile] = File(...)):
+    sequence_num = 90
+    if len(frames) != sequence_num:
+        raise HTTPException(status_code=400, detail=f"Exactly {sequence_num} frames required")
+
+    url = f"{HUGGINGFACE_BASE_URL}/detect-words"
+
+    result = await sendToHF(url, frames)
+    return JSONResponse(content=result)
+
+
+@router.post("/sentence")
+async def sign_sentence(data: dict):
     gloss_input = data.get("gloss")
-
     if not gloss_input:
-        return jsonify({"error": "No gloss provided"}), 400
+        raise HTTPException(status_code=400, detail="No gloss provided")
 
+    from controllers.glossController import translateGloss
     translation = translateGloss(gloss_input)
-
-    return jsonify(translation)
+    return {"translation": translation}

@@ -12,7 +12,7 @@ let handXHistory = [];
 let handYHistory = [];
 let handTimeHistory = [];
 
-export function useLandmarksDetection(videoRef, canvasRef) {
+export function useSwitchLandmarks(videoRef, canvasRef) {
 
   const landmarkerRef = useRef(null);
   const lastVideoTime = useRef(-1);
