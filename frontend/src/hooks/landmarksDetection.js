@@ -61,7 +61,7 @@ export function useLandmarksDetection(videoRef, canvasRef) {
         const canvas = canvasRef.current;
 
         canvas.width = video.videoWidth*0.55;
-        canvas.height = video.videoHeight*0.5;
+        canvas.height = video.videoHeight*0.8;
 
         let text = modelState.model==='alpha'?'Alphabet':modelState.model==='num'?'Numbers': 'Glosses';
         drawDisplay(canvas, text);
