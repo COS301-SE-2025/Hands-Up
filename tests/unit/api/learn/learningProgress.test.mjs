@@ -1,10 +1,19 @@
-import { jest, expect, it, describe, beforeEach, beforeAll} from '@jest/globals';
+import { jest, expect, it, describe, beforeEach, beforeAll, afterEach } from '@jest/globals';
 let pool, learningProgress
 
-jest.unstable_mockModule('../../../../backend/api/utils/dbConnection', () => ({
+jest.unstable_mockModule('../../../../backend/api/utils/dbConnection.js', () => ({
   pool: {
     query: jest.fn(),
   },
+}));
+
+jest.unstable_mockModule('bcrypt', () => ({
+  default: {
+    hash: jest.fn(),
+    compare: jest.fn().mockResolvedValue(true),
+  },
+  hash: jest.fn(),
+  compare: jest.fn().mockResolvedValue(true),
 }));
 
 beforeAll(async () => {
@@ -17,8 +26,18 @@ beforeAll(async () => {
 
 describe('learningProgress controller', () => {
   let req, res;
+  
+  // Spy on console methods to prevent output during tests
+  let consoleErrorSpy;
+  let consoleWarnSpy;
+  let consoleLogSpy;
 
   beforeEach(() => {
+    // Suppress console output and spy on the calls
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    
     req = {
       method: '',
       params: {},
@@ -31,6 +50,13 @@ describe('learningProgress controller', () => {
     };
 
     pool.query.mockReset();
+  });
+  
+  // Restore the original console methods after each test
+  afterEach(() => {
+    consoleErrorSpy.mockRestore();
+    consoleWarnSpy.mockRestore();
+    consoleLogSpy.mockRestore();
   });
 
   describe('GET method', () => {
@@ -94,15 +120,17 @@ describe('learningProgress controller', () => {
         status: 'error',
         message: 'Internal Server Error',
       });
+      // Optionally, you can also assert that the error was logged
+      expect(console.error).toHaveBeenCalledWith('DB GET error (learningProgress):', expect.any(Error));
     });
   });
 
   describe('PUT method', () => {
-    it('should return 403 if username or progressData missing', async () => {
+    it('should return 403 if user is not authenticated or authorized', async () => {
       req.method = 'PUT';
-      req.params.username = '';
-      req.body = {};
-
+      req.params.username = 'someUser';
+      req.user = undefined; 
+      
       await learningProgress(req, res);
 
       expect(res.status).toHaveBeenCalledWith(403);
@@ -112,19 +140,20 @@ describe('learningProgress controller', () => {
       });
     });
 
-    it('should return 403 if update affected no rows', async () => {
+    it('should return 404 if user not found in the update query', async () => {
       req.method = 'PUT';
-      req.params.username = 'testuser';
+      req.params.username = 'nonexistentUser';
+      req.user = { username: 'nonexistentUser' };
       req.body = { lessonsCompleted: 5, signsLearned: 2, streak: 1 };
 
       pool.query.mockResolvedValue({ rowCount: 0 });
 
       await learningProgress(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.status).toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalledWith({
         status: 'error',
-        message: 'Forbidden: You can only update your own progress.',
+        message: 'User learning record not found or no changes applied.',
       });
     });
 
@@ -160,6 +189,8 @@ describe('learningProgress controller', () => {
         status: 'error',
         message: 'Internal Server Error',
       });
+       // Optionally, you can also assert that the error was logged
+      expect(console.error).toHaveBeenCalledWith('DB PUT error (learningProgress):', expect.any(Error));
     });
   });
 });
