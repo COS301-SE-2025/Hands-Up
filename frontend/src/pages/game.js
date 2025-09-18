@@ -208,47 +208,7 @@ export function Game() {
             </svg>
           </div>
           
-          {showCamera && (
-            <div style={{
-              position: 'absolute',
-              top: '30%',              
-              left: '50%',
-              transform: 'translateX(-50%)', 
-              width: '25vw',
-              maxWidth: '300px',          
-              aspectRatio: '1 / 1',       
-              borderRadius: '50%',
-              overflow: 'hidden',
-              background: 'yellow',
-              zIndex: 50,
-            }}>
-              <CameraInput style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 50, objectFit: 'cover' }}/>
-              <svg
-                viewBox="0 0 100 100"
-                style={{
-                  position: 'absolute',
-                  top: 0, 
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  zIndex: 51,
-                }}
-              >
-                <circle
-                  cx="50%"
-                  cy="50%"
-                  r="48"                        
-                  stroke="red"                  
-                  strokeWidth="4"
-                  fill="transparent"
-                  strokeDasharray={2 * Math.PI * 48}         
-                  strokeDashoffset={(1 - progress / 100) * 2 * Math.PI * 48}
-                  style={{ transition: 'stroke-dashoffset 0.1s linear', transform: 'rotate(-90deg)', transformOrigin: '50% 50%' }}
-                />
-              </svg>
-
-            </div>
-          )}
+          {showCamera && <CameraInput progress={progress} show={showCamera} onSkip={() => {setShowCamera(false); handleCollision(); }} />}
 
           <RunnerPosProvider>
             <Canvas>

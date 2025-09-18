@@ -20,7 +20,7 @@ export default function CameraPOV({
     const checkDevice = () => {
       const width = window.innerWidth;
       if (width <= 768) setDevice('mobile');
-      else if (width <= 1836) setDevice('tablet');
+      else if (width <= 1366) setDevice('tablet');
       else setDevice('desktop');
     };
     checkDevice();
