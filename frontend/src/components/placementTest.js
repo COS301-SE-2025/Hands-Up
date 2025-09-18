@@ -161,9 +161,14 @@ const PlacementTest = ({ onComplete, onSkip }) => {
     };
 
     const calculatePlacement = (finalAnswers) => {
+        console.log('=== CALCULATING PLACEMENT ===');
+        console.log('Final answers:', finalAnswers);
+        
         const correctAnswers = finalAnswers.filter(a => a.correct).length;
         const totalQuestions = placementQuestions.length;
         const percentage = (correctAnswers / totalQuestions) * 100;
+
+        console.log(`Placement test results: ${correctAnswers}/${totalQuestions} (${percentage}%)`);
 
         let startingLevel;
         let unlockedCategories;
@@ -171,41 +176,63 @@ const PlacementTest = ({ onComplete, onSkip }) => {
         if (percentage >= 90) {
             startingLevel = 'advanced';
             unlockedCategories = [
-                'alphabets', 'numbers', 'introduce', 'family', 'feelings', 
-                'actions', 'questions', 'time', 'food', 'colours', 'things', 'animals'
+                'alphabets', 'numbers', 'introduce', 'colours', 'family', 
+                'feelings', 'actions', 'questions', 'time', 'food', 'things', 'animals'
             ];
         } else if (percentage >= 70) {
             startingLevel = 'intermediate';
             unlockedCategories = [
-                'alphabets', 'numbers', 'introduce', 'family', 'feelings', 
-                'actions', 'colours'
+                'alphabets', 'numbers', 'introduce','colours', 'family', 
+                'feelings', 'actions'
             ];
         } else if (percentage >= 50) {
             startingLevel = 'basic-plus';
-            unlockedCategories = ['alphabets', 'numbers', 'introduce', 'family', 'colours'];
+            unlockedCategories = ['alphabets', 'numbers', 'introduce', 'colours', 'family'];
         } else {
             startingLevel = 'beginner';
             unlockedCategories = ['alphabets', 'numbers'];
         }
 
+        const results = {
+            startingLevel,
+            unlockedCategories,
+            testScore: percentage,
+            correctAnswers,
+            totalQuestions,
+            timestamp: new Date().toISOString(),
+            placementCompleted: true
+        };
+
+        console.log('=== FINAL PLACEMENT RESULTS ===');
+        console.log('Starting Level:', startingLevel);
+        console.log('Unlocked Categories:', unlockedCategories);
+        console.log('Full Results Object:', results);
+        console.log('==============================');
+
         setTimeout(() => {
-            onComplete({
-                startingLevel,
-                unlockedCategories,
-                testScore: percentage,
-                correctAnswers,
-                totalQuestions
-            });
+            console.log('=== CALLING onComplete ===');
+            console.log('Results being sent:', results);
+            onComplete(results);
         }, 2000);
     };
 
     const skipTest = () => {
-        onSkip({
+        console.log('=== PLACEMENT TEST SKIPPED ===');
+        
+        const results = {
             startingLevel: 'beginner',
             unlockedCategories: ['alphabets'],
             testScore: 0,
-            skipped: true
-        });
+            skipped: true,
+            timestamp: new Date().toISOString(),
+            placementCompleted: true
+        };
+
+        console.log('Skip results being sent:', results);
+        console.log('Unlocked categories for skip:', results.unlockedCategories);
+        console.log('=============================');
+        
+        onSkip(results);
     };
 
     if (showResults) {

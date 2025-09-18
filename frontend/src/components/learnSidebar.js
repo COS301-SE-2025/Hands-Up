@@ -5,7 +5,7 @@ import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import CountUp from 'react-countup';
 
-export function Sidebar({ onSelect, progressPercent, signsLearned, lessonsCompleted }){
+export function Sidebar({ onSelect, progressPercent, signsLearned, lessonsCompleted,placementTestCompleted, onRetakePlacementTest }) {    
 
   const [animatedProgress, setAnimatedProgress] = useState(0);
 
@@ -65,6 +65,17 @@ export function Sidebar({ onSelect, progressPercent, signsLearned, lessonsComple
         </div>
         {/* <div className="summary-value">6</div> */}
       </div>
+       <div className="summary-item">
+              <div className="summary-title">Placement Test</div>
+              <div className="summary-value">              
+                    <button
+                       onClick={onRetakePlacementTest}
+                       className="summary-value-button">
+                       {placementTestCompleted ? 'Retake Test' : 'Take Test'}
+                       </button>
+               </div>
+         </div>
+
     </div>
   </div>
 };

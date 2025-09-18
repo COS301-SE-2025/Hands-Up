@@ -10,12 +10,15 @@ import { getLandmarks } from '../utils/apiCalls';
 import { COMMON_PHRASES, CATEGORIES } from '../components/quizData';
 import '../styles/signQuiz.css';
 
+const CATEGORY_PROGRESSION = [
+    'alphabets', 'numbers', 'introduce', 'colours', 'family', 'feelings', 
+    'actions', 'questions', 'time', 'food', 'things', 'animals', 'seasons', 'phrases'
+];
 export function SignQuiz() {
     const navigate = useNavigate();
     const { category } = useParams();
     const { updateStats, stats } = useLearningStats();
 
-    // Quiz states
     const [quizQuestions, setQuizQuestions] = useState([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [userAnswers, setUserAnswers] = useState([]);
@@ -26,17 +29,14 @@ export function SignQuiz() {
     const [quizStarted, setQuizStarted] = useState(false);
     const [hasTrackedQuizStats, setHasTrackedQuizStats] = useState(false);
 
-    // Animation states
     const [landmarks, setLandmarks] = useState([]);
     const [replayKey, setReplayKey] = useState(0);
     
-    // Camera states
     const [cameraReady, setCameraReady] = useState(false);
     const [cameraError, setCameraError] = useState(null);
     const [recordingTimeout, setRecordingTimeout] = useState(null);
     const [countdown, setCountdown] = useState(0);
     
-    // Use a more specific translator hook based on category
     const {
         videoRef,
         canvasRef1,
@@ -47,7 +47,6 @@ export function SignQuiz() {
         startRecording,
         setResult,
     } = useTranslator({
-        // Pass category context to translator if it supports it
         detectionScope: category
     });
 
@@ -64,6 +63,52 @@ export function SignQuiz() {
     
     const currentCategoryData = CATEGORIES[category] || CATEGORIES['alphabets'];
     const isPhrasesQuiz = category === 'phrases';
+
+        const unlockNextCategory = useCallback((completedCategory) => {
+        console.log('Quiz completed for category:', completedCategory);
+        
+        const currentIndex = CATEGORY_PROGRESSION.indexOf(completedCategory);
+        console.log('Category index in progression:', currentIndex);
+        
+        if (currentIndex !== -1 && currentIndex < CATEGORY_PROGRESSION.length - 1) {
+            const nextCategory = CATEGORY_PROGRESSION[currentIndex + 1];
+            console.log('Next category to unlock:', nextCategory);
+            
+            updateStats(prevStats => {
+                const currentUnlocked = prevStats?.unlockedCategories || ['alphabets'];
+                console.log('Currently unlocked categories:', currentUnlocked);
+                
+                if (!currentUnlocked.includes(nextCategory)) {
+                    const updatedUnlocked = [...currentUnlocked, nextCategory];
+                    console.log('Updated unlocked categories:', updatedUnlocked);
+                    
+                    const updatedStats = {
+                        ...prevStats,
+                        unlockedCategories: updatedUnlocked,
+                        [`${completedCategory}QuizCompleted`]: true,
+                        quizzesCompleted: (prevStats?.quizzesCompleted || 0) + 1
+                    };
+                    
+                    console.log('Final updated stats:', updatedStats);
+                    return updatedStats;
+                } else {
+                    console.log('Category already unlocked');
+                    return {
+                        ...prevStats,
+                        [`${completedCategory}QuizCompleted`]: true,
+                        quizzesCompleted: (prevStats?.quizzesCompleted || 0) + 1
+                    };
+                }
+            });
+        } else {
+            console.log('No next category to unlock or already at end');
+            updateStats(prevStats => ({
+                ...prevStats,
+                [`${completedCategory}QuizCompleted`]: true,
+                quizzesCompleted: (prevStats?.quizzesCompleted || 0) + 1
+            }));
+        }
+    }, [updateStats]);
 
     const generateQuizQuestions = useCallback(() => {
         let animationQuestions, cameraQuestions;
@@ -112,14 +157,12 @@ export function SignQuiz() {
         return [...animationQuestions, ...cameraQuestions].sort(() => Math.random() - 0.5);
     }, [currentCategoryData, isPhrasesQuiz]);
 
-    // Enhanced camera setup with better error handling
     const setupCamera = useCallback(async () => {
         try {
             setCameraError(null);
             console.log('Setting up camera...');
             
-            // Request camera permission with specific constraints
-            const stream = await navigator.mediaDevices.getUserMedia({
+           const stream = await navigator.mediaDevices.getUserMedia({
                 video: { 
                     width: { ideal: 640 },
                     height: { ideal: 480 },
@@ -130,7 +173,6 @@ export function SignQuiz() {
             if (videoRef.current) {
                 videoRef.current.srcObject = stream;
                 
-                // Wait for video to be ready
                 videoRef.current.onloadedmetadata = () => {
                     console.log('Video metadata loaded');
                     setCameraReady(true);
@@ -193,20 +235,16 @@ export function SignQuiz() {
         }
     }, []);
 
-    // Enhanced recording management with timeout and category context
     const handleStartRecording = useCallback(() => {
-        // Clear any existing timeout
         if (recordingTimeout) {
             clearTimeout(recordingTimeout);
         }
 
         if (recording) {
-            // Stop recording
-            startRecording();
+           startRecording();
             setRecordingTimeout(null);
             setCountdown(0);
         } else {
-            // Start recording with 5-second timeout
             console.log(`Starting recording for ${category} category`);
             startRecording();
             setCountdown(5);
@@ -224,7 +262,7 @@ export function SignQuiz() {
             const timeout = setTimeout(() => {
                 console.log('Auto-stopping recording after 5 seconds');
                 if (recording) {
-                    startRecording(); // This will stop the recording
+                    startRecording(); 
                 }
                 clearInterval(countdownInterval);
                 setRecordingTimeout(null);
@@ -264,7 +302,7 @@ export function SignQuiz() {
         } else {
             setShowResults(true);
             const finalScore = newUserAnswers.filter(answer => answer.isCorrect).length;
-
+            const percentage = Math.round((finalScore / quizQuestions.length) * 100);
             if (!hasTrackedQuizStats) {
                 updateStats({
                     quizzesCompleted: (stats?.quizzesCompleted || 0) + 1,
@@ -272,6 +310,13 @@ export function SignQuiz() {
                     totalQuizQuestions: (stats?.totalQuizQuestions || 0) + quizQuestions.length,
                     [`${category}QuizCompleted`]: true
                 });
+
+                 if (percentage >= 60) {
+                console.log(`Quiz passed with ${percentage}%! Unlocking next category after ${category}`);
+                unlockNextCategory(category);
+            } else {
+                console.log(`Quiz failed with ${percentage}%. Not unlocking next category.`);
+            }
                 setHasTrackedQuizStats(true);
             }
         }
@@ -297,7 +342,6 @@ export function SignQuiz() {
         }
     }, [quizStarted, currentQuestionIndex, quizQuestions, loadAnimationLandmarks, setupCamera, stopCamera, setResult]);
 
-    // Cleanup on unmount
     useEffect(() => {
         return () => {
             console.log('Cleaning up SignQuiz component...');
@@ -325,20 +369,15 @@ export function SignQuiz() {
         
         if (!answerToCheck.trim()) return;
 
-        // More flexible answer checking for different categories
-        let isCorrect;
+       let isCorrect;
         if (category === 'alphabets') {
-            // For alphabets, check single character match (case insensitive)
             isCorrect = answerToCheck.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase();
         } else if (isPhrasesQuiz) {
-            // For phrases, allow more flexible matching
             const userWords = answerToCheck.toLowerCase().trim().split(/\s+/);
             const correctWords = currentQuestion.correctAnswer.toLowerCase().trim().split(/\s+/);
-            // Check if at least 70% of words match
             const matchCount = userWords.filter(word => correctWords.includes(word)).length;
             isCorrect = matchCount >= Math.ceil(correctWords.length * 0.7);
         } else {
-            // For other categories, exact match
             isCorrect = answerToCheck.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase();
         }
 
@@ -367,7 +406,7 @@ export function SignQuiz() {
         } else {
             setShowResults(true);
             const finalScore = newUserAnswers.filter(answer => answer.isCorrect).length;
-
+            const percentage = Math.round((finalScore / quizQuestions.length) * 100);
             if (!hasTrackedQuizStats) {
                 updateStats({
                     quizzesCompleted: (stats?.quizzesCompleted || 0) + 1,
@@ -375,6 +414,14 @@ export function SignQuiz() {
                     totalQuizQuestions: (stats?.totalQuizQuestions || 0) + quizQuestions.length,
                     [`${category}QuizCompleted`]: true
                 });
+
+                 if (percentage >= 60) {
+                console.log(`Quiz passed with ${percentage}%! Unlocking next category after ${category}`);
+                unlockNextCategory(category);
+            } else {
+                console.log(`Quiz failed with ${percentage}%. Not unlocking next category.`);
+            }
+
                 setHasTrackedQuizStats(true);
             }
         }
@@ -568,7 +615,6 @@ export function SignQuiz() {
                 </h1>
                 <p className="question-info">
                     Question {currentQuestionIndex + 1} of {quizQuestions.length} 
-                    ({isAnimationQuestion ? 'Watch & Type' : 'Sign with Camera'})
                 </p>
                 <div className="progress-bar">
                     <div 
@@ -766,15 +812,7 @@ export function SignQuiz() {
                 </div>
             )}
 
-            <div className="quiz-footer">
-                <p>Current Score: {score}/{quizQuestions.length}</p>
-                <p className="question-type-info">
-                    Question Type: {isAnimationQuestion ? 'Watch and Type' : 'Sign with Camera'}
-                    {isCameraQuestion && (
-                        <><br />Target: {currentQuestion.correctAnswer} | Category: {category}</>
-                    )}
-                </p>
-            </div>
+            
         </div>
     );
 }

@@ -91,6 +91,32 @@ body {
     color: #2f9736;
 }
 
+.summary-value-button {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.6rem;
+  border: none;
+  background: linear-gradient(135deg, #2f9736, #25802c);
+  color: #fff;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.25s ease-in-out;
+}
+
+.summary-value-button:hover {
+  background: linear-gradient(135deg, #36ab3e, #2f9736);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.summary-value-button:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
 .summary-progress-value {
     width: 70px;
     height: 70px;

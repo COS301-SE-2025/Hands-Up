@@ -8,6 +8,119 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { getLandmarks } from '../utils/apiCalls'; 
 
+const MEMORY_HINTS = {
+    'a': 'Make a fist with your thumb to the side - like the letter A without the crossbar.',
+    'b': 'Hold up four fingers with your thumb across your palm - like the letter B.',
+    'c': 'Curve your fingers like the letter C.',
+    'd': 'Point your index finger up with other fingers touching your thumb - like the letter D.',
+    'e': 'Curl all fingers down touching your thumb.',
+    'f': 'Touch your thumb and index finger, other fingers up - like "OK" but with three fingers.',
+    'g': 'Point your index finger and thumb forward horizontally.',
+    'h': 'Point your index and middle finger forward horizontally.',
+    'i': 'Hold up your pinky finger - the smallest letter gets the smallest finger.',
+    'j': 'Like the letter I, but draw a J in the air with your pinky.',
+    'k': 'Index finger up, middle finger out, thumb touches middle finger.',
+    'l': 'Make an L shape with your thumb and index finger.',
+    'm': 'Tuck your thumb under three fingers.',
+    'n': 'Tuck your thumb under two fingers.',
+    'o': 'Make an O shape with all your fingers.',
+    'p': 'Like K but pointing down - "p" hangs below the line.',
+    'q': 'Like G but pointing down.',
+    'r': 'Cross your index and middle finger like crossing fingers for luck.',
+    's': 'Make a fist with your thumb over your fingers.',
+    't': 'Tuck your thumb between your index and middle finger.',
+    'u': 'Hold up index and middle finger together.',
+    'v': 'Hold up index and middle finger in a V shape - like "victory".',
+    'w': 'Hold up three fingers (index, middle, ring) - W has three points.',
+    'x': 'Hook your index finger - like drawing an X.',
+    'y': 'Stick out your thumb and pinky - like "hang loose".',
+    'z': 'Draw a Z in the air with your index finger.',
+
+   '1': 'Hold up one finger - your index finger.',
+    '2': 'Hold up two fingers in a V - index and middle.',
+    '3': 'Hold up three fingers - thumb, index, and middle.',
+    '4': 'Hold up four fingers, thumb tucked in.',
+    '5': 'Show all five fingers spread wide.',
+    '6': 'Touch your thumb to your pinky, other fingers up.',
+    '7': 'Touch your thumb to your ring finger, other fingers up.',
+    '8': 'Touch your thumb to your middle finger, other fingers up.',
+    '9': 'Touch your thumb to your index finger, other fingers up.',
+    '10': 'Shake your thumb - like "perfect 10".',
+
+    'red': 'Touch your lips with your index finger and pull down - red lips.',
+    'blue': 'Make the letter B and shake it - B for blue.',
+    'green': 'Make the letter G and shake it - G for green.',
+    'yellow': 'Make the letter Y and shake it - Y for yellow.',
+    'black': 'Draw a line across your forehead with your index finger - like a black eyebrow.',
+    'white': 'Touch your chest and pull away - like a white shirt.',
+    'pink': 'Make the letter P and brush down your lips - pink lips.',
+    'purple': 'Make the letter P and shake it - P for purple.',
+    'orange': 'Make a fist and squeeze like juicing an orange.',
+    'brown': 'Make the letter B and slide down your cheek - brown skin tone.',
+    'gold': 'Point to your ear (gold earring) then make the letter Y.',
+    'silver': 'Point to your ear then make the letter S.',
+
+    'mother': 'Touch your thumb to your chin - where mom gives kisses.',
+    'father': 'Touch your thumb to your forehead - dad\'s strong forehead.',
+    'brother': 'Make the letter L, then touch forehead and bring down - like father, then together.',
+    'sister': 'Make the letter L, then touch chin and bring down - like mother, then together.',
+    'aunt': 'Make the letter A and shake it near your cheek.',
+    'uncle': 'Make the letter U and shake it near your temple.',
+    'grandma': 'Like mother, but bounce away from chin - grandmother is mother\'s mother.',
+    'grandpa': 'Like father, but bounce away from forehead - grandfather is father\'s father.',
+    'child': 'Pat down as if patting a child\'s head - someone shorter.',
+    'boy': 'Snap your fingers at your forehead - like tipping a boy\'s cap.',
+    'girl': 'Brush your thumb down your cheek - like a girl\'s soft cheek.',
+
+   'happy': 'Brush your chest upward with both hands - happiness rising in your heart.',
+    'sad': 'Draw tears down your face with both hands.',
+    'angry': 'Claw at your face like an angry tiger.',
+    'love': 'Cross your arms over your heart - hugging love to yourself.',
+    'like': 'Pull your thumb and middle finger from your chest - something pulling at your heartstrings.',
+    'sorry': 'Rub your fist on your chest in circles - rubbing away the hurt.',
+    'feel': 'Touch your chest with your middle finger - feeling in your heart.',
+
+    'eat': 'Bring your fingers to your mouth - putting food in.',
+    'drink': 'Tilt an imaginary cup to your mouth.',
+    'sleep': 'Rest your head on your hand like a pillow.',
+    'walk': 'Move your hands like feet walking.',
+    'sit': 'Hook two fingers over two fingers - like legs hanging over a chair.',
+    'stand': 'Stand two fingers on your palm.',
+    'see': 'Point from your eyes outward - sight going from eyes.',
+    'go': 'Point with both index fingers in the direction you\'re going.',
+    'understand': 'Flick your index finger up at your temple - the lightbulb moment.',
+
+   'water': 'Make the letter W and tap your chin - W for water.',
+    'apple': 'Twist your index finger knuckle at your cheek - like twisting an apple\'s stem.',
+    'milk': 'Squeeze your fist like milking a cow.',
+    'hungry': 'Draw your hand down your throat - food going down when hungry.',
+
+    'hello': 'Salute like a soldier greeting an officer.',
+    'goodbye': 'Wave your hand - universal goodbye gesture.',
+    'thank_you': 'Touch your lips and bring your hand forward - blowing a kiss of thanks.',
+    'please': 'Rub your chest in circles - pleading from the heart.',
+    'you_are_welcome': 'Open hand forward - welcoming gesture.',
+};
+
+const PHRASE_HINTS = {
+    'hello_my_name': 'Start with a salute (hello), then point to yourself (my), then tap your forehead twice (name).',
+    'nice_meet_you': 'Brush hands together (nice), bring hands together (meet), then point forward (you).',
+    'i_love_you': 'Point to yourself (I), cross arms over heart (love), point to them (you).',
+    'i_am_happy': 'Point to yourself (I), then brush chest upward (happy) - happiness rising from within.',
+    'i_am_sad': 'Point to yourself (I), then draw tears down your face (sad).',
+    'see_you_tomorrow': 'Point from eyes outward (see), point to them (you), then thumb forward (tomorrow).',
+    'i_am_hungry': 'Point to yourself (I), then draw hand down throat (hungry) - showing the need for food.',
+    'drink_water': 'Tilt imaginary cup (drink) then make W at chin (water).',
+    'my_mother': 'Point to yourself (my) then touch thumb to chin (mother).',
+    'my_father': 'Point to yourself (my) then touch thumb to forehead (father).',
+    'go_sleep': 'Point forward (go) then rest head on hand (sleep) - going to bed.',
+    'i_understand': 'Point to yourself (I) then flick finger at temple (understand) - the lightbulb moment.',
+    'hot_weather': 'Claw hand at face (hot) then move hands in waves (weather patterns).',
+    'cold_weather': 'Shiver with clenched fists (cold) then wave hands (weather).',
+    'eat_apple': 'Bring fingers to mouth (eat) then twist knuckle at cheek (apple).',
+    'my_pet_is_a_dog': 'Point to self (my), pat leg (pet), point down (is), then pat leg and snap (dog).'
+};
+
 const COMMON_PHRASES = [
     { id: 'hello_my_name', phrase: 'Hello My Name', words: ['helloMyName'] },
     { id: 'nice_meet_you', phrase: 'Nice To Meet You', words: ['niceToMeetYou'] },
@@ -39,12 +152,20 @@ export function SignLearn() {
     const [currentWordIndex, setCurrentWordIndex] = useState(0);
     const [isAutoPlaying, setIsAutoPlaying] = useState(false);
     const [hasTrackedStats, setHasTrackedStats] = useState(false);
+    const [showHint, setShowHint] = useState(false);
     const timeoutRef = useRef(null);
 
     const category = location.state?.category || new URLSearchParams(location.search).get('category');
     const isPhrase = location.pathname.startsWith('/phrase/');
     
     const currentPhrase = isPhrase ? COMMON_PHRASES.find(p => p.id === letter) : null;
+
+   const getCurrentHint = () => {
+        if (isPhrase && currentPhrase) {
+            return PHRASE_HINTS[letter] || 'Practice each word slowly and remember the key movements.';
+        }
+        return MEMORY_HINTS[letter?.toLowerCase()] || 'Focus on the hand shape and movement pattern.';
+    };
 
     const categoryWords = useMemo(() => ({
         'alphabets': 'abcdefghijklmnopqrstuvwxyz'.split(''),
@@ -179,6 +300,10 @@ export function SignLearn() {
         } else {
            setReplayKey(prev => prev + 1);
         }
+    };
+
+    const toggleHint = () => {
+        setShowHint(!showHint);
     };
 
     useEffect(() => {
@@ -481,6 +606,80 @@ export function SignLearn() {
                 </Canvas>
             </div>
 
+            {/* Memory Hint Section */}
+            <div style={{
+                marginTop: '20px',
+                maxWidth: '640px',
+                width: '100%'
+            }}>
+                <button
+                    onClick={toggleHint}
+                    style={{
+                        padding: '12px 24px',
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        borderRadius: '10px',
+                        backgroundColor: showHint ? '#28a745' : '#218838',
+                        color: 'white',
+                        border: 'none',
+                        boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        margin: '0 auto'
+                    }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'scale(1.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'scale(1)';
+                    }}
+                >
+                  {showHint ? 'Hide Memory Hint' : 'Show Memory Hint'}
+                </button>
+
+                {showHint && (
+                    <div style={{
+                        marginTop: '15px',
+                        padding: '20px',
+                        backgroundColor: 'white',
+                        borderRadius: '10px',
+                        boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+                        border: '2px solid #e9ecef',
+                        animation: 'slideIn 0.3s ease-out'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            marginBottom: '10px',
+                            gap: '8px'
+                        }}>
+                            <span style={{
+                                fontSize: '20px'
+                            }}></span>
+                            <h3 style={{
+                                margin: 0,
+                                color: '#333',
+                                fontSize: '18px'
+                            }}>
+                                Memory Hint
+                            </h3>
+                        </div>
+                        <p style={{
+                            margin: 0,
+                            color: '#555',
+                            fontSize: '16px',
+                            lineHeight: '1.5',
+                            fontStyle: 'italic'
+                        }}>
+                            {getCurrentHint()}
+                        </p>
+                    </div>
+                )}
+            </div>
+
             <div className="controls-container" style={{
                 marginTop: '30px',
                 display: 'flex',
@@ -518,6 +717,17 @@ export function SignLearn() {
                     0% { transform: scale(1); opacity: 1; }
                     50% { transform: scale(1.2); opacity: 0.7; }
                     100% { transform: scale(1); opacity: 1; }
+                }
+                
+                @keyframes slideIn {
+                    0% { 
+                        opacity: 0; 
+                        transform: translateY(-10px); 
+                    }
+                    100% { 
+                        opacity: 1; 
+                        transform: translateY(0); 
+                    }
                 }
             `}</style>
         </div>
