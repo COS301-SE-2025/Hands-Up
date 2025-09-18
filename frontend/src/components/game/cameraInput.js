@@ -1,32 +1,74 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState  } from 'react';
 import { useTranslator } from '../../hooks/translateResults';
 import { useLandmarksDetection } from '../../hooks/landmarksDetection';
+import { processImage } from '../../utils/apiCalls';
 
 export function CameraInput({ progress = 0, show = true, onSkip, onLetterDetected }) {
-  const { videoRef, canvasRef2, result } = useTranslator();
+  const { videoRef, canvasRef2 } = useTranslator();
   useLandmarksDetection(videoRef, canvasRef2);
   
-  const resultRef = useRef(result);
-  useEffect(() => { 
-    resultRef.current = result; 
-  }, [result]);
-  
+  const [frameBlobs, setFrameBlobs] = useState([]);
+  const [processing, setProcessing] = useState(false);
+
+  const captureFrame = () => {
+    const video = videoRef.current;
+    const canvas = canvasRef2.current;
+    if (!video || !canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob(blob => {
+      if (blob) setFrameBlobs(prev => [...prev, blob]);
+    }, 'image/jpeg', 0.8);
+  };
+
   useEffect(() => {
-    if (!show) return; 
+    if (!show || processing) return;
 
     const interval = setInterval(() => {
-      const res = resultRef.current;
-      if (!result || !onLetterDetected) return;
-
-      const letter = res[0]?.toUpperCase();
-      if (letter) {
-        console.log("Detected letter:", letter); 
-        onLetterDetected(letter);
-      }
-    }, 200);
+      captureFrame();
+    }, 100); // 10 fps
 
     return () => clearInterval(interval);
-  }, [show, onLetterDetected]);
+  }, [show, processing]);
+
+  useEffect(() => {
+    const sendFrames = async () => {
+      const requiredFrames = 20;
+      if (frameBlobs.length < requiredFrames || processing) return; 
+
+      setProcessing(true);
+      try {
+        const formData = new FormData();
+        frameBlobs.forEach((blob, idx) => {
+          formData.append('frames', blob, `frame_${idx}.jpg`);
+        });
+
+        const result = await processImage(formData); 
+        console.log("API response:", result);
+
+        if (result?.prediction) {
+          onLetterDetected?.(result.prediction.toUpperCase());
+        }
+
+        if (result?.word) {
+          onLetterDetected?.(result.word.toUpperCase());
+        }
+      } 
+      catch (err) {
+        console.error("Error sending frames:", err);
+      } 
+      finally {
+        setFrameBlobs([]); 
+        setProcessing(false);
+      }
+    };
+
+    sendFrames();
+  }, [frameBlobs, processing, onLetterDetected]);
 
   if (!show) return null;
 
