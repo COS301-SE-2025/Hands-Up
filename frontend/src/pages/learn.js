@@ -220,6 +220,11 @@ export function Learn() {
         }
     }, [stats?.placementTestCompleted]);
 
+    const handleClosePlacementTest = () => {
+    console.log('=== CLOSING PLACEMENT TEST ===');
+    setShowPlacementTest(false);
+    setPlacementCompleted(false);
+};
     const handlePlacementComplete = async (results) => {
         console.log('Placement test results received:', results);
         
@@ -593,6 +598,7 @@ export function Learn() {
             <PlacementTest 
                 onComplete={handlePlacementComplete}
                 onSkip={handlePlacementSkip}
+                onClose={handleClosePlacementTest}  
             />
         );
     }

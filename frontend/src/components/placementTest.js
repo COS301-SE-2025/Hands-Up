@@ -5,7 +5,7 @@ import { AngieSigns } from './angieSigns';
 import { getLandmarks } from '../utils/apiCalls';
 import '../styles/learn.css';
 
-const PlacementTest = ({ onComplete, onSkip }) => {
+const PlacementTest = ({ onComplete, onSkip, onClose }) => {
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [answers, setAnswers] = useState([]);
     const [showResults, setShowResults] = useState(false);
@@ -235,6 +235,13 @@ const PlacementTest = ({ onComplete, onSkip }) => {
         onSkip(results);
     };
 
+    const handleClose = () => {
+        console.log('=== PLACEMENT TEST CLOSED ===');
+        if (onClose) {
+            onClose();
+        }
+    };
+
     if (showResults) {
         const correctCount = answers.filter(a => a.correct).length;
         const percentage = Math.round((correctCount / placementQuestions.length) * 100);
@@ -242,6 +249,14 @@ const PlacementTest = ({ onComplete, onSkip }) => {
         return (
             <div className="placement-test-overlay">
                 <div className="results-card">
+                    <button 
+                        onClick={handleClose}
+                        className="close-button"
+                        aria-label="Close placement test"
+                    >
+                        ×
+                    </button>
+
                     <div className="angie-avatar-container">
                         <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
                             <ambientLight intensity={5} />
@@ -287,6 +302,14 @@ const PlacementTest = ({ onComplete, onSkip }) => {
     return (
         <div className="placement-test-overlay">
             <div className="test-card">
+                <button 
+                    onClick={handleClose}
+                    className="close-button"
+                    aria-label="Close placement test"
+                >
+                    ×
+                </button>
+
                 {/* Header Section */}
                 <div className="test-header">
                     <h1 className="test-title">Sign Language Placement Test</h1>
