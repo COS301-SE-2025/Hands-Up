@@ -13,7 +13,7 @@ export function TestSetup({ isOpen, onClose }) {
   const canvasRef = useRef(null);
   const landmarkerRef = useRef(null);
 
-  const [setBrightness] = useState(0);
+  const [brightness, setBrightness] = useState(0);
   const [detectionStatus, setDetectionStatus] = useState('Press start to begin the test');
   const [stage, setStage] = useState('start');
   const timeoutRef = useRef(null);
@@ -114,6 +114,8 @@ export function TestSetup({ isOpen, onClose }) {
       canvas.height = video.videoHeight;
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
+      if (brightness);
+
       if (stage === 'lighting') {
         const faceRegion = ctx.getImageData(
           canvas.width * 0.3,
@@ -206,7 +208,7 @@ export function TestSetup({ isOpen, onClose }) {
       cancelAnimationFrame(animationFrameId);
       clearTimeout(timeoutRef.current);
     };
-  }, [isOpen, stage, setBrightness]);
+  }, [isOpen, stage, setBrightness, brightness]);
 
   if (!isOpen) return null;
 
