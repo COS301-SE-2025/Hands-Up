@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslator } from '../../hooks/translateResults';
 import { processImage } from '../../utils/apiCalls';
+import PropTypes from 'prop-types';
 
 export function CameraInput({ progress = 0, show = true, onSkip, onLetterDetected }) {
   const { videoRef, canvasRef2 } = useTranslator();
@@ -143,3 +144,10 @@ export function CameraInput({ progress = 0, show = true, onSkip, onLetterDetecte
     </div>
   );
 }
+
+CameraInput.propTypes = {
+  progress: PropTypes.number.isRequired,
+  show: PropTypes.bool.isRequired,
+  onSkip: PropTypes.func.isRequired,
+  onLetterDetected: PropTypes.func.isRequired,
+};

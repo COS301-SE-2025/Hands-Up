@@ -67,6 +67,7 @@ export function Game() {
 
         timeoutTimer = setTimeout(() => {
           setShowCamera(false);
+          setUserInput(false);
           clearInterval(intervalTimer);
         }, duration);
       }
