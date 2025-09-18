@@ -92,7 +92,7 @@ export function Home(){
             <section className="home-hero-section animated-section">
                 <div className="home-content">
                     {isLoggedIn ? (
-                        <h1 className="personalized-greeting">Welcome back, {userFirstName}! 👋</h1>
+                        <h1 className="personalized-greeting">Welcome back, {userFirstName}! </h1>
                     ) : (
                         <h1>Welcome to Hands UP!</h1>
                     )}
@@ -165,7 +165,7 @@ export function Home(){
                 <>
                     <hr className="divider" />
                     <section className="sign-of-the-day-section animated-section">
-                        <h2 className="section-title">Sign of the Day: &quot;{signOfTheDay.word}&quot; ✨</h2>
+                        <h2 className="section-title">Sign of the Day: &quot;{signOfTheDay.word}&quot; </h2>
                         <div className="sign-content">
                                <div className="sign-media">
                             <video
@@ -226,7 +226,7 @@ export function Home(){
             <hr className="divider" />
 
             <section className="cta-section animated-section">
-                <h2 className="section-title">Your Progress Inspires Us All! ✨</h2>
+                <h2 className="section-title">Your Progress Inspires Us All! </h2>
                 <p>Every sign you learn, every lesson you complete, builds a stronger, more inclusive world. Keep going, the journey of communication is truly rewarding.</p>
                 <Link to="/learn" className="btn-final-cta">Keep Learning, Keep Growing</Link>
             </section>

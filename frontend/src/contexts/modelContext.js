@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 const modelSwitchContext = createContext();
 
-const MODEL_LIST = ["alpha", "num"];
+const MODEL_LIST = ["alpha", "num", "glosses"];
 
 export function ModelSwitchProvider({ children }) {
   const [modelIndex, setModelIndex] = useState(0);
