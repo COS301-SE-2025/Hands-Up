@@ -2,7 +2,6 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { processLetters, processWords, produceSentence} from '../utils/apiCalls';
 import { useModelSwitch } from '../contexts/modelContext';
 import { useDexterity } from '../contexts/dexterityContext';
-import { v4 as uuidv4 } from 'uuid';
 
 export function useTranslator() {
     const videoRef = useRef(null);
@@ -12,26 +11,14 @@ export function useTranslator() {
     const [result, setResult] = useState("");
     const [confidence, setConfidence] = useState("Awaiting capture to detect confidence level...");
     const [recording, setRecording] = useState(false);
-    const [capturedImage, setCapturedImage] = useState(null);
-    const [capturedType, setCapturedType] = useState(null);
-    const [captureHistory, setCaptureHistory] = useState([]);
-    const [capturedBlob, setCapturedBlob] = useState(null);
     const [autoCaptureEnabled, setAutoCaptureEnabled] = useState(false);
     const [landmarkFrames, setLandmarkFrames] = useState([]);
     const { modelState } = useModelSwitch();
     const activeModelRef = useRef(modelState.model);
-    const [isSwitching, setIsSwitching] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [sequenceNum, setSequenceNum] = useState(90);
-    const [flipEnabled, setFlipEnabled] = useState(true); // toggle for flipping
-    const offscreenCanvasRef = useRef(null);
+    const [translating, setTranslating] = useState(false);
     const { dexterity } = useDexterity();
-
-    console.log("Current dexterity from context:", dexterity);
-
-    useEffect(() => {
-        offscreenCanvasRef.current = document.createElement("canvas");
-    }, []);
 
     const convertGloss = async () => {
 
@@ -45,30 +32,36 @@ export function useTranslator() {
             if (!hasAlphabets || wordCount < 2) {
                 const ctx = canvas.getContext('2d');
 
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                ctx.fillStyle = 'rgba(0,0,0,0.5)'; 
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.translate(canvas.width, 0);
-                ctx.scale(-1, 1);
-
+                canvas.width = video.videoWidth*0.2;
+                canvas.height = video.videoHeight*0.2;
+                ctx.shadowColor = 'rgba(255, 0, 0, 0.7)'; 
+                ctx.shadowBlur = 10;     
                 ctx.font = 'bold 24px Sans-serif';
                 ctx.fillStyle = 'red';
                 ctx.textAlign = 'center';
-                ctx.fillText('ENGLISH NOT AVAILABLE...', canvas.width / 2, canvas.height / 2);
+                ctx.fillText('English Translation Not Available...', canvas.width / 2, canvas.height / 2);
             }
 
-            // try {
-            //     const translation = await produceSentence(result);
-            //     if (translation) {
-            //         setResult(translation.translation);
-            //     }
-            // } catch (err) {
-            //     console.error("Error producing sentence:", err);
-            // }
+            try {
+                setTranslating(true);
+                const translation = await produceSentence(result);
+
+                if ( translating && translation && translation.translation !== "?") {
+                    setResult(translation.translation);
+                } else {
+                    const currentResult = result;
+
+                    setResult("English Translation Not Available");
+
+                    setTimeout(() => {
+                        setResult(currentResult);
+                    }, 2000); 
+                }
+            } catch (err) {
+                console.error("Error producing sentence:", err);
+            } finally {
+                setTranslating(false);
+            }
         }
     }
 
@@ -81,12 +74,11 @@ export function useTranslator() {
     const startRecording = useCallback(async () => {
         if (recording) {
             stopRecording();
-            setCapturedImage(null);
         } else {
             setAutoCaptureEnabled(true);
             setRecording(true);
         }
-    }, [recording, stopRecording, setCapturedImage, setAutoCaptureEnabled, setRecording]);
+    }, [recording, stopRecording, setAutoCaptureEnabled, setRecording]);
 
     const sendSequenceToBackend = useCallback(async (blobs) => {
         
@@ -94,11 +86,6 @@ export function useTranslator() {
         const requiredFrames = sequenceNum;
 
         if (!Array.isArray(blobs) || blobs.length !== requiredFrames || processingRef.current) return;
-
-        if (isSwitching) {
-            console.log("Skipping prediction during swipe...");
-            return;
-        }
 
         setIsProcessing(true);
         processingRef.current = true;
@@ -121,20 +108,26 @@ export function useTranslator() {
             }
             
             setResult(prev => {
-                if (activeModelRef.current === 'alpha') {
-                    if (response?.letter === 'SPACE') return prev + ' ';
-                    if (response?.letter === 'DEL') return prev.slice(0, -1);
+                let newResult = prev || "";
 
-                    setConfidence((response?.confidenceLetter * 100).toFixed(2) + "%");
-                    return prev + (response?.letter || '');
+                if (activeModelRef.current === 'alpha') {
+                    const letter = response?.letter ?? '';
+                    if (letter === 'SPACE') newResult += ' ';
+                    else if (letter === 'DEL') newResult = newResult.slice(0, -1);
+                    else newResult += letter;
+
+                    setConfidence(`${((response?.confidenceLetter ?? 0) * 100).toFixed(2)}%`);
                 } else if (activeModelRef.current === 'num') {
-                    setConfidence((response?.confidenceNumber * 100).toFixed(2) + "%");
-                    return prev + (response?.number + ' ' || '');
+                    newResult += (response?.number ?? '') + ' ';
+                    setConfidence(`${((response?.confidenceNumber ?? 0) * 100).toFixed(2)}%`);
                 } else if (activeModelRef.current === 'glosses') {
-                    setConfidence((response?.confidence * 100).toFixed(2) + "%");
-                    return prev + (response?.word + ' ' || '');
+                    newResult += (response?.word ?? '') + ' ';
+                    setConfidence(`${((response?.confidence ?? 0) * 100).toFixed(2)}%`);
                 }
-                return prev; 
+
+                newResult = newResult.replace(/undefined/g, '');
+
+                return newResult;
             });
 
         } catch (err) {
@@ -146,95 +139,43 @@ export function useTranslator() {
             processingRef.current = false;
             setLandmarkFrames([]);
         }
-    }, [setResult, setConfidence, isSwitching, sequenceNum]);
+    }, [setResult, setConfidence, sequenceNum]);
 
     const captureImageFromVideo = useCallback(() => {
-        const video = videoRef.current;
-        const canvas = canvasRef1.current;
-        const currentModel = activeModelRef.current;
-        const requiredFrames = currentModel === 'glosses' ? 90 : 20;
-        const offscreenCanvas = offscreenCanvasRef.current;
+    const video = videoRef.current;
+    const currentModel = activeModelRef.current;
+    const requiredFrames = currentModel === 'glosses' ? 90 : 20;
+    if (!video) return;
 
-        if (video && canvas) {
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = video.videoWidth;
+    tempCanvas.height = video.videoHeight;
+    const tempCtx = tempCanvas.getContext('2d');
+    if (!tempCtx) return;
 
-            offscreenCanvas.width = video.videoWidth;
-            offscreenCanvas.height = video.videoHeight;
-            const ctx = offscreenCanvas.getContext("2d");
+    if (dexterity === 'left') {
+        tempCtx.save();
+        tempCtx.translate(tempCanvas.width, 0);
+        tempCtx.scale(-1, 1);
+    }
 
-            if (dexterity === 'left') {
-                ctx.translate(offscreenCanvas.width, 0);
-                ctx.scale(-1, 1);
+    tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
+
+    if (dexterity === 'left') tempCtx.restore();
+
+    tempCanvas.toBlob(async (blob) => {
+        if (!blob) return;
+
+        setLandmarkFrames(prev => {
+            const updated = [...prev, blob];
+            if (updated.length === requiredFrames) {
+                sendSequenceToBackend(updated);
+                return [];
             }
-
-            ctx.drawImage(video, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
-            ctx.setTransform(1, 0, 0, 1, 0, 0); 
-
-            if(dexterity === 'left') {
-
-                offscreenCanvas.toBlob(async (blob) => {
-                    if (!blob) {
-                        console.error("Canvas toBlob failed to create a blob.");
-                        return;
-                    }
-
-                    setLandmarkFrames(prevFrames => {
-                    const updated = [...prevFrames, blob];
-
-                    if (updated.length === requiredFrames) {
-                        sendSequenceToBackend(updated);
-                        setLandmarkFrames([]);
-                        // stopRecording();
-                        return [];
-                    }
-
-                    return updated;
-                });
-                
-                }, 'image/jpeg', 0.8);
-            } 
-
-            canvas.toBlob(async (blob) => {
-                if (!blob) {
-                    console.error("Canvas toBlob failed to create a blob.");
-                    return;
-                }
-                const url = URL.createObjectURL(blob);
-                setCapturedImage(url);
-                setCapturedType('image');
-                setCapturedBlob(blob);
-                setCaptureHistory(prev => [
-                    { id: uuidv4(), url, type: 'image', blob, timestamp: new Date().toLocaleTimeString() },
-                    ...prev.slice(0, 4)
-                ]);
-
-                if(dexterity === 'right') {
-
-                    setLandmarkFrames(prevFrames => {
-                        const updated = [...prevFrames, blob];
-
-                        if (updated.length === requiredFrames) {
-                            sendSequenceToBackend(updated);
-                            setLandmarkFrames([]);
-                            // stopRecording();
-                            return [];
-                        }
-
-                        return updated;
-                    });
-                }
-            
-            }, 'image/jpeg', 0.8);
-        }
-    }, [
-        videoRef,
-        canvasRef1,
-        setCapturedImage,
-        setCapturedType,
-        setCapturedBlob,
-        setCaptureHistory,
-        setLandmarkFrames,
-        sendSequenceToBackend,
-    ]);
+            return updated;
+        });
+    }, 'image/jpeg', 0.8);
+}, [dexterity, sendSequenceToBackend]);
 
     useEffect(() => {
         const canvas = canvasRef1.current;
@@ -246,42 +187,20 @@ export function useTranslator() {
 
         const draw = () => {
             if (video.readyState >= 2) {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            }
-            animationFrameId = requestAnimationFrame(draw);
-        };
+                canvas.width = video.videoWidth*0.2;
+                canvas.height = video.videoHeight*0.2;
 
-        draw();
-        return () => cancelAnimationFrame(animationFrameId);
-    }, [isProcessing, canvasRef1, videoRef]);
-
-
-    useEffect(() => {
-        const canvas = canvasRef1.current;
-        const video = videoRef.current;
-        if (!canvas || !video) return;
-
-        const ctx = canvas.getContext('2d');
-        let animationFrameId;
-
-        const draw = () => {
-            if (video.readyState >= 2) {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.shadowColor = 'rgba(255, 0, 0, 0.7)'; 
+                ctx.shadowBlur = 10;   
+                ctx.font = 'bold 20px Sans-serif';
+                ctx.fillStyle = 'red';
+                ctx.textAlign = 'center';
 
                 if (isProcessing) {
-                    ctx.fillStyle = 'rgba(0,0,0,0.5)'; 
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    ctx.translate(canvas.width, 0);
-                    ctx.scale(-1, 1);
-
-                    ctx.font = 'bold 24px Sans-serif';
-                    ctx.fillStyle = 'green';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('PROCESSING...', canvas.width / 2, canvas.height / 2);
+                    ctx.fillText('Processing', canvas.width / 2, canvas.height / 2);
+                } else if(recording) {
+                    ctx.fillText('Capturing', canvas.width / 2, canvas.height / 2);
                 }
             }
             animationFrameId = requestAnimationFrame(draw);
@@ -289,18 +208,13 @@ export function useTranslator() {
 
         draw();
         return () => cancelAnimationFrame(animationFrameId);
-    }, [isProcessing, canvasRef1, videoRef]);
+    }, [isProcessing, recording]);
+
 
     useEffect(() => {
-        setIsSwitching(true);
-
-        const timeout = setTimeout(() => {
-            activeModelRef.current = modelState.model;
-            setSequenceNum(modelState.model === 'glosses' ? 90 : 20);
-            setIsSwitching(false); 
-        }, 500); 
-
-        return () => clearTimeout(timeout);
+        activeModelRef.current = modelState.model;
+        setSequenceNum(modelState.model === 'glosses' ? 90 : 20);
+          
     }, [modelState.model, setSequenceNum]);
 
    useEffect(() => {
@@ -352,10 +266,6 @@ export function useTranslator() {
         result,
         confidence,
         recording,
-        capturedImage,
-        capturedType,
-        captureHistory,
-        capturedBlob,
         startRecording,
         stopRecording,
         setResult,
@@ -363,5 +273,7 @@ export function useTranslator() {
         setAutoCaptureEnabled,
         landmarkFrames,
         convertGloss,
+        translating, 
+        setTranslating,
     };
 }

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {TestSetup} from '../components/testSetup';
 import {useTranslator} from '../hooks/translateResults';
-import {renderMediaPreview} from '../components/mediaPreview';
 import { useSwitchLandmarks } from '../hooks/switchLandmarks.js';
 import { useAuth } from '../contexts/authContext.js';
 import '../styles/translator.css';
@@ -19,12 +18,12 @@ export function Translator(){
     result,
     confidence,
     recording,
-    capturedImage,
-    capturedType,
-    capturedBlob,
     startRecording,
     setResult,
-    convertGloss
+    convertGloss,
+    translating, 
+    setTranslating,
+
   } = useTranslator();
 
   useSwitchLandmarks(videoRef, canvasRef2);
@@ -94,10 +93,9 @@ export function Translator(){
                 style={{  position: 'absolute', top: 0, left: '5%', zIndex: 1  }}
               ></canvas>
               <canvas 
-                ref={canvasRef1} 
-                style={{ display: 'none' }}
-              ></canvas>
-              
+                    ref={canvasRef1} 
+                    style={{ position: 'absolute', bottom: 0, left: '30%', zIndex: 1 }}
+                  ></canvas>
               <div className="recognizer-camera-controls">
                 <button className="recognizer-camera-button" title="Switch camera">
                   <i className="fas fa-sync-alt"></i>
@@ -107,10 +105,10 @@ export function Translator(){
                 </button>
               </div>
               <div className="recognizer-camera-status">
-                <div className="recognizer-live-indicator">
+                {/* <div className="recognizer-live-indicator">
                   <i className="fas fa-circle recognizer-pulse-icon"></i>
                   <span>Live</span>
-                </div>
+                </div> */}
               </div>
               {recording && (
                 <div className="recognizer-recording-indicator">
@@ -142,11 +140,6 @@ export function Translator(){
               <h3 className="recognizer-results-title">
                 <i className="fas fa-language recognizer-results-icon"></i> Translation Results
               </h3>
-              {capturedImage && (
-                <div className="recognizer-captured-image" style={{ marginBottom: '10px' }}>
-                  {renderMediaPreview(capturedImage, capturedType)}
-                </div>
-              )}
               
               <div className="recognizer-results-display">
                 <p className={`recognizer-results-text ${result !== "Awaiting sign capture..." ? "recognizer-results-detected" : ""}`}>
@@ -155,36 +148,31 @@ export function Translator(){
               </div>
 
               <div className="recognizer-audio-controls">
-                <button 
-                  aria-label='Volume Up'
-                  className="recognizer-speak-button" 
-                  disabled={speakDisabled}
-                  title="Play translation audio"
-                  onClick={speak} 
-                >
+                <span></span>
+                  <button 
+                    className="recognizer-speak-button" 
+                    disabled={result.length < 5}
+                    title="Translate Gloss to English"
+                    style={{ marginLeft: '10px' }}
+                    onClick={convertGloss}
+                  >
+                    {translating ? <i className="fas fa-spinner fa-spin"></i> : "Translate Gloss "}&nbsp;
+                    <i className="fas fa-comment"></i>
+                  </button> &nbsp; &nbsp;
+                  <button 
+                    aria-label='Volume Up'
+                    className="recognizer-speak-button" 
+                    disabled={speakDisabled}
+                    title="Play translation audio"
+                    onClick={speak} 
+                  > Speak &nbsp;
                   <i className="fas fa-volume-up"></i>
-                </button>
-                <button 
-                  className="recognizer-speak-button" 
-                  disabled={!capturedBlob}
-                  title="Translate Gloss to English"
-                  style={{ marginLeft: '10px' }}
-                  onClick={convertGloss}
-                >
-                  <i className="fas fa-comment"></i>
-                </button>
-                <div className="recognizer-audio-progress-container">
-                  <div 
-                    className="recognizer-audio-progress" 
-                    style={{ width: `${audioProgressWidth}%` }}
-                  ></div>
-                </div>
+                  </button>
               </div>
 
               <div className="recognizer-additional-info">
                 <div className="recognizer-confidence">
                   <span>Confidence: <span className="recognizer-confidence-value">{confidence}</span></span>
-                  <span>Alternative: <span className="recognizer-alternative-value">None</span></span>
                 </div>
               </div>
             </div>

@@ -43,7 +43,6 @@ export function useSwitchLandmarks(videoRef, canvasRef) {
   useEffect(() => {
       const canvas = canvasRef.current;
       if (canvas && modelState.model) {
-      console.log("Redrawing button for model:", modelState.model);
       let text = modelState.model==='alpha'?'Alphabet':modelState.model==='num'?'Numbers': 'Glosses';
       drawDisplay(canvas, text);
       }
