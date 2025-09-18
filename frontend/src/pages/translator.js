@@ -168,7 +168,6 @@ export function Translator(){
                     <i className="fas fa-comment"></i>
                   </button> &nbsp; &nbsp;
                   <button 
-                    aria-label='Volume Up'
                     className="recognizer-speak-button" 
                     disabled={speakDisabled}
                     title="Play translation audio"
