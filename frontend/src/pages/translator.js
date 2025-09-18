@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {TestSetup} from '../components/testSetup';
 import {useTranslator} from '../hooks/translateResults';
-import { useSwitchLandmarks } from '../hooks/switchLandmarks.js';
+import { useModelSwitch } from '../contexts/modelContext.js';
 import { useAuth } from '../contexts/authContext.js';
 import '../styles/translator.css';
 
 export function Translator(){
 
-  const [audioProgressWidth] = useState(0);
   const { justSignedUp } = useAuth();
   const [showTest, setShowTest] = useState(false);
 
@@ -22,11 +21,10 @@ export function Translator(){
     setResult,
     convertGloss,
     translating, 
-    setTranslating,
 
   } = useTranslator();
 
-  useSwitchLandmarks(videoRef, canvasRef2);
+  const { modelState, switchModel } = useModelSwitch();
 
   const speakDisabled = result === "";
   const [availableVoices, setAvailableVoices] = useState([]);
@@ -97,12 +95,22 @@ export function Translator(){
                     style={{ position: 'absolute', bottom: 0, left: '30%', zIndex: 1 }}
                   ></canvas>
               <div className="recognizer-camera-controls">
-                <button className="recognizer-camera-button" title="Switch camera">
+                <button
+                  onClick={switchModel}
+                  className="recognizer-camera-button" title="Switch Model"
+                >
                   <i className="fas fa-sync-alt"></i>
+                  <span className="ml-2">
+                    {modelState.model === "alpha"
+                      ? " Alphabets "
+                      : modelState.model === "num"
+                      ? " Numbers "
+                      : " Glosses "}
+                  </span>
                 </button>
-                <button className="recognizer-camera-button" title="Toggle fullscreen">
+                {/* <button className="recognizer-camera-button" title="Toggle fullscreen">
                   <i className="fas fa-expand"></i>
-                </button>
+                </button> */}
               </div>
               <div className="recognizer-camera-status">
                 {/* <div className="recognizer-live-indicator">
@@ -156,7 +164,7 @@ export function Translator(){
                     style={{ marginLeft: '10px' }}
                     onClick={convertGloss}
                   >
-                    {translating ? <i className="fas fa-spinner fa-spin"></i> : "Translate Gloss "}&nbsp;
+                    {translating ? <i className="fas fa-spinner fa-spin">&nbsp; </i> : "Translate Gloss "}&nbsp;
                     <i className="fas fa-comment"></i>
                   </button> &nbsp; &nbsp;
                   <button 
@@ -177,7 +185,7 @@ export function Translator(){
               </div>
             </div>
 
-            <button className="recognizer-control-button recognizer-test-button" onClick={() => setShowTest(true)}>Test Your Environment</button>
+            <button className="recognizer-control-button recognizer-test-button" onClick={() => setShowTest(true)}>Test Your Background</button>
 
             <TestSetup
               isOpen={showTest}

@@ -124,11 +124,15 @@ export function TestSetup({ isOpen, onClose }) {
         setBrightness(currentBrightness);
 
         if (currentBrightness >= 80 && currentBrightness <= 200) {
-          updateStatus('Lighting is good');
+          updateStatus(
+            <> Lighting is good &nbsp;
+              <i className="fas fa-circle-check" style={{ color: "var(--dark-green)", marginRight: "6px" }}></i>
+            </>
+          );
           if (!timeoutRef.current) {
             timeoutRef.current = setTimeout(() => {
               setStage('hands');
-              updateStatus('Hold up your hands');
+              updateStatus('Hold up your hand');
               timeoutRef.current = null;
             }, 1000);
           }
@@ -160,30 +164,28 @@ export function TestSetup({ isOpen, onClose }) {
           }
 
           if (stage === 'hands') {
-            updateStatus("Hands detected");
+            setDetectionStatus(<i className="fas fa-spinner fa-spin"></i>);
             if (!timeoutRef.current) {
               timeoutRef.current = setTimeout(() => {
                 setStage('peace');
-                updateStatus('Now show a peace sign');
+                updateStatus('Show a peace sign');
                 timeoutRef.current = null;
-              }, 500);
+              }, 1000);
             }
           } else if (stage === 'peace') {
             if (results.landmarks.some(isPeaceSign)) {
-              if (!timeoutRef.current) {
-                timeoutRef.current = setTimeout(() => {
-                  updateStatus("Peace sign detected");
-                  timeoutRef.current = null;
-                }, 500);
-              }
               setStage('done');
-              updateStatus("All tests passed!");
+              updateStatus("All tests passed. You're all set!");
+              timeoutRef.current = null;
+
             } else {
               updateStatus("Show a peace sign");
+              timeoutRef.current = null;
+
             }
           }
         } else {
-          updateStatus('Hold up your hands');
+          updateStatus('Hold up your hand');
           clearTimeout(timeoutRef.current);
           timeoutRef.current = null;
         }
@@ -205,7 +207,7 @@ export function TestSetup({ isOpen, onClose }) {
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <h3 style={{ color: 'black' }}>Test Setup</h3>
+        <h3 style={{ color: 'var(--dark-green)' }}>Test Your Background</h3>
         <p style={{ color: 'black' }}>Follow the steps below</p>
         <br />
         <div className="video-container">
@@ -216,8 +218,10 @@ export function TestSetup({ isOpen, onClose }) {
         <p className={`modal-text stage-${stage}`}>{detectionStatus}</p>
         <br />
         {stage === 'start' && (
+          
           <button
             onClick={() => {
+              setDetectionStatus(<i className="fas fa-spinner fa-spin"></i>);
               if (!timeoutRef.current) {
                 timeoutRef.current = setTimeout(() => {
                   setStage("lighting");
@@ -249,8 +253,12 @@ export function TestSetup({ isOpen, onClose }) {
               onClick={() => {
                 onClose();
                 setStage('start');
-                updateStatus('Press start to begin.');
-
+               <>
+                1. Ensure that your face is visible against the background
+                <br />
+                <br />
+                Press start to begin.
+              </>
               }}
               className="recognizer-control-button recognizer-test-button"
             >

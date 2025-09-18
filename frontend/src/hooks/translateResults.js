@@ -46,7 +46,7 @@ export function useTranslator() {
                 setTranslating(true);
                 const translation = await produceSentence(result);
 
-                if ( translating && translation && translation.translation !== "?") {
+                if (translation.translation && translation.translation !== "?") {
                     setResult(translation.translation);
                 } else {
                     const currentResult = result;
@@ -274,6 +274,5 @@ export function useTranslator() {
         landmarkFrames,
         convertGloss,
         translating, 
-        setTranslating,
     };
 }

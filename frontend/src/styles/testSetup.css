@@ -1,8 +1,8 @@
 :root{
   --light-yellow : #fae152;
   --dark-yellow: #F9C74F;
+  --dark-green: #2D4D3A;
 }
-
 
 .stage-start .modal-text {
   font-weight: bold;
@@ -66,26 +66,11 @@ video {
     pointer-events: none;
 }
 
-/* .modal-text {
-  text-shadow: 0 0 8px rgba(0, 255, 0, 0.8),
-               0 0 16px rgba(0, 255, 0, 0.6),
-               0 0 24px rgba(0, 255, 0, 0.4);
-} */
-
-.modal-overlay::-webkit-scrollbar {
-    display: none;
-}
-
-.modal-overlay{
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    overflow-y: hidden;
-}
-
 .modal-text {
   margin-top: 12px;
   font-size: 1em;
-  transition: opacity 1s ease;
+  color: var(--dark-green);
+  transition: opacity 2s ease;
 }
 
 .stage-complete {
@@ -96,6 +81,11 @@ video {
 .bordered-canvas {
   border: 5px solid ;
   border-radius: 8px;
+  color: var(--light-yellow);
+  box-shadow: 
+        0 0 8px var(--light-yellow),
+        0 0 16px var(--light-yellow),
+        0 0 24px var(--light-yellow);
 }
 
 @keyframes fadeIn {
