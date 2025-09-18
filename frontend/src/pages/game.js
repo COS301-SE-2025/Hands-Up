@@ -52,7 +52,7 @@ export function Game() {
       setLetterIndex(0);
       setWordsCollected(w => w + 1);
       setUsedWords(prev => new Set(prev).add(newWord));
-      console.log("Remaining words:", remainingWords.filter(w => w !== newWord));
+      // console.log("Remaining words:", remainingWords.filter(w => w !== newWord));
     }
 
     const handleCollision = () => {

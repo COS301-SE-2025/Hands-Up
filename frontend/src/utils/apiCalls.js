@@ -46,8 +46,9 @@ export const translateSequence = async (blobs) => {
                 const errorJson = JSON.parse(errorBody);
                 errorMessage = errorJson.message || errorJson.error || errorMessage;
             } catch (e) {
-                console.log('Failed to parse error JSON:', e);
-                errorMessage = `${errorMessage} - ${errorBody}`;
+                // console.log('Failed to parse error JSON:', e);
+                errorMessage = `${errorMessage} - ${errorBody}. Another error ocurred: ${e}`;
+                
             }
             throw new Error(`Failed to process frames: ${errorMessage}`);
         }
@@ -63,7 +64,7 @@ export const translateSequence = async (blobs) => {
 
 
 export const processLetters = async (formData) => {
-  console.log("Processing captured image...");
+//   console.log("Processing captured image...");
 
   try {
     const response = await fetch(`${TRANSLATE_API_ROUTE}/processLetters`, {
@@ -72,7 +73,7 @@ export const processLetters = async (formData) => {
     });
 
     const data = await response.json();
-    console.log(data);
+    // console.log(data);
     return (data);
 
   } catch (error) {
@@ -104,9 +105,9 @@ export const processWords = async (formData) => {
 export const uploadUserAvatar = async (userID, formData) => {
     try {
         
-        for (let [key, value] of formData.entries()) {
-            console.log(`${key}:`, value instanceof File ? `File: ${value.name} (${value.size} bytes)` : value);
-        }
+        // for (let [key, value] of formData.entries()) {
+        //     console.log(`${key}:`, value instanceof File ? `File: ${value.name} (${value.size} bytes)` : value);
+        // }
 
         const response = await fetch(`${API_BASE_URL_USER}/${userID}/avatar`, {
             method: 'PUT',
@@ -464,7 +465,7 @@ export const deleteUserAccount = async (userID) => {
 };
 
 export const produceSentence = async (glossToConvert) => {
-  console.log("Converting sentence...");
+//   console.log("Converting sentence...");
 
   try {
     const response = await fetch(`${TRANSLATE_API_ROUTE}/sentence`, {
@@ -474,7 +475,7 @@ export const produceSentence = async (glossToConvert) => {
     });
 
     const data = await response.json();
-    console.log("Response:", data);
+    // console.log("Response:", data);
     return (data);
 
   } catch (error) {

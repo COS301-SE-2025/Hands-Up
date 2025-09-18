@@ -120,7 +120,7 @@ export function TestSetup({ isOpen, onClose }) {
             minTrackingConfidence: 0.8,
           });
           landmarkerRef.current = handLandmarker;
-          console.log('Hand Landmarker model loaded successfully.');
+          // console.log('Hand Landmarker model loaded successfully.');
         } catch (err) {
           console.error('Failed to load hand landmarker model:', err);
           updateStatus('Failed to load hand detection model. Please refresh.');
