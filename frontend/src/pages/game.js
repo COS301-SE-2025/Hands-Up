@@ -15,6 +15,8 @@ import GameOverScreen from '../components/game/gameOver';
 import PauseScreen from '../components/game/gamePaused';
 import StopScreen from '../components/game/gameStopped';
 
+import { CameraInput } from '../components/game/cameraInput';
+
 const wordList = ["ALBERTON", "BALLITO", "BENONI", "BLOEMFONTEIN", "BOKSBURG", 
   "CAPE TOWN", "DURBAN", "EAST LONDON", "FOURWAYS", "GEORGE", "GQEBERHA", "HOWZIT", 
   "IZIKO", "JOHANNESBURG", "KIMBERLEY", "KNYSNA", "LEKKER", "MAHIKENG", "MAKHANDA", 
@@ -39,6 +41,59 @@ export function Game() {
     const [currentWord, setCurrentWord] = useState(initialWord);
     const [letterIndex, setLetterIndex] = useState(0);
     const [wordsCollected, setWordsCollected] = useState(0);
+
+    const [showCamera, setShowCamera] = useState(false);
+    const [progress, setProgress] = useState(0);
+    // useEffect(() => {
+    //   const randomDelay = () => 10000 + Math.random() * 10000;
+
+    //   const scheduleCamera = () => {
+    //     setShowCamera(true);
+    //     setTimeout(() => setShowCamera(false), 8000); 
+    //     setTimeout(scheduleCamera, randomDelay());
+    //   };
+
+    //   const initialTimer = setTimeout(scheduleCamera, randomDelay());
+
+    //   return () => clearTimeout(initialTimer);
+    // }, []);
+    useEffect(() => {
+      if (!gameStarted) return;
+
+      let intervalTimer;
+      let timeoutTimer;
+
+      const scheduleCamera = () => {
+        setShowCamera(true);
+        setProgress(0);
+
+        const duration = 15000; // 15 seconds showing camera
+        const interval = 100;   // progress update every 0.1s
+        let elapsed = 0;
+
+        intervalTimer = setInterval(() => {
+          elapsed += interval;
+          setProgress(Math.min((elapsed / duration) * 100, 100));
+        }, interval);
+
+        // Hide camera after duration
+        timeoutTimer = setTimeout(() => {
+          setShowCamera(false);
+          clearInterval(intervalTimer);
+
+          // Schedule next camera after 15s delay
+          timeoutTimer = setTimeout(scheduleCamera, 15000);
+        }, duration);
+      };
+
+      // Start first camera after 15s
+      timeoutTimer = setTimeout(scheduleCamera, 15000);
+
+      return () => {
+        clearInterval(intervalTimer);
+        clearTimeout(timeoutTimer);
+      };
+    }, [gameStarted]);
 
     function pickNewWord() {
       let remainingWords = wordList.filter(w => !usedWords.has(w));
@@ -153,6 +208,48 @@ export function Game() {
             </svg>
           </div>
           
+          {showCamera && (
+            <div style={{
+              position: 'absolute',
+              top: '30%',              
+              left: '50%',
+              transform: 'translateX(-50%)', 
+              width: '25vw',
+              maxWidth: '300px',          
+              aspectRatio: '1 / 1',       
+              borderRadius: '50%',
+              overflow: 'hidden',
+              background: 'yellow',
+              zIndex: 50,
+            }}>
+              <CameraInput style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 50, objectFit: 'cover' }}/>
+              <svg
+                viewBox="0 0 100 100"
+                style={{
+                  position: 'absolute',
+                  top: 0, 
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  zIndex: 51,
+                }}
+              >
+                <circle
+                  cx="50%"
+                  cy="50%"
+                  r="48"                        
+                  stroke="red"                  
+                  strokeWidth="4"
+                  fill="transparent"
+                  strokeDasharray={2 * Math.PI * 48}         
+                  strokeDashoffset={(1 - progress / 100) * 2 * Math.PI * 48}
+                  style={{ transition: 'stroke-dashoffset 0.1s linear', transform: 'rotate(-90deg)', transformOrigin: '50% 50%' }}
+                />
+              </svg>
+
+            </div>
+          )}
+
           <RunnerPosProvider>
             <Canvas>
               <CameraPOV />
@@ -162,7 +259,7 @@ export function Game() {
 
                 <Road />
                 <Runner gameStarted={gameStarted}/>
-                {!gamePaused && !gameStopped && (
+                {!gamePaused && !gameStopped && !showCamera && (
                   <>
                     <VehicleSpawner onCollision={handleCollision} speed={carSpeed} />
                     <CoinSpawner onWrongLetter={handleCollision} currentWord={currentWord} letterIndex={letterIndex} setLetterIndex={setLetterIndex} pickNewWord={pickNewWord}/>
@@ -175,7 +272,7 @@ export function Game() {
         </div>
         <Loader />
 
-        {!gameStarted && !gameOver && !gamePaused && !gameStopped && <StartScreen onStart={() => setGameStarted(true)} />}
+        {!gameStarted && !gameOver && !gamePaused && !gameStopped && !showCamera && <StartScreen onStart={() => setGameStarted(true)} />}
         {!gameStarted && gameOver && <GameOverScreen distance={distance} wordsCollected={wordsCollected} onReplay={handleReplay}/>}
         {!gameStarted && gamePaused && <PauseScreen onResume={() => {setGameStarted(true); setGamePaused(false);}} />}
         {!gameStarted && gameStopped && <StopScreen onResume={() => {setGameStarted(true); setGameStopped(false);}} onQuit={() => { setGameStopped(false); setGameOver(true);}} />}
