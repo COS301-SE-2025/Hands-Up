@@ -177,7 +177,7 @@ class SignLanguageAPI {
       clearTimeout(timeoutId);
       return response.ok;
     } catch (error) {
-      
+      console.error('API health check failed:', error);
       return false;
     }
   }
@@ -262,7 +262,7 @@ export const processImage = async (formData) => {
     return (data);
 
   } catch (error) {
-    
+    console.error(error);
     return ('Error processing image');
   }
 };
@@ -281,7 +281,7 @@ export const processWords = async (formData) => {
     return (data);
 
   } catch (error){
-    
+    console.error(error);
     return ('Error processing words');
   }
 };
@@ -302,7 +302,7 @@ export const uploadUserAvatar = async (userID, formData) => {
 
         return handleApiResponse(response);
     } catch (error) {
-        
+        console.error("Error in uploadUserAvatar:", error);
         throw error;
     }
 };

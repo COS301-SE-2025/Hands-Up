@@ -78,7 +78,7 @@ export const AuthProvider = ({ children }) => {
             
             navigate('/login');
         } catch (error) {
-            
+            console.error("Logout failed:", error);
             setCurrentUser(null);
             navigate('/login');
         } finally {

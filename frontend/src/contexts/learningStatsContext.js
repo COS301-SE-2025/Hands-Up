@@ -76,7 +76,7 @@ function LearningStatsProvider({ children }) {
                     
                     hasFetchedStats.current = true;
                 } catch (error) {
-                    
+                    console.error("Failed to load learning stats:", error);
                     setStats(DEFAULT_STATS);
                 }
             };
