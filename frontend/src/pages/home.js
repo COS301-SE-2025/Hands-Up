@@ -189,8 +189,9 @@ export function Home(){
                         <div className="sign-content">
                             <div className="sign-media">
                                 <Canvas camera={{ position: [0, 0.2, 3], fov: 35 }}>
+                                    {/* eslint-disable-next-line react/no-unknown-property */}
                                     <ambientLight intensity={5} />
-                                    
+                                    {/* eslint-disable-next-line react/no-unknown-property */}
                                     <group position={[0, -1.1, 0]}>
                                         <AngieSigns
                                             key={animationKey}
