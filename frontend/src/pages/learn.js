@@ -1,3 +1,4 @@
+ 
 import React, { useState, useEffect, useMemo} from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/learnSidebar';
@@ -53,6 +54,7 @@ const HelpMessage = ({ message, onClose, position }) => {
     }
 
     const handleCanvasError = (error) => {
+        
         console.warn('WebGL Canvas error:', error);
         setWebglError(true);
     };
@@ -63,6 +65,7 @@ const HelpMessage = ({ message, onClose, position }) => {
             const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
             return !!gl;
         } catch (error) {
+            
             return false;
         }
     };
@@ -83,7 +86,9 @@ const HelpMessage = ({ message, onClose, position }) => {
                                 failIfMajorPerformanceCaveat: false 
                             }}
                         >
+                            {/* eslint-disable react/no-unknown-property */}
                             <ambientLight intensity={5} />
+                            {/* eslint-disable react/no-unknown-property */}
                             <group position={[0, -1.1, 0]}>
                                 <AngieSigns landmarks={landmarks} />
                             </group>

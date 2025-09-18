@@ -314,6 +314,7 @@ export function SignQuiz() {
                 stopCamera();
                 loadAnimationLandmarks(currentQuestion);
             } else if (currentQuestion.type === 'camera') {
+                console.log('');
             }
         }
     }, [quizStarted, currentQuestionIndex, quizQuestions, loadAnimationLandmarks, stopCamera, setResult]);
@@ -599,7 +600,9 @@ export function SignQuiz() {
 
                     <div className="canvas-container">
                         <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
+                            {/* eslint-disable react/no-unknown-property */}
                             <ambientLight intensity={5} />
+                            {/* eslint-disable react/no-unknown-property */}
                             <group position={[0, -1.1, 0]}>             
                                 {landmarks && Object.keys(landmarks).length > 0 && (
                                     <AngieSigns key={replayKey} landmarks={landmarks} />
@@ -646,7 +649,7 @@ export function SignQuiz() {
             {isCameraQuestion && (
                 <div className="camera-section">
                     <h2 className="question-title">
-                        Sign: "{currentQuestion.correctAnswer}"
+                        Sign: &quot;{currentQuestion.correctAnswer}&quot;
                     </h2>
 
                     <div className="camera-container">
@@ -716,7 +719,7 @@ export function SignQuiz() {
                         {hasValidCameraResult && (
                             <div className="result-section">
                                 <div className="detection-result">
-                                    Detected: "{cleanResult}"
+                                    Detected: &quot;{cleanResult}&quot;
                                 </div>
                                 
                                 <div className="confidence-score">
@@ -762,9 +765,9 @@ export function SignQuiz() {
 
                     <div className="instructions">
                         <p>
-                            <strong>Instructions:</strong> Position your hands clearly in the camera frame and sign "{currentQuestion.correctAnswer}".
+                            <strong>Instructions:</strong> Position your hands clearly in the camera frame and sign &quot;{currentQuestion.correctAnswer}&quot;.
                             <br />
-                            The recording will automatically stop after 5 seconds, or click "Stop Signing" to end early.
+                            The recording will automatically stop after 5 seconds, or click &quot;Stop Signing&quot; to end early.
                             <br />
                             <small>Detection scope: {currentCategoryData.name}</small>
                         </p>

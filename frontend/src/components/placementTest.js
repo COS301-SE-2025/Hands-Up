@@ -4,12 +4,12 @@ import { OrbitControls } from '@react-three/drei';
 import { AngieSigns } from './angieSigns';
 import { getLandmarks } from '../utils/apiCalls';
 import '../styles/learn.css';
+import PropTypes from 'prop-types';
 
 const PlacementTest = ({ onComplete, onSkip, onClose }) => {
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [answers, setAnswers] = useState([]);
     const [showResults, setShowResults] = useState(false);
-    const [testCompleted, setTestCompleted] = useState(false);
     const [landmarks, setLandmarks] = useState({});
     const [replayKey, setReplayKey] = useState(0);
     const [loading, setLoading] = useState(false);
@@ -259,7 +259,9 @@ const PlacementTest = ({ onComplete, onSkip, onClose }) => {
 
                     <div className="angie-avatar-container">
                         <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
+                            {/* eslint-disable react/no-unknown-property */}
                             <ambientLight intensity={5} />
+                            {/* eslint-disable react/no-unknown-property */}
                             <group position={[0, -1.1, 0]}>
                                 <AngieSigns landmarks={landmarks} />
                             </group>
@@ -314,7 +316,7 @@ const PlacementTest = ({ onComplete, onSkip, onClose }) => {
                 <div className="test-header">
                     <h1 className="test-title">Sign Language Placement Test</h1>
                     <p className="test-description">
-                        Let's see what you already know to customize your learning journey!
+                        Let&apos;s see what you already know to customize your learning journey!
                     </p>
                     
                     <div className="PTprogress-section">
@@ -342,7 +344,9 @@ const PlacementTest = ({ onComplete, onSkip, onClose }) => {
                         
                         <div className="canvas-wrapper" style={{ opacity: loading ? 0.3 : 1 }}>
                             <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
+                                {/* eslint-disable react/no-unknown-property */}
                                 <ambientLight intensity={5} />
+                                {/* eslint-disable react/no-unknown-property */}
                                 <group position={[0, -1.1, 0]}>
                                     {landmarks && Object.keys(landmarks).length > 0 && (
                                         <AngieSigns key={replayKey} landmarks={landmarks} />
@@ -410,5 +414,12 @@ const PlacementTest = ({ onComplete, onSkip, onClose }) => {
         </div>
     );
 };
+
+PlacementTest.propTypes = {
+  onComplete: PropTypes.func.isRequired,
+  onSkip: PropTypes.func,
+  onClose: PropTypes.func,
+};
+
 
 export default PlacementTest;

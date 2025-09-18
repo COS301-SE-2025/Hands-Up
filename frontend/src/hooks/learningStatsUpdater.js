@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-
+import PropTypes from 'prop-types';
 const LearningStatsContext = createContext();
 
 export const useLearningStats = () => {
@@ -10,6 +10,9 @@ export const useLearningStats = () => {
     return context;
 };
 
+useLearningStats.PropTypes={
+    children: PropTypes.node.isRequired,
+}
 export const LearningStatsProvider = ({ children }) => {
     const [stats, setStats] = useState(() => {
         try {
@@ -200,3 +203,7 @@ export const LearningStatsProvider = ({ children }) => {
         </LearningStatsContext.Provider>
     );
 };
+
+LearningStatsProvider.propTypes={
+    children: PropTypes.node.isRequired,
+}

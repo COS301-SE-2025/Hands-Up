@@ -87,4 +87,6 @@ Sidebar.propTypes = {
   progressPercent: PropTypes.number.isRequired,
   signsLearned: PropTypes.number.isRequired,
   lessonsCompleted: PropTypes.number.isRequired,
+   placementTestCompleted: PropTypes.bool.isRequired,
+  onRetakePlacementTest: PropTypes.func.isRequired,
 };

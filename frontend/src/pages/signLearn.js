@@ -1,5 +1,4 @@
-/* eslint-disable react/no-unknown-property */
-
+ 
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react'; 
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useLearningStats } from '../contexts/learningStatsContext'; 
@@ -151,7 +150,6 @@ export function SignLearn() {
     const { updateStats, stats } = useLearningStats();
     const [replayKey, setReplayKey] = useState(0);
     const [currentWordIndex, setCurrentWordIndex] = useState(0);
-    const [isAutoPlaying, setIsAutoPlaying] = useState(false);
     const [hasTrackedStats, setHasTrackedStats] = useState(false);
     const [showHint, setShowHint] = useState(false);
     const timeoutRef = useRef(null);
@@ -291,31 +289,7 @@ export function SignLearn() {
         }
     };
 
-    const startAutoPlay = useCallback(() => {
-        if (!currentPhrase) return;
-        
-        setIsAutoPlaying(true);
-        setCurrentWordIndex(0);
-        setReplayKey(prev => prev + 1);
-        
-        let index = 0;
-        const playNext = () => {
-            if (index < currentPhrase.words.length) {
-                setCurrentWordIndex(index);
-                setReplayKey(prev => prev + 1);
-                index++;
-                
-                if (index < currentPhrase.words.length) {
-                    timeoutRef.current = setTimeout(playNext, 3000);
-                } else {
-                    setIsAutoPlaying(false);
-                }
-            }
-        };
-        
-        timeoutRef.current = setTimeout(playNext, 500);
-    }, [currentPhrase]);
-
+    
     const handleReplay = () => {
         if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
@@ -350,6 +324,7 @@ export function SignLearn() {
             try {
                 let data;
                 if (isPhrase && currentPhrase) {
+                    setCurrentWordIndex(0);
                     const currentWord = currentPhrase.words[currentWordIndex];
                     console.log('Loading animation for word:', currentWord);
                     data = await getLandmarks(currentWord);
@@ -616,7 +591,10 @@ export function SignLearn() {
 }}>
     <Suspense fallback={<ModelLoadingFallback />}>
                 <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
+                    
+                    {/* eslint-disable react/no-unknown-property */}
                     <ambientLight intensity={5} />
+                    {/* eslint-disable react/no-unknown-property */}
                     <group position={[0, -1.1, 0]}>
                         <AngieSigns landmarks={landmarks} replay={replayKey}  duration={isPhrase ? 6.0 : 2.5} />
                     </group>

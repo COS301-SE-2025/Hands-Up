@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+import PropTypes from 'prop-types';
 const LearningStatsContext = createContext();
+
 
 export const useLearningStats = () => {
     const context = useContext(LearningStatsContext);
@@ -352,9 +354,13 @@ export const LearningStatsProvider = ({ children }) => {
         hasLoadedFromBackend
     };
 
+
     return (
         <LearningStatsContext.Provider value={value}>
             {children}
         </LearningStatsContext.Provider>
     );
 };
+LearningStatsProvider.propTypes={
+    children: PropTypes.node.isRequired,
+}
