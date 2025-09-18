@@ -68,28 +68,29 @@ export function TestSetup({ isOpen, onClose }) {
     }
   };
 
-  useEffect(() => {
+    useEffect(() => {
     if (!isOpen) return;
 
     const enableCamera = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        if (videoRef.current) videoRef.current.srcObject = stream;
-      } catch (err) {
-        console.error('Camera access denied', err);
-        updateStatus('Camera access denied. Please enable your camera.');
-      }
-    };
+          try {
+              const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+              if (videoRef.current) videoRef.current.srcObject = stream;
+          } catch (err) {
+              console.error('Camera access denied', err);
+              updateStatus('Camera access denied. Please enable your camera.');
+          }
+      };
 
-    enableCamera();
-    
-    return () => {
-      const stream = videoRef.current?.srcObject;
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
-    };
-  }, [isOpen]);
+      enableCamera();
+
+      const videoStream = videoRef.current?.srcObject;
+
+      return () => {
+        if (videoStream) {
+            videoStream.getTracks().forEach(track => track.stop());
+        }
+      };
+  }, [isOpen]); 
 
   useEffect(() => {
     if (!isOpen || stage === 'start') {
@@ -174,6 +175,8 @@ export function TestSetup({ isOpen, onClose }) {
           }
           const currentBrightness = total / (region.data.length / 4);
           setBrightness(currentBrightness);
+
+          if(brightness);
 
           if (currentBrightness >= 80 && currentBrightness <= 200) {
             if (!timeoutRef.current) {
@@ -284,7 +287,7 @@ export function TestSetup({ isOpen, onClose }) {
     return () => {
       clearAllTimers();
     };
-  }, [isOpen, stage]);
+  }, [isOpen, stage, brightness]);
 
   useEffect(() => {
     if (!isOpen) {
