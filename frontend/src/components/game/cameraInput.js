@@ -1,12 +1,9 @@
 import React, { useEffect, useState  } from 'react';
 import { useTranslator } from '../../hooks/translateResults';
-import { useLandmarksDetection } from '../../hooks/landmarksDetection';
 import { processImage } from '../../utils/apiCalls';
 
 export function CameraInput({ progress = 0, show = true, onSkip, onLetterDetected }) {
   const { videoRef, canvasRef2 } = useTranslator();
-  useLandmarksDetection(videoRef, canvasRef2);
-  
   const [frameBlobs, setFrameBlobs] = useState([]);
   const [processing, setProcessing] = useState(false);
 
