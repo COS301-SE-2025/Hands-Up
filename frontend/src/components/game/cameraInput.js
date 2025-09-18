@@ -50,12 +50,8 @@ export function CameraInput({ progress = 0, show = true, onSkip, onLetterDetecte
         const result = await processImage(formData); 
         console.log("API response:", result);
 
-        if (result?.prediction) {
-          onLetterDetected?.(result.prediction.toUpperCase());
-        }
-
-        if (result?.word) {
-          onLetterDetected?.(result.word.toUpperCase());
+        if (result?.letter) {
+          onLetterDetected?.(result.letter.toUpperCase());
         }
       } 
       catch (err) {

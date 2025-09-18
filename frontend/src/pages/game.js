@@ -67,7 +67,7 @@ export function Game() {
         setShowCamera(true);
         setProgress(0);
 
-        const duration = 15000; // 15 seconds showing camera
+        const duration = 20000; // 15 seconds showing camera
         const interval = 100;   // progress update every 0.1s
         let elapsed = 0;
 
