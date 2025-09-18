@@ -144,54 +144,7 @@ export function Translator(){
               <h3 className="recognizer-history-title">
                 <i className="fas fa-history recognizer-history-icon"></i> Recent Captures
               </h3>
-              <div className="recognizer-history-items">
-                {captureHistory.map((capture) => (
-                  <div 
-                    key={capture.id} 
-                    className="recognizer-history-item" 
-                    title={`${capture.type} - ${capture.timestamp}`}
-                    //onClick={() => handleHistoryClick(capture)}
-                    style={{ cursor: 'pointer', position: 'relative' }}
-                  >
-                    {renderHistoryItem(capture)}
-                    <div style={{ 
-                      position: 'absolute', 
-                      top: '2px', 
-                      right: '2px', 
-                      background: 'rgba(0,0,0,0.7)', 
-                      color: 'white', 
-                      padding: '2px 4px', 
-                      borderRadius: '3px', 
-                      fontSize: '10px' 
-                    }}>
-                      {capture.type === 'video' ? '🎥' : '📷'}
-                    </div>
-                    <div style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      background: 'rgba(0,0,0,0.3)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      opacity: 0,
-                      transition: 'opacity 0.2s',
-                      color: 'white',
-                      fontSize: '12px',
-                      fontWeight: 'bold'
-                    }}
-                    className="history-hover-overlay"
-                    >
-                    
-                    </div>
-                  </div>
-                ))}
-                {Array.from({ length: Math.max(0, 5 - captureHistory.length) }, (_, i) => (
-                  <div key={`empty-${i}`} className="recognizer-history-item"></div>
-                ))}
-              </div>
+              
             </div>
           </div>
 
