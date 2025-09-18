@@ -1,13 +1,17 @@
 import React, { createContext, useState, useContext } from 'react';
+import PropTypes from 'prop-types'
 
 const DexterityContext = createContext();
+
+DexterityProvider.propTypes = {
+  children: PropTypes.node, 
+};
 
 export function DexterityProvider({ children }) {
     
     const [dexterity, setDexterity] = useState(() => {
         return localStorage.getItem('dexterity') || 'right';
     });
-
 
     const toggleDexterity = () => {
         setDexterity(prev => (prev === 'right' ? 'left' : 'right'));

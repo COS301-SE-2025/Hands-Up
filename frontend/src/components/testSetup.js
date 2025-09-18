@@ -1,13 +1,19 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FilesetResolver, HandLandmarker } from '@mediapipe/tasks-vision';
+import PropTypes from 'prop-types'
 import '../styles/testSetup.css';
+
+TestSetup.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+};
 
 export function TestSetup({ isOpen, onClose }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const landmarkerRef = useRef(null);
 
-  const [brightness, setBrightness] = useState(0);
+  const [setBrightness] = useState(0);
   const [detectionStatus, setDetectionStatus] = useState('Press start to begin the test');
   const [stage, setStage] = useState('start');
   const timeoutRef = useRef(null);
@@ -200,7 +206,7 @@ export function TestSetup({ isOpen, onClose }) {
       cancelAnimationFrame(animationFrameId);
       clearTimeout(timeoutRef.current);
     };
-  }, [isOpen, stage]);
+  }, [isOpen, stage, setBrightness]);
 
   if (!isOpen) return null;
 
