@@ -13,7 +13,7 @@ const carModels = [
   'bmw m4.glb',
   'bus.glb',
   'jeep.glb', 
-  // 'taxi.glb',
+  'taxi.glb',
   'vw golf gti.glb',
 ];
 
