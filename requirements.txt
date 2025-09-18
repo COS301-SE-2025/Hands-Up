@@ -4,3 +4,6 @@ numpy
 tensorflow
 flask
 flask-cors
+python-dotenv
+scikit-learn
+pandas

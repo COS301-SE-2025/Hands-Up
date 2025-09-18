@@ -159,7 +159,7 @@ const COMMON_PHRASES = [
 ];
 
 const CATEGORY_HELP_MESSAGES = {
-    dashboard: "Welcome to the Learn page! Here you can explore different categories of sign language. Complete quizzes to unlock new categories. Click on any unlocked category to start your learning journey.",
+    dashboard:"Welcome to Learn page! Here you'll learn sign language through interactive lessons and quizzes. We'll start with a quick placement test to assess your current knowledge and unlock the right categories for your level. This ensures you get the best learning experience tailored just for you!",
     alphabets: "Welcome to the Alphabet category! Here you'll learn the basic letter signs. You need to learn at least 5 letters before you can attempt the quiz. Click on any letter to start practicing!",
     numbers: "Welcome to Numbers & Counting! Practice signing numbers 1-20. All levels are unlocked - click on any number to learn its sign. Take the quiz when you're ready!",
     colours: "Welcome to Colours! Learn how to sign different colors. Each tile shows the color you'll be learning. All colors are available - click on any color tile to start!",
@@ -204,22 +204,32 @@ export function Learn() {
         console.log('===================');
     }, [stats]);
 
-    useEffect(() => {
+useEffect(() => {
         if (stats) {
             const placementTestCompleted = stats.placementTestCompleted;
             
             if (!placementTestCompleted) {
-                console.log('Placement test not completed in backend, showing placement test');
-                setShowPlacementTest(true);
-                setPlacementCompleted(false);
+                console.log('Placement test not completed in backend');
+                if (!hasSeenHelp.welcome) {
+                    setTimeout(() => {
+                        showHelp(
+                            "Welcome to HandsUP! Here you'll learn sign language through interactive lessons and quizzes. We'll start with a quick placement test to assess your current knowledge and unlock the right categories for your level. This ensures you get the best learning experience tailored just for you!",
+                            'center',
+                            'welcome'
+                        );
+                    }, 500);
+                } else {
+                    setShowPlacementTest(true);
+                    setPlacementCompleted(false);
+                }
             } else {
                 console.log('Placement test already completed in backend');
                 setShowPlacementTest(false);
                 setPlacementCompleted(true);
             }
         }
-    }, [stats?.placementTestCompleted]);
-
+    }, [stats?.placementTestCompleted, hasSeenHelp.welcome]);
+    
     const handleClosePlacementTest = () => {
     console.log('=== CLOSING PLACEMENT TEST ===');
     setShowPlacementTest(false);

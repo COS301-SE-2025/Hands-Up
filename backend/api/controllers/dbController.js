@@ -63,7 +63,9 @@ export const learningProgress = async (req, res) => {
                     "thingsQuizCompleted",
                     "animalsQuizCompleted",
                     "seasonsQuizCompleted",
-                    "phrasesQuizCompleted"
+                    "phrasesQuizCompleted",
+                    "hasSeenWelcome",
+                    "hasSeenCategoryHelp"
                  FROM learn_details
                  JOIN users ON learn_details."userID" = users."userID"
                  WHERE users.username = $1`,
@@ -80,6 +82,7 @@ export const learningProgress = async (req, res) => {
             const learnedPhrases = detailedData.learnedPhrases ? JSON.parse(detailedData.learnedPhrases) : [];
             const unlockedCategories = detailedData.unlockedCategories ? JSON.parse(detailedData.unlockedCategories) : ['alphabets'];
             const placementResults = detailedData.placementResults ? JSON.parse(detailedData.placementResults) : null;
+            const hasSeenCategoryHelp = detailedData.hasSeenCategoryHelp ? JSON.parse(detailedData.hasSeenCategoryHelp) : {};
 
             const mergedData = {
                 ...basicData,
@@ -87,7 +90,9 @@ export const learningProgress = async (req, res) => {
                 learnedSigns,
                 learnedPhrases,
                 unlockedCategories,
-                placementResults, signsLearned: learnedSigns.length
+                placementResults,
+                hasSeenCategoryHelp,
+                signsLearned: learnedSigns.length
             };
 
             res.status(200).json({
@@ -136,7 +141,9 @@ export const learningProgress = async (req, res) => {
                 thingsQuizCompleted = false,
                 animalsQuizCompleted = false,
                 seasonsQuizCompleted = false,
-                phrasesQuizCompleted = false
+                phrasesQuizCompleted = false,
+                hasSeenWelcome = false,
+                hasSeenCategoryHelp = {}
             } = progressData;
 
             const signsLearned = Array.isArray(learnedSigns) ? learnedSigns.length : 0;
@@ -145,9 +152,9 @@ export const learningProgress = async (req, res) => {
                 return res.status(400).json({ status: "error", message: 'lessonsCompleted and streak must be numbers.' });
             }
             
-           await pool.query('BEGIN');
+            await pool.query('BEGIN');
          
-           const basicResult = await pool.query(
+            const basicResult = await pool.query(
                 `UPDATE learn SET
                     "lessonsCompleted" = $1,
                     "signsLearned" = $2,
@@ -174,8 +181,8 @@ export const learningProgress = async (req, res) => {
                     "coloursQuizCompleted", "familyQuizCompleted", "feelingsQuizCompleted",
                     "actionsQuizCompleted", "questionsQuizCompleted", "timeQuizCompleted",
                     "foodQuizCompleted", "thingsQuizCompleted", "animalsQuizCompleted",
-                    "seasonsQuizCompleted", "phrasesQuizCompleted"
-                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+                    "seasonsQuizCompleted", "phrasesQuizCompleted", "hasSeenWelcome", "hasSeenCategoryHelp"
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
                 ON CONFLICT ("userID") DO UPDATE SET
                     "learnedSigns" = EXCLUDED."learnedSigns",
                     "learnedPhrases" = EXCLUDED."learnedPhrases",
@@ -196,7 +203,9 @@ export const learningProgress = async (req, res) => {
                     "thingsQuizCompleted" = EXCLUDED."thingsQuizCompleted",
                     "animalsQuizCompleted" = EXCLUDED."animalsQuizCompleted",
                     "seasonsQuizCompleted" = EXCLUDED."seasonsQuizCompleted",
-                    "phrasesQuizCompleted" = EXCLUDED."phrasesQuizCompleted"`,
+                    "phrasesQuizCompleted" = EXCLUDED."phrasesQuizCompleted",
+                    "hasSeenWelcome" = EXCLUDED."hasSeenWelcome",
+                    "hasSeenCategoryHelp" = EXCLUDED."hasSeenCategoryHelp"`,
                 [
                     userID,
                     JSON.stringify(learnedSigns),
@@ -218,7 +227,9 @@ export const learningProgress = async (req, res) => {
                     thingsQuizCompleted,
                     animalsQuizCompleted,
                     seasonsQuizCompleted,
-                    phrasesQuizCompleted
+                    phrasesQuizCompleted,
+                    hasSeenWelcome,
+                    JSON.stringify(hasSeenCategoryHelp)
                 ]
             );
 
