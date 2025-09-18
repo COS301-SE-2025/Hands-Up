@@ -52,7 +52,7 @@ describe('Landing Page', () => {
 
       cy.get('button[type="submit"]').click();
 
-      cy.contains('h1', 'Welcome back').should('be.visible');
+      cy.contains('h1', 'Welcome to Hands UP!').should('be.visible');
     });
   });
 

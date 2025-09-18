@@ -6,6 +6,7 @@ import { Loader } from '@react-three/drei';
 import { RunnerPosProvider } from '../contexts/game/runnerPosition';
 import { VehicleSpawner } from '../components/game/spawnCars';
 import { CoinSpawner } from '../components/game/letterCoins';
+import CameraPOV from '../components/game/cameraPOV';
 import Road from '../components/game/road';
 import Runner from '../components/game/runner';
 import LifeLostSign from '../components/game/removeLife';
@@ -13,6 +14,13 @@ import StartScreen from '../components/game/gameStart';
 import GameOverScreen from '../components/game/gameOver';
 import PauseScreen from '../components/game/gamePaused';
 import StopScreen from '../components/game/gameStopped';
+
+const wordList = ["ALBERTON", "BALLITO", "BENONI", "BLOEMFONTEIN", "BOKSBURG", 
+  "CAPE TOWN", "DURBAN", "EAST LONDON", "FOURWAYS", "GEORGE", "GQEBERHA", "HOWZIT", 
+  "IZIKO", "JOHANNESBURG", "KIMBERLEY", "KNYSNA", "LEKKER", "MAHIKENG", "MAKHANDA", 
+  "MBOMBELA", "MOSSEL BAY", "NEWCASTLE", "PIETERMARITZBURG", "POLOKWANE", "PRETORIA", 
+  "RICHARDS BAY", "ROBOT", "RUSTENBURG", "SOSHANGUVE", "SOWETO", "STELLENBOSCH", 
+  "THEMBISA", "UPINGTON", "VEREENIGING", "ZULU LAND"];
 
 export function Game() {
     const [gameStarted, setGameStarted] = useState(false);
@@ -25,7 +33,27 @@ export function Game() {
     const [distance, setDistance] = useState(0);
     const [carSpeed, setCarSpeed] = useState(10);
     const maxSpeed = 20;
+
+    const initialWord = wordList[Math.floor(Math.random() * wordList.length)];
+    const [usedWords, setUsedWords] = useState(new Set([initialWord]));
+    const [currentWord, setCurrentWord] = useState(initialWord);
+    const [letterIndex, setLetterIndex] = useState(0);
     const [wordsCollected, setWordsCollected] = useState(0);
+
+    function pickNewWord() {
+      let remainingWords = wordList.filter(w => !usedWords.has(w));
+      if (remainingWords.length === 0) {
+        setUsedWords(new Set());
+        remainingWords = [...wordList];
+      }
+
+      const newWord = remainingWords[Math.floor(Math.random() * remainingWords.length)];
+      setCurrentWord(newWord);
+      setLetterIndex(0);
+      setWordsCollected(w => w + 1);
+      setUsedWords(prev => new Set(prev).add(newWord));
+      console.log("Remaining words:", remainingWords.filter(w => w !== newWord));
+    }
 
     const handleCollision = () => {
       setLives(l => {
@@ -52,6 +80,10 @@ export function Game() {
       setGamePaused(false);
       setGameStopped(false); 
       setGameStarted(true);
+      setLetterIndex(0);
+      const initialWord = wordList[Math.floor(Math.random() * wordList.length)];
+      setCurrentWord(initialWord);
+      setUsedWords(new Set([initialWord]));
     };
 
     // increase distance travelled
@@ -78,16 +110,38 @@ export function Game() {
 
           {lifeLost && <LifeLostSign />}
 
-          <div style={{ position: 'absolute', left: '1%', color: '#ffcc00', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ padding: '20px 20px 0px', fontSize: '28px', fontWeight: 'bold' }}>
+          <div style={{ position: 'absolute', left: '1%', color: 'yellow', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '20px 20px 0px', fontSize: '2vw', fontWeight: 'bold' }}>
               Distance: {distance} m
             </div>
-            <div style={{ padding: '0px 20px', fontSize: '28px', fontWeight: 'bold' }}>
+            <div style={{ padding: '0px 20px', fontSize: '2vw', fontWeight: 'bold' }}>
               Lives: {lives}
             </div>
           </div>
 
-          <div style={{ position: 'absolute', top: 0, right: '1.5%', display: 'flex', flexDirection: 'column', zIndex: 10 }}>
+          <div style={{
+            position: 'absolute',
+            top: '2%',
+            left: '10%',
+            width: '80%',
+            textAlign: 'center',
+            fontSize: '6vw',
+            fontFamily: 'Lilita One, sans-serif',            
+            color: 'white',
+            zIndex: 10,
+          }}>
+            {currentWord?.split("").map((l, i) => (
+              <span key={i} style={{ 
+                color: i < letterIndex ? 'yellow' : i === letterIndex ? 'white' : 'grey',
+                fontSize: i === letterIndex ? '7vw' : '6vw',
+                transition: 'color 0.2s ease',
+              }}>
+                {l}
+              </span>
+            ))}
+          </div>
+
+          <div style={{ position: 'absolute', top: 0, right: '1.5%', display: 'flex', flexDirection: 'column', zIndex: 11 }}>
             <svg width="80" height="80" viewBox="0 0 120 104" style={{ cursor: 'pointer' }} onClick={() => { if (!gameStarted) return; setGameStarted(false); setGameStopped(true); }} >
               <polygon points="60,0 115,30 115,74 60,104 5,74 5,30" fill="red" transform="translate(60 52) scale(0.85) translate(-60 -52)" stroke='white' strokeWidth={12} />
               <text x="60" y="54" textAnchor="middle" dominantBaseline="middle" fill="white" fontSize="22" fontWeight="bold" pointerEvents="none">
@@ -100,23 +154,23 @@ export function Game() {
           </div>
           
           <RunnerPosProvider>
-          <Canvas camera={{ position: [0, 3, 58], fov: 55 }}>
-            <Suspense fallback={null}>
-              <ambientLight intensity={1.5} />
-              <directionalLight position={[0, 10, 5]} intensity={1} />
+            <Canvas>
+              <CameraPOV />
+              <Suspense fallback={null}>
+                <ambientLight intensity={1.5} />
+                <directionalLight position={[0, 10, 5]} intensity={1} />
 
-              <Road />
-              <Runner gameStarted={gameStarted}/>
-              {!gamePaused && !gameStopped && (
-                <>
-                  <VehicleSpawner onCollision={handleCollision} speed={carSpeed} />
-                  <CoinSpawner />
-                  {/* <CoinSpawner onCollect={handleCollection} /> */}
-                </>
-              )}
+                <Road />
+                <Runner gameStarted={gameStarted}/>
+                {!gamePaused && !gameStopped && (
+                  <>
+                    <VehicleSpawner onCollision={handleCollision} speed={carSpeed} />
+                    <CoinSpawner onWrongLetter={handleCollision} currentWord={currentWord} letterIndex={letterIndex} setLetterIndex={setLetterIndex} pickNewWord={pickNewWord}/>
+                  </>
+                )}
 
-            </Suspense>
-          </Canvas>
+              </Suspense>
+            </Canvas>
           </RunnerPosProvider>
         </div>
         <Loader />

@@ -19,6 +19,7 @@ import { Home} from "./pages/home";
 import { SignQuiz} from "./pages/SignQuiz";
 import { Layout } from "./pages/layout"; 
 import { Game } from "./pages/game"; 
+import GameGuide from "./components/game/gameGuide";
 import ErrorBoundary from "./components/errorBoundary";
 import ErrorFallback from "./components/errorFallback";
 
@@ -237,6 +238,26 @@ function App() {
                   }
                 />
                 <Route
+                path="/game"
+                element={
+                  <ProtectedRoute>
+                    <ErrorBoundary fallback={<ErrorFallback errorName="Translator" />}>
+                      <Game />
+                  </ErrorBoundary>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/game/guide"
+                element={
+                  <ProtectedRoute>
+                    <ErrorBoundary fallback={<ErrorFallback errorName="Translator" />}>
+                      <GameGuide />
+                  </ErrorBoundary>
+                  </ProtectedRoute>
+                }
+              />
+              {/* <Route
                   path="/game"
                   element={
                     <ProtectedRoute>
@@ -245,7 +266,9 @@ function App() {
                       </ErrorBoundary>
                     </ProtectedRoute>
                   }
-                />
+                >
+                <Route path="guide" element={<GameGuide />} />
+              </Route> */}
                 <Route path="*" element={<Navigate to="/login" />} />
               </Routes>
             </DexterityProvider>

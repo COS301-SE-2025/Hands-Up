@@ -61,7 +61,7 @@
   },
   "dependencies": {
     "@react-three/drei": "^10.4.2",
-    "@react-three/fiber": "^9.1.4",
+    "@react-three/fiber": "^9.3.0",
     "aos": "^2.3.4",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",

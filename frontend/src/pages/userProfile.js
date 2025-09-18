@@ -4,8 +4,6 @@ import { useAuth } from '../contexts/authContext.js';
 import { DexterityToggle } from '../components/dexterityToggle.js';
 import "../styles/userProfile.css"; 
 import {
-    uniqueUsername,
-    uniqueEmail,
     updateUserDetails,
     updateUserPassword,
     deleteUserAccount,
@@ -256,6 +254,7 @@ export function UserProfile() {
                     return;
                 }
             } catch (err) {
+                console.log(err);
                 setFormErrors({ general: "An error occurred while updating details." });
                 return;
             }
@@ -271,6 +270,7 @@ export function UserProfile() {
                 await updateUserPassword(currentUser.id, newPassword);
                 updatedUserData = { ...updatedUserData, passwordChanged: true }; // Custom flag
             } catch (err) {
+                console.log(err);
                 setFormErrors({ general: "An error occurred while updating password." });
                 return;
             }
@@ -290,6 +290,7 @@ export function UserProfile() {
                     return;
                 }
             } catch (err) {
+                console.log(err);
                 setFormErrors({ general: "An error occurred while uploading avatar." });
                 return;
             }
@@ -304,6 +305,7 @@ export function UserProfile() {
                 setFormErrors({ general: "No changes to save." });
             }
         } catch(err) {
+            console.log(err);
             setFormErrors({ general: "An error occurred during final state update." });
         }
         setShowEditForm(false);

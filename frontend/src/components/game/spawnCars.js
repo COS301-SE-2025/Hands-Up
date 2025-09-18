@@ -3,16 +3,17 @@ import React, { useState, useRef } from 'react';
 import PropTypes from "prop-types";
 import { useFrame, useLoader } from '@react-three/fiber';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { clone as skeletonClone } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { useRunnerX, useRunnerY } from '../../contexts/game/runnerPosition';
 
 const lanes = [-5, -2, 2, 5];
 const carModels = [
-  'bus.glb', 
-  'peugeot 207.glb',
-  'suzuki swift.glb',
-  'taxi.glb',
-  'toyota fortuner.glb',
-  'toyota hilux.glb',
+  'bakkie.glb',
+  'bmw m3.glb',
+  'bmw m4.glb',
+  'bus.glb',
+  'jeep.glb', 
+  // 'taxi.glb',
   'vw golf gti.glb',
 ];
 
@@ -22,11 +23,11 @@ export function VehicleSpawner({ onCollision, speed }) {
 
   const idCounter = useRef(0);
   const lastCollisionTime = useRef(0);
+  const lastSpawnTime = useRef(0);
 
-  const modelPaths = carModels.map((name) => encodeURI(`/models/game models/${name}`));
+  const modelPaths = carModels.map((name) => encodeURI(`/models/game_models/${name}`));
   const gltfs = useLoader(GLTFLoader, modelPaths);
   const scenes = useRef(gltfs.map((g) => g.scene)).current;
-
   const [vehicles, setVehicles] = useState([]);
 
   useFrame((state, delta) => {
@@ -34,10 +35,12 @@ export function VehicleSpawner({ onCollision, speed }) {
       const next = [...prev];
 
       // spawn new vehicle
-      if (Math.random() < 0.02) {
+      const now = state.clock.elapsedTime;
+      if (now - lastSpawnTime.current > 1 && Math.random() < 0.02) {
         const lane = lanes[Math.floor(Math.random() * lanes.length)];
         const modelIndex = Math.floor(Math.random() * scenes.length);
-        const clone = scenes[modelIndex].clone(true);
+        
+        const clone = skeletonClone(scenes[modelIndex]);
 
         idCounter.current += 1;
         next.push({
@@ -47,6 +50,8 @@ export function VehicleSpawner({ onCollision, speed }) {
           speed: speed,
           object: clone, 
         });
+
+        lastSpawnTime.current = now;
       }
 
       const runnerZ = 50;
@@ -81,7 +86,7 @@ export function VehicleSpawner({ onCollision, speed }) {
 
   return (
     <>
-      {vehicles.map((v) => (<primitive key={v.id} object={v.object} scale={1} dispose={null} />))}
+      {vehicles.map((v) => (<primitive key={v.id} object={v.object} scale={1.1} dispose={null} />))}
     </>
   );
 }

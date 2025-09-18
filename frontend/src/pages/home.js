@@ -7,6 +7,7 @@ import homeImage from '../images/picture1.png';
 
 // Imports for the 3D animation
 import { Canvas } from '@react-three/fiber';
+
 import { AngieSigns } from '../components/angieSigns';
 import { LANDMARK_FILES } from '../landmarks/index.js';
 
@@ -184,12 +185,13 @@ export function Home(){
                 <>
                     <hr className="divider" />
                     <section className="sign-of-the-day-section animated-section">
-                        <h2 className="section-title">Sign of the Day: "{signOfTheDay.word}" ✨</h2>
+                        <h2 className="section-title">Sign of the Day: `{signOfTheDay.word}`` ✨</h2>
                         <div className="sign-content">
                             <div className="sign-media">
                                 <Canvas camera={{ position: [0, 0.2, 3], fov: 35 }}>
+                                    {/* eslint-disable-next-line react/no-unknown-property */}
                                     <ambientLight intensity={5} />
-                                    
+                                    {/* eslint-disable-next-line react/no-unknown-property */}
                                     <group position={[0, -1.1, 0]}>
                                         <AngieSigns
                                             key={animationKey}
