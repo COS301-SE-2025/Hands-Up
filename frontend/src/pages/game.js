@@ -6,6 +6,7 @@ import { Loader } from '@react-three/drei';
 import { RunnerPosProvider } from '../contexts/game/runnerPosition';
 import { VehicleSpawner } from '../components/game/spawnCars';
 import { CoinSpawner } from '../components/game/letterCoins';
+import { CameraInput } from '../components/game/cameraInput';
 import CameraPOV from '../components/game/cameraPOV';
 import Road from '../components/game/road';
 import Runner from '../components/game/runner';
@@ -14,8 +15,6 @@ import StartScreen from '../components/game/gameStart';
 import GameOverScreen from '../components/game/gameOver';
 import PauseScreen from '../components/game/gamePaused';
 import StopScreen from '../components/game/gameStopped';
-
-import { CameraInput } from '../components/game/cameraInput';
 
 const wordList = ["ALBERTON", "BALLITO", "BENONI", "BLOEMFONTEIN", "BOKSBURG", 
   "CAPE TOWN", "DURBAN", "EAST LONDON", "FOURWAYS", "GEORGE", "GQEBERHA", "HOWZIT", 
@@ -44,31 +43,21 @@ export function Game() {
 
     const [showCamera, setShowCamera] = useState(false);
     const [progress, setProgress] = useState(0);
-    // useEffect(() => {
-    //   const randomDelay = () => 10000 + Math.random() * 10000;
+    const [userInput, setUserInput] = useState(false);
+    const [inputIndex, setInputIndex] = useState(-1);
 
-    //   const scheduleCamera = () => {
-    //     setShowCamera(true);
-    //     setTimeout(() => setShowCamera(false), 8000); 
-    //     setTimeout(scheduleCamera, randomDelay());
-    //   };
-
-    //   const initialTimer = setTimeout(scheduleCamera, randomDelay());
-
-    //   return () => clearTimeout(initialTimer);
-    // }, []);
     useEffect(() => {
       if (!gameStarted) return;
 
       let intervalTimer;
       let timeoutTimer;
 
-      const scheduleCamera = () => {
+      if (userInput && letterIndex === inputIndex) {
         setShowCamera(true);
         setProgress(0);
 
-        const duration = 20000; // 15 seconds showing camera
-        const interval = 100;   // progress update every 0.1s
+        const duration = 20000; 
+        const interval = 100; 
         let elapsed = 0;
 
         intervalTimer = setInterval(() => {
@@ -76,24 +65,17 @@ export function Game() {
           setProgress(Math.min((elapsed / duration) * 100, 100));
         }, interval);
 
-        // Hide camera after duration
         timeoutTimer = setTimeout(() => {
           setShowCamera(false);
           clearInterval(intervalTimer);
-
-          // schedule next camera
-          timeoutTimer = setTimeout(scheduleCamera, 20000);
         }, duration);
-      };
-
-      // first camera
-      timeoutTimer = setTimeout(scheduleCamera, 20000);
+      }
 
       return () => {
         clearInterval(intervalTimer);
         clearTimeout(timeoutTimer);
       };
-    }, [gameStarted]);
+    }, [letterIndex, inputIndex, userInput, gameStarted]);
 
     function pickNewWord() {
       let remainingWords = wordList.filter(w => !usedWords.has(w));
@@ -107,7 +89,21 @@ export function Game() {
       setLetterIndex(0);
       setWordsCollected(w => w + 1);
       setUsedWords(prev => new Set(prev).add(newWord));
-      console.log("Remaining words:", remainingWords.filter(w => w !== newWord));
+
+      const shouldShowCamera = Math.random() < 0.5;
+      setUserInput(shouldShowCamera);
+      if (shouldShowCamera) {
+        let idx;
+        do {
+          idx = Math.floor(Math.random() * newWord.length);
+        } while (newWord[idx] === ' ');
+        setInputIndex(idx);
+        console.log("New word:", newWord, " Camera?", shouldShowCamera, " At index:", idx);    
+      } 
+      else {
+        setInputIndex(-1); 
+        console.log("New word:", newWord, " Camera?", shouldShowCamera);    
+      }
     }
 
     const handleCollision = () => {
@@ -139,6 +135,9 @@ export function Game() {
       const initialWord = wordList[Math.floor(Math.random() * wordList.length)];
       setCurrentWord(initialWord);
       setUsedWords(new Set([initialWord]));
+      setShowCamera(false); 
+      setUserInput(false);
+      setInputIndex(-1);
     };
 
     // increase distance travelled
@@ -261,8 +260,8 @@ export function Game() {
 
         {!gameStarted && !gameOver && !gamePaused && !gameStopped && !showCamera && <StartScreen onStart={() => setGameStarted(true)} />}
         {!gameStarted && gameOver && <GameOverScreen distance={distance} wordsCollected={wordsCollected} onReplay={handleReplay}/>}
-        {!gameStarted && gamePaused && <PauseScreen onResume={() => {setGameStarted(true); setGamePaused(false);}} />}
-        {!gameStarted && gameStopped && <StopScreen onResume={() => {setGameStarted(true); setGameStopped(false);}} onQuit={() => { setGameStopped(false); setGameOver(true);}} />}
+        {!gameStarted && gamePaused && <PauseScreen onResume={() => {setGameStarted(true); setGamePaused(false); setShowCamera(false);}} />}
+        {!gameStarted && gameStopped && <StopScreen onResume={() => {setGameStarted(true); setGameStopped(false); setShowCamera(false);}} onQuit={() => { setGameStopped(false); setGameOver(true);}} />}
 
       </div>
     );

@@ -1,4 +1,4 @@
-import React, { useEffect, useState  } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslator } from '../../hooks/translateResults';
 import { processImage } from '../../utils/apiCalls';
 
@@ -7,7 +7,7 @@ export function CameraInput({ progress = 0, show = true, onSkip, onLetterDetecte
   const [frameBlobs, setFrameBlobs] = useState([]);
   const [processing, setProcessing] = useState(false);
 
-  const captureFrame = () => {
+  const captureFrame = useCallback(() => {
     const video = videoRef.current;
     const canvas = canvasRef2.current;
     if (!video || !canvas) return;
@@ -20,7 +20,7 @@ export function CameraInput({ progress = 0, show = true, onSkip, onLetterDetecte
     canvas.toBlob(blob => {
       if (blob) setFrameBlobs(prev => [...prev, blob]);
     }, 'image/jpeg', 0.8);
-  };
+  }, [videoRef, canvasRef2]);
 
   useEffect(() => {
     if (!show || processing) return;
@@ -30,7 +30,7 @@ export function CameraInput({ progress = 0, show = true, onSkip, onLetterDetecte
     }, 100); // 10 fps
 
     return () => clearInterval(interval);
-  }, [show, processing]);
+  }, [show, processing, captureFrame]);
 
   useEffect(() => {
     const sendFrames = async () => {
