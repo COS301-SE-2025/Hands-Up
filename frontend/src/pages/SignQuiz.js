@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useLearningStats } from '../contexts/learningStatsContext';
 import { useTranslator } from '../hooks/translateResults';
 import { useLandmarksDetection } from '../hooks/landmarksDetection';
@@ -16,8 +16,10 @@ const CATEGORY_PROGRESSION = [
 ];
 export function SignQuiz() {
     const navigate = useNavigate();
-    const { category } = useParams();
+    const location = useLocation();
     const { updateStats, stats } = useLearningStats();
+    const category = location.state?.category || new URLSearchParams(location.search).get('category') || 'alphabets';
+    const isPhrasesQuiz = category === 'phrases';
 
     const [quizQuestions, setQuizQuestions] = useState([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -62,7 +64,6 @@ export function SignQuiz() {
     );
     
     const currentCategoryData = CATEGORIES[category] || CATEGORIES['alphabets'];
-    const isPhrasesQuiz = category === 'phrases';
 
         const unlockNextCategory = useCallback((completedCategory) => {
         console.log('Quiz completed for category:', completedCategory);
@@ -464,6 +465,53 @@ export function SignQuiz() {
         stopCamera();
         navigate('/learn');
     };
+
+    const containerStyle = {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '20px',
+        backgroundColor: '#f5f5f5',
+        minHeight: '100vh',
+        justifyContent: 'center',
+        fontFamily: 'Inter, sans-serif'
+    };
+
+    const backButtonStyle = {
+        position: 'absolute',
+        top: '20px',
+        left: '20px',
+        padding: '10px 20px',
+        backgroundColor: '#6c757d',
+        color: 'white',
+        border: 'none',
+        borderRadius: '8px',
+        cursor: 'pointer',
+        fontSize: '16px'
+    };
+
+    const quizCardStyle = {
+        backgroundColor: 'white',
+        padding: '40px',
+        borderRadius: '15px',
+        boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
+        textAlign: 'center',
+        maxWidth: '500px'
+    };
+
+    const startButtonStyle = {
+        padding: '15px 30px',
+        backgroundColor: '#28a745',
+        color: 'white',
+        border: 'none',
+        borderRadius: '10px',
+        fontSize: '20px',
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+        transition: 'all 0.3s ease'
+    };
+
 
     if (loading) {
         return (

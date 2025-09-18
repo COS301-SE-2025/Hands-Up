@@ -20,8 +20,10 @@ import { Layout } from "./pages/layout";
 import { Game } from "./pages/game"; 
 import ErrorBoundary from "./components/errorBoundary";
 import ErrorFallback from "./components/errorFallback";
+import { useGLTF } from "@react-three/drei";
 
 function App() {
+  useGLTF.preload('/models/angieWaving.glb');
   return (
  
     <Router>
