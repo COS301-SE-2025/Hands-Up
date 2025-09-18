@@ -11,7 +11,7 @@ export function ModelSwitchProvider({ children }) {
   const switchModel = () => {
     setModelIndex((prevIndex) => {
       const newIndex = (prevIndex + 1) % MODEL_LIST.length;
-      console.log(`Switching model to: ${MODEL_LIST[newIndex]}`);
+      // console.log(`Switching model to: ${MODEL_LIST[newIndex]}`);
       return newIndex;
     });
   };
