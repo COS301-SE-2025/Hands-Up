@@ -81,13 +81,13 @@ export function Game() {
           setShowCamera(false);
           clearInterval(intervalTimer);
 
-          // Schedule next camera after 15s delay
-          timeoutTimer = setTimeout(scheduleCamera, 15000);
+          // schedule next camera
+          timeoutTimer = setTimeout(scheduleCamera, 20000);
         }, duration);
       };
 
-      // Start first camera after 15s
-      timeoutTimer = setTimeout(scheduleCamera, 15000);
+      // first camera
+      timeoutTimer = setTimeout(scheduleCamera, 20000);
 
       return () => {
         clearInterval(intervalTimer);
@@ -208,7 +208,34 @@ export function Game() {
             </svg>
           </div>
           
-          {showCamera && <CameraInput progress={progress} show={showCamera} onSkip={() => {setShowCamera(false); handleCollision(); }} />}
+          {showCamera && (
+            <CameraInput 
+              progress={progress} 
+              show={showCamera} 
+              onSkip={() => {setShowCamera(false); handleCollision(); }} 
+              onLetterDetected={(letter) => {
+                const targetLetter = currentWord[letterIndex].toUpperCase();
+
+                if (letter === targetLetter) {
+                  // correct letter 
+                  setLetterIndex(idx => {
+                    let nextIndex = idx + 1;
+                    while (currentWord[nextIndex] === ' ') nextIndex++;
+
+                    if (nextIndex >= currentWord.length) {
+                      pickNewWord();
+                      return 0;
+                    }
+                    return nextIndex;
+                  });
+                  setShowCamera(false);
+                } 
+                else {
+                  handleCollision();
+                }
+              }}    
+            /> 
+          )}
 
           <RunnerPosProvider>
             <Canvas>

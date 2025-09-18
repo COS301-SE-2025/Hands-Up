@@ -1,10 +1,32 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useTranslator } from '../../hooks/translateResults';
-// import { useLandmarksDetection } from '../hooks/landmarksDetection';
+import { useLandmarksDetection } from '../../hooks/landmarksDetection';
 
-export function CameraInput({ progress = 0, show = true, onSkip }) {
-  const { videoRef, canvasRef2 } = useTranslator();
-//   useLandmarksDetection(videoRef, canvasRef2);
+export function CameraInput({ progress = 0, show = true, onSkip, onLetterDetected }) {
+  const { videoRef, canvasRef2, result } = useTranslator();
+  useLandmarksDetection(videoRef, canvasRef2);
+  
+  const resultRef = useRef(result);
+  useEffect(() => { 
+    resultRef.current = result; 
+  }, [result]);
+  
+  useEffect(() => {
+    if (!show) return; 
+
+    const interval = setInterval(() => {
+      const res = resultRef.current;
+      if (!result || !onLetterDetected) return;
+
+      const letter = res[0]?.toUpperCase();
+      if (letter) {
+        console.log("Detected letter:", letter); 
+        onLetterDetected(letter);
+      }
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, [show, onLetterDetected]);
 
   if (!show) return null;
 
@@ -20,7 +42,6 @@ export function CameraInput({ progress = 0, show = true, onSkip }) {
       zIndex: 50,
       gap: '1rem'
     }}>
-      {/* Camera wrapper */}
       <div style={{
         width: '25vw',
         maxWidth: '300px',
@@ -28,7 +49,7 @@ export function CameraInput({ progress = 0, show = true, onSkip }) {
         borderRadius: '50%',
         overflow: 'hidden',
         position: 'relative',
-        background: 'yellow',
+        background: 'white',
       }}>
         <video 
           ref={videoRef} 
@@ -40,7 +61,6 @@ export function CameraInput({ progress = 0, show = true, onSkip }) {
           ref={canvasRef2} 
           style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} 
         />
-        {/* Progress circle */}
         <svg
           viewBox="0 0 100 100"
           style={{
@@ -56,7 +76,7 @@ export function CameraInput({ progress = 0, show = true, onSkip }) {
             cx="50"
             cy="50"
             r="48"
-            stroke="red"
+            stroke="yellow"
             strokeWidth="4"
             fill="transparent"
             strokeDasharray={2 * Math.PI * 48}
@@ -70,7 +90,6 @@ export function CameraInput({ progress = 0, show = true, onSkip }) {
         </svg>
       </div>
 
-      {/* Skip button */}
       <button 
         onClick={onSkip}
         style={{
