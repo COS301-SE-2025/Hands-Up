@@ -45,7 +45,7 @@ describe('Overall Application Tests', () => {
       // Test control buttons are present
       cy.get('.recognizer-control-button').contains('Clear Results').should('be.visible');
       cy.get('.recognizer-control-button').contains('Start Signing').should('be.visible');
-      cy.get('.recognizer-control-button').contains('Test Your Background').should('be.visible'); 
+      cy.get('.recognizer-control-button').contains('Test Your Setup').should('be.visible'); 
 
       // Test results section
       cy.get('.recognizer-results-title').should('contain', 'Translation Results');

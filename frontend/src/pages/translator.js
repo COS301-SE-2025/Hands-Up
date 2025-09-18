@@ -184,7 +184,7 @@ export function Translator(){
               </div>
             </div>
 
-            <button className="recognizer-control-button recognizer-test-button" onClick={() => setShowTest(true)}>Test Your Background</button>
+            <button className="recognizer-control-button recognizer-test-button" onClick={() => setShowTest(true)}>Test Your Setup</button>
 
             <TestSetup
               isOpen={showTest}

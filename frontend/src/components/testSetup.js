@@ -215,7 +215,7 @@ export function TestSetup({ isOpen, onClose }) {
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <h3 style={{ color: 'var(--dark-green)' }}>Test Your Background</h3>
+        <h3 style={{ color: 'var(--dark-green)' }}>Test Your Setup</h3>
         <p style={{ color: 'black' }}>Follow the steps below</p>
         <br />
         <div className="video-container">
