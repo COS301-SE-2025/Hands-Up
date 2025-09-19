@@ -3,6 +3,12 @@ import ReactDOM from 'react-dom/client';
 import './styles/index.css';
 import App from './App';
 import reportWebVitals from './/utils/reportWebVitals';
+import { useGLTF } from '@react-three/drei';
+
+useGLTF.preload('/models/angieLoad.glb');
+useGLTF.preload('/models/angieWaving.glb');
+useGLTF.preload('/models/game_models/angieWaving.glb');
+useGLTF.preload('/models/game_models/angieWaving.glb');
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
