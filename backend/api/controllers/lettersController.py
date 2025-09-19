@@ -55,7 +55,7 @@ def detectFromImage(sequenceList):
 
     confidence2 = 0.0
     label2 = ""
-    fallback_frame = cv2.imread(sequenceList[-1])  
+    fallbackFrame = cv2.imread(sequenceList[-1])  
 
     # for i in range(len(processedSequence)):
     #     if processedSequence[i] is None:
@@ -94,8 +94,8 @@ def detectFromImage(sequenceList):
     label2 = labelEncoder2.inverse_transform([index2])[0]
     print(f'Letters Model 2:{label2} at {confidence2}')
 
-    if fallback_frame is not None:
-        imgRGB = cv2.cvtColor(fallback_frame, cv2.COLOR_BGR2RGB)
+    if fallbackFrame is not None:
+        imgRGB = cv2.cvtColor(fallbackFrame, cv2.COLOR_BGR2RGB)
         results = hands.process(imgRGB)
         if results.multi_hand_landmarks:
             handLandmarks = results.multi_hand_landmarks[0]
