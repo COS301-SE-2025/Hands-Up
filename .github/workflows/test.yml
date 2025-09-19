@@ -18,7 +18,7 @@ jobs:
       DB_USER: ${{ secrets.DB_USER }}
       DB_PASS: ${{ secrets.DB_PASS }}
       DB_NAME: ${{ secrets.DB_NAME }}
-      DB_HOST: localhost # This is for the API and frontend to connect to the host machine's exposed port simple check
+      DB_HOST: localhost # This is for the API and frontend to connect to the host machine's exposed port 
       DB_PORT: 5432
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       API_PORT: 2000
