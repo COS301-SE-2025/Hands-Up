@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState,useMemo, useEffect, useCallback } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { AngieSigns } from './angieSigns';
@@ -14,7 +14,7 @@ const PlacementTest = ({ onComplete, onSkip, onClose }) => {
     const [replayKey, setReplayKey] = useState(0);
     const [loading, setLoading] = useState(false);
 
-    const placementQuestions = [
+    const placementQuestions  = useMemo(() => [ 
         {
             id: 'basic_alphabet_1',
             level: 'basic',
@@ -105,7 +105,7 @@ const PlacementTest = ({ onComplete, onSkip, onClose }) => {
             correct: 'Weather',
             category: 'seasons'
         }
-    ];
+    ], []);
 
     const loadAnimationLandmarks = useCallback(async (questionSign) => {
         try {
@@ -133,7 +133,7 @@ const PlacementTest = ({ onComplete, onSkip, onClose }) => {
             const currentQ = placementQuestions[currentQuestion];
             loadAnimationLandmarks(currentQ.sign.toLowerCase());
         }
-    }, [currentQuestion, loadAnimationLandmarks]);
+    }, [currentQuestion, loadAnimationLandmarks,placementQuestions]);
 
     const handleReplay = () => {
         setReplayKey(prev => prev + 1);

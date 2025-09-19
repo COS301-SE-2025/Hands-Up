@@ -1,5 +1,5 @@
  
-import React, { useState, useEffect, useMemo} from 'react';
+import React, { useState,useCallback, useEffect, useMemo} from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/learnSidebar';
 import { CategoryTile } from '../components/learnCategoryTile';
@@ -63,7 +63,7 @@ const HelpMessage = ({ message, onClose, position }) => {
             const canvas = document.createElement('canvas');
             const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
             return !!gl;
-        } catch (error) {
+        } catch {
             return false;
         }
     };
@@ -84,7 +84,9 @@ const HelpMessage = ({ message, onClose, position }) => {
                                 failIfMajorPerformanceCaveat: false 
                             }}
                         >
+                            {/* eslint-disable react/no-unknown-property */}
                             <ambientLight intensity={5} />
+                            {/* eslint-disable react/no-unknown-property */}
                             <group position={[0, -1.1, 0]}>
                                 <AngieSigns landmarks={landmarks} />
                             </group>
@@ -221,7 +223,7 @@ export function Learn() {
                 setShowPlacementTest(false);
             }
         }
-    }, [stats?.placementTestCompleted, stats?.hasSeenCategoryHelp?.welcome, isLoading]);
+    }, [stats?.placementTestCompleted, stats?.hasSeenCategoryHelp?.welcome, isLoading,stats]);
     
     const handleClosePlacementTest = () => {
         console.log('=== CLOSING PLACEMENT TEST ===');
@@ -320,60 +322,47 @@ export function Learn() {
         console.log('=== Final unlocked categories:', finalUnlocked, '===');
         return finalUnlocked;
     }, [
-        stats?.unlockedCategories,
-        stats?.alphabetsQuizCompleted,
-        stats?.numbersQuizCompleted,
-        stats?.introduceQuizCompleted,
-        stats?.coloursQuizCompleted,
-        stats?.familyQuizCompleted,
-        stats?.feelingsQuizCompleted,
-        stats?.actionsQuizCompleted,
-        stats?.questionsQuizCompleted,
-        stats?.timeQuizCompleted,
-        stats?.foodQuizCompleted,
-        stats?.thingsQuizCompleted,
-        stats?.animalsQuizCompleted,
-        stats?.seasonsQuizCompleted,
+        stats
     ]);
 
-    const unlockNextCategory = async (completedCategory) => {
-        console.log(`Attempting to unlock next category after completing: ${completedCategory}`);
+  const unlockNextCategory = useCallback(async (completedCategory) => {
+    console.log(`Attempting to unlock next category after completing: ${completedCategory}`);
+    
+    const currentIndex = CATEGORY_PROGRESSION.indexOf(completedCategory);
+    if (currentIndex !== -1 && currentIndex < CATEGORY_PROGRESSION.length - 1) {
+        const nextCategory = CATEGORY_PROGRESSION[currentIndex + 1];
         
-        const currentIndex = CATEGORY_PROGRESSION.indexOf(completedCategory);
-        if (currentIndex !== -1 && currentIndex < CATEGORY_PROGRESSION.length - 1) {
-            const nextCategory = CATEGORY_PROGRESSION[currentIndex + 1];
-            
-            updateStats(prevStats => {
-                const currentUnlocked = prevStats?.unlockedCategories || ['alphabets'];
-                const quizCompletedKey = `${completedCategory}QuizCompleted`;
-                
-                if (!currentUnlocked.includes(nextCategory)) {
-                    const updatedUnlocked = [...currentUnlocked, nextCategory];
-                    console.log(`Unlocking category: ${nextCategory}`, updatedUnlocked);
-                    
-                    return {
-                        ...prevStats,
-                        unlockedCategories: updatedUnlocked,
-                        [quizCompletedKey]: true,
-                        quizzesCompleted: (prevStats?.quizzesCompleted || 0) + 1
-                    };
-                } else {
-                    return {
-                        ...prevStats,
-                        [quizCompletedKey]: true,
-                        quizzesCompleted: (prevStats?.quizzesCompleted || 0) + 1
-                    };
-                }
-            });
-        } else {
+        updateStats(prevStats => {
+            const currentUnlocked = prevStats?.unlockedCategories || ['alphabets'];
             const quizCompletedKey = `${completedCategory}QuizCompleted`;
-            updateStats(prevStats => ({
-                ...prevStats,
-                [quizCompletedKey]: true,
-                quizzesCompleted: (prevStats?.quizzesCompleted || 0) + 1
-            }));
-        }
-    };
+            
+            if (!currentUnlocked.includes(nextCategory)) {
+                const updatedUnlocked = [...currentUnlocked, nextCategory];
+                console.log(`Unlocking category: ${nextCategory}`, updatedUnlocked);
+                
+                return {
+                    ...prevStats,
+                    unlockedCategories: updatedUnlocked,
+                    [quizCompletedKey]: true,
+                    quizzesCompleted: (prevStats?.quizzesCompleted || 0) + 1
+                };
+            } else {
+                return {
+                    ...prevStats,
+                    [quizCompletedKey]: true,
+                    quizzesCompleted: (prevStats?.quizzesCompleted || 0) + 1
+                };
+            }
+        });
+    } else {
+        const quizCompletedKey = `${completedCategory}QuizCompleted`;
+        updateStats(prevStats => ({
+            ...prevStats,
+            [quizCompletedKey]: true,
+            quizzesCompleted: (prevStats?.quizzesCompleted || 0) + 1
+        }));
+    }
+}, [updateStats]); 
 
     useEffect(() => {
         const handleQuizCompletion = (event) => {
@@ -384,7 +373,7 @@ export function Learn() {
 
         window.addEventListener('quizCompleted', handleQuizCompletion);
         return () => window.removeEventListener('quizCompleted', handleQuizCompletion);
-    }, []);
+    }, [unlockNextCategory]);
 
     const lessonsCompleted = stats?.lessonsCompleted || 0;
     const signsLearned = stats?.signsLearned || 0;
@@ -580,7 +569,7 @@ export function Learn() {
                 showHelp(CATEGORY_HELP_MESSAGES.dashboard, 'center', 'dashboard');
             }, 500);
         }
-    }, [selectedSection, currentCategory, showPlacementTest, stats?.hasSeenCategoryHelp?.dashboard, stats?.placementTestCompleted]);
+    }, [selectedSection, currentCategory, showPlacementTest, stats?.hasSeenCategoryHelp?.dashboard, stats?.placementTestCompleted,stats]);
 
     if (isLoading || !stats) {
         return (

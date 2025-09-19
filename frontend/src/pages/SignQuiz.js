@@ -13,7 +13,7 @@ import '../styles/signQuiz.css';
 export function SignQuiz() {
     const navigate = useNavigate();
     const { category } = useParams();
-    const { updateStats, stats, completeQuiz } = useLearningStats();
+    const { updateStats, completeQuiz } = useLearningStats();
 
     const [quizQuestions, setQuizQuestions] = useState([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -633,7 +633,9 @@ export function SignQuiz() {
 
                     <div className="canvas-container">
                         <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
+                            {/* eslint-disable react/no-unknown-property */}
                             <ambientLight intensity={5} />
+                            {/* eslint-disable react/no-unknown-property */}
                             <group position={[0, -1.1, 0]}>             
                                 {landmarks && Object.keys(landmarks).length > 0 && (
                                     <AngieSigns key={replayKey} landmarks={landmarks} />

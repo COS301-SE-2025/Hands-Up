@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext,useCallback,useMemo , useContext, useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 const LearningStatsContext = createContext();
@@ -17,7 +17,7 @@ export const LearningStatsProvider = ({ children }) => {
     const [hasLoadedFromBackend, setHasLoadedFromBackend] = useState(false);
     const saveTimeoutRef = useRef(null);
 
-    const defaultStats = {
+    const defaultStats =  useMemo(() => ({
             lessonsCompleted: 0,
             signsLearned: 0,
             streak: 0,
@@ -45,7 +45,7 @@ export const LearningStatsProvider = ({ children }) => {
             phrasesQuizCompleted: false,
         hasSeenWelcome: false,
         hasSeenCategoryHelp: {}
-        };
+        }), []);
 
     const getCurrentUser = async () => {
         try {
@@ -65,7 +65,7 @@ export const LearningStatsProvider = ({ children }) => {
         }
     };
 
-    const loadStatsFromBackend = async () => {
+    const loadStatsFromBackend = useCallback(async () => {
         try {
             setIsLoading(true);
             
@@ -121,31 +121,31 @@ export const LearningStatsProvider = ({ children }) => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [defaultStats,loadStatsFromLocalStorage]);
 
-    const loadStatsFromLocalStorage = () => {
-        try {
-            const saved = localStorage.getItem('learningStats');
-            if (saved) {
-                const parsedStats = JSON.parse(saved);
-                const mergedStats = { ...defaultStats, ...parsedStats };
-                mergedStats.signsLearned = mergedStats.learnedSigns.length;
-                
-                setStats(mergedStats);
-                console.log('Stats loaded from localStorage:', mergedStats);
-            } else {
-                setStats(defaultStats);
-                console.log('No saved stats found, using defaults');
-            }
-        } catch (error) {
-            console.error('Error loading stats from localStorage:', error);
+   const loadStatsFromLocalStorage = useCallback(() => {
+    try {
+        const saved = localStorage.getItem('learningStats');
+        if (saved) {
+            const parsedStats = JSON.parse(saved);
+            const mergedStats = { ...defaultStats, ...parsedStats };
+            mergedStats.signsLearned = mergedStats.learnedSigns.length;
+            
+            setStats(mergedStats);
+            console.log('Stats loaded from localStorage:', mergedStats);
+        } else {
             setStats(defaultStats);
+            console.log('No saved stats found, using defaults');
         }
-    };
+    } catch (error) {
+        console.error('Error loading stats from localStorage:', error);
+        setStats(defaultStats);
+    }
+}, [defaultStats, setStats]); 
 
     useEffect(() => {
         loadStatsFromBackend();
-    }, []);
+    }, [loadStatsFromBackend, defaultStats]);
 
     useEffect(() => {
         if (stats && (hasLoadedFromBackend || !isLoading)) {
@@ -177,9 +177,9 @@ export const LearningStatsProvider = ({ children }) => {
                 clearTimeout(saveTimeoutRef.current);
             }
         };
-    }, [stats, hasLoadedFromBackend, isLoading]);
+    }, [stats, hasLoadedFromBackend, isLoading,saveStatsToBackend]);
 
-    const saveStatsToBackend = async () => {
+    const saveStatsToBackend = useCallback(async () => {
         try {
             const currentUser = await getCurrentUser();
             if (!currentUser || !stats) return;
@@ -201,7 +201,7 @@ export const LearningStatsProvider = ({ children }) => {
         } catch (error) {
             console.error('Error saving stats to backend:', error);
         }
-    };
+    }, [stats]);
 
     const updateStats = (updater) => {
         setStats(prevStats => {

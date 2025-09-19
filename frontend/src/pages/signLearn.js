@@ -305,9 +305,10 @@ export function SignLearn() {
     };
 
     useEffect(() => {
+         const timeoutId = timeoutRef.current;
         return () => {
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
+            if (timeoutId) {
+                clearTimeout(timeoutId);
             }
         };
     }, []);
