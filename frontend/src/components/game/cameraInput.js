@@ -16,7 +16,11 @@ export function CameraInput({ progress = 0, show = true, onSkip, onLetterDetecte
     const ctx = canvas.getContext('2d');
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
+    ctx.save();
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    ctx.restore();
 
     canvas.toBlob(blob => {
       if (blob) setFrameBlobs(prev => [...prev, blob]);
