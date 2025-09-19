@@ -1,7 +1,6 @@
 /* eslint-disable react/no-unknown-property */
 import React,  { useEffect, useState, useRef, Suspense } from 'react';
 import { Canvas} from '@react-three/fiber';
-import { Loader } from '@react-three/drei';
 import LoadingSpinner from '../components/loadingSpinner';
 
 import { RunnerPosProvider } from '../contexts/game/runnerPosition';
