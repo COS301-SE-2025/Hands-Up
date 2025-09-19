@@ -65,6 +65,26 @@ export const LearningStatsProvider = ({ children }) => {
         }
     };
 
+       const loadStatsFromLocalStorage = useCallback(() => {
+    try {
+        const saved = localStorage.getItem('learningStats');
+        if (saved) {
+            const parsedStats = JSON.parse(saved);
+            const mergedStats = { ...defaultStats, ...parsedStats };
+            mergedStats.signsLearned = mergedStats.learnedSigns.length;
+            
+            setStats(mergedStats);
+            console.log('Stats loaded from localStorage:', mergedStats);
+        } else {
+            setStats(defaultStats);
+            console.log('No saved stats found, using defaults');
+        }
+    } catch (error) {
+        console.error('Error loading stats from localStorage:', error);
+        setStats(defaultStats);
+    }
+}, [defaultStats, setStats]); 
+
     const loadStatsFromBackend = useCallback(async () => {
         try {
             setIsLoading(true);
@@ -123,25 +143,29 @@ export const LearningStatsProvider = ({ children }) => {
         }
     }, [defaultStats,loadStatsFromLocalStorage]);
 
-   const loadStatsFromLocalStorage = useCallback(() => {
-    try {
-        const saved = localStorage.getItem('learningStats');
-        if (saved) {
-            const parsedStats = JSON.parse(saved);
-            const mergedStats = { ...defaultStats, ...parsedStats };
-            mergedStats.signsLearned = mergedStats.learnedSigns.length;
-            
-            setStats(mergedStats);
-            console.log('Stats loaded from localStorage:', mergedStats);
-        } else {
-            setStats(defaultStats);
-            console.log('No saved stats found, using defaults');
+    const saveStatsToBackend = useCallback(async () => {
+        try {
+            const currentUser = await getCurrentUser();
+            if (!currentUser || !stats) return;
+
+            const response = await fetch(`/api/learning-progress/${currentUser}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(stats),
+            });
+
+            if (response.ok) {
+                console.log('Stats saved to backend successfully');
+            } else {
+                console.warn('Failed to save stats to backend');
+            }
+        } catch (error) {
+            console.error('Error saving stats to backend:', error);
         }
-    } catch (error) {
-        console.error('Error loading stats from localStorage:', error);
-        setStats(defaultStats);
-    }
-}, [defaultStats, setStats]); 
+    }, [stats]);
 
     useEffect(() => {
         loadStatsFromBackend();
@@ -179,29 +203,7 @@ export const LearningStatsProvider = ({ children }) => {
         };
     }, [stats, hasLoadedFromBackend, isLoading,saveStatsToBackend]);
 
-    const saveStatsToBackend = useCallback(async () => {
-        try {
-            const currentUser = await getCurrentUser();
-            if (!currentUser || !stats) return;
 
-            const response = await fetch(`/api/learning-progress/${currentUser}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify(stats),
-            });
-
-            if (response.ok) {
-                console.log('Stats saved to backend successfully');
-            } else {
-                console.warn('Failed to save stats to backend');
-            }
-        } catch (error) {
-            console.error('Error saving stats to backend:', error);
-        }
-    }, [stats]);
 
     const updateStats = (updater) => {
         setStats(prevStats => {
