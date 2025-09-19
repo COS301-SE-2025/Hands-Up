@@ -1,15 +1,21 @@
-// tests/mocks/lucideReactMock.cjs
-const React = require('react');
+const React = require('react'); 
 
-// Create a generic mock component for all Lucide icons
-const MockIcon = (props) => React.createElement('svg', {
-  'data-testid': 'mock-icon',
-  ...props
-}, 'MockIcon');
+const Eye = () => React.createElement('svg', { 'data-testid': 'EyeIcon' });
+const EyeOff = () => React.createElement('svg', { 'data-testid': 'EyeOffIcon' });
+const Mail = () => React.createElement('svg', { 'data-testid': 'MailIcon' });
+const Lock = () => React.createElement('svg', { 'data-testid': 'LockIcon' });
+const ArrowRight = () => React.createElement('svg', { 'data-testid': 'ArrowRightIcon' });
+const ArrowLeft = () => React.createElement('svg', { 'data-testid': 'ArrowLeftIcon' });
+const CheckCircle = () => React.createElement('svg', { 'data-testid': 'CheckCircleIcon' });
+const User = () => React.createElement('svg', { 'data-testid': 'UserIcon' });
 
-// Export commonly used icons as the mock component
-module.exports = new Proxy({}, {
-  get: function(target, prop) {
-    return MockIcon;
-  }
-});
+module.exports = {
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  ArrowRight,
+  ArrowLeft,
+  CheckCircle,
+  User,
+};
