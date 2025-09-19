@@ -1,14 +1,14 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useTranslator } from '../../hooks/translateResults';
 import { processLetters } from '../../utils/apiCalls';
 import PropTypes from 'prop-types';
 
 export function CameraInput({ progress = 0, show = true, onSkip, onLetterDetected }) {
   const { videoRef, canvasRef2 } = useTranslator();
-  const [frameBlobs, setFrameBlobs] = useState([]);
-  const [processing, setProcessing] = useState(false);
+  const frameBlobsRef = useRef([]);
+  const processingRef = useRef(false);
 
-  const captureFrame = useCallback(() => {
+  const captureFrame = () => {
     const video = videoRef.current;
     const canvas = canvasRef2.current;
     if (!video || !canvas) return;
@@ -23,94 +23,97 @@ export function CameraInput({ progress = 0, show = true, onSkip, onLetterDetecte
     ctx.restore();
 
     canvas.toBlob(blob => {
-      if (blob) setFrameBlobs(prev => [...prev, blob]);
+      if (blob) {
+        frameBlobsRef.current.push(blob);
+
+        if (frameBlobsRef.current.length > 100) {
+          frameBlobsRef.current.splice(0, frameBlobsRef.current.length - 100);
+        }
+      }
     }, 'image/jpeg', 0.8);
-  }, [videoRef, canvasRef2]);
+  };
 
   useEffect(() => {
-    if (!show || processing) return;
+    if (!show) return;
 
-    const interval = setInterval(() => {
+    const captureInterval = setInterval(() => {
       captureFrame();
     }, 100); // 10 fps
 
-    return () => clearInterval(interval);
-  }, [show, processing, captureFrame]);
+    return () => clearInterval(captureInterval);
+  }, [show, captureFrame]);
 
   useEffect(() => {
-    const sendFrames = async () => {
-      const requiredFrames = 20;
-      if (frameBlobs.length < requiredFrames || processing) return; 
+    if (!show) return;
 
-      setProcessing(true);
-      try {
+    const processInterval = setInterval(async () => {
+      const requiredFrames = 20;
+
+      if (frameBlobsRef.current.length >= requiredFrames && !processingRef.current) {
+        processingRef.current = true;
+
+        const blobsToSend = frameBlobsRef.current.slice(0, requiredFrames);
+        frameBlobsRef.current = frameBlobsRef.current.slice(requiredFrames); 
+
         const formData = new FormData();
-        frameBlobs.forEach((blob, idx) => {
+        blobsToSend.forEach((blob, idx) => {
           formData.append('frames', blob, `frame_${idx}.jpg`);
         });
 
-        const result = await processLetters(formData); 
-        console.log("API response:", result);
-
-        if (result?.letter) {
-          onLetterDetected?.(result.letter.toUpperCase());
+        try {
+          const result = await processLetters(formData);
+          if (result?.letter) {
+            onLetterDetected?.(result.letter.toUpperCase());
+          }
+        } catch (err) {
+          console.error('Error sending frames:', err);
+        } finally {
+          processingRef.current = false;
         }
-      } 
-      catch (err) {
-        console.error("Error sending frames:", err);
-      } 
-      finally {
-        setFrameBlobs([]); 
-        setProcessing(false);
       }
-    };
+    }, 50);
 
-    sendFrames();
-  }, [frameBlobs, processing, onLetterDetected]);
+    return () => clearInterval(processInterval);
+  }, [show, onLetterDetected]);
 
   if (!show) return null;
 
   return (
     <div style={{
-      position: 'absolute',
-      top: '30%',              
-      left: '50%',
-      transform: 'translateX(-50%)', 
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      zIndex: 50,
-      gap: '1rem'
-    }}>
+        position: 'absolute',
+        top: '30%',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        zIndex: 50,
+        gap: '1rem',
+      }}
+    >
       <div style={{
-        width: '25vw',
-        maxWidth: '300px',
-        aspectRatio: '1 / 1',
-        borderRadius: '50%',
-        overflow: 'hidden',
-        position: 'relative',
-        background: 'white',
-      }}>
-        <video 
-          ref={videoRef} 
-          autoPlay 
-          playsInline 
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+          width: '25vw',
+          maxWidth: '300px',
+          aspectRatio: '1 / 1',
+          borderRadius: '50%',
+          overflow: 'hidden',
+          position: 'relative',
+          background: 'white',
+        }}
+      >
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }}
         />
-        <canvas 
-          ref={canvasRef2} 
-          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} 
+        <canvas
+          ref={canvasRef2}
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
         />
         <svg
           viewBox="0 0 100 100"
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            zIndex: 1
-          }}
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1 }}
         >
           <circle
             cx="50"
@@ -124,13 +127,13 @@ export function CameraInput({ progress = 0, show = true, onSkip, onLetterDetecte
             style={{
               transition: 'stroke-dashoffset 0.1s linear',
               transform: 'rotate(-90deg)',
-              transformOrigin: '50% 50%'
+              transformOrigin: '50% 50%',
             }}
           />
         </svg>
       </div>
 
-      <button 
+      <button
         onClick={onSkip}
         style={{
           padding: '0.5rem 1rem',
@@ -140,7 +143,7 @@ export function CameraInput({ progress = 0, show = true, onSkip, onLetterDetecte
           borderRadius: '8px',
           fontWeight: 'bold',
           cursor: 'pointer',
-          zIndex: 51
+          zIndex: 51,
         }}
       >
         Skip

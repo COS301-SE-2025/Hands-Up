@@ -16,7 +16,7 @@ import GameOverScreen from '../components/game/gameOver';
 import PauseScreen from '../components/game/gamePaused';
 import StopScreen from '../components/game/gameStopped';
 
-const wordList = [ "A", "ALBERTON", "BALLITO", "BENONI", "BLOEMFONTEIN", "BOKSBURG", 
+const wordList = ["ALBERTON", "BALLITO", "BENONI", "BLOEMFONTEIN", "BOKSBURG", 
   "CAPE TOWN", "DURBAN", "EAST LONDON", "FOURWAYS", "GEORGE", "GQEBERHA", "HOWZIT", 
   "IZIKO", "JOHANNESBURG", "KIMBERLEY", "KNYSNA", "LEKKER", "MAHIKENG", "MAKHANDA", 
   "MBOMBELA", "MOSSEL BAY", "NEWCASTLE", "PIETERMARITZBURG", "POLOKWANE", "PRETORIA", 
@@ -35,7 +35,7 @@ export function Game() {
     const [carSpeed, setCarSpeed] = useState(10);
     const maxSpeed = 20;
 
-    const initialWord = wordList[0];
+    const initialWord = wordList[Math.floor(Math.random() * wordList.length)];
     const [usedWords, setUsedWords] = useState(new Set([initialWord]));
     const [currentWord, setCurrentWord] = useState(initialWord);
     const [letterIndex, setLetterIndex] = useState(0);
@@ -43,8 +43,8 @@ export function Game() {
 
     const [showCamera, setShowCamera] = useState(false);
     const [progress, setProgress] = useState(0);
-    const [userInput, setUserInput] = useState(false);
-    const [inputIndex, setInputIndex] = useState(-1);
+    const [userInput, setUserInput] = useState(true);
+    const [inputIndex, setInputIndex] = useState(1);
 
     useEffect(() => {
       if (!gameStarted) return;
