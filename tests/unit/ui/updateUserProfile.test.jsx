@@ -13,6 +13,13 @@ jest.mock('../../../frontend/src/contexts/authContext.js', () => ({
     useAuth: jest.fn(),
 }));
 
+jest.mock('../../../frontend/src/contexts/dexterityContext.js', () => ({
+  useDexterity: () => ({
+    dexterity: 'right',       
+    toggleDexterity: jest.fn(),
+  }),
+}));
+
 jest.mock('../../../frontend/src/utils/apiCalls.js', () => ({
     uniqueUsername: jest.fn(),
     uniqueEmail: jest.fn(),
