@@ -102,7 +102,6 @@ describe('Learn Page Tests', () => {
       cy.get('.category-tiles').within(() => {
         cy.contains('The Alphabet').click();
       });
-    });
 
     cy.get('body').then($body => {
         if ($body.find('.help-message-overlay').length > 0) {
@@ -150,6 +149,7 @@ describe('Learn Page Tests', () => {
       .parent()
       .should('have.class', 'locked')
       .and('have.css', 'pointer-events', 'none'); 
+      });
   });
 });
 
