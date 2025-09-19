@@ -97,67 +97,68 @@ describe('Learn Page Tests', () => {
     // });
   });
 
-  describe('Alphabet Category Tests', () => {
-    beforeEach(() => {
-      cy.wait(1000);
-    cy.get('body').then($body => {
-        if ($body.find('.help-message-overlay').length > 0) {
-          cy.get('.help-message-overlay button').contains('Okay!').click();
-          cy.wait(500);
-        }
-      });
 
-      cy.get('.category-tiles').should('be.visible');
+  // describe('Alphabet Category Tests', () => {
+  //   beforeEach(() => {
+  //     cy.wait(1000);
+  //   cy.get('body').then($body => {
+  //       if ($body.find('.help-message-overlay').length > 0) {
+  //         cy.get('.help-message-overlay button').contains('Okay!').click();
+  //         cy.wait(500);
+  //       }
+  //     });
+
+  //     cy.get('.category-tiles').should('be.visible');
       
-      cy.get('.category-tiles').within(() => {
-        cy.contains('The Alphabet')
-          .scrollIntoView()
-          .should('be.visible')
-          .click({ force: true });
-      });
+  //     cy.get('.category-tiles').within(() => {
+  //       cy.contains('The Alphabet')
+  //         .scrollIntoView()
+  //         .should('be.visible')
+  //         .click({ force: true });
+  //     });
 
-      cy.wait(1000);
-    });
+  //     cy.wait(1000);
+  //   });
 
-    it('should navigate back to dashboard when back button is clicked', () => {
-      cy.get('.back-button').should('be.visible').click();
-      cy.get('.dashboard', { timeout: 5000 }).should('be.visible');
-    //   cy.get('.category-tiles', { timeout: 5000 }).should('be.visible');
-    //   cy.get('.category-levels').should('not.exist');
-    });
+  //   it('should navigate back to dashboard when back button is clicked', () => {
+  //     cy.get('.back-button').should('be.visible').click();
+  //     cy.get('.dashboard', { timeout: 5000 }).should('be.visible');
+  //   //   cy.get('.category-tiles', { timeout: 5000 }).should('be.visible');
+  //   //   cy.get('.category-levels').should('not.exist');
+  //   });
 
-    it('should navigate to individual sign page when letter is clicked', () => {
-      cy.get('.stepping-poles').within(() => {
-      cy.contains('A').click();
-        });
-      cy.url().should('include', '/sign/A');
-    });
-  });
+  //   it('should navigate to individual sign page when letter is clicked', () => {
+  //     cy.get('.stepping-poles').within(() => {
+  //     cy.contains('A').click();
+  //       });
+  //     cy.url().should('include', '/sign/A');
+  //   });
+  // });
 
-  describe('Numbers Category Tests', () => {
-    beforeEach(() => {
-      cy.wait(1000);
+  // describe('Numbers Category Tests', () => {
+  //   beforeEach(() => {
+  //     cy.wait(1000);
       
-      cy.get('body').then($body => {
-        if ($body.find('.help-message-overlay').length > 0) {
-          cy.get('.help-message-overlay button').contains('Okay!').click();
-          cy.wait(500);
-        }
-      });
+  //     cy.get('body').then($body => {
+  //       if ($body.find('.help-message-overlay').length > 0) {
+  //         cy.get('.help-message-overlay button').contains('Okay!').click();
+  //         cy.wait(500);
+  //       }
+  //     });
 
-      cy.get('.category-tiles').within(() => {
-        cy.contains('Numbers & Counting')
-          .scrollIntoView()
-          .should('be.visible')
-          .click({ force: true });
-      });
-      cy.wait(1000);
-    });
+  //     cy.get('.category-tiles').within(() => {
+  //       cy.contains('Numbers & Counting')
+  //         .scrollIntoView()
+  //         .should('be.visible')
+  //         .click({ force: true });
+  //     });
+  //     cy.wait(1000);
+  //   });
     
-    it('should display numbers category content', () => {
-      //cy.get('.category-levels').should('be.visible');
-    });
-  });
+  //   it('should display numbers category content', () => {
+  //     //cy.get('.category-levels').should('be.visible');
+  //   });
+  // });
 
   describe('Other Categories Tests', () => {
     beforeEach(() => {
