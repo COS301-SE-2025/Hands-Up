@@ -100,7 +100,8 @@ describe('Learn Page Tests', () => {
   describe('Alphabet Category Tests', () => {
     beforeEach(() => {
       cy.get('.category-tiles').within(() => {
-      cy.contains('The Alphabet').click();
+        cy.contains('The Alphabet').click();
+      });
     });
 
     it('should display alphabet category levels page', () => {
@@ -195,7 +196,6 @@ describe('Learn Page Tests', () => {
       cy.get('.duo-app').should('be.visible');
       cy.get('.learn-main-content').should('be.visible');
       cy.get('.category-tiles').should('be.visible');
-    });
   });
 });
 });
