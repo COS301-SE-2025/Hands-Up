@@ -174,7 +174,7 @@ export const learningProgress = async (req, res) => {
 
             const userID = basicResult.rows[0].userID;
 
-            const detailedResult = await pool.query(
+         await pool.query(
                 `INSERT INTO learn_details (
                     "userID", "learnedSigns", "learnedPhrases", "unlockedCategories", 
                     "placementTestCompleted", "placementResults", "quizzesCompleted",
