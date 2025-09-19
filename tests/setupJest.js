@@ -1,4 +1,2 @@
-import { TextEncoder, TextDecoder } from 'util';
-
-global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder;
+// tests/setupJest.js
+import '@testing-library/jest-dom';
