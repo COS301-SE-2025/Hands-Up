@@ -13,7 +13,7 @@ import '../styles/signQuiz.css';
 export function SignQuiz() {
     const navigate = useNavigate();
     const { category } = useParams();
-    const { updateStats, stats } = useLearningStats();
+    const { updateStats, stats, completeQuiz } = useLearningStats();
 
     const [quizQuestions, setQuizQuestions] = useState([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -108,7 +108,7 @@ export function SignQuiz() {
         return [...animationQuestions, ...cameraQuestions].sort(() => Math.random() - 0.5);
     }, [currentCategoryData, isPhrasesQuiz]);
 
-     const setupCamera = useCallback(async () => {
+    const setupCamera = useCallback(async () => {
         try {
             setCameraError(null);
             setCameraInitializing(true);
@@ -287,14 +287,28 @@ export function SignQuiz() {
         } else {
             setShowResults(true);
             const finalScore = newUserAnswers.filter(answer => answer.isCorrect).length;
+            const percentage = Math.round((finalScore / quizQuestions.length) * 100);
 
             if (!hasTrackedQuizStats) {
-                updateStats({
-                    quizzesCompleted: (stats?.quizzesCompleted || 0) + 1,
-                    quizScore: finalScore,
-                    totalQuizQuestions: (stats?.totalQuizQuestions || 0) + quizQuestions.length,
-                    [`${category}QuizCompleted`]: true
-                });
+                console.log(`Quiz completed for ${category}. Score: ${finalScore}/${quizQuestions.length} (${percentage}%)`);
+                
+                 if (percentage >= 60) { 
+                    completeQuiz(category);
+                    
+                    const event = new CustomEvent('quizCompleted', {
+                        detail: { category, score: finalScore, passed: true }
+                    });
+                    window.dispatchEvent(event);
+                }
+                
+                updateStats(prevStats => ({
+                    ...prevStats,
+                    quizzesCompleted: (prevStats?.quizzesCompleted || 0) + 1,
+                    totalQuizQuestions: (prevStats?.totalQuizQuestions || 0) + quizQuestions.length,
+                    lastQuizScore: finalScore,
+                    lastQuizCategory: category
+                }));
+                
                 setHasTrackedQuizStats(true);
             }
         }
@@ -314,7 +328,7 @@ export function SignQuiz() {
                 stopCamera();
                 loadAnimationLandmarks(currentQuestion);
             } else if (currentQuestion.type === 'camera') {
-                console.log('');
+                console.log('Camera question loaded');
             }
         }
     }, [quizStarted, currentQuestionIndex, quizQuestions, loadAnimationLandmarks, stopCamera, setResult]);
@@ -381,14 +395,28 @@ export function SignQuiz() {
         } else {
             setShowResults(true);
             const finalScore = newUserAnswers.filter(answer => answer.isCorrect).length;
+            const percentage = Math.round((finalScore / quizQuestions.length) * 100);
 
             if (!hasTrackedQuizStats) {
-                updateStats({
-                    quizzesCompleted: (stats?.quizzesCompleted || 0) + 1,
-                    quizScore: finalScore,
-                    totalQuizQuestions: (stats?.totalQuizQuestions || 0) + quizQuestions.length,
-                    [`${category}QuizCompleted`]: true
-                });
+                console.log(`Quiz completed for ${category}. Score: ${finalScore}/${quizQuestions.length} (${percentage}%)`);
+                
+                if (percentage >= 60) { 
+                    completeQuiz(category);
+                    
+                    const event = new CustomEvent('quizCompleted', {
+                        detail: { category, score: finalScore, passed: true }
+                    });
+                    window.dispatchEvent(event);
+                }
+                
+                 updateStats(prevStats => ({
+                    ...prevStats,
+                    quizzesCompleted: (prevStats?.quizzesCompleted || 0) + 1,
+                    totalQuizQuestions: (prevStats?.totalQuizQuestions || 0) + quizQuestions.length,
+                    lastQuizScore: finalScore,
+                    lastQuizCategory: category
+                }));
+                
                 setHasTrackedQuizStats(true);
             }
         }
@@ -496,6 +524,11 @@ export function SignQuiz() {
                             <br />
                             Camera Questions: {userAnswers.filter(a => a.type === 'camera' && a.isCorrect).length}/2
                         </p>
+                        {passed && (
+                            <p className="pass-message">
+                            Quiz Passed! {percentage >= 60 ? 'Next category unlocked!' : ''}
+                            </p>
+                        )}
                     </div>
 
                     <div className="answers-section">
@@ -600,9 +633,7 @@ export function SignQuiz() {
 
                     <div className="canvas-container">
                         <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
-                            {/* eslint-disable react/no-unknown-property */}
                             <ambientLight intensity={5} />
-                            {/* eslint-disable react/no-unknown-property */}
                             <group position={[0, -1.1, 0]}>             
                                 {landmarks && Object.keys(landmarks).length > 0 && (
                                     <AngieSigns key={replayKey} landmarks={landmarks} />

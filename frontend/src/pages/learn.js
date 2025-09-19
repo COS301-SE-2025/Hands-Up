@@ -54,7 +54,6 @@ const HelpMessage = ({ message, onClose, position }) => {
     }
 
     const handleCanvasError = (error) => {
-        
         console.warn('WebGL Canvas error:', error);
         setWebglError(true);
     };
@@ -65,7 +64,6 @@ const HelpMessage = ({ message, onClose, position }) => {
             const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
             return !!gl;
         } catch (error) {
-            
             return false;
         }
     };
@@ -86,9 +84,7 @@ const HelpMessage = ({ message, onClose, position }) => {
                                 failIfMajorPerformanceCaveat: false 
                             }}
                         >
-                            {/* eslint-disable react/no-unknown-property */}
                             <ambientLight intensity={5} />
-                            {/* eslint-disable react/no-unknown-property */}
                             <group position={[0, -1.1, 0]}>
                                 <AngieSigns landmarks={landmarks} />
                             </group>
@@ -164,7 +160,8 @@ const COMMON_PHRASES = [
 ];
 
 const CATEGORY_HELP_MESSAGES = {
-    dashboard:"Welcome to Learn page! Here you'll learn sign language through interactive lessons and quizzes. We'll start with a quick placement test to assess your current knowledge and unlock the right categories for your level. This ensures you get the best learning experience tailored just for you!",
+    welcome: "Welcome to HandsUP! Here you'll learn sign language through interactive lessons and quizzes. We'll start with a quick placement test to assess your current knowledge and unlock the right categories for your level. This ensures you get the best learning experience tailored just for you!",
+    dashboard:"Welcome to the Learn page! Here you'll find interactive lessons and quizzes to help you master sign language. Each category builds upon the previous one, so complete quizzes to unlock new content!",
     alphabets: "Welcome to the Alphabet category! Here you'll learn the basic letter signs. You need to learn at least 5 letters before you can attempt the quiz. Click on any letter to start practicing!",
     numbers: "Welcome to Numbers & Counting! Practice signing numbers 1-20. All levels are unlocked - click on any number to learn its sign. Take the quiz when you're ready!",
     colours: "Welcome to Colours! Learn how to sign different colors. Each tile shows the color you'll be learning. All colors are available - click on any color tile to start!",
@@ -182,7 +179,7 @@ const CATEGORY_HELP_MESSAGES = {
 };
 
 export function Learn() {
-    const { stats, updateStats, isLoading } = useLearningStats();
+    const { stats, updateStats, markHelpSeen, isLoading } = useLearningStats();
     const [selectedSection, setSelectedSection] = useState('dashboard');
     const [currentCategory, setCurrentCategory] = useState(null);
     const [unlockedLevels] = useState(27); 
@@ -192,9 +189,6 @@ export function Learn() {
     const [helpMessageContent, setHelpMessageContent] = useState('');
     const [helpMessagePosition, setHelpMessagePosition] = useState('top-right');
     const [showPlacementTest, setShowPlacementTest] = useState(false);
-    const [placementCompleted, setPlacementCompleted] = useState(false);
-
-    const [hasSeenHelp, setHasSeenHelp] = useState({});
 
     useEffect(() => {
         console.log('=== Stats changed in Learn component ===');
@@ -208,42 +202,36 @@ export function Learn() {
         }
         console.log('===================');
     }, [stats]);
-
-useEffect(() => {
-        if (stats) {
+  useEffect(() => {
+        if (stats && !isLoading) {
             const placementTestCompleted = stats.placementTestCompleted;
+            const hasSeenWelcome = stats.hasSeenCategoryHelp?.welcome;
             
             if (!placementTestCompleted) {
                 console.log('Placement test not completed in backend');
-                if (!hasSeenHelp.welcome) {
+                if (!hasSeenWelcome) {
                     setTimeout(() => {
-                        showHelp(
-                            "Welcome to HandsUP! Here you'll learn sign language through interactive lessons and quizzes. We'll start with a quick placement test to assess your current knowledge and unlock the right categories for your level. This ensures you get the best learning experience tailored just for you!",
-                            'center',
-                            'welcome'
-                        );
+                        showHelp("Welcome to HandsUP! Here you'll learn sign language through interactive lessons and quizzes. We'll start with a quick placement test to assess your current knowledge and unlock the right categories for your level. This ensures you get the best learning experience tailored just for you!", 'center', 'welcome');
                     }, 500);
                 } else {
                     setShowPlacementTest(true);
-                    setPlacementCompleted(false);
                 }
             } else {
                 console.log('Placement test already completed in backend');
                 setShowPlacementTest(false);
-                setPlacementCompleted(true);
             }
         }
-    }, [stats?.placementTestCompleted, hasSeenHelp.welcome]);
+    }, [stats?.placementTestCompleted, stats?.hasSeenCategoryHelp?.welcome, isLoading]);
     
     const handleClosePlacementTest = () => {
-    console.log('=== CLOSING PLACEMENT TEST ===');
-    setShowPlacementTest(false);
-    setPlacementCompleted(false);
-};
+        console.log('=== CLOSING PLACEMENT TEST ===');
+        setShowPlacementTest(false);
+    };
+
     const handlePlacementComplete = async (results) => {
         console.log('Placement test results received:', results);
         
-       const updatedStats = {
+        const updatedStats = {
             ...stats,
             placementTestCompleted: true,
             placementResults: results,
@@ -260,9 +248,8 @@ useEffect(() => {
         updateStats(() => updatedStats);
         
         setShowPlacementTest(false);
-        setPlacementCompleted(true);
 
-       setTimeout(() => {
+        setTimeout(() => {
             showHelp(
                 `Placement test complete! Based on your results, you're starting at ${results.startingLevel} level with ${results.unlockedCategories.length} categories unlocked. Great job!`,
                 'center',
@@ -287,10 +274,9 @@ useEffect(() => {
         };
         
         console.log('Updated stats after skipping placement test:', updatedStats);
-         updateStats(() => updatedStats);
+        updateStats(() => updatedStats);
         
         setShowPlacementTest(false);
-        setPlacementCompleted(true);
 
         setTimeout(() => {
             showHelp(
@@ -310,19 +296,20 @@ useEffect(() => {
             return ['alphabets'];
         }
         
-         let finalUnlocked = ['alphabets'];
+        let finalUnlocked = ['alphabets'];
         const backendUnlocked = stats.unlockedCategories;
         if (backendUnlocked && Array.isArray(backendUnlocked) && backendUnlocked.length > 0) {
             console.log('Found backend unlocked categories:', backendUnlocked);
             finalUnlocked = [...new Set([...finalUnlocked, ...backendUnlocked])];
             console.log('After adding backend categories:', finalUnlocked);
         }
+        
         for (let i = 0; i < CATEGORY_PROGRESSION.length - 1; i++) {
             const currentCategory = CATEGORY_PROGRESSION[i];
             const nextCategory = CATEGORY_PROGRESSION[i + 1];
             const quizKey = `${currentCategory}QuizCompleted`;
             
-             if (finalUnlocked.includes(currentCategory) && stats[quizKey]) {
+            if (finalUnlocked.includes(currentCategory) && stats[quizKey]) {
                 if (!finalUnlocked.includes(nextCategory)) {
                     finalUnlocked.push(nextCategory);
                     console.log(`Progressive unlock: ${nextCategory} (${currentCategory} quiz completed)`);
@@ -444,10 +431,6 @@ useEffect(() => {
     const lessonProgress = (calcLessonsCompleted + calcSignsLearned) / (TOTAL_LESSONS + TOTAL_SIGNS_AVAILABLE) * 100;
     const progressPercent = Math.min(100, Math.round(lessonProgress));
 
-    const saveHelpSeen = (helpKey) => {
-        setHasSeenHelp(prev => ({ ...prev, [helpKey]: true }));
-    };
-
     useEffect(() => {
         if (location.state?.selectedCategory) {
             const category = categories.find(cat => cat.id === location.state.selectedCategory);
@@ -462,7 +445,7 @@ useEffect(() => {
         setCurrentCategory(null);
         setSelectedSection('dashboard');
         
-        if (!hasSeenHelp.dashboard) {
+        if (stats && !stats.hasSeenCategoryHelp?.dashboard) {
             setTimeout(() => {
                 showHelp(CATEGORY_HELP_MESSAGES.dashboard, 'center', 'dashboard');
             }, 300);
@@ -524,7 +507,7 @@ useEffect(() => {
 
     const handleCloseHelp = () => {
         if (showHelpMessage.helpKey) {
-            saveHelpSeen(showHelpMessage.helpKey);
+           markHelpSeen(showHelpMessage.helpKey);
         }
         setShowHelpMessage(false);
     };
@@ -544,7 +527,7 @@ useEffect(() => {
             setCurrentCategory(category);
             setShowHelpMessage(false);
             
-            if (!hasSeenHelp[category.id]) {
+            if (stats && !stats.hasSeenCategoryHelp?.[category.id]) {
                 setTimeout(() => {
                     showHelp(CATEGORY_HELP_MESSAGES[category.id], 'center', category.id);
                 }, 300);
@@ -584,16 +567,20 @@ useEffect(() => {
         }));
         
         setShowPlacementTest(true);
-        setPlacementCompleted(false);
     };
 
     useEffect(() => {
-        if (!hasSeenHelp.dashboard && selectedSection === 'dashboard' && !currentCategory && !showPlacementTest) {
+        if (stats && 
+            selectedSection === 'dashboard' && 
+            !currentCategory && 
+            !showPlacementTest && 
+            !stats.hasSeenCategoryHelp?.dashboard &&
+            stats.placementTestCompleted) {
             setTimeout(() => {
                 showHelp(CATEGORY_HELP_MESSAGES.dashboard, 'center', 'dashboard');
             }, 500);
         }
-    }, [selectedSection, currentCategory, hasSeenHelp.dashboard, showPlacementTest]);
+    }, [selectedSection, currentCategory, showPlacementTest, stats?.hasSeenCategoryHelp?.dashboard, stats?.placementTestCompleted]);
 
     if (isLoading || !stats) {
         return (
@@ -626,7 +613,7 @@ useEffect(() => {
                 signsLearned={signsLearned}
                 lessonsCompleted={lessonsCompleted}
                 quizzesCompleted={quizzesCompleted}
-                placementTestCompleted={placementCompleted}
+                placementTestCompleted={stats?.placementTestCompleted || false}
                 onRetakePlacementTest={retakePlacementTest}
             />
 

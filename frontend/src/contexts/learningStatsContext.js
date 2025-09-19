@@ -1,8 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-const LearningStatsContext = createContext();
 
+const LearningStatsContext = createContext();
 
 export const useLearningStats = () => {
     const context = useContext(LearningStatsContext);
@@ -13,8 +12,12 @@ export const useLearningStats = () => {
 };
 
 export const LearningStatsProvider = ({ children }) => {
-    const [stats, setStats] = useState(() => {
-        return {
+    const [stats, setStats] = useState(null); 
+    const [isLoading, setIsLoading] = useState(true);
+    const [hasLoadedFromBackend, setHasLoadedFromBackend] = useState(false);
+    const saveTimeoutRef = useRef(null);
+
+    const defaultStats = {
             lessonsCompleted: 0,
             signsLearned: 0,
             streak: 0,
@@ -39,12 +42,10 @@ export const LearningStatsProvider = ({ children }) => {
             thingsQuizCompleted: false,
             animalsQuizCompleted: false,
             seasonsQuizCompleted: false,
-            phrasesQuizCompleted: false
+            phrasesQuizCompleted: false,
+        hasSeenWelcome: false,
+        hasSeenCategoryHelp: {}
         };
-    });
-
-    const [isLoading, setIsLoading] = useState(true);
-    const [hasLoadedFromBackend, setHasLoadedFromBackend] = useState(false);
 
     const getCurrentUser = async () => {
         try {
@@ -89,42 +90,22 @@ export const LearningStatsProvider = ({ children }) => {
                     const backendStats = result.data[0];
                     
                     const mergedStats = {
-                        lessonsCompleted: backendStats.lessonsCompleted || 0,
-                        signsLearned: backendStats.signsLearned || 0,
-                        streak: backendStats.streak || 0,
-                        currentLevel: backendStats.currentLevel || 'Bronze',
-                        quizzesCompleted: backendStats.quizzesCompleted || 0,
+                        ...defaultStats,
+                        ...backendStats,
                         learnedSigns: backendStats.learnedSigns || [],
                         learnedPhrases: backendStats.learnedPhrases || [],
                         unlockedCategories: backendStats.unlockedCategories || ['alphabets'],
-                        placementTestCompleted: backendStats.placementTestCompleted || false,
-                        placementResults: backendStats.placementResults || null,
-                        startingLevel: backendStats.startingLevel || 'beginner',
-                        alphabetsQuizCompleted: backendStats.alphabetsQuizCompleted || false,
-                        numbersQuizCompleted: backendStats.numbersQuizCompleted || false,
-                        introduceQuizCompleted: backendStats.introduceQuizCompleted || false,
-                        coloursQuizCompleted: backendStats.coloursQuizCompleted || false,
-                        familyQuizCompleted: backendStats.familyQuizCompleted || false,
-                        feelingsQuizCompleted: backendStats.feelingsQuizCompleted || false,
-                        actionsQuizCompleted: backendStats.actionsQuizCompleted || false,
-                        questionsQuizCompleted: backendStats.questionsQuizCompleted || false,
-                        timeQuizCompleted: backendStats.timeQuizCompleted || false,
-                        foodQuizCompleted: backendStats.foodQuizCompleted || false,
-                        thingsQuizCompleted: backendStats.thingsQuizCompleted || false,
-                        animalsQuizCompleted: backendStats.animalsQuizCompleted || false,
-                        seasonsQuizCompleted: backendStats.seasonsQuizCompleted || false,
-                        phrasesQuizCompleted: backendStats.phrasesQuizCompleted || false
+                        hasSeenCategoryHelp: backendStats.hasSeenCategoryHelp || {}
                     };
 
                     mergedStats.signsLearned = mergedStats.learnedSigns.length;
 
                     setStats(mergedStats);
+                    setHasLoadedFromBackend(true);
                     
                     localStorage.setItem('learningStats', JSON.stringify(mergedStats));
                     
-                    setHasLoadedFromBackend(true);
                     console.log('Stats loaded from backend:', mergedStats);
-                    console.log('Unlocked categories from backend:', mergedStats.unlockedCategories);
                     
                 } else {
                     loadStatsFromLocalStorage();
@@ -147,42 +128,18 @@ export const LearningStatsProvider = ({ children }) => {
             const saved = localStorage.getItem('learningStats');
             if (saved) {
                 const parsedStats = JSON.parse(saved);
-                const defaultStats = {
-                    lessonsCompleted: 0,
-                    signsLearned: 0,
-                    streak: 0,
-                    currentLevel: 'Bronze',
-                    quizzesCompleted: 0,
-                    learnedSigns: [],
-                    learnedPhrases: [],
-                    unlockedCategories: ['alphabets'],
-                    placementTestCompleted: false,
-                    placementResults: null,
-                    startingLevel: 'beginner',
-                    alphabetsQuizCompleted: false,
-                    numbersQuizCompleted: false,
-                    introduceQuizCompleted: false,
-                    coloursQuizCompleted: false,
-                    familyQuizCompleted: false,
-                    feelingsQuizCompleted: false,
-                    actionsQuizCompleted: false,
-                    questionsQuizCompleted: false,
-                    timeQuizCompleted: false,
-                    foodQuizCompleted: false,
-                    thingsQuizCompleted: false,
-                    animalsQuizCompleted: false,
-                    seasonsQuizCompleted: false,
-                    phrasesQuizCompleted: false
-                };
-                
                 const mergedStats = { ...defaultStats, ...parsedStats };
                 mergedStats.signsLearned = mergedStats.learnedSigns.length;
                 
                 setStats(mergedStats);
                 console.log('Stats loaded from localStorage:', mergedStats);
+            } else {
+                setStats(defaultStats);
+                console.log('No saved stats found, using defaults');
             }
         } catch (error) {
             console.error('Error loading stats from localStorage:', error);
+            setStats(defaultStats);
         }
     };
 
@@ -191,7 +148,7 @@ export const LearningStatsProvider = ({ children }) => {
     }, []);
 
     useEffect(() => {
-        if (hasLoadedFromBackend || !isLoading) {
+        if (stats && (hasLoadedFromBackend || !isLoading)) {
             try {
                 const statsToSave = {
                     ...stats,
@@ -205,19 +162,27 @@ export const LearningStatsProvider = ({ children }) => {
     }, [stats, hasLoadedFromBackend, isLoading]);
 
     useEffect(() => {
-        if (!hasLoadedFromBackend || isLoading) return;
+        if (!stats || !hasLoadedFromBackend || isLoading) return;
 
-        const timeoutId = setTimeout(async () => {
+        if (saveTimeoutRef.current) {
+            clearTimeout(saveTimeoutRef.current);
+        }
+
+        saveTimeoutRef.current = setTimeout(async () => {
             await saveStatsToBackend();
-        }, 1000); 
+        }, 2000);
 
-        return () => clearTimeout(timeoutId);
+        return () => {
+            if (saveTimeoutRef.current) {
+                clearTimeout(saveTimeoutRef.current);
+            }
+        };
     }, [stats, hasLoadedFromBackend, isLoading]);
 
     const saveStatsToBackend = async () => {
         try {
             const currentUser = await getCurrentUser();
-            if (!currentUser) return;
+            if (!currentUser || !stats) return;
 
             const response = await fetch(`/api/learning-progress/${currentUser}`, {
                 method: 'PUT',
@@ -240,11 +205,14 @@ export const LearningStatsProvider = ({ children }) => {
 
     const updateStats = (updater) => {
         setStats(prevStats => {
+            if (!prevStats) return prevStats;
+            
             const newStats = typeof updater === 'function' ? updater(prevStats) : updater;
             
              newStats.learnedSigns = newStats.learnedSigns || [];
             newStats.learnedPhrases = newStats.learnedPhrases || [];
             newStats.unlockedCategories = newStats.unlockedCategories || ['alphabets'];
+            newStats.hasSeenCategoryHelp = newStats.hasSeenCategoryHelp || {};
             
             newStats.signsLearned = newStats.learnedSigns.length;
             
@@ -335,12 +303,22 @@ export const LearningStatsProvider = ({ children }) => {
                 quizzesCompleted: prevStats.quizzesCompleted + 1
             };
 
-           if (nextCategory && !prevStats.unlockedCategories.includes(nextCategory)) {
+            if (nextCategory && !prevStats.unlockedCategories.includes(nextCategory)) {
                 updates.unlockedCategories = [...prevStats.unlockedCategories, nextCategory];
             }
 
             return updates;
         });
+    };
+
+    const markHelpSeen = (helpKey) => {
+        updateStats(prevStats => ({
+            ...prevStats,
+            hasSeenCategoryHelp: {
+                ...prevStats.hasSeenCategoryHelp,
+                [helpKey]: true
+            }
+        }));
     };
 
     const value = {
@@ -350,10 +328,10 @@ export const LearningStatsProvider = ({ children }) => {
         addLearnedPhrase,
         unlockCategory,
         completeQuiz,
+        markHelpSeen,
         isLoading,
         hasLoadedFromBackend
     };
-
 
     return (
         <LearningStatsContext.Provider value={value}>
@@ -361,6 +339,7 @@ export const LearningStatsProvider = ({ children }) => {
         </LearningStatsContext.Provider>
     );
 };
-LearningStatsProvider.propTypes={
+
+LearningStatsProvider.propTypes = {
     children: PropTypes.node.isRequired,
-}
+};
