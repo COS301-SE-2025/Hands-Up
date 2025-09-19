@@ -99,18 +99,25 @@ describe('Learn Page Tests', () => {
 
   describe('Alphabet Category Tests', () => {
     beforeEach(() => {
-      cy.get('.category-tiles').within(() => {
-        cy.contains('The Alphabet').click();
-      });
-
+      cy.wait(1000);
     cy.get('body').then($body => {
         if ($body.find('.help-message-overlay').length > 0) {
           cy.get('.help-message-overlay button').contains('Okay!').click();
+          cy.wait(500);
         }
       });
+
+      cy.get('.category-tiles').should('be.visible');
+      
+      cy.get('.category-tiles').within(() => {
+        cy.contains('The Alphabet')
+          .scrollIntoView()
+          .should('be.visible')
+          .click({ force: true });
       });
 
-
+      cy.wait(1000);
+    });
 
     it('should navigate back to dashboard when back button is clicked', () => {
       cy.get('.back-button').should('be.visible').click();
@@ -129,17 +136,51 @@ describe('Learn Page Tests', () => {
 
   describe('Numbers Category Tests', () => {
     beforeEach(() => {
-      cy.contains('Numbers & Counting').click();
-    });
+      cy.wait(1000);
+      
+      cy.get('body').then($body => {
+        if ($body.find('.help-message-overlay').length > 0) {
+          cy.get('.help-message-overlay button').contains('Okay!').click();
+          cy.wait(500);
+        }
+      });
 
+      cy.get('.category-tiles').within(() => {
+        cy.contains('Numbers & Counting')
+          .scrollIntoView()
+          .should('be.visible')
+          .click({ force: true });
+      });
+      cy.wait(1000);
+    });
+    
+    it('should display numbers category content', () => {
+      cy.get('.category-levels').should('be.visible');
+    });
   });
 
   describe('Other Categories Tests', () => {
     beforeEach(() => {
-      // Test with introduce category as example
-      cy.contains('Introduce Yourself').click();
-    });
+      cy.wait(1000);
+      
+      cy.get('body').then($body => {
+        if ($body.find('.help-message-overlay').length > 0) {
+          cy.get('.help-message-overlay button').contains('Okay!').click();
+          cy.wait(500);
+        }
+      });
 
+      // Test with introduce category as example
+      cy.get('.category-tiles').within(() => {
+        cy.contains('Introduce Yourself')
+          .scrollIntoView()
+          .should('be.visible')
+          .click({ force: true });
+      });
+      cy.wait(1000);
+    });
+    
+    
   });
 
   describe('Locked Categories Tests', () => {
