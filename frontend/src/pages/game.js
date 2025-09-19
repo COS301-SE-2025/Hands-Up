@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import React,  { useEffect, useState, Suspense } from 'react';
+import React,  { useEffect, useState, useRef, Suspense } from 'react';
 import { Canvas} from '@react-three/fiber';
 import { Loader } from '@react-three/drei';
 
@@ -16,7 +16,7 @@ import GameOverScreen from '../components/game/gameOver';
 import PauseScreen from '../components/game/gamePaused';
 import StopScreen from '../components/game/gameStopped';
 
-const wordList = ["ALBERTON", "BALLITO", "BENONI", "BLOEMFONTEIN", "BOKSBURG", 
+const wordList = [ "A", "ALBERTON", "BALLITO", "BENONI", "BLOEMFONTEIN", "BOKSBURG", 
   "CAPE TOWN", "DURBAN", "EAST LONDON", "FOURWAYS", "GEORGE", "GQEBERHA", "HOWZIT", 
   "IZIKO", "JOHANNESBURG", "KIMBERLEY", "KNYSNA", "LEKKER", "MAHIKENG", "MAKHANDA", 
   "MBOMBELA", "MOSSEL BAY", "NEWCASTLE", "PIETERMARITZBURG", "POLOKWANE", "PRETORIA", 
@@ -35,7 +35,7 @@ export function Game() {
     const [carSpeed, setCarSpeed] = useState(10);
     const maxSpeed = 20;
 
-    const initialWord = wordList[Math.floor(Math.random() * wordList.length)];
+    const initialWord = wordList[0];
     const [usedWords, setUsedWords] = useState(new Set([initialWord]));
     const [currentWord, setCurrentWord] = useState(initialWord);
     const [letterIndex, setLetterIndex] = useState(0);
@@ -78,7 +78,11 @@ export function Game() {
       };
     }, [letterIndex, inputIndex, userInput, gameStarted]);
 
+    const pickedNewWord = useRef(false);
     function pickNewWord() {
+      if (pickedNewWord.current) return;
+      pickedNewWord.current = true;
+
       let remainingWords = wordList.filter(w => !usedWords.has(w));
       if (remainingWords.length === 0) {
         setUsedWords(new Set());
@@ -105,6 +109,8 @@ export function Game() {
         setInputIndex(-1); 
         console.log("New word:", newWord, " Camera?", shouldShowCamera);    
       }
+
+      setTimeout(() => pickedNewWord.current = false, 1000);
     }
 
     const handleCollision = () => {
