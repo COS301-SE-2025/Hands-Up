@@ -119,7 +119,7 @@ describe('Learn Page Tests', () => {
 
     });
 
-    
+
 
     it('should navigate back to dashboard when back button is clicked', () => {
       cy.get('.back-button').should('be.visible').click();
@@ -197,4 +197,5 @@ describe('Learn Page Tests', () => {
       cy.get('.category-tiles').should('be.visible');
     });
   });
+});
 });
