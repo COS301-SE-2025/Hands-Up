@@ -104,21 +104,12 @@ describe('Learn Page Tests', () => {
       });
     });
 
-    it('should display alphabet category levels page', () => {
-      // cy.get('.category-levels').should('be.visible');
-      // cy.contains('h2', 'The Alphabet').should('be.visible');
-      // cy.get('.stepping-poles').should('be.visible');
-    });
-
-    it('should display all 26 alphabet level tiles', () => {
-      // cy.get('.stepping-poles').children().should('have.length', 27);
-      
-      // cy.contains('A').should('be.visible');
-      // cy.contains('B').should('be.visible');
-      // cy.contains('C').should('be.visible');
-      
-
-    });
+    cy.get('body').then($body => {
+        if ($body.find('.help-message-overlay').length > 0) {
+          cy.get('.help-message-overlay button').contains('Okay!').click();
+        }
+      });
+      });
 
 
 
@@ -153,14 +144,14 @@ describe('Learn Page Tests', () => {
   });
 
   describe('Locked Categories Tests', () => {
-    it('should display help message when clicking locked categories', () => {
-      cy.get('.category-tiles').within(() => {
-        cy.contains('Family Members').click();
-      });
-      
-      cy.get('.help-message-overlay').should('be.visible');
-    });
+    it('should render locked categories as unclickable', () => {
+  cy.get('.category-tiles').within(() => {
+    cy.contains('Family Members')
+      .parent()
+      .should('have.class', 'locked')
+      .and('have.css', 'pointer-events', 'none'); 
   });
+});
 
   describe('Progress Integration Tests', () => {
     it('should display progress information in sidebar', () => {
