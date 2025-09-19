@@ -1,4 +1,3 @@
-// signLanguageAPI.js
 class SignLanguageAPI {
   constructor(baseURL = 'http://localhost:2000/handsUPApi') {
     this.baseURL = baseURL;
@@ -18,15 +17,12 @@ class SignLanguageAPI {
     });
 
     try {
-      // Validate input
       if (!videoBlob || !(videoBlob instanceof Blob)) {
         throw new Error('Invalid video blob provided');
       }
 
       const formData = new FormData();
-      
-      // Ensure proper filename and MIME type
-      const filename = `sign_${Date.now()}.webm`;
+       const filename = `sign_${Date.now()}.webm`;
       formData.append('video', videoBlob, filename);
 
       console.log('FormData created, sending request to:', `${this.baseURL}/process-video`);
@@ -34,7 +30,6 @@ class SignLanguageAPI {
       const response = await fetch(`${this.baseURL}/process-video`, {
         method: 'POST',
         body: formData,
-        // Don't set Content-Type header - let browser set it with boundary
       });
 
       console.log('Response received:', {
@@ -80,6 +75,7 @@ class SignLanguageAPI {
       };
     }
   }
+
 
   /**
    * Process an image for sign language recognition
@@ -176,7 +172,7 @@ class SignLanguageAPI {
 
   /**
    * Health check for the API
-   * @returns {Promise<boolean>} - True if API is accessible
+   * @returns {Promise<boolean>}
    */
   async healthCheck() {
     try {
@@ -197,11 +193,11 @@ class SignLanguageAPI {
   }
 }
 
-// Rest of your existing API functions...
 const API_BASE_URL_AUTH = 'http://localhost:2000/handsUPApi/auth';
 const API_BASE_URL_USER = 'http://localhost:2000/handsUPApi/user';
 const API_BASE_URL_LEARNING = 'http://localhost:2000/handsUPApi/learning';
 const API_BASE_URL = "http://localhost:2000/handsUPApi";
+const TRANSLATE_API_ROUTE = 'http://127.0.0.1:5000/handsUPApi/sign';
 
 export const handleApiResponse = async (response) => {
     const data = await response.json();
@@ -222,19 +218,18 @@ export const handleApiResponse = async (response) => {
 };
 
 
-// Fixed translateSequence function
 export const translateSequence = async (blobs) => {
-    console.log('translateSequence called with blobs:', blobs?.length);
+    
 
     const formData = new FormData();
     blobs.forEach((blob, i) => {
         const filename = `frame${i}.jpg`;
         formData.append('frames', blob, filename);
-        console.log(`Added frame ${i}: ${filename}, size: ${blob.size}`);
+        
     });
 
     try {
-        const response = await fetch('http://127.0.0.1:5000/handsUPApi/sign/processFrames', {
+        const response = await fetch(`${TRANSLATE_API_ROUTE}/processFrames`, {
             method: 'POST',
             body: formData,
         });
@@ -246,14 +241,15 @@ export const translateSequence = async (blobs) => {
                 const errorJson = JSON.parse(errorBody);
                 errorMessage = errorJson.message || errorJson.error || errorMessage;
             } catch (e) {
-                console.log('Failed to parse error JSON:', e);
-                errorMessage = `${errorMessage} - ${errorBody}`;
+                // console.log('Failed to parse error JSON:', e);
+                errorMessage = `${errorMessage} - ${errorBody}. Another error ocurred: ${e}`;
+                
             }
             throw new Error(`Failed to process frames: ${errorMessage}`);
         }
 
         const data = await response.json();
-        console.log("Prediction result:", data);
+        
         return data;
     } catch (err) {
         console.error("Error during fetch or response processing:", err);
@@ -261,48 +257,52 @@ export const translateSequence = async (blobs) => {
     }
 };
 
-// Fixed processImage function
-export const processImage = async (image) => {
-    console.log("Processing captured image...");
-    console.log('Image details:', {
-        size: image?.size,
-        type: image?.type,
-        constructor: image?.constructor?.name
+
+export const processLetters = async (formData) => {
+//   console.log("Processing captured image...");
+
+  try {
+    const response = await fetch(`${TRANSLATE_API_ROUTE}/processLetters`, {
+      method: 'POST',
+      body: formData
     });
 
-    const formData = new FormData();
-    const filename = `sign_${Date.now()}.jpg`;
-    formData.append('image', image, filename);
+    const data = await response.json();
+    // console.log(data);
+    return (data);
 
-    try {
-        const response = await fetch('http://127.0.0.1:5000/handsUPApi/sign/processImage', {
-            method: 'POST',
-            body: formData
-        });
-
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
-        }
-
-        const data = await response.json();
-        console.log("Response:", data);
-        return data;
-    } catch (error) {
-        console.error('Error processing image:', error);
-        return { error: 'Error processing image', details: error.message };
-    }
+  } catch (error) {
+    console.error(error);
+    return ('Error processing image');
+  }
 };
 
-// Fixed uploadUserAvatar function
+export const processWords = async (formData) => {
+  
+
+  try {
+    const response = await fetch(`${TRANSLATE_API_ROUTE}/processWords`, {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await response.json();
+    
+    return (data);
+
+  } catch (error){
+    console.error(error);
+    return ('Error processing words');
+  }
+};
+
+
 export const uploadUserAvatar = async (userID, formData) => {
     try {
-        console.log('Uploading avatar for user:', userID);
-        console.log('FormData entries:');
-        for (let [key, value] of formData.entries()) {
-            console.log(`${key}:`, value instanceof File ? `File: ${value.name} (${value.size} bytes)` : value);
-        }
+        
+        // for (let [key, value] of formData.entries()) {
+        //     console.log(`${key}:`, value instanceof File ? `File: ${value.name} (${value.size} bytes)` : value);
+        // }
 
         const response = await fetch(`${API_BASE_URL_USER}/${userID}/avatar`, {
             method: 'PUT',
@@ -317,7 +317,21 @@ export const uploadUserAvatar = async (userID, formData) => {
     }
 };
 
-// Rest of your existing functions remain the same...
+export const deleteUserAvatar = async (userID) => {
+    
+    try {
+        const response = await fetch(`${API_BASE_URL_USER}/${userID}/avatar`, {
+            method: 'DELETE',
+            credentials: 'include',
+        });
+        return handleApiResponse(response);
+    } catch (error) {
+        console.error("Error in deleteUserAvatar:", error);
+        throw error;
+    }
+};
+
+
 export const getLearningProgress = async (username) => {
     try {
         const response = await fetch(`${API_BASE_URL_LEARNING}/progress/${username}`, {
@@ -331,17 +345,23 @@ export const getLearningProgress = async (username) => {
     }
 };
 
-
-export const confirmPasswordReset = async (email, token, newPassword, confirmNewPassword) => {
-    const response = await fetch(`${API_BASE_URL}/auth/confirm-reset-password`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, token, newPassword, confirmationPassword: confirmNewPassword }),
-    });
-    return handleApiResponse(response);
+export const updateLearningProgress = async (username, progressData) => {
+    try {
+        const response = await fetch(`${API_BASE_URL_LEARNING}/progress/${username}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(progressData),
+            credentials: 'include',
+        });
+        return handleApiResponse(response);
+    } catch (error) {
+        console.error("Error updating progress", error);
+        throw error;
+    }
 };
+
 export const login = async (credentials) => {
     try {
         const response = await fetch(`${API_BASE_URL_AUTH}/login`, {
@@ -454,8 +474,21 @@ export const signup = async ({ name, surname, username, email, password }) => {
     }
 };
 
+export const logout = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL_AUTH}/logout`, {
+            method: 'POST',
+            credentials: 'include',
+        });
+        return handleApiResponse(response);
+    } catch (error) {
+        console.error('API Logout error:', error);
+        throw error;
+    }
+};
+
 export const resetPassword = async (email) => {
-    console.log("[API_CALLS - resetPassword] Sending password reset request for:", email);
+    
     
     try {
         const response = await fetch(`${API_BASE_URL_AUTH}/reset-password`, {
@@ -497,58 +530,19 @@ export const resetPassword = async (email) => {
     }
 };
 
-export const createPersistentError = (message, type = 'GENERAL_ERROR', options = {}) => {
-    const error = new Error(message);
-    error.type = type;
-    error.persistent = true;
-    error.timestamp = Date.now();
-    
-    Object.assign(error, options);
-    
-    return error;
-};
-
-export const formatErrorForDisplay = (error) => {
-    if (!error) return null;
-    
-    let displayMessage = error.message;
-    if (error.showAttemptsLeft && error.attemptsLeft !== undefined) {
-        displayMessage += ` (${error.attemptsLeft} attempts remaining)`;
-    }
-    
-    if (error.locked) {
-        displayMessage += ` Account locked.`;
-    }
-    
-    if (error.showTimeLeft && error.timeLeft !== undefined) {
-        displayMessage += ` Try again in ${error.timeLeft} minutes.`;
-    }
-    
-    return {
-        message: displayMessage,
-        type: error.type,
-        severity: error.severity || 'medium',
-        field: error.field,
-        persistent: error.persistent || false,
-        timestamp: error.timestamp
-    };
-};
-
-export const logout = async () => {
-    try {
-        const response = await fetch(`${API_BASE_URL_AUTH}/logout`, {
-            method: 'POST',
-            credentials: 'include',
-        });
-        return handleApiResponse(response);
-    } catch (error) {
-        console.error('API Logout error:', error);
-        throw error;
-    }
+export const confirmPasswordReset = async (email, token, newPassword, confirmNewPassword) => {
+    const response = await fetch(`${API_BASE_URL}/auth/confirm-reset-password`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, token, newPassword, confirmationPassword: confirmNewPassword }),
+    });
+    return handleApiResponse(response);
 };
 
 export const getUserData = async () => {
-    console.log("apiCalls - getUserData: Attempting to fetch current user data...");
+    
     try {
         const response = await fetch(`${API_BASE_URL_USER}/me`, {
             method: 'GET',
@@ -615,23 +609,6 @@ export const updateUserPassword = async (userID, name, surname, username, email,
     }
 };
 
-export const updateLearningProgress = async (username, progressData) => {
-    try {
-        const response = await fetch(`${API_BASE_URL_LEARNING}/progress/${username}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(progressData),
-            credentials: 'include',
-        });
-        return handleApiResponse(response);
-    } catch (error) {
-        console.error("Error updating progress", error);
-        throw error;
-    }
-};
-
 export const deleteUserAccount = async (userID) => {
     try {
         const response = await fetch(`${API_BASE_URL_USER}/${userID}`, {
@@ -645,25 +622,186 @@ export const deleteUserAccount = async (userID) => {
     }
 };
 
-// export const resetPassword = async (email) => {
-//     console.log("[API_CALLS - resetPassword] Sending password reset request for:", email);
-    
-//     try {
-//         const response = await fetch(`${API_BASE_URL_AUTH}/reset-password`, {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//             },
-//             credentials: 'include',
-//             body: JSON.stringify({ email }),
-//         });
-//         return handleApiResponse(response);
-//     } catch (error) {
-//         console.error("Error in resetPassword:", error);
-//         throw error;
-//     }
-// };
+export const produceSentence = async (glossToConvert) => {
+//   console.log("Converting sentence...");
 
+  try {
+    const response = await fetch(`${TRANSLATE_API_ROUTE}/sentence`, {
+      method: 'POST',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({'gloss': glossToConvert})
+    });
+
+    const data = await response.json();
+    // console.log("Response:", data);
+    return (data);
+
+  } catch (error) {
+    console.error(error);
+    return ('Error converting gloss');
+  }
+};
+
+export const createPersistentError = (message, type = 'GENERAL_ERROR', options = {}) => {
+    const error = new Error(message);
+    error.type = type;
+    error.persistent = true;
+    error.timestamp = Date.now();
+    
+    Object.assign(error, options);
+    
+    return error;
+};
+
+export const formatErrorForDisplay = (error) => {
+    if (!error) return null;
+    
+    let displayMessage = error.message;
+    if (error.showAttemptsLeft && error.attemptsLeft !== undefined) {
+        displayMessage += ` (${error.attemptsLeft} attempts remaining)`;
+    }
+    
+    if (error.locked) {
+        displayMessage += ` Account locked.`;
+    }
+    
+    if (error.showTimeLeft && error.timeLeft !== undefined) {
+        displayMessage += ` Try again in ${error.timeLeft} minutes.`;
+    }
+    
+    return {
+        message: displayMessage,
+        type: error.type,
+        severity: error.severity || 'medium',
+        field: error.field,
+        persistent: error.persistent || false,
+        timestamp: error.timestamp
+    };
+};
+
+/**
+ * UPDATED: Get landmarks data from the backend using the correct endpoint
+ * @param {string} landmarkName - Required: specific landmark file name (A, my, drinkWater, etc.)
+ * @returns {Promise<Object>} - Landmarks data
+ */
+export const getLandmarks = async (landmarkName) => {
+    try {
+        if (!landmarkName) {
+            throw new Error('Landmark name is required');
+        }
+
+       const url = `${API_BASE_URL}/curriculum/landmarks/${encodeURIComponent(landmarkName)}`;
+        console.log('Fetching landmarks from:', url);
+
+        const response = await fetch(url, {
+            method: 'GET',
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            let errorData;
+            try {
+                errorData = JSON.parse(errorText);
+            } catch {
+                errorData = { error: errorText };
+            }
+            
+            console.error('Error fetching landmarks:', errorData);
+            throw new Error(errorData.message || errorData.error || `HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.message || 'Failed to fetch landmarks');
+        }
+        
+        console.log('Successfully fetched landmarks:', {
+            letter: data.letter,
+            filename: data.filename,
+            count: data.count,
+            directory: data.directory
+        });
+        
+        return data.landmarks || data;
+    } catch (error) {
+        console.error('Error in getLandmarks:', error);
+        throw error;
+    }
+};
+
+/**
+ * Test curriculum API health
+ * @returns {Promise<Object>}
+ */
+export const testCurriculumHealth = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/curriculum/health`, {
+            method: 'GET',
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            throw new Error(`Health check failed: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('Curriculum health check:', data);
+        return data;
+    } catch (error) {
+        console.error('Curriculum health check failed:', error);
+        throw error;
+    }
+};
+
+/**
+ * Get list of all available landmarks
+ * @returns {Promise<Object>}
+ */
+export const getAvailableLandmarks = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/curriculum/landmarks`, {
+            method: 'GET',
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch landmarks list: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('Available landmarks:', data);
+        return data;
+    } catch (error) {
+        console.error('Error fetching available landmarks:', error);
+        throw error;
+    }
+};
+
+/**
+ * Get curriculum structure
+ * @returns {Promise<Object>} 
+ */
+export const getCurriculumStructure = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/curriculum/structure`, {
+            method: 'GET',
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch curriculum structure: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('Curriculum structure:', data);
+        return data;
+    } catch (error) {
+        console.error('Error fetching curriculum structure:', error);
+        throw error;
+    }
+};
 
 const signLanguageAPI = new SignLanguageAPI();
 

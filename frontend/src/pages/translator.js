@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import {TestSetup} from '../components/testSetup';
 import {useTranslator} from '../hooks/translateResults';
-import {renderMediaPreview} from '../components/mediaPreview';
-import {renderHistoryItem} from '../components/historyItem';
-import {FingerspellingToggle} from '../components/fingerSpellingToggle'
-import { useLandmarksDetection } from '../hooks/landmarksDetection';
+import { useModelSwitch } from '../contexts/modelContext.js';
+import { useAuth } from '../contexts/authContext.js';
 import '../styles/translator.css';
 
 export function Translator(){
 
-  const [audioProgressWidth] = useState(0);
+  const { justSignedUp } = useAuth();
+  const [showTest, setShowTest] = useState(false);
 
   const {
     videoRef,
@@ -17,21 +17,26 @@ export function Translator(){
     result,
     confidence,
     recording,
-    capturedImage,
-    capturedType,
-    captureHistory,
-    capturedBlob,
     startRecording,
-    handleFileUpload,
     setResult,
-    fingerspellingMode,
-    setFingerspellingMode
+    convertGloss,
+    translating, 
+
   } = useTranslator();
 
-  useLandmarksDetection(videoRef, canvasRef2);
+  const { modelState, switchModel } = useModelSwitch();
 
   const speakDisabled = result === "";
   const [availableVoices, setAvailableVoices] = useState([]);
+
+  useEffect(() => {
+    const alreadySeenTest = localStorage.getItem("translatorTestSeen");
+
+    if (!alreadySeenTest && justSignedUp) {
+      setShowTest(true);
+      localStorage.setItem("translatorTestSeen", "true"); 
+    }
+  }, [justSignedUp]);
 
   useEffect(() => {
     const loadVoices = () => {
@@ -83,26 +88,35 @@ export function Translator(){
               ></video>
               <canvas 
                 ref={canvasRef2} 
-                style={{  position: 'absolute', top: 0, left: '15%', zIndex: 1  }}
+                style={{  position: 'absolute', top: 0, left: '5%', zIndex: 1  }}
               ></canvas>
               <canvas 
-                ref={canvasRef1} 
-                style={{ display: 'none' }}
-              ></canvas>
-              
+                    ref={canvasRef1} 
+                    style={{ position: 'absolute', bottom: 0, left: '30%', zIndex: 1 }}
+                  ></canvas>
               <div className="recognizer-camera-controls">
-                <button className="recognizer-camera-button" title="Switch camera">
+                <button
+                  onClick={switchModel}
+                  className="recognizer-camera-button" title="Switch Model"
+                >
                   <i className="fas fa-sync-alt"></i>
+                  <span className="ml-2">
+                    {modelState.model === "alpha"
+                      ? " Alphabets "
+                      : modelState.model === "num"
+                      ? " Numbers "
+                      : " Glosses "}
+                  </span>
                 </button>
-                <button className="recognizer-camera-button" title="Toggle fullscreen">
+                {/* <button className="recognizer-camera-button" title="Toggle fullscreen">
                   <i className="fas fa-expand"></i>
-                </button>
+                </button> */}
               </div>
               <div className="recognizer-camera-status">
-                <div className="recognizer-live-indicator">
+                {/* <div className="recognizer-live-indicator">
                   <i className="fas fa-circle recognizer-pulse-icon"></i>
                   <span>Live</span>
-                </div>
+                </div> */}
               </div>
               {recording && (
                 <div className="recognizer-recording-indicator">
@@ -113,10 +127,6 @@ export function Translator(){
 
             <div className="recognizer-controls">
               <div>
-                <FingerspellingToggle 
-                  fingerspellingMode={fingerspellingMode} 
-                  setFingerspellingMode={setFingerspellingMode} 
-                />
             </div>
               <button onClick={() => setResult("")} className="recognizer-control-button recognizer-capture-button">
                 <i></i> Clear Results
@@ -128,69 +138,13 @@ export function Translator(){
                 <i className={`fas ${recording ? 'fa-stop' : 'fa-video'}`}></i> 
                 {recording ? 'Stop Signing' : 'Start Signing'}
               </button>
-              <label className="recognizer-control-button recognizer-upload-button">
-                <i className="fas fa-upload"></i> Upload Sign
-                <input 
-                  type="file" 
-                  accept="image/*,video/*" 
-                  className="recognizer-file-input" 
-                  onChange={handleFileUpload}
-                />
-              </label>
             </div>
 
             <div className="recognizer-history">
               <h3 className="recognizer-history-title">
                 <i className="fas fa-history recognizer-history-icon"></i> Recent Captures
               </h3>
-              <div className="recognizer-history-items">
-                {captureHistory.map((capture) => (
-                  <div 
-                    key={capture.id} 
-                    className="recognizer-history-item" 
-                    title={`${capture.type} - ${capture.timestamp}`}
-                    //onClick={() => handleHistoryClick(capture)}
-                    style={{ cursor: 'pointer', position: 'relative' }}
-                  >
-                    {renderHistoryItem(capture)}
-                    <div style={{ 
-                      position: 'absolute', 
-                      top: '2px', 
-                      right: '2px', 
-                      background: 'rgba(0,0,0,0.7)', 
-                      color: 'white', 
-                      padding: '2px 4px', 
-                      borderRadius: '3px', 
-                      fontSize: '10px' 
-                    }}>
-                      {capture.type === 'video' ? '🎥' : '📷'}
-                    </div>
-                    <div style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      background: 'rgba(0,0,0,0.3)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      opacity: 0,
-                      transition: 'opacity 0.2s',
-                      color: 'white',
-                      fontSize: '12px',
-                      fontWeight: 'bold'
-                    }}
-                    className="history-hover-overlay"
-                    >
-                    
-                    </div>
-                  </div>
-                ))}
-                {Array.from({ length: Math.max(0, 5 - captureHistory.length) }, (_, i) => (
-                  <div key={`empty-${i}`} className="recognizer-history-item"></div>
-                ))}
-              </div>
+              
             </div>
           </div>
 
@@ -199,11 +153,6 @@ export function Translator(){
               <h3 className="recognizer-results-title">
                 <i className="fas fa-language recognizer-results-icon"></i> Translation Results
               </h3>
-              {capturedImage && (
-                <div className="recognizer-captured-image" style={{ marginBottom: '10px' }}>
-                  {renderMediaPreview(capturedImage, capturedType)}
-                </div>
-              )}
               
               <div className="recognizer-results-display">
                 <p className={`recognizer-results-text ${result !== "Awaiting sign capture..." ? "recognizer-results-detected" : ""}`}>
@@ -212,37 +161,40 @@ export function Translator(){
               </div>
 
               <div className="recognizer-audio-controls">
-                <button 
-                  aria-label='Volume Up'
-                  className="recognizer-speak-button" 
-                  disabled={speakDisabled}
-                  onClick={speak} 
-                >
+                <span></span>
+                  <button 
+                    className="recognizer-speak-button" 
+                    disabled={result.length < 5}
+                    title="Translate Gloss to English"
+                    style={{ marginLeft: '10px' }}
+                    onClick={convertGloss}
+                  >
+                    {translating ? <i className="fas fa-spinner fa-spin">&nbsp; </i> : "Translate Gloss "}&nbsp;
+                    <i className="fas fa-comment"></i>
+                  </button> &nbsp; &nbsp;
+                  <button 
+                    className="recognizer-speak-button" 
+                    disabled={speakDisabled}
+                    title="Play translation audio"
+                    onClick={speak} 
+                  > Speak &nbsp;
                   <i className="fas fa-volume-up"></i>
-                </button>
-                <button 
-                  className="recognizer-speak-button" 
-                  disabled={!capturedBlob}
-                  title="Send to API for processing"
-                  style={{ marginLeft: '10px' }}
-                >
-                  <i className="fas fa-cloud-upload-alt"></i>
-                </button>
-                <div className="recognizer-audio-progress-container">
-                  <div 
-                    className="recognizer-audio-progress" 
-                    style={{ width: `${audioProgressWidth}%` }}
-                  ></div>
-                </div>
+                  </button>
               </div>
 
               <div className="recognizer-additional-info">
                 <div className="recognizer-confidence">
                   <span>Confidence: <span className="recognizer-confidence-value">{confidence}</span></span>
-                  <span>Alternative: <span className="recognizer-alternative-value">None</span></span>
                 </div>
               </div>
             </div>
+
+            <button className="recognizer-control-button recognizer-test-button" onClick={() => setShowTest(true)}>Test Your Setup</button>
+
+            <TestSetup
+              isOpen={showTest}
+              onClose={() => setShowTest(false)}
+            />
 
             <div className="recognizer-tips">
               <h3 className="recognizer-tips-title">
@@ -275,7 +227,16 @@ export function Translator(){
 
             <div className="recognizer-support">
               <p className="recognizer-support-text">
-                Need help? <button className="recognizer-support-link">Contact Support</button>
+              Need help? &nbsp; 
+              <a 
+                className="recognizer-support-link" 
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=tmkdt.cos301@gmail.com&su=Support%20Request&body=Hi%20Support%20Team,%0D%0A%0D%0AI%20need%20help%20with%20..." 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{ textDecoration: 'none' }}
+              >
+                Contact Support
+              </a>
               </p>
             </div>
           </div>

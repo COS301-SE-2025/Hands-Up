@@ -10,7 +10,8 @@
 tests/coverage/
 
 #python cache
-**/pycache/
+**/__pycache__/
+backend/api/tfjs_env
 
 #model files
 ai_model/llm/gloss2eng
@@ -33,6 +34,7 @@ ai_model/llm/glosses
 ai_model2/dataset
 ai_model2/processed_dataset
 ai_model2/models/__pycache__
+translate
 .venv
 
 #uploads
@@ -62,8 +64,8 @@ backend/uploads
 
 #module translate
 venv_signlang
-translate/videos
-translate/extracted_landmarks
-translate/processed_sequences
-translate/my_recorded_signs
+ai_model/words/videos
+ai_model/words/extracted_landmarks
+ai_model/words/processed_sequences
+ai_model/words/my_recorded_signs
 

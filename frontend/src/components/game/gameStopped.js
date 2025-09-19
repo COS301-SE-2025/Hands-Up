@@ -64,7 +64,7 @@ export default function StopScreen({ onResume, onQuit }) {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'flex-start',
-                        gap: '25px',
+                        gap: '0.5em',
                         marginTop: '1%',
                         width: '49.5%'
                         }}
@@ -85,7 +85,7 @@ export default function StopScreen({ onResume, onQuit }) {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'flex-end',
-                        gap: '25px',
+                        gap: '0.5em',
                         marginTop: '1%',
                         width: '49.5%'
                         }}

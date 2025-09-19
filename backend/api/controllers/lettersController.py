@@ -1,15 +1,8 @@
-import sys
-import struct
 import cv2
 import numpy as np
 import pickle
 import tensorflow as tf
 import mediapipe as mp
-import collections
-import time
-import os
-import tensorflow_hub as hub
-from collections import deque
 
 lettersModel = tf.keras.models.load_model('../../ai_model/models/detectLettersModel.keras')
 with open('../../ai_model/models/labelEncoder.pickle', 'rb') as f:
@@ -62,7 +55,7 @@ def detectFromImage(sequenceList):
 
     confidence2 = 0.0
     label2 = ""
-    fallback_frame = cv2.imread(sequenceList[-1])  
+    fallbackFrame = cv2.imread(sequenceList[-1])  
 
     # for i in range(len(processedSequence)):
     #     if processedSequence[i] is None:
@@ -91,18 +84,18 @@ def detectFromImage(sequenceList):
 
     if len(processedSequence) != sequenceNum:
         print("incomplete sequence: ", len(processedSequence))
-        return {'letter': '', 'confidence': 0.0}
+        return {'letter': '', 'confidenceLetter': 0.0, 'number': '', 'confidenceNumber': 0.0}
        
     inputData2 = np.array(processedSequence, dtype=np.float32).reshape(1, sequenceNum, 63)
-    prediction2 = model2.predict(inputData2, verbose=0)
+    prediction2 = lettersModel2.predict(inputData2, verbose=0)
 
     index2 = np.argmax(prediction2, axis=1)[0]
     confidence2 = float(np.max(prediction2))
     label2 = labelEncoder2.inverse_transform([index2])[0]
     print(f'Letters Model 2:{label2} at {confidence2}')
 
-    if fallback_frame is not None:
-        imgRGB = cv2.cvtColor(fallback_frame, cv2.COLOR_BGR2RGB)
+    if fallbackFrame is not None:
+        imgRGB = cv2.cvtColor(fallbackFrame, cv2.COLOR_BGR2RGB)
         results = hands.process(imgRGB)
         if results.multi_hand_landmarks:
             handLandmarks = results.multi_hand_landmarks[0]
