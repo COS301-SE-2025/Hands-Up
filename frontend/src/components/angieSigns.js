@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect,useState } from 'react';
 import { useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -8,10 +8,29 @@ import PropTypes from 'prop-types';
 export function AngieSigns({ landmarks, replay }) {
   const { scene } = useGLTF('/models/angieWaving.glb');
   const bones = useRef({}); 
-
+  const [modelReady, setModelReady] = useState(false);
   const animationProgress = useRef(0); 
-  const animationDuration = 2.5; // seconds
   const clock = useRef(new THREE.Clock());
+  const startDelay = 500; 
+
+  const getAnimationDuration = () => {
+    if (!landmarks) return 2.5;
+    
+    let maxKeyframes = 0;
+    for (const boneName in landmarks) {
+      const keyframes = landmarks[boneName]?.keyframes;
+      if (keyframes && keyframes.length > maxKeyframes) {
+        maxKeyframes = keyframes.length;
+      }
+    }
+    
+    const timePerKeyframe = 0.3; 
+    const calculatedDuration = maxKeyframes * timePerKeyframe;
+    
+     return Math.max(2, Math.min(10.0, calculatedDuration));
+  };
+
+  const animationDuration = getAnimationDuration();
 
   useEffect(() => {
     if (!scene) return;
@@ -21,8 +40,6 @@ export function AngieSigns({ landmarks, replay }) {
         bones.current[obj.name] = obj;
       }
     });
-
-    // scene.traverse((obj) => obj.isBone && console.log(obj.name));
 
     const upperArmL = bones.current['mixamorigLeftArm'];
     const upperArmR = bones.current['mixamorigRightArm'];
@@ -41,26 +58,29 @@ export function AngieSigns({ landmarks, replay }) {
     if (foreArmR) {
       foreArmR.rotation.x = 0.5;
       foreArmR.rotation.z = -2.8; 
-      // foreArmR.rotation.y = -2;    
     }
 
     if (handR) {
-      // handR.rotation.x = -0.3;        
       handR.rotation.y = -1.5;
-      // handR.rotation.z = -0.5; 
     }
 
-    clock.current.start();
+  const timer = setTimeout(() => {
+      setModelReady(true);
+      clock.current.start();
+    }, startDelay);
 
-  }, [scene]);
+    return () => clearTimeout(timer);
+  }, [scene, startDelay]);
 
   useEffect(() => {
-      animationProgress.current = 0;
-      clock.current.elapsedTime = 0;
-  }, [replay]);
+    if (modelReady) {
+    animationProgress.current = 0;
+    clock.current.elapsedTime = 0;}
+  }, [replay,modelReady]);
 
   useFrame(() => {
-    const delta = clock.current.getDelta(); // time since last frame
+     if (!modelReady) return;
+    const delta = clock.current.getDelta();
     animationProgress.current = Math.min(animationProgress.current + delta / animationDuration, 1);
 
     for (const boneName in landmarks) {
