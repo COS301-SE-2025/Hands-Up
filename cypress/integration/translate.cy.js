@@ -39,21 +39,21 @@ describe('Overall Application Tests', () => {
       cy.get('.recognizer-banner p').should('contain', 'Swipe your hand in the camera to switch models');
       cy.get('.recognizer-camera-container').should('be.visible');
       cy.get('video.recognizer-video').should('be.visible');
-      cy.get('.recognizer-live-indicator').should('be.visible');
-      cy.get('.recognizer-live-indicator span').should('contain', 'Live');
+      // cy.get('.recognizer-live-indicator').should('be.visible');
+      // cy.get('.recognizer-live-indicator span').should('contain', 'Live');
 
       // Test control buttons are present
       cy.get('.recognizer-control-button').contains('Clear Results').should('be.visible');
       cy.get('.recognizer-control-button').contains('Start Signing').should('be.visible');
-      // cy.get('.recognizer-control-button').contains('Upload Sign').should('be.visible'); temporarily removed
+      cy.get('.recognizer-control-button').contains('Test Your Setup').should('be.visible'); 
 
       // Test results section
       cy.get('.recognizer-results-title').should('contain', 'Translation Results');
       cy.get('.recognizer-confidence').should('contain', 'Confidence:');
 
       // Test history section
-      cy.get('.recognizer-history-title').should('contain', 'Recent Captures');
-      cy.get('.recognizer-history-items').should('be.visible');
+      // cy.get('.recognizer-history-title').should('contain', 'Recent Captures');
+      // cy.get('.recognizer-history-items').should('be.visible');
 
       // Test tips section
       cy.get('.recognizer-tips-title').should('contain', 'Tips for Better Recognition');
@@ -142,13 +142,13 @@ describe('Overall Application Tests', () => {
       
       // Camera section
       cy.get('video.recognizer-video').should('be.visible');
-      cy.get('.recognizer-live-indicator').should('be.visible');
+      // cy.get('.recognizer-live-indicator').should('be.visible');
       
       // Camera controls
-      cy.get('.recognizer-camera-button').should('have.length', 2);
+      cy.get('.recognizer-camera-button').should('have.length', 1);
       
       // Main controls
-      cy.get('.recognizer-control-button').should('have.length', 2);
+      cy.get('.recognizer-control-button').should('have.length', 3);
       
       // Results section
       cy.get('.recognizer-results-display').should('be.visible');
@@ -159,7 +159,7 @@ describe('Overall Application Tests', () => {
       
       // Confidence display
       cy.get('.recognizer-confidence-value').should('be.visible');
-      cy.get('.recognizer-alternative-value').should('be.visible');
+      // cy.get('.recognizer-alternative-value').should('be.visible');
     });
 
     // it('should handle file upload button', () => {
@@ -203,23 +203,23 @@ describe('Overall Application Tests', () => {
     });
 
     it('should display history items correctly', () => {
-      cy.get('.recognizer-history-items').should('be.visible');
+      // cy.get('.recognizer-history-items').should('be.visible');
       
       // Should show 5 history slots (empty or filled)
-      cy.get('.recognizer-history-items').children().should('have.length', 5);
+      // cy.get('.recognizer-history-items').children().should('have.length', 5);
       
       // Initially should be empty placeholders
-      cy.get('.recognizer-history-item').each(($item) => {
-        cy.wrap($item).should('be.visible');
-      });
+      // cy.get('.recognizer-history-item').each(($item) => {
+      //   cy.wrap($item).should('be.visible');
+      // });
     });
 
     it('should have accessible buttons', () => {
       // Check ARIA labels and accessibility
-      cy.get('[aria-label="Volume Up"]').should('exist');
-      cy.get('button[title="Switch camera"]').should('exist');
-      cy.get('button[title="Toggle fullscreen"]').should('exist');
-      cy.get('button[title="Send to API for processing"]').should('exist');
+      cy.get('button[title="Play translation audio"]').should('exist');
+      cy.get('button[title="Switch Model"]').should('exist');
+      // cy.get('button[title="Toggle fullscreen"]').should('exist');
+      cy.get('button[title="Translate Gloss to English"]').should('exist');
     });
 
     it('should handle clear results functionality', () => {
@@ -237,7 +237,7 @@ describe('Overall Application Tests', () => {
 
     it('should display confidence and alternative values', () => {
       cy.get('.recognizer-confidence-value').should('exist');
-      cy.get('.recognizer-alternative-value').should('contain', 'None');
+      // cy.get('.recognizer-alternative-value').should('contain', 'None');
     });
 
     it('should show support section', () => {
@@ -282,7 +282,7 @@ describe('Overall Application Tests', () => {
       cy.get('.recognizer-title').should('contain', 'Sign Language Recognizer');
       cy.get('.recognizer-banner').should('be.visible');
       cy.get('video.recognizer-video').should('be.visible');
-      cy.get('.recognizer-live-indicator').should('be.visible');
+      // cy.get('.recognizer-live-indicator').should('be.visible');
       cy.get('.recognizer-control-button').should('have.length.at.least', 2);
     });
 

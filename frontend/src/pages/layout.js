@@ -6,7 +6,7 @@ import "../styles/layout.css";
 import logo from "../images/logo2.png";
 import {HelpMenu} from './help.js'; 
 
-const BACKEND_BASE_URL = "https://localhost:2000"; 
+const BACKEND_BASE_URL = "http://localhost:2000"; 
 const NAV_ITEMS = ["Home", "Learn", "Translator", "Sign Surfers"];
 
 const NAV_PATHS = {
@@ -31,7 +31,6 @@ export function Layout({ children }) {
       break;
     }
   }
-
   const isProfileActive = currentPath === NAV_PATHS.Profile;
   const displayAvatarUrl = currentUser?.avatarurl
   ? `${BACKEND_BASE_URL}/${currentUser.avatarurl.replace(/^\/+/, '')}`
@@ -95,4 +94,3 @@ export function Layout({ children }) {
 Layout.propTypes = {
   children: PropTypes.node.isRequired,
 };
-

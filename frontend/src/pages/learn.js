@@ -192,18 +192,6 @@ export function Learn() {
     const [helpMessagePosition, setHelpMessagePosition] = useState('top-right');
     const [showPlacementTest, setShowPlacementTest] = useState(false);
 
-    useEffect(() => {
-        console.log('=== Stats changed in Learn component ===');
-        console.log('Full stats object:', stats);
-        if (stats?.placementResults) {
-            console.log('Placement results found:', stats.placementResults);
-            console.log('Placement unlocked categories:', stats.placementResults.unlockedCategories);
-        }
-        if (stats?.unlockedCategories) {
-            console.log('Direct unlocked categories:', stats.unlockedCategories);
-        }
-        console.log('===================');
-    }, [stats]);
   useEffect(() => {
         if (stats && !isLoading) {
             const placementTestCompleted = stats.placementTestCompleted;

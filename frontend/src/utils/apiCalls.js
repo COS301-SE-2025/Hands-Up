@@ -197,6 +197,7 @@ const API_BASE_URL_AUTH = 'http://localhost:2000/handsUPApi/auth';
 const API_BASE_URL_USER = 'http://localhost:2000/handsUPApi/user';
 const API_BASE_URL_LEARNING = 'http://localhost:2000/handsUPApi/learning';
 const API_BASE_URL = "http://localhost:2000/handsUPApi";
+const TRANSLATE_API_ROUTE = 'http://127.0.0.1:5000/handsUPApi/sign';
 
 export const handleApiResponse = async (response) => {
     const data = await response.json();
@@ -216,18 +217,19 @@ export const handleApiResponse = async (response) => {
     return data;
 };
 
+
 export const translateSequence = async (blobs) => {
-    console.log('translateSequence called with blobs:', blobs?.length);
+    
 
     const formData = new FormData();
     blobs.forEach((blob, i) => {
         const filename = `frame${i}.jpg`;
         formData.append('frames', blob, filename);
-        console.log(`Added frame ${i}: ${filename}, size: ${blob.size}`);
+        
     });
 
     try {
-        const response = await fetch('http://127.0.0.1:5000/handsUPApi/sign/processFrames', {
+        const response = await fetch(`${TRANSLATE_API_ROUTE}/processFrames`, {
             method: 'POST',
             body: formData,
         });
@@ -239,14 +241,15 @@ export const translateSequence = async (blobs) => {
                 const errorJson = JSON.parse(errorBody);
                 errorMessage = errorJson.message || errorJson.error || errorMessage;
             } catch (e) {
-                console.log('Failed to parse error JSON:', e);
-                errorMessage = `${errorMessage} - ${errorBody}`;
+                // console.log('Failed to parse error JSON:', e);
+                errorMessage = `${errorMessage} - ${errorBody}. Another error ocurred: ${e}`;
+                
             }
             throw new Error(`Failed to process frames: ${errorMessage}`);
         }
 
         const data = await response.json();
-        console.log("Prediction result:", data);
+        
         return data;
     } catch (err) {
         console.error("Error during fetch or response processing:", err);
@@ -254,17 +257,18 @@ export const translateSequence = async (blobs) => {
     }
 };
 
-export const processImage = async (formData) => {
-  console.log("Processing captured image...");
+
+export const processLetters = async (formData) => {
+//   console.log("Processing captured image...");
 
   try {
-    const response = await fetch('http://127.0.0.1:5000/handsUPApi/sign/processImage', {
+    const response = await fetch(`${TRANSLATE_API_ROUTE}/processLetters`, {
       method: 'POST',
       body: formData
     });
 
     const data = await response.json();
-    console.log("Response:", data);
+    // console.log(data);
     return (data);
 
   } catch (error) {
@@ -274,16 +278,16 @@ export const processImage = async (formData) => {
 };
 
 export const processWords = async (formData) => {
-  console.log("Processing captured image...");
+  
 
   try {
-    const response = await fetch('http://127.0.0.1:5000/handsUPApi/sign/processWords', {
+    const response = await fetch(`${TRANSLATE_API_ROUTE}/processWords`, {
       method: 'POST',
       body: formData
     });
 
     const data = await response.json();
-    console.log("Response:", data);
+    
     return (data);
 
   } catch (error){
@@ -292,14 +296,13 @@ export const processWords = async (formData) => {
   }
 };
 
-// Fixed uploadUserAvatar function
+
 export const uploadUserAvatar = async (userID, formData) => {
     try {
-        console.log('Uploading avatar for user:', userID);
-        console.log('FormData entries:');
-        for (let [key, value] of formData.entries()) {
-            console.log(`${key}:`, value instanceof File ? `File: ${value.name} (${value.size} bytes)` : value);
-        }
+        
+        // for (let [key, value] of formData.entries()) {
+        //     console.log(`${key}:`, value instanceof File ? `File: ${value.name} (${value.size} bytes)` : value);
+        // }
 
         const response = await fetch(`${API_BASE_URL_USER}/${userID}/avatar`, {
             method: 'PUT',
@@ -313,6 +316,21 @@ export const uploadUserAvatar = async (userID, formData) => {
         throw error;
     }
 };
+
+export const deleteUserAvatar = async (userID) => {
+    
+    try {
+        const response = await fetch(`${API_BASE_URL_USER}/${userID}/avatar`, {
+            method: 'DELETE',
+            credentials: 'include',
+        });
+        return handleApiResponse(response);
+    } catch (error) {
+        console.error("Error in deleteUserAvatar:", error);
+        throw error;
+    }
+};
+
 
 export const getLearningProgress = async (username) => {
     try {
@@ -470,7 +488,7 @@ export const logout = async () => {
 };
 
 export const resetPassword = async (email) => {
-    console.log("[API_CALLS - resetPassword] Sending password reset request for:", email);
+    
     
     try {
         const response = await fetch(`${API_BASE_URL_AUTH}/reset-password`, {
@@ -524,7 +542,7 @@ export const confirmPasswordReset = async (email, token, newPassword, confirmNew
 };
 
 export const getUserData = async () => {
-    console.log("apiCalls - getUserData: Attempting to fetch current user data...");
+    
     try {
         const response = await fetch(`${API_BASE_URL_USER}/me`, {
             method: 'GET',
@@ -602,6 +620,26 @@ export const deleteUserAccount = async (userID) => {
         console.error("Error deleting user account:", error);
         throw error;
     }
+};
+
+export const produceSentence = async (glossToConvert) => {
+//   console.log("Converting sentence...");
+
+  try {
+    const response = await fetch(`${TRANSLATE_API_ROUTE}/sentence`, {
+      method: 'POST',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({'gloss': glossToConvert})
+    });
+
+    const data = await response.json();
+    // console.log("Response:", data);
+    return (data);
+
+  } catch (error) {
+    console.error(error);
+    return ('Error converting gloss');
+  }
 };
 
 export const createPersistentError = (message, type = 'GENERAL_ERROR', options = {}) => {
