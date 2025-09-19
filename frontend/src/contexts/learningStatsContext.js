@@ -102,7 +102,7 @@ function LearningStatsProvider({ children }) {
         try {
             const response = await updateLearningProgress(username, newStats);
             if (response && response.status !== "error") {
-                console.log("Stats successfully persisted to backend");
+                // console.log("Stats successfully persisted to backend");
             } else {
                 console.error("Failed to update stats in backend:", response);
             }

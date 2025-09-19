@@ -200,6 +200,14 @@ video {
   border: none;
 }
 
+.recognizer-test-button {
+  background-color: var(--light-yellow);
+}
+
+.recognizer-test-button:hover {
+  background-color: var(--dark-yellow);
+}
+
 .recognizer-capture-button,
 .recognizer-record-button 
 {
@@ -323,9 +331,12 @@ video {
 
 .recognizer-results-text 
 {
+  display:flex;
   font-size: 1.5rem;
   font-weight: bold;
   color: #2D4D3A;
+  max-width: 100%;
+  min-width: 0;        
   text-align: center;
 }
 
@@ -334,12 +345,16 @@ video {
   animation: pulse 1s;
 }
 
-.recognizer-audio-controls 
-{
+.recognizer-audio-controls {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
   margin-bottom: 1rem;
+}
+
+.recognizer-audio-controls button {
+  flex: 1;             
+  min-width: 0;     
+  left:0;   
 }
 
 .recognizer-speak-button 

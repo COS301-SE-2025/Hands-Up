@@ -1,10 +1,14 @@
-from flask import Flask
-from flask_cors import CORS
-from routes.apiRoutes import api_blueprint
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from routes.apiRoutes import router as sign_router
 
-app = Flask(__name__)
-CORS(app)
-app.register_blueprint(api_blueprint, url_prefix='/handsUPApi')
+app = FastAPI()
+app.include_router(sign_router)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  
+    allow_credentials=True,
+    allow_methods=["*"],  
+    allow_headers=["*"],  
+)

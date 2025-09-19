@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { LearningStatsProvider } from "./contexts/learningStatsContext";
 import { AuthProvider } from "./contexts/authContext"; 
 import { ModelSwitchProvider } from './contexts/modelContext';
+import { DexterityProvider } from './contexts/dexterityContext';
 import { ProtectedRoute } from "./components/protectedRoute"; 
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import "./styles/App.css";
@@ -29,53 +30,16 @@ function App() {
       <AuthProvider> 
         <LearningStatsProvider>
           <ModelSwitchProvider>
-            <Routes>
-              <Route path="/" element={<Landing/>} />
-              <Route path="/landing" element={<Landing/>} />
-              <Route path="/login" element={
-                <ErrorBoundary fallback={<ErrorFallback errorName="Login" />}>
-                  <Login />
-                </ErrorBoundary>
-            } />
-            <Route path="/phrase/:letter" element={
-              <ProtectedRoute>
-                <ErrorBoundary fallback={<ErrorFallback errorName="SignLearn" />}>
-                  <SignLearn />
-                </ErrorBoundary>
-              </ProtectedRoute>
-            } />
-
-            <Route path="/quiz/:category" element={
-              <ProtectedRoute>
-                <ErrorBoundary fallback={<ErrorFallback errorName="Quiz" />}>
-                  <SignQuiz />
-                </ErrorBoundary>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/quiz" element={<Navigate to="/quiz/alphabets" replace />} />
-            <Route path="/numbers-quiz" element={<Navigate to="/quiz/numbers" replace />} />
-            <Route path="/colours-quiz" element={<Navigate to="/quiz/colours" replace />} />
-            <Route path="/introduce-quiz" element={<Navigate to="/quiz/introduce" replace />} />
-            <Route path="/family-quiz" element={<Navigate to="/quiz/family" replace />} />
-            <Route path="/feelings-quiz" element={<Navigate to="/quiz/feelings" replace />} />
-            <Route path="/actions-quiz" element={<Navigate to="/quiz/actions" replace />} />
-            <Route path="/questions-quiz" element={<Navigate to="/quiz/questions" replace />} />
-            <Route path="/time-quiz" element={<Navigate to="/quiz/time" replace />} />
-            <Route path="/food-quiz" element={<Navigate to="/quiz/food" replace />} />
-            <Route path="/things-quiz" element={<Navigate to="/quiz/things" replace />} />
-            <Route path="/animals-quiz" element={<Navigate to="/quiz/animals" replace />} />
-            <Route path="/seasons-quiz" element={<Navigate to="/quiz/seasons" replace />} />
-            <Route path="/phrases-quiz" element={<Navigate to="/quiz/phrases" replace />} />
-
-              <Route path="/signup" element={<ErrorBoundary fallback={<ErrorFallback errorName="Signup" />}>
-                  <Signup />
-                </ErrorBoundary>
+            <DexterityProvider>
+              <Routes>
+                <Route path="/" element={<Landing/>} />
+                <Route path="/landing" element={<Landing/>} />
+                <Route path="/login" element={
+                  <ErrorBoundary fallback={<ErrorFallback errorName="Login" />}>
+                    <Login />
+                  </ErrorBoundary>
               } />
-              <Route path="/reset-password/:token" element={<Login />} />
-
-              <Route path="/sign/:letter" element={
-
+              <Route path="/phrase/:letter" element={
                 <ProtectedRoute>
                   <ErrorBoundary fallback={<ErrorFallback errorName="SignLearn" />}>
                     <SignLearn />
@@ -104,138 +68,176 @@ function App() {
               <Route path="/things-quiz" element={<Navigate to="/quiz/things" replace />} />
               <Route path="/animals-quiz" element={<Navigate to="/quiz/animals" replace />} />
               <Route path="/seasons-quiz" element={<Navigate to="/quiz/seasons" replace />} />
-              
-            <Route
-                path="/userProfile"
-                element={
-                  <ProtectedRoute>
-                    <ErrorBoundary fallback={<ErrorFallback errorName="userProfile" />}>
-                    <Layout>
-                      <UserProfile />
-                    </Layout>
-                  </ErrorBoundary>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/translator"
-                element={
-                  <ProtectedRoute>
-                    <ErrorBoundary fallback={<ErrorFallback errorName="Translator" />}>
-                    <Layout>
-                      <Translator />
-                    </Layout>
-                  </ErrorBoundary>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/learn"
-                element={
-                  <ProtectedRoute>
-                    <ErrorBoundary fallback={<ErrorFallback errorName="Learn" />}>
-                    <Layout>
-                      <Learn />
-                    </Layout>
-                  </ErrorBoundary>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/home"
-                element={
-                  <ProtectedRoute>
-                    <ErrorBoundary fallback={<ErrorFallback errorName="Home" />}>
-                    <Layout>
-                      <Home />
-                    </Layout>
-                  </ErrorBoundary>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/signup"
-              element={<ErrorBoundary fallback={<ErrorFallback errorName="Signup" />}>
-                  <Signup />
-                </ErrorBoundary>
-              } />
-            <Route path="/reset-password/:token" element={<Login />} />
-              <Route path="/sign/:letter" element = {<SignLearn />} />
-              <Route path="/quiz" element={<SignQuiz />} />
-              <Route
-                path="/userProfile"
-                element={
-                  <ProtectedRoute>
-                    <ErrorBoundary fallback={<ErrorFallback errorName="userProfile" />}>
-                    <Layout>
-                      <UserProfile />
-                    </Layout>
-                  </ErrorBoundary>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/translator"
-                element={
-                  <ProtectedRoute>
-                    <ErrorBoundary fallback={<ErrorFallback errorName="Translator" />}>
-                    <Layout>
-                      <Translator />
-                    </Layout>
-                  </ErrorBoundary>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/learn"
-                element={
-                  <ProtectedRoute>
-                    <ErrorBoundary fallback={<ErrorFallback errorName="Learn" />}>
-                    <Layout>
-                      <Learn />
-                    </Layout>
-                  </ErrorBoundary>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/home"
-                element={
-                  <ProtectedRoute>
-                    <ErrorBoundary fallback={<ErrorFallback errorName="Home" />}>
-                    <Layout>
-                      <Home />
-                    </Layout>
-                  </ErrorBoundary>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/help"
-                element={
-                  <ProtectedRoute>
-                    <ErrorBoundary fallback={<ErrorFallback errorName="Help" />}>
-                    <Layout>
-                      <HelpMenu />
-                    </Layout>
-                  </ErrorBoundary>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/signLearn"
-                element={
-                  <ProtectedRoute>
-                    <ErrorBoundary fallback={<ErrorFallback errorName="Help" />}>
-                    <Layout>
-                      <SignLearn />
-                    </Layout>
-                  </ErrorBoundary>
+              <Route path="/phrases-quiz" element={<Navigate to="/quiz/phrases" replace />} />
 
+                <Route path="/signup" element={<ErrorBoundary fallback={<ErrorFallback errorName="Signup" />}>
+                    <Signup />
+                  </ErrorBoundary>
+                } />
+                <Route path="/reset-password/:token" element={<Login />} />
+
+                <Route path="/sign/:letter" element={
+
+                  <ProtectedRoute>
+                    <ErrorBoundary fallback={<ErrorFallback errorName="SignLearn" />}>
+                      <SignLearn />
+                    </ErrorBoundary>
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/quiz/:category" element={
+                  <ProtectedRoute>
+                    <ErrorBoundary fallback={<ErrorFallback errorName="Quiz" />}>
+                      <SignQuiz />
+                    </ErrorBoundary>
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/quiz" element={<Navigate to="/quiz/alphabets" replace />} />
+                <Route path="/numbers-quiz" element={<Navigate to="/quiz/numbers" replace />} />
+                <Route path="/colours-quiz" element={<Navigate to="/quiz/colours" replace />} />
+                <Route path="/introduce-quiz" element={<Navigate to="/quiz/introduce" replace />} />
+                <Route path="/family-quiz" element={<Navigate to="/quiz/family" replace />} />
+                <Route path="/feelings-quiz" element={<Navigate to="/quiz/feelings" replace />} />
+                <Route path="/actions-quiz" element={<Navigate to="/quiz/actions" replace />} />
+                <Route path="/questions-quiz" element={<Navigate to="/quiz/questions" replace />} />
+                <Route path="/time-quiz" element={<Navigate to="/quiz/time" replace />} />
+                <Route path="/food-quiz" element={<Navigate to="/quiz/food" replace />} />
+                <Route path="/things-quiz" element={<Navigate to="/quiz/things" replace />} />
+                <Route path="/animals-quiz" element={<Navigate to="/quiz/animals" replace />} />
+                <Route path="/seasons-quiz" element={<Navigate to="/quiz/seasons" replace />} />
+                
+              <Route
+                  path="/userProfile"
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary fallback={<ErrorFallback errorName="userProfile" />}>
+                      <Layout>
+                        <UserProfile />
+                      </Layout>
+                    </ErrorBoundary>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/translator"
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary fallback={<ErrorFallback errorName="Translator" />}>
+                      <Layout>
+                        <Translator />
+                      </Layout>
+                    </ErrorBoundary>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/learn"
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary fallback={<ErrorFallback errorName="Learn" />}>
+                      <Layout>
+                        <Learn />
+                      </Layout>
+                    </ErrorBoundary>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/home"
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary fallback={<ErrorFallback errorName="Home" />}>
+                      <Layout>
+                        <Home />
+                      </Layout>
+                    </ErrorBoundary>
                   </ProtectedRoute>
                 }
               />
               <Route
+                path="/signup"
+                element={<ErrorBoundary fallback={<ErrorFallback errorName="Signup" />}>
+                    <Signup />
+                  </ErrorBoundary>
+                } />
+              <Route path="/reset-password/:token" element={<Login />} />
+                <Route path="/sign/:letter" element = {<SignLearn />} />
+                <Route path="/quiz" element={<SignQuiz />} />
+                <Route
+                  path="/userProfile"
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary fallback={<ErrorFallback errorName="userProfile" />}>
+                      <Layout>
+                        <UserProfile />
+                      </Layout>
+                    </ErrorBoundary>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/translator"
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary fallback={<ErrorFallback errorName="Translator" />}>
+                      <Layout>
+                        <Translator />
+                      </Layout>
+                    </ErrorBoundary>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/learn"
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary fallback={<ErrorFallback errorName="Learn" />}>
+                      <Layout>
+                        <Learn />
+                      </Layout>
+                    </ErrorBoundary>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/home"
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary fallback={<ErrorFallback errorName="Home" />}>
+                      <Layout>
+                        <Home />
+                      </Layout>
+                    </ErrorBoundary>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/help"
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary fallback={<ErrorFallback errorName="Help" />}>
+                      <Layout>
+                        <HelpMenu />
+                      </Layout>
+                    </ErrorBoundary>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/signLearn"
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary fallback={<ErrorFallback errorName="Help" />}>
+                      <Layout>
+                        <SignLearn />
+                      </Layout>
+                    </ErrorBoundary>
+
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                 path="/game"
                 element={
                   <ProtectedRoute>
@@ -256,19 +258,20 @@ function App() {
                 }
               />
               {/* <Route
-                path="/game"
-                element={
-                  <ProtectedRoute>
-                    <ErrorBoundary fallback={<ErrorFallback errorName="Help" />}>
-                      <Game />
-                    </ErrorBoundary>
-                  </ProtectedRoute>
-                }
-              >
+                  path="/game"
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary fallback={<ErrorFallback errorName="Help" />}>
+                        <Game />
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  }
+                >
                 <Route path="guide" element={<GameGuide />} />
               </Route> */}
-              <Route path="*" element={<Navigate to="/login" />} />
-            </Routes>
+                <Route path="*" element={<Navigate to="/login" />} />
+              </Routes>
+            </DexterityProvider>
           </ModelSwitchProvider>
         </LearningStatsProvider>
       </AuthProvider>

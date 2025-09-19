@@ -10,7 +10,7 @@
 tests/coverage/
 
 #python cache
-**/pycache/
+**/__pycache__/
 backend/api/tfjs_env
 
 #model files
