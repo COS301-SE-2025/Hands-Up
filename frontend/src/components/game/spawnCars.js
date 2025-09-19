@@ -13,7 +13,7 @@ const carModels = [
   'bmw m4.glb',
   'bus.glb',
   'jeep.glb', 
-  // 'taxi.glb',
+  'taxi.glb',
   'vw golf gti.glb',
 ];
 
@@ -36,7 +36,7 @@ export function VehicleSpawner({ onCollision, speed }) {
 
       // spawn new vehicle
       const now = state.clock.elapsedTime;
-      if (now - lastSpawnTime.current > 1 && Math.random() < 0.02) {
+      if (now - lastSpawnTime.current > 1 && Math.random() < 0.2) {
         const lane = lanes[Math.floor(Math.random() * lanes.length)];
         const modelIndex = Math.floor(Math.random() * scenes.length);
         

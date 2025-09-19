@@ -1,11 +1,12 @@
 /* eslint-disable react/no-unknown-property */
-import React,  { useEffect, useState, Suspense } from 'react';
+import React,  { useEffect, useState, useRef, Suspense } from 'react';
 import { Canvas} from '@react-three/fiber';
 import { Loader } from '@react-three/drei';
 
 import { RunnerPosProvider } from '../contexts/game/runnerPosition';
 import { VehicleSpawner } from '../components/game/spawnCars';
 import { CoinSpawner } from '../components/game/letterCoins';
+import { CameraInput } from '../components/game/cameraInput';
 import CameraPOV from '../components/game/cameraPOV';
 import Road from '../components/game/road';
 import Runner from '../components/game/runner';
@@ -40,7 +41,48 @@ export function Game() {
     const [letterIndex, setLetterIndex] = useState(0);
     const [wordsCollected, setWordsCollected] = useState(0);
 
+    const [showCamera, setShowCamera] = useState(false);
+    const [progress, setProgress] = useState(0);
+    const [userInput, setUserInput] = useState(true);
+    const [inputIndex, setInputIndex] = useState(1);
+
+    useEffect(() => {
+      if (!gameStarted) return;
+
+      let intervalTimer;
+      let timeoutTimer;
+
+      if (userInput && letterIndex === inputIndex) {
+        setShowCamera(true);
+        setProgress(0);
+
+        const duration = 20000; 
+        const interval = 100; 
+        let elapsed = 0;
+
+        intervalTimer = setInterval(() => {
+          elapsed += interval;
+          setProgress(Math.min((elapsed / duration) * 100, 100));
+        }, interval);
+
+        timeoutTimer = setTimeout(() => {
+          setShowCamera(false);
+          setUserInput(false);
+          clearInterval(intervalTimer);
+        }, duration);
+      }
+
+      return () => {
+        clearInterval(intervalTimer);
+        clearTimeout(timeoutTimer);
+      };
+    }, [letterIndex, inputIndex, userInput, gameStarted]);
+
+    const pickedNewWord = useRef(false);
     function pickNewWord() {
+      if (pickedNewWord.current) return;
+      pickedNewWord.current = true;
+
       let remainingWords = wordList.filter(w => !usedWords.has(w));
       if (remainingWords.length === 0) {
         setUsedWords(new Set());
@@ -52,7 +94,23 @@ export function Game() {
       setLetterIndex(0);
       setWordsCollected(w => w + 1);
       setUsedWords(prev => new Set(prev).add(newWord));
-      // console.log("Remaining words:", remainingWords.filter(w => w !== newWord));
+
+      const shouldShowCamera = Math.random() < 0.5;
+      setUserInput(shouldShowCamera);
+      if (shouldShowCamera) {
+        let idx;
+        do {
+          idx = Math.floor(Math.random() * newWord.length);
+        } while (newWord[idx] === ' ');
+        setInputIndex(idx);
+        console.log("New word:", newWord, " Camera?", shouldShowCamera, " At index:", idx);    
+      } 
+      else {
+        setInputIndex(-1); 
+        console.log("New word:", newWord, " Camera?", shouldShowCamera);    
+      }
+
+      setTimeout(() => pickedNewWord.current = false, 1000);
     }
 
     const handleCollision = () => {
@@ -84,6 +142,9 @@ export function Game() {
       const initialWord = wordList[Math.floor(Math.random() * wordList.length)];
       setCurrentWord(initialWord);
       setUsedWords(new Set([initialWord]));
+      setShowCamera(false); 
+      setUserInput(false);
+      setInputIndex(-1);
     };
 
     // increase distance travelled
@@ -153,6 +214,35 @@ export function Game() {
             </svg>
           </div>
           
+          {showCamera && (
+            <CameraInput 
+              progress={progress} 
+              show={showCamera} 
+              onSkip={() => {setShowCamera(false); handleCollision(); }} 
+              onLetterDetected={(letter) => {
+                const targetLetter = currentWord[letterIndex].toUpperCase();
+
+                if (letter === targetLetter) {
+                  // correct letter 
+                  setLetterIndex(idx => {
+                    let nextIndex = idx + 1;
+                    while (currentWord[nextIndex] === ' ') nextIndex++;
+
+                    if (nextIndex >= currentWord.length) {
+                      pickNewWord();
+                      return 0;
+                    }
+                    return nextIndex;
+                  });
+                  setShowCamera(false);
+                } 
+                else {
+                  handleCollision();
+                }
+              }}    
+            /> 
+          )}
+
           <RunnerPosProvider>
             <Canvas>
               <CameraPOV />
@@ -162,7 +252,7 @@ export function Game() {
 
                 <Road />
                 <Runner gameStarted={gameStarted}/>
-                {!gamePaused && !gameStopped && (
+                {!gamePaused && !gameStopped && !showCamera && (
                   <>
                     <VehicleSpawner onCollision={handleCollision} speed={carSpeed} />
                     <CoinSpawner onWrongLetter={handleCollision} currentWord={currentWord} letterIndex={letterIndex} setLetterIndex={setLetterIndex} pickNewWord={pickNewWord}/>
@@ -175,10 +265,10 @@ export function Game() {
         </div>
         <Loader />
 
-        {!gameStarted && !gameOver && !gamePaused && !gameStopped && <StartScreen onStart={() => setGameStarted(true)} />}
+        {!gameStarted && !gameOver && !gamePaused && !gameStopped && !showCamera && <StartScreen onStart={() => setGameStarted(true)} />}
         {!gameStarted && gameOver && <GameOverScreen distance={distance} wordsCollected={wordsCollected} onReplay={handleReplay}/>}
-        {!gameStarted && gamePaused && <PauseScreen onResume={() => {setGameStarted(true); setGamePaused(false);}} />}
-        {!gameStarted && gameStopped && <StopScreen onResume={() => {setGameStarted(true); setGameStopped(false);}} onQuit={() => { setGameStopped(false); setGameOver(true);}} />}
+        {!gameStarted && gamePaused && <PauseScreen onResume={() => {setGameStarted(true); setGamePaused(false); setShowCamera(false);}} />}
+        {!gameStarted && gameStopped && <StopScreen onResume={() => {setGameStarted(true); setGameStopped(false); setShowCamera(false);}} onQuit={() => { setGameStopped(false); setGameOver(true);}} />}
 
       </div>
     );
