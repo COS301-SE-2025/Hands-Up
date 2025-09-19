@@ -24,3 +24,46 @@ CREATE TABLE public.learn (
         REFERENCES public.users("userID")
         ON DELETE CASCADE
 );
+
+CREATE TABLE learn_details (
+    "detailID" SERIAL PRIMARY KEY,
+    "userID" INTEGER NOT NULL REFERENCES users("userID") ON DELETE CASCADE,
+    "learnedSigns" TEXT DEFAULT '[]', 
+    "learnedPhrases" TEXT DEFAULT '[]', 
+    "unlockedCategories" TEXT DEFAULT '["alphabets"]', 
+    "placementTestCompleted" BOOLEAN DEFAULT FALSE,
+    "placementResults" TEXT DEFAULT NULL, 
+    "quizzesCompleted" INTEGER DEFAULT 0,
+     "alphabetsQuizCompleted" BOOLEAN DEFAULT FALSE,
+    "numbersQuizCompleted" BOOLEAN DEFAULT FALSE,
+    "introduceQuizCompleted" BOOLEAN DEFAULT FALSE,
+    "coloursQuizCompleted" BOOLEAN DEFAULT FALSE,
+    "familyQuizCompleted" BOOLEAN DEFAULT FALSE,
+    "feelingsQuizCompleted" BOOLEAN DEFAULT FALSE,
+    "actionsQuizCompleted" BOOLEAN DEFAULT FALSE,
+    "questionsQuizCompleted" BOOLEAN DEFAULT FALSE,
+    "timeQuizCompleted" BOOLEAN DEFAULT FALSE,
+    "foodQuizCompleted" BOOLEAN DEFAULT FALSE,
+    "thingsQuizCompleted" BOOLEAN DEFAULT FALSE,
+    "animalsQuizCompleted" BOOLEAN DEFAULT FALSE,
+    "seasonsQuizCompleted" BOOLEAN DEFAULT FALSE,
+    "phrasesQuizCompleted" BOOLEAN DEFAULT FALSE,
+    "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE("userID") 
+);
+
+CREATE INDEX idx_learn_details_user ON learn_details("userID");
+
+CREATE OR REPLACE FUNCTION update_learn_details_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW."updatedAt" = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_update_learn_details_updated_at
+    BEFORE UPDATE ON learn_details
+    FOR EACH ROW
+    EXECUTE FUNCTION update_learn_details_updated_at();
