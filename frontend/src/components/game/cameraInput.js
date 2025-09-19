@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslator } from '../../hooks/translateResults';
-import { processImage } from '../../utils/apiCalls';
+import { processLetters } from '../../utils/apiCalls';
 import PropTypes from 'prop-types';
 
 export function CameraInput({ progress = 0, show = true, onSkip, onLetterDetected }) {
@@ -45,7 +45,7 @@ export function CameraInput({ progress = 0, show = true, onSkip, onLetterDetecte
           formData.append('frames', blob, `frame_${idx}.jpg`);
         });
 
-        const result = await processImage(formData); 
+        const result = await processLetters(formData); 
         console.log("API response:", result);
 
         if (result?.letter) {
