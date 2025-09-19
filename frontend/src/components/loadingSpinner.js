@@ -41,12 +41,12 @@ export default function LoadingSpinner() {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      background: "#FAFAFA", 
+      background: "#F8FFF8", 
       zIndex: 9999,
       flexDirection: 'column',
     }}>
       <div style={{ width: '20vw', height: '20vw', marginBottom: '2vh' }}>
-        <Canvas camera={{ position: [0, 1, 5], fov: 50 }} style={{ width: '100%', height: '100%' }}>
+        <Canvas camera={{ position: [1, 1, 5], fov: 50 }} style={{ width: '100%', height: '100%' }}>
           <ambientLight intensity={10} />
           <Suspense fallback={null}>
             <SpinnerModel />
