@@ -397,10 +397,10 @@ export const loginUser = async (req, res) => {
             email: user.email,
             expires: sessionExpiration
         });
-        console.log("about to execute cookie");
+        console.log("sessionId", sessionId);
         res.cookie('sessionId', sessionId, {
         httpOnly: true,
-        secure: false, 
+        secure: true, 
         sameSite: 'none',
         maxAge: 1000 * 60 * 60 * 24,
         path: '/',
@@ -642,7 +642,7 @@ export const deleteUserAccount = async (req, res) => {
                   res.clearCookie('sessionId',
                   {
                     httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
+                    secure: true,
                     sameSite: 'none',
                     path: '/',});
                     // sessionDeleted = true;
