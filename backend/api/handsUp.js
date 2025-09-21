@@ -23,17 +23,7 @@ app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'a_strong_secret_key_for_sessions',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: true, 
-        httpOnly: true, 
-        maxAge: 24 * 60 * 60 * 1000, 
-        sameSite: 'none', 
-    },
-}));
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
