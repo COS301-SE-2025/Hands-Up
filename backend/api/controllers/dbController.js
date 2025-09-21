@@ -388,23 +388,11 @@ export const loginUser = async (req, res) => {
 
         loginAttempts.delete(email);
         console.log(`[BACKEND - LOGIN] Login successful, login attempts cleared for ${email}`);
+        req.session.userId = user.userID;
+        req.session.username = user.username;
+        req.session.email = user.email;
 
-        const sessionId = crypto.randomBytes(32).toString('hex');
-        const sessionExpiration = Date.now() + (1000 * 60 * 60 * 24); // 24 hours
-        activeSessions.set(sessionId, {
-            userId: user.userID,
-            username: user.username,
-            email: user.email,
-            expires: sessionExpiration
-        });
-
-    res.cookie('sessionId', sessionId, {
-      httpOnly: true,
-      secure: true, 
-      sameSite: 'none',
-      maxAge: 1000 * 60 * 60 * 24,
-      path: '/',
-    });
+        
 
         res.status(200).json({
             success: true,
