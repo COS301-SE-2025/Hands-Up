@@ -1,91 +1,65 @@
-import requests
 import os
-from flask import Blueprint, request, jsonify
+from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi.responses import JSONResponse
+from typing import List
+from dotenv import load_dotenv
+import httpx
 
-# Define the blueprint with the '/sign' URL prefix.
-# This is the "middle block" of your URL.
-api_blueprint = Blueprint('sign', __name__, url_prefix='/sign')
+router = APIRouter(prefix="/handsUPApi/sign")
 
-# Load the base Hugging Face URL from an environment variable
-HUGGINGFACE_BASE_URL = os.environ.get("HUGGINGFACE_BASE_URL")
+load_dotenv()
+HUGGINGFACE_BASE_URL = os.getenv("HUGGINGFACE_BASE_URL")
 
-@api_blueprint.route('/sign/processImage', methods=['POST'])
-def process_image():
-    """
-    Handles the image processing request for letters.
-    Requires a POST request with exactly 20 frames.
-    """
-    print("Entered process_image endpoint")
-    files = request.files.getlist('frames')
-    sequenceNum = 20
-    
-    if len(files) != sequenceNum:
-        return jsonify({'error': f'Exactly {sequenceNum} frames required'}), 400
+async def sendToHF(url: str, frames: List[UploadFile]):
+    files_to_send = [
+        ('frames', (frame.filename, await frame.read(), frame.content_type))
+        for frame in frames
+    ]
 
-    # This is the crucial part: format the files for the FastAPI endpoint
-    # The key 'frames' must match the name in the FastAPI decorator.
-    files_to_send = [('frames', (file.filename, file.stream.read(), file.content_type)) for file in files]
-    
+    async with httpx.AsyncClient(timeout=300) as client:
+        try:
+            response = await client.post(url, files=files_to_send)
+            response.raise_for_status()
+            return response.json()
+        except httpx.RequestError as e:
+            print(f"Request error: {e}")
+            raise HTTPException(status_code=500, detail=str(e))
+        except httpx.HTTPStatusError as e:
+            print(f"HTTP error: {e.response.text}")
+            raise HTTPException(status_code=e.response.status_code, detail=e.response.text)
+
+
+@router.post("/processLetters")
+async def process_letters(frames: List[UploadFile] = File(...)):
+    sequence_num = 20
+    if len(frames) != sequence_num:
+        raise HTTPException(status_code=400, detail=f"Exactly {sequence_num} frames required")
+
     url = f"{HUGGINGFACE_BASE_URL}/detect-letters"
-    print(f"About to send data to Hugging Face model at {url}")
-    
-    try:
-        response = requests.post(url, files=files_to_send, timeout=300)
-        response.raise_for_status()
-        
-        return jsonify(response.json())
-        
-    except requests.exceptions.RequestException as e:
-        status_code = e.response.status_code if e.response is not None else 500
-        # Print the response text for detailed debugging!
-        print("Received error from Hugging Face API:")
-        if e.response is not None:
-            print(e.response.text)
-        else:
-            print(f"No response object: {e}")
-        
-        return jsonify({
-            'error': 'Failed to communicate with the AI model backend.',
-            'details': str(e),
-            'status_code': status_code
-        }), status_code
 
-@api_blueprint.route('/sign/processWords', methods=['POST'])
-def process_words():
-    """
-    Handles the image processing request for words.
-    Requires a POST request with exactly 90 frames.
-    """
-    print("Entered process_words endpoint")
-    files = request.files.getlist('frames')
-    sequenceNum = 90
-    
-    if len(files) != sequenceNum:
-        return jsonify({'error': f'Exactly {sequenceNum} frames required'}), 400
+    result = await sendToHF(url, frames)
+    print(f"Received result: {result}")
+    return JSONResponse(content=result)
 
-    # This is the crucial part: format the files for the FastAPI endpoint
-    # The key 'frames' must match the name in the FastAPI decorator.
-    files_to_send = [('frames', (file.filename, file.stream.read(), file.content_type)) for file in files]
-    
+
+@router.post("/processWords")
+async def process_words(frames: List[UploadFile] = File(...)):
+    sequence_num = 90
+    if len(frames) != sequence_num:
+        raise HTTPException(status_code=400, detail=f"Exactly {sequence_num} frames required")
+
     url = f"{HUGGINGFACE_BASE_URL}/detect-words"
-    print(f"About to send data to Hugging Face model at {url}")
-    
-    try:
-        response = requests.post(url, files=files_to_send, timeout=300)
-        response.raise_for_status()
-        
-        return jsonify(response.json())
-    
-    except requests.exceptions.RequestException as e:
-        status_code = e.response.status_code if e.response is not None else 500
-        # Print the response text for detailed debugging!
-        print("Received error from Hugging Face API:")
-        if e.response is not None:
-            print(e.response.text)
-        else:
-            print(f"No response object: {e}")
-        return jsonify({
-            'error': 'Failed to communicate with the AI model backend.',
-            'details': str(e),
-            'status_code': status_code
-        }), status_code
+
+    result = await sendToHF(url, frames)
+    return JSONResponse(content=result)
+
+
+@router.post("/sentence")
+async def sign_sentence(data: dict):
+    gloss_input = data.get("gloss")
+    if not gloss_input:
+        raise HTTPException(status_code=400, detail="No gloss provided")
+
+    from controllers.glossController import translateGloss
+    translation = translateGloss(gloss_input)
+    return {"translation": translation}

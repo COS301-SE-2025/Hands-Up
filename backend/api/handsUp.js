@@ -4,6 +4,7 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import apiRoutes from './routes/apiRoutes.js';
+import curriculumRoutes from './routes/curriculumRoutes.js'
 import dotenv from 'dotenv';
 import path from 'path';
 import { dirname } from 'path';
@@ -54,6 +55,7 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/handsUPApi', apiRoutes);
+app.use('/handsUPApi/curriculum', curriculumRoutes); 
 
 const PORT = process.env.PORT || 10000;
 

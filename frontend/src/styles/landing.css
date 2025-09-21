@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Lexend&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playpen+Sans&display=swap');
 
 html, body {
   width: 100%;
@@ -14,7 +15,7 @@ html, body {
 }
 
 .landing-container {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   animation: fadeIn 1s ease-in;
   position: relative;
   min-height: 100%;
@@ -25,6 +26,7 @@ html, body {
   overflow: hidden;
 }
 
+/* Header styles matching the layout header */
 .landing-header {
   position: fixed;
   z-index: 100;
@@ -36,89 +38,109 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1rem;
+  padding: 1rem 2rem; /* Wider padding for consistency */
 }
 
 .landing-header-left {
   display: flex;
   align-items: center;
-  gap: 0; 
-  font-family: 'Lexend', sans-serif;
-  font-size: 0.8rem;
+  gap: 0.5rem; /* Standard gap for spacing */
+  font-family: 'Playpen Sans', cursive; /* Playpen Sans for the title */
   color: black;
 }
 
 .landing-logo {
-  width: 60px; 
+  width: 60px;
   height: auto;
   z-index: 100;
-  transition: transform 0.3s ease; 
+  transition: transform 0.3s ease;
 }
 
 .landing-logo:hover {
   transform: rotate(10deg);
 }
 
+/* Updated h1 styles to match the layout's site title */
+.landing-header-left h1 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.05rem;
+  font-family: 'Playpen Sans', cursive;
+  color: black;
+  margin: 0;
+}
+
+/* Navigation links */
 .landing-nav-center {
   display: flex;
-  gap: 1rem;
+  gap: 0.8rem; /* Standard gap for nav links */
   margin-top: auto;
-  margin-right: 1rem;
+  margin-right: 0;
 }
 
 .landing-nav-link {
   text-decoration: none;
   color: #333;
   font-weight: 500;
-  transition: all 0.3s ease; 
+  transition: all 0.3s ease;
   font-size: 1rem;
-  padding: 0.4rem 0.8rem;   
-  border-radius: 0.5rem;   
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.5rem;
+  position: relative;
 }
 
 .landing-nav-link:hover {
-  background-color: #ffe44d; 
-  border-radius: 0.5rem;                
+  background-color: #7ED957; /* Layout's hover color */
+  border-radius: 0.5rem;
+  transform: none;
 }
 
+/* Header buttons matching the layout's logout button */
 .landing-header-right {
   display: flex;
-  gap: 1rem;
+  gap: 0.8rem;
 }
 
 .nav-button {
-  padding: 0.5rem 1rem;       
-  font-size: 1rem;         
-  border: none;
+  background-color: #7ed957a5;
+  color: black;
+  padding: 0.6rem 1.2rem;
+  border: 1.5px solid #58983D;
+  box-shadow: 0 4px #58983D;
   border-radius: 0.5rem;
-  background-color: #7ED957;  
-  color: white;
-  box-shadow: 0 4px #7ED957;  
   cursor: pointer;
   transition: all 0.15s ease-in-out;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
 }
 
 .nav-button:hover {
-  box-shadow: 0 2px #7ED957;
+  box-shadow: 0 2px #3a5d3d;
   transform: translateY(2px);
+  background-color: rgba(78, 122, 81, 0.2);
 }
 
 .nav-button:active {
-  box-shadow: 0 0 #7ED957;
+  box-shadow: 0 0 #58983D;
   transform: translateY(4px);
 }
 
+/* Specific button styles matching the layout's logout button */
 .nav-button.login {
   background-color: transparent;
   color: black;
   border: 1.5px solid #7ED957;
   box-shadow: 0 4px #58983D;
+  padding: 0.6rem 1.2rem;
 }
 
 .nav-button.login:hover {
-  background-color: rgba(78, 122, 81, 0.1);
+  background-color: #7ed957a5;
   box-shadow: 0 2px #3a5d3d;
+  transform: translateY(2px);
 }
 
 .nav-button.signup {

@@ -18,7 +18,7 @@ describe('User Profile Page tests', () => {
 
       cy.get('button[type="submit"]').click();
 
-      cy.contains('h1', 'Welcome back').should('be.visible');
+      cy.contains('h1', 'Welcome to Hands UP!').should('be.visible');
 
       cy.visit('http://localhost:3000/userProfile');
       cy.contains('button', 'Edit Profile').should('be.visible');

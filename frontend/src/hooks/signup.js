@@ -62,7 +62,6 @@ export function useSignup() {
 
         try {
             const data = await signup({ name, surname, username, email, password });
-            console.log(data);
             localStorage.setItem('isLoggedIn', 'true');
             localStorage.setItem('userData', JSON.stringify(data.user));
             setSuccessMessage(`Signup successful! Welcome ${data.user.username}`);

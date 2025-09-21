@@ -22,53 +22,58 @@ export const handleApiResponse = async (response) => {
     return data;
 };
 
-// export const translateSequence = async (blobs) => {
 
-//     const formData = new FormData();
-//     blobs.forEach((blob, i) => {
-//         formData.append('frames', blob, `frame${i}.jpg`);
-//     });
+export const translateSequence = async (blobs) => {
+    
 
-//     try {
-//         const response = await fetch('http://127.0.0.1:5000/handsUPApi/sign/processFrames', {
-//             method: 'POST',
-//             body: formData,
-//         });
+    const formData = new FormData();
+    blobs.forEach((blob, i) => {
+        const filename = `frame${i}.jpg`;
+        formData.append('frames', blob, filename);
+        
+    });
 
-//         if (!response.ok) {
-//             const errorBody = await response.text();
-//             let errorMessage = `HTTP error! Status: ${response.status}`;
-//             try {
-//                 const errorJson = JSON.parse(errorBody);
-//                 errorMessage = errorJson.message || errorJson.error || errorMessage;
-//             } catch (e) {
-//                 console.log(e);
-//                 errorMessage = `${errorMessage} - ${errorBody}`;
-//             }
-//             throw new Error(`Failed to process frames: ${errorMessage}`);
-//         }
+    try {
+        const response = await fetch(`${TRANSLATE_API_ROUTE}/processFrames`, {
+            method: 'POST',
+            body: formData,
+        });
 
-//         const data = await response.json();
-//         console.log("Prediction result:", data);
-//         return data;
-//     } catch (err) {
-//         console.error("Error during fetch or response processing:", err);
-//         throw err;
-//     }
-// };
+        if (!response.ok) {
+            const errorBody = await response.text();
+            let errorMessage = `HTTP error! Status: ${response.status}`;
+            try {
+                const errorJson = JSON.parse(errorBody);
+                errorMessage = errorJson.message || errorJson.error || errorMessage;
+            } catch (e) {
+                // console.log('Failed to parse error JSON:', e);
+                errorMessage = `${errorMessage} - ${errorBody}. Another error ocurred: ${e}`;
+                
+            }
+            throw new Error(`Failed to process frames: ${errorMessage}`);
+        }
 
-// Fixed processImage function
-export const processImage = async (formData) => {
-  console.log("Processing captured image...");
-    console.log("form_data ",formData);
+        const data = await response.json();
+        
+        return data;
+    } catch (err) {
+        console.error("Error during fetch or response processing:", err);
+        throw err;
+    }
+};
+
+
+export const processLetters = async (formData) => {
+//   console.log("Processing captured image...");
+
   try {
-    const response = await fetch('https://handup-service.onrender.com/handsUPApi/sign/processImage', {
+    const response = await fetch(`${TRANSLATE_API_ROUTE}/processLetters`, {
       method: 'POST',
       body: formData
     });
     console.log(response);
     const data = await response.json();
-    console.log("Response:", data);
+    // console.log(data);
     return (data);
 
   } catch (error) {
@@ -78,16 +83,16 @@ export const processImage = async (formData) => {
 };
 
 export const processWords = async (formData) => {
-  console.log("Processing captured image...");
+  
 
   try {
-    const response = await fetch('https://handup-service.onrender.com/handsUPApi/sign/processWords', {
+    const response = await fetch(`${TRANSLATE_API_ROUTE}/processWords`, {
       method: 'POST',
       body: formData
     });
 
     const data = await response.json();
-    console.log("Response:", data);
+    
     return (data);
 
   } catch (error){
@@ -96,14 +101,13 @@ export const processWords = async (formData) => {
   }
 };
 
-// Fixed uploadUserAvatar function
+
 export const uploadUserAvatar = async (userID, formData) => {
     try {
-        console.log('Uploading avatar for user:', userID);
-        console.log('FormData entries:');
-        for (let [key, value] of formData.entries()) {
-            console.log(`${key}:`, value instanceof File ? `File: ${value.name} (${value.size} bytes)` : value);
-        }
+        
+        // for (let [key, value] of formData.entries()) {
+        //     console.log(`${key}:`, value instanceof File ? `File: ${value.name} (${value.size} bytes)` : value);
+        // }
 
         const response = await fetch(`${API_BASE_URL_USER}/${userID}/avatar`, {
             method: 'PUT',
@@ -118,7 +122,21 @@ export const uploadUserAvatar = async (userID, formData) => {
     }
 };
 
-// Rest of your existing functions remain the same...
+export const deleteUserAvatar = async (userID) => {
+    
+    try {
+        const response = await fetch(`${API_BASE_URL_USER}/${userID}/avatar`, {
+            method: 'DELETE',
+            credentials: 'include',
+        });
+        return handleApiResponse(response);
+    } catch (error) {
+        console.error("Error in deleteUserAvatar:", error);
+        throw error;
+    }
+};
+
+
 export const getLearningProgress = async (username) => {
     try {
         const response = await fetch(`${API_BASE_URL_LEARNING}/progress/${username}`, {
@@ -133,8 +151,83 @@ export const getLearningProgress = async (username) => {
     }
 };
 
+export const updateLearningProgress = async (username, progressData) => {
+    try {
+        const response = await fetch(`${API_BASE_URL_LEARNING}/progress/${username}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(progressData),
+            credentials: 'include',
+        });
+        return handleApiResponse(response);
+    } catch (error) {
+        console.error("Error updating progress", error);
+        throw error;
+    }
+};
 
-
+export const login = async (credentials) => {
+    try {
+        const response = await fetch(`${API_BASE_URL_AUTH}/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(credentials),
+            credentials: 'include',
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            const error = new Error(data.error || 'Login failed');
+            
+            error.type = 'LOGIN_ERROR';
+            error.persistent = true; 
+            
+            if (data.attemptsLeft !== undefined) {
+                error.attemptsLeft = data.attemptsLeft;
+                error.showAttemptsLeft = true;
+            }
+            
+            if (data.locked !== undefined) {
+                error.locked = data.locked;
+                error.severity = 'high';
+            }
+            
+            if (data.timeLeft !== undefined) {
+                error.timeLeft = data.timeLeft;
+                error.showTimeLeft = true;
+            }
+            
+            if (data.error?.toLowerCase().includes('password')) {
+                error.field = 'password';
+            } else if (data.error?.toLowerCase().includes('username') || 
+                       data.error?.toLowerCase().includes('email')) {
+                error.field = 'username';
+            }
+            
+            throw error;
+        }
+        
+        return data;
+    } catch (error) {
+        console.error('Login error:', error);
+        
+        if (error.type === 'LOGIN_ERROR') {
+            throw error;
+        }
+        
+        const networkError = new Error(error.message || 'Network error occurred');
+        networkError.type = 'NETWORK_ERROR';
+        networkError.persistent = true;
+        networkError.severity = 'medium';
+        
+        throw networkError;
+    }
+};
 
 export const signup = async ({ name, surname, username, email, password }) => {
     try {
@@ -154,36 +247,17 @@ export const signup = async ({ name, surname, username, email, password }) => {
         });
         return handleApiResponse(response);
     } catch (error) {
-        console.error("[API_CALLS - resetPassword] Network or unexpected error:", error);
-        throw error;
-    }
-};
-
-export const confirmPasswordReset = async (email, token, newPassword,confirmNewPassword ) => {
-    const response = await fetch(`${API_BASE_URL}/auth/confirm-reset-password`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, token, newPassword,confirmationPassword: confirmNewPassword }),
-    });
-    return handleApiResponse(response);
-};
-
-export const login = async (credentials) => {
-    try {
-        const response = await fetch(`${API_BASE_URL_AUTH}/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(credentials),
-            credentials: 'include',
-        });
-        return handleApiResponse(response);
-    } catch (error) {
-        console.error('Login error:', error);
-        throw error;
+        console.error("[API_CALLS - signup] Network or unexpected error:", error);
+        
+        if (error.type === 'SIGNUP_ERROR') {
+            throw error;
+        }
+        
+        const networkError = new Error(error.message || 'Network error occurred');
+        networkError.type = 'NETWORK_ERROR';
+        networkError.persistent = true;
+        
+        throw networkError;
     }
 };
 
@@ -200,8 +274,47 @@ export const logout = async () => {
     }
 };
 
+export const resetPassword = async (email) => {
+    
+    
+    try {
+        const response = await fetch(`${API_BASE_URL_AUTH}/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(credentials),
+            credentials: 'include',
+        });
+        return handleApiResponse(response);
+    } catch (error) {
+        console.error("Error in resetPassword:", error);
+        
+        if (error.type === 'PASSWORD_RESET_ERROR') {
+            throw error;
+        }
+        
+        const networkError = new Error(error.message || 'Network error occurred');
+        networkError.type = 'NETWORK_ERROR';
+        networkError.persistent = true;
+        
+        throw networkError;
+    }
+};
+
+export const confirmPasswordReset = async (email, token, newPassword, confirmNewPassword) => {
+    const response = await fetch(`${API_BASE_URL}/auth/confirm-reset-password`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, token, newPassword, confirmationPassword: confirmNewPassword }),
+    });
+    return handleApiResponse(response);
+};
+
 export const getUserData = async () => {
-    console.log("apiCalls - getUserData: Attempting to fetch current user data...");
+    
     try {
         const response = await fetch(`${API_BASE_URL_USER}/me`, {
             method: 'GET',
@@ -299,6 +412,187 @@ export const deleteUserAccount = async (userID) => {
         return handleApiResponse(response);
     } catch (error) {
         console.error("Error deleting user account:", error);
+        throw error;
+    }
+};
+
+export const produceSentence = async (glossToConvert) => {
+//   console.log("Converting sentence...");
+
+  try {
+    const response = await fetch(`${TRANSLATE_API_ROUTE}/sentence`, {
+      method: 'POST',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({'gloss': glossToConvert})
+    });
+
+    const data = await response.json();
+    // console.log("Response:", data);
+    return (data);
+
+  } catch (error) {
+    console.error(error);
+    return ('Error converting gloss');
+  }
+};
+
+export const createPersistentError = (message, type = 'GENERAL_ERROR', options = {}) => {
+    const error = new Error(message);
+    error.type = type;
+    error.persistent = true;
+    error.timestamp = Date.now();
+    
+    Object.assign(error, options);
+    
+    return error;
+};
+
+export const formatErrorForDisplay = (error) => {
+    if (!error) return null;
+    
+    let displayMessage = error.message;
+    if (error.showAttemptsLeft && error.attemptsLeft !== undefined) {
+        displayMessage += ` (${error.attemptsLeft} attempts remaining)`;
+    }
+    
+    if (error.locked) {
+        displayMessage += ` Account locked.`;
+    }
+    
+    if (error.showTimeLeft && error.timeLeft !== undefined) {
+        displayMessage += ` Try again in ${error.timeLeft} minutes.`;
+    }
+    
+    return {
+        message: displayMessage,
+        type: error.type,
+        severity: error.severity || 'medium',
+        field: error.field,
+        persistent: error.persistent || false,
+        timestamp: error.timestamp
+    };
+};
+
+/**
+ * UPDATED: Get landmarks data from the backend using the correct endpoint
+ * @param {string} landmarkName - Required: specific landmark file name (A, my, drinkWater, etc.)
+ * @returns {Promise<Object>} - Landmarks data
+ */
+export const getLandmarks = async (landmarkName) => {
+    try {
+        if (!landmarkName) {
+            throw new Error('Landmark name is required');
+        }
+
+       const url = `${API_BASE_URL}/curriculum/landmarks/${encodeURIComponent(landmarkName)}`;
+        console.log('Fetching landmarks from:', url);
+
+        const response = await fetch(url, {
+            method: 'GET',
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            let errorData;
+            try {
+                errorData = JSON.parse(errorText);
+            } catch {
+                errorData = { error: errorText };
+            }
+            
+            console.error('Error fetching landmarks:', errorData);
+            throw new Error(errorData.message || errorData.error || `HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.message || 'Failed to fetch landmarks');
+        }
+        
+        console.log('Successfully fetched landmarks:', {
+            letter: data.letter,
+            filename: data.filename,
+            count: data.count,
+            directory: data.directory
+        });
+        
+        return data.landmarks || data;
+    } catch (error) {
+        console.error('Error in getLandmarks:', error);
+        throw error;
+    }
+};
+
+/**
+ * Test curriculum API health
+ * @returns {Promise<Object>}
+ */
+export const testCurriculumHealth = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/curriculum/health`, {
+            method: 'GET',
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            throw new Error(`Health check failed: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('Curriculum health check:', data);
+        return data;
+    } catch (error) {
+        console.error('Curriculum health check failed:', error);
+        throw error;
+    }
+};
+
+/**
+ * Get list of all available landmarks
+ * @returns {Promise<Object>}
+ */
+export const getAvailableLandmarks = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/curriculum/landmarks`, {
+            method: 'GET',
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch landmarks list: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('Available landmarks:', data);
+        return data;
+    } catch (error) {
+        console.error('Error fetching available landmarks:', error);
+        throw error;
+    }
+};
+
+/**
+ * Get curriculum structure
+ * @returns {Promise<Object>} 
+ */
+export const getCurriculumStructure = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/curriculum/structure`, {
+            method: 'GET',
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch curriculum structure: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('Curriculum structure:', data);
+        return data;
+    } catch (error) {
+        console.error('Error fetching curriculum structure:', error);
         throw error;
     }
 };
