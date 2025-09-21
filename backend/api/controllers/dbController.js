@@ -400,7 +400,7 @@ export const loginUser = async (req, res) => {
 
     res.cookie('sessionId', sessionId, {
       httpOnly: true,
-      secure: true, 
+      secure: false, 
       sameSite: 'none',
       maxAge: 1000 * 60 * 60 * 24,
       path: '/',
