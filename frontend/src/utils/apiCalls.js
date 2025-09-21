@@ -317,13 +317,13 @@ export const confirmPasswordReset = async (email, token, newPassword, confirmNew
 };
 
 export const getUserData = async () => {
-    
+    console.log("entered get user data ");
     try {
         const response = await fetch(`${API_BASE_URL_USER}/me`, {
             method: 'GET',
             credentials: 'include', 
         });
-
+        console.log("response: ",response);
        return handleApiResponse(response);
     } catch (error) {
        console.error('Error fetching logged-in user details (network/unexpected):', error);

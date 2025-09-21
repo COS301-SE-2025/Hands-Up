@@ -96,6 +96,7 @@ export function Login() {
         }
 
         try {
+            console.log("denfing login to api");
             await login({ email, password });
             console.log("im here");
             setError('');
