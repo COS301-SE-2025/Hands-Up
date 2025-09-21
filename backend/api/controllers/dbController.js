@@ -443,6 +443,7 @@ export const logoutUser = async (req, res) => {
 
 
 export const authenticateUser = async (req, res, next) => {
+    console.log('Raw Cookie Header:', req.headers.cookie);
     const sessionId = req.cookies.sessionId;
     console.log("sessionID in authUser", sessionId);
 
