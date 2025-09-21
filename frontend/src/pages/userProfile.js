@@ -11,7 +11,7 @@ import {
     deleteUserAvatar
 } from '../utils/apiCalls.js';
 
-const BACKEND_BASE_URL = "http://localhost:2000"; 
+const BACKEND_BASE_URL = "https://hands-up.onrender.com"; 
 
 export function UserProfile() {
     const { currentUser, isLoggedIn, loading: authLoading, logout, updateUser } = useAuth();
