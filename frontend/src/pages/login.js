@@ -97,6 +97,7 @@ export function Login() {
 
         try {
             await login({ email, password });
+            console.log("im here");
             setError('');
             setAttemptsLeft(null);
             setIsLockedOut(false);
