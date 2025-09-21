@@ -172,6 +172,7 @@ export const updateLearningProgress = async (username, progressData) => {
 
 export const login = async (credentials) => {
     try {
+        console.log('[FRONTEND] Sending login request with credentials:', credentials);
         const response = await fetch(`${API_BASE_URL_AUTH}/login`, {
             method: 'POST',
             headers: {
@@ -213,7 +214,7 @@ export const login = async (credentials) => {
             
             throw error;
         }
-        
+        console.log("data:",data);
         return data;
     } catch (error) {
         console.error('Login error:', error);
