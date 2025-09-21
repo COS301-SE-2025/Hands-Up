@@ -397,15 +397,15 @@ export const loginUser = async (req, res) => {
             email: user.email,
             expires: sessionExpiration
         });
-
-    res.cookie('sessionId', sessionId, {
-      httpOnly: true,
-      secure: false, 
-      sameSite: 'none',
-      maxAge: 1000 * 60 * 60 * 24,
-      path: '/',
-    });
-
+        console.log("about to execute cookie");
+        res.cookie('sessionId', sessionId, {
+        httpOnly: true,
+        secure: false, 
+        sameSite: 'none',
+        maxAge: 1000 * 60 * 60 * 24,
+        path: '/',
+        });
+        console.log("executed query");
         res.status(200).json({
             success: true,
             user: {
