@@ -43,37 +43,38 @@ self.addEventListener('activate', (event) => {
 
 // The `fetch` event intercepts every network request made by the page.
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // If the request is in the cache, return the cached version.
-        if (response) {
-          return response;
-        }
-
-        // If not, fetch the resource from the network.
-        const fetchRequest = event.request.clone();
-        return fetch(fetchRequest)
-          .then((fetchResponse) => {
-            // Check if we received a valid response.
-            if (!fetchResponse || fetchResponse.status !== 200 || fetchResponse.type !== 'basic') {
-              return fetchResponse;
-            }
-
-            // If the response is valid, clone it to put it in the cache.
-            const responseToCache = fetchResponse.clone();
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-            return fetchResponse;
-          })
-          .catch(() => {
-            // This is a fallback for when the network is unavailable.
-            if (event.request.mode === 'navigate') {
-              return caches.match('/index.html');
-            }
-          });
-      })
-  );
+    // Check if the request is for your API
+    if (event.request.url.includes('handsUPApi')) {
+        // Bypass the cache and go directly to the network
+        event.respondWith(fetch(event.request.clone()));
+        return; // Important: exit the function
+    }
+    
+    // For all other requests, use the cache-first strategy
+    event.respondWith(
+        caches.match(event.request)
+            .then((response) => {
+                if (response) {
+                    return response;
+                }
+                const fetchRequest = event.request.clone();
+                return fetch(fetchRequest)
+                    .then((fetchResponse) => {
+                        if (!fetchResponse || fetchResponse.status !== 200 || fetchResponse.type !== 'basic') {
+                            return fetchResponse;
+                        }
+                        const responseToCache = fetchResponse.clone();
+                        caches.open(CACHE_NAME)
+                            .then((cache) => {
+                                cache.put(event.request, responseToCache);
+                            });
+                        return fetchResponse;
+                    })
+                    .catch(() => {
+                        if (event.request.mode === 'navigate') {
+                            return caches.match('/index.html');
+                        }
+                    });
+            })
+    );
 });
