@@ -388,23 +388,11 @@ export const loginUser = async (req, res) => {
 
         loginAttempts.delete(email);
         console.log(`[BACKEND - LOGIN] Login successful, login attempts cleared for ${email}`);
+        req.session.userId = user.userID;
+        req.session.username = user.username;
+        req.session.email = user.email;
 
-        const sessionId = crypto.randomBytes(32).toString('hex');
-        const sessionExpiration = Date.now() + (1000 * 60 * 60 * 24); // 24 hours
-        activeSessions.set(sessionId, {
-            userId: user.userID,
-            username: user.username,
-            email: user.email,
-            expires: sessionExpiration
-        });
-
-    res.cookie('sessionId', sessionId, {
-      httpOnly: true,
-      secure: true, 
-      sameSite: 'none',
-      maxAge: 1000 * 60 * 60 * 24,
-      path: '/',
-    });
+        
 
         res.status(200).json({
             success: true,
@@ -443,54 +431,42 @@ export const logoutUser = async (req, res) => {
 
 
 export const authenticateUser = async (req, res, next) => {
-    const sessionId = req.cookies.sessionId;
+    // Check if the express-session object has a userId
+    if (req.session && req.session.userId) {
+        try {
+            // Find the user from the database using the session data
+            const userResult = await pool.query(
+                'SELECT "userID", username, name, surname, email, avatarurl FROM users WHERE "userID" = $1',
+                [req.session.userId]
+            );
+            const user = userResult.rows[0];
 
-  try {
-    const sessionData = activeSessions.get(sessionId);
-  
-    if (!sessionData) {
-   res.clearCookie('sessionId', { httpOnly: true, secure: true, sameSite: 'none', path: '/' });
-      return res.status(401).json({ message: 'Unauthorized: Session invalid or expired.' });
-    }
+            if (!user) {
+                // If user doesn't exist, destroy the session and send 401
+                req.session.destroy();
+                return res.status(401).json({ message: 'Unauthorized: User not found.' });
+            }
 
-    if (Date.now() > sessionData.expires) {
-    activeSessions.delete(sessionId);
-      res.clearCookie('sessionId', { httpOnly: true, secure: true, sameSite: 'none', path: '/' });
-      return res.status(401).json({ message: 'Unauthorized: Session invalid or expired.' });
-    }
-
-        sessionData.expires = Date.now() + (1000 * 60 * 60 * 24); 
-        activeSessions.set(sessionId, sessionData);
-    
-        const userResult = await pool.query(
-            'SELECT "userID", username, name, surname, email, avatarurl FROM users WHERE "userID" = $1',
-            [sessionData.userId]
-        );
-        const user = userResult.rows[0];
-
-    if (!user) {
-     activeSessions.delete(sessionId);
-      res.clearCookie('sessionId', { httpOnly: true, secure: true, sameSite: 'none', path: '/' });
-      return res.status(401).json({ message: 'Unauthorized: User not found.' });
-    }
-
-        req.user = {
-            id: user.userID,
-            username: user.username,
-            email: user.email,
-            name: user.name,
-            surname: user.surname,
-            avatarurl: user.avatarurl,
-           
-        };
-        next();
-
-    } catch (error) {
-        console.error('Error during authentication:', error);
-        res.status(500).json({ message: 'Internal server error during authentication.' });
+            // Attach user data to the request object for other functions to use
+            req.user = {
+                id: user.userID,
+                username: user.username,
+                email: user.email,
+                name: user.name,
+                surname: user.surname,
+                avatarurl: user.avatarurl,
+            };
+            next(); // Proceed to the next middleware (getUserData)
+        } catch (error) {
+            console.error('Error during authentication:', error);
+            res.status(500).json({ message: 'Internal server error during authentication.' });
+        }
+    } else {
+        // No valid session found, so the user is not authenticated
+        console.log('[BACKEND - AUTH] No active session found. Sending 401.');
+        res.status(401).json({ message: 'Unauthorized: No active session.' });
     }
 };
-
 
 export const getUserData = async (req, res) => {
     if (req.user) {
@@ -500,6 +476,7 @@ export const getUserData = async (req, res) => {
             message: 'User data retrieved successfully.'
         });
     } else {
+        // This 'else' block should technically never be reached if authenticateUser works correctly
         console.log('[BACKEND - GET_USER_DATA] User not authenticated for getUserData.');
         res.status(401).json({ error: 'User not authenticated.' });
     }
