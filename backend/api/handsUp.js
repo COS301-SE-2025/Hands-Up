@@ -4,6 +4,7 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import apiRoutes from './routes/apiRoutes.js';
+import curriculumRoutes from './routes/curriculumRoutes.js'
 import dotenv from 'dotenv';
 import http from 'http';
 import path from 'path'; 
@@ -59,6 +60,7 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/handsUPApi', apiRoutes);
+app.use('/handsUPApi/curriculum', curriculumRoutes); 
 
 const httpServer = http.createServer(app);
 

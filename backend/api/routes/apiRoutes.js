@@ -13,7 +13,8 @@ import {
     deleteUserAccount,
     uploadUserAvatar,
     resetPassword,
-    confirmPasswordReset
+    confirmPasswordReset,
+    deleteUserAvatar
 } from '../controllers/dbController.js';
 
 import {
@@ -82,6 +83,7 @@ router.put('/user/:id/details', authenticateUser, updateUserDetails);
 router.put('/user/:id/password', authenticateUser, updateUserPassword);
 
 router.put('/user/:id/avatar', authenticateUser, upload.single('avatar'), uploadUserAvatar);
+router.delete('/user/:id/avatar', authenticateUser, deleteUserAvatar);
 router.delete('/user/:id', authenticateUser, deleteUserAccount);
 
 // Learning Progress Routes

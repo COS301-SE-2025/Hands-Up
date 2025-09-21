@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo} from 'react';
+ 
+import React, { useState,useCallback, useEffect, useMemo} from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/learnSidebar';
 import { CategoryTile } from '../components/learnCategoryTile';
@@ -8,10 +9,30 @@ import { useLearningStats } from '../contexts/learningStatsContext';
 import { AngieSigns } from '../components/angieSigns';
 import { Canvas } from '@react-three/fiber';
 import PropTypes from 'prop-types';
+import PlacementTest from '../components/placementTest';
 
 const landmarks = {};
 
+const CATEGORY_PROGRESSION = [
+    'alphabets',     
+    'numbers',      
+    'introduce',  
+    'colours',   
+    'family',    
+    'feelings', 
+    'actions',    
+    'questions',    
+    'time',       
+    'food',        
+    'things',       
+    'animals',      
+    'seasons',     
+    'phrases',      
+];
+
 const HelpMessage = ({ message, onClose, position }) => {
+    const [webglError, setWebglError] = useState(false);
+
     if (!message) return null;
 
     let positionClasses = '';
@@ -32,18 +53,55 @@ const HelpMessage = ({ message, onClose, position }) => {
            positionClasses = 'top-3 right-4';
     }
 
+    const handleCanvasError = (error) => {
+        console.warn('WebGL Canvas error:', error);
+        setWebglError(true);
+    };
+
+    const checkWebGLSupport = () => {
+        try {
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            return !!gl;
+        } catch {
+            return false;
+        }
+    };
+
+    const hasWebGL = checkWebGLSupport();
+
     return (
        <div className="help-message-backdrop fixed inset-0 bg-black bg-opacity-50 z-[9998] animate-fadeIn">
             <div className={`help-message-overlay fixed z-[9999] p-4 sm:p-6 rounded-2xl shadow-2xl flex flex-col items-center justify-center bg-gradient-to-br from-white to-gray-50 border border-gray-200 ${positionClasses} animate-fadeInScale max-w-[90vw] sm:max-w-md`}>
                 <div className="w-full max-w-[150px] sm:max-w-[200px] h-[150px] sm:h-[200px] rounded-xl bg-white shadow-md mb-4 flex items-center justify-center">
-                    <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
-                        {/* eslint-disable-next-line react/no-unknown-property */}
-                        <ambientLight intensity={5} />
-                        {/* eslint-disable-next-line react/no-unknown-property */}
-                        <group position={[0, -1.1, 0]}>
-                            <AngieSigns landmarks={landmarks} />
-                        </group>
-                   </Canvas>
+                    {hasWebGL && !webglError ? (
+                        <Canvas 
+                            camera={{ position: [0, 0.2, 3], fov: 30 }}
+                            onError={handleCanvasError}
+                            gl={{ 
+                                antialias: false,
+                                powerPreference: "default",
+                                failIfMajorPerformanceCaveat: false 
+                            }}
+                        >
+                            {/* eslint-disable react/no-unknown-property */}
+                            <ambientLight intensity={5} />
+                            {/* eslint-disable react/no-unknown-property */}
+                            <group position={[0, -1.1, 0]}>
+                                <AngieSigns landmarks={landmarks} />
+                            </group>
+                        </Canvas>
+                    ) : (
+                        <div className="flex items-center justify-center w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg">
+                            <div className="text-center">
+                                <div className="text-4xl mb-2">🤟</div>
+                                <div className="text-sm text-gray-600 font-medium">HandsUP</div>
+                                <div className="text-xs text-gray-500 mt-1">
+                                    {!hasWebGL ? 'WebGL not available' : 'Using fallback display'}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 <p className="text-gray-800 text-base sm:text-lg text-center font-medium mb-4 sm:mb-6 leading-relaxed max-w-md px-2">
@@ -67,51 +125,21 @@ HelpMessage.propTypes = {
     position: PropTypes.string
 };
 
-
-const PageTitle = () => {
-    return (
-        <div className="page-title-container mb-6 sm:mb-8 text-center px-4">
-            <div className="title-wrapper relative">
-                <h1 className="page-title text-3xl sm:text-4xl md:text-5xl lg:text-6xl  text -center font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2 sm:mb-3">
-                    Learn with HandsUp
-                </h1>
-                
-            </div>
-            
-             </div>
-    );
-};
-
 const COLORS = [
     'Red', 'Blue', 'Green', 'Yellow', 'Black', 'White', 'Pink', 'Purple',
     'Orange', 'Brown', 'Gold', 'Silver'
 ];
 
 const INTRODUCTION_WORDS = ['hello', 'name', 'my','again', 'goodbye', 'nice', 'meet', 'you', 'this', 'sorry', 'and'];
-
-const FAMILY_MEMBERS = ['brother', 'sister', 'mother','father', 'aunt', 'uncle', 'grandma', 'grandpa', 'child',
-     'siblings','boy','girl',];
-
+const FAMILY_MEMBERS = ['brother', 'sister', 'mother','father', 'aunt', 'uncle', 'grandma', 'grandpa', 'child', 'siblings','boy','girl'];
 const EMOTIONS_FEELINGS = ['happy', 'sad', 'angry','cry', 'sorry', 'like', 'love', 'hate', 'feel'];
-
-const COMMON_ACTIONS = ['drive', 'watch','see', 'sleep', 'walk', 'stand', 'sit', 'give', 'understand', 'go', 'stay',
-    'talk'];
-
+const COMMON_ACTIONS = ['drive', 'watch','see', 'sleep', 'walk', 'stand', 'sit', 'give', 'understand', 'go', 'stay', 'talk'];
 const ASKING_QUESTIONS = ['why', 'tell', 'when', 'who', 'which'];
-
-const TIME_DAYS = [ 'today', 'tomorrow', 'yesterday', 'year',
-    'now', 'future','Oclock', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
-const FOOD_DRINKS = ['water', 'apple', 'drink', 'cereal', 'eggs', 'eat', 'hungry', 'full', 'cup',
-    'popcorn', 'candy', 'soup','drink', 'juice', 'milk', 'pizza'];
-
-const OBJECTS_THINGS = ['shower', 'table', 'lights', 'computer', 'hat', 'chair', 'car',
-    'ambulance', 'window'];
-
+const TIME_DAYS = [ 'today', 'tomorrow', 'yesterday', 'year', 'now', 'future','Oclock', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const FOOD_DRINKS = ['water', 'apple', 'drink', 'cereal', 'eggs', 'eat', 'hungry', 'full', 'cup', 'popcorn', 'candy', 'soup','drink', 'juice', 'milk', 'pizza'];
+const OBJECTS_THINGS = ['shower', 'table', 'lights', 'computer', 'hat', 'chair', 'car', 'ambulance', 'window'];
 const ANIMALS = ['dog', 'cat', 'bird', 'fish', 'horse', 'cow', 'animal'];
-
-const SEASONS_WEATHER = ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 'snow',
-    'wind', 'sunrise', 'hot', 'cold', 'warm', 'cool','weather', 'freeze'];
+const SEASONS_WEATHER = ['spring', 'summer', 'autumn', 'winter', 'sun', 'rain', 'snow', 'wind', 'sunrise', 'hot', 'cold', 'warm', 'cool','weather', 'freeze'];
 
 const COMMON_PHRASES = [
     { id: 'hello_my_name', phrase: 'Hello My Name', words: ['helloMyName'] },
@@ -134,7 +162,8 @@ const COMMON_PHRASES = [
 ];
 
 const CATEGORY_HELP_MESSAGES = {
-    dashboard: "Welcome to the Learn page! Here you can explore different categories of sign language. Click on any unlocked category to start your learning journey.",
+    welcome: "Welcome to HandsUP! Here you'll learn sign language through interactive lessons and quizzes. We'll start with a quick placement test to assess your current knowledge and unlock the right categories for your level. This ensures you get the best learning experience tailored just for you!",
+    dashboard:"Welcome to the Learn page! Here you'll find interactive lessons and quizzes to help you master sign language. Each category builds upon the previous one, so complete quizzes to unlock new content!",
     alphabets: "Welcome to the Alphabet category! Here you'll learn the basic letter signs. You need to learn at least 5 letters before you can attempt the quiz. Click on any letter to start practicing!",
     numbers: "Welcome to Numbers & Counting! Practice signing numbers 1-20. All levels are unlocked - click on any number to learn its sign. Take the quiz when you're ready!",
     colours: "Welcome to Colours! Learn how to sign different colors. Each tile shows the color you'll be learning. All colors are available - click on any color tile to start!",
@@ -152,7 +181,7 @@ const CATEGORY_HELP_MESSAGES = {
 };
 
 export function Learn() {
-    const { stats } = useLearningStats();
+    const { stats, updateStats, markHelpSeen, isLoading } = useLearningStats();
     const [selectedSection, setSelectedSection] = useState('dashboard');
     const [currentCategory, setCurrentCategory] = useState(null);
     const [unlockedLevels] = useState(27); 
@@ -161,34 +190,194 @@ export function Learn() {
     const [showHelpMessage, setShowHelpMessage] = useState(false);
     const [helpMessageContent, setHelpMessageContent] = useState('');
     const [helpMessagePosition, setHelpMessagePosition] = useState('top-right');
+    const [showPlacementTest, setShowPlacementTest] = useState(false);
 
-    const [hasSeenHelp, setHasSeenHelp] = useState(() => {
-        const saved = localStorage.getItem('learnPageHelpSeen');
-        return saved ? JSON.parse(saved) : {};
-    });
+  useEffect(() => {
+        if (stats && !isLoading) {
+            const placementTestCompleted = stats.placementTestCompleted;
+            const hasSeenWelcome = stats.hasSeenCategoryHelp?.welcome;
+            
+            if (!placementTestCompleted) {
+                console.log('Placement test not completed in backend');
+                if (!hasSeenWelcome) {
+                    setTimeout(() => {
+                        showHelp("Welcome to HandsUP! Here you'll learn sign language through interactive lessons and quizzes. We'll start with a quick placement test to assess your current knowledge and unlock the right categories for your level. This ensures you get the best learning experience tailored just for you!", 'center', 'welcome');
+                    }, 500);
+                } else {
+                    setShowPlacementTest(true);
+                }
+            } else {
+                console.log('Placement test already completed in backend');
+                setShowPlacementTest(false);
+            }
+        }
+    }, [stats?.placementTestCompleted, stats?.hasSeenCategoryHelp?.welcome, isLoading,stats]);
+    
+    const handleClosePlacementTest = () => {
+        console.log('=== CLOSING PLACEMENT TEST ===');
+        setShowPlacementTest(false);
+    };
 
-    console.log(stats);
+    const handlePlacementComplete = async (results) => {
+        console.log('Placement test results received:', results);
+        
+        const updatedStats = {
+            ...stats,
+            placementTestCompleted: true,
+            placementResults: results,
+            unlockedCategories: [...new Set([
+                'alphabets', 
+                ...(stats?.unlockedCategories || []),
+                ...results.unlockedCategories
+            ])],
+            startingLevel: results.startingLevel || 'beginner'
+        };
+        
+        console.log('Updating stats with placement results:', updatedStats);
+        
+        updateStats(() => updatedStats);
+        
+        setShowPlacementTest(false);
+
+        setTimeout(() => {
+            showHelp(
+                `Placement test complete! Based on your results, you're starting at ${results.startingLevel} level with ${results.unlockedCategories.length} categories unlocked. Great job!`,
+                'center',
+                'placement_complete'
+            );
+        }, 500);
+    };
+
+    const handlePlacementSkip = async (results) => {
+        console.log('Placement test skipped, results:', results);
+        
+        const updatedStats = {
+            ...stats,
+            placementTestCompleted: true,
+            placementResults: results,
+            unlockedCategories: [...new Set([
+                'alphabets', 
+                ...(stats?.unlockedCategories || []),
+                ...results.unlockedCategories
+            ])],
+            startingLevel: results.startingLevel
+        };
+        
+        console.log('Updated stats after skipping placement test:', updatedStats);
+        updateStats(() => updatedStats);
+        
+        setShowPlacementTest(false);
+
+        setTimeout(() => {
+            showHelp(
+                "Welcome! Since you skipped the placement test, you'll start from the beginning with the Alphabet category. You can always retake the placement test later!",
+                'center',
+                'placement_skipped'
+            );
+        }, 500);
+    };
+
+    const unlockedCategories = useMemo(() => {
+        console.log('=== Computing unlocked categories from backend data ===');
+        console.log('Current stats:', stats);
+        
+        if (!stats) {
+            console.log('No stats available, defaulting to alphabets only');
+            return ['alphabets'];
+        }
+        
+        let finalUnlocked = ['alphabets'];
+        const backendUnlocked = stats.unlockedCategories;
+        if (backendUnlocked && Array.isArray(backendUnlocked) && backendUnlocked.length > 0) {
+            console.log('Found backend unlocked categories:', backendUnlocked);
+            finalUnlocked = [...new Set([...finalUnlocked, ...backendUnlocked])];
+            console.log('After adding backend categories:', finalUnlocked);
+        }
+        
+        for (let i = 0; i < CATEGORY_PROGRESSION.length - 1; i++) {
+            const currentCategory = CATEGORY_PROGRESSION[i];
+            const nextCategory = CATEGORY_PROGRESSION[i + 1];
+            const quizKey = `${currentCategory}QuizCompleted`;
+            
+            if (finalUnlocked.includes(currentCategory) && stats[quizKey]) {
+                if (!finalUnlocked.includes(nextCategory)) {
+                    finalUnlocked.push(nextCategory);
+                    console.log(`Progressive unlock: ${nextCategory} (${currentCategory} quiz completed)`);
+                }
+            }
+        }
+        
+        console.log('=== Final unlocked categories:', finalUnlocked, '===');
+        return finalUnlocked;
+    }, [
+        stats
+    ]);
+
+  const unlockNextCategory = useCallback(async (completedCategory) => {
+    console.log(`Attempting to unlock next category after completing: ${completedCategory}`);
+    
+    const currentIndex = CATEGORY_PROGRESSION.indexOf(completedCategory);
+    if (currentIndex !== -1 && currentIndex < CATEGORY_PROGRESSION.length - 1) {
+        const nextCategory = CATEGORY_PROGRESSION[currentIndex + 1];
+        
+        updateStats(prevStats => {
+            const currentUnlocked = prevStats?.unlockedCategories || ['alphabets'];
+            const quizCompletedKey = `${completedCategory}QuizCompleted`;
+            
+            if (!currentUnlocked.includes(nextCategory)) {
+                const updatedUnlocked = [...currentUnlocked, nextCategory];
+                console.log(`Unlocking category: ${nextCategory}`, updatedUnlocked);
+                
+                return {
+                    ...prevStats,
+                    unlockedCategories: updatedUnlocked,
+                    [quizCompletedKey]: true,
+                    quizzesCompleted: (prevStats?.quizzesCompleted || 0) + 1
+                };
+            } else {
+                return {
+                    ...prevStats,
+                    [quizCompletedKey]: true,
+                    quizzesCompleted: (prevStats?.quizzesCompleted || 0) + 1
+                };
+            }
+        });
+    } else {
+        const quizCompletedKey = `${completedCategory}QuizCompleted`;
+        updateStats(prevStats => ({
+            ...prevStats,
+            [quizCompletedKey]: true,
+            quizzesCompleted: (prevStats?.quizzesCompleted || 0) + 1
+        }));
+    }
+}, [updateStats]); 
+
+    useEffect(() => {
+        const handleQuizCompletion = (event) => {
+            const { category } = event.detail;
+            console.log(`Quiz completion detected for category: ${category}`);
+            unlockNextCategory(category);
+        };
+
+        window.addEventListener('quizCompleted', handleQuizCompletion);
+        return () => window.removeEventListener('quizCompleted', handleQuizCompletion);
+    }, [unlockNextCategory]);
+
     const lessonsCompleted = stats?.lessonsCompleted || 0;
     const signsLearned = stats?.signsLearned || 0;
     const quizzesCompleted = stats?.quizzesCompleted || 0;
 
-    const unlockedCategories =  useMemo(() => {
-        return stats?.unlockedCategories
-        ? [...stats.unlockedCategories, 'numbers', 'colours', 'introduce', 'family', 'feelings', 'actions', 'questions', 'time', 'food', 'things', 'animals', 'seasons', 'phrases']
-        : ['alphabets', 'numbers', 'colours', 'introduce', 'family', 'feelings', 'actions', 'questions', 'time', 'food', 'things', 'animals', 'seasons', 'phrases'];
- }, [stats?.unlockedCategories]);
- 
     const categories = useMemo(() => [
         { id: 'alphabets', name: 'The Alphabet', unlocked: unlockedCategories.includes('alphabets') },
         { id: 'numbers', name: 'Numbers & Counting', unlocked: unlockedCategories.includes('numbers') },
         { id: 'introduce', name: 'Introduce Yourself', unlocked: unlockedCategories.includes('introduce') },
+        { id: 'colours', name: 'Colours', unlocked: unlockedCategories.includes('colours') },
         { id: 'family', name: 'Family Members', unlocked: unlockedCategories.includes('family') },
         { id: 'feelings', name: 'Emotions & Feelings', unlocked: unlockedCategories.includes('feelings') },
         { id: 'actions', name: 'Common Actions', unlocked: unlockedCategories.includes('actions') },
         { id: 'questions', name: 'Asking Questions', unlocked: unlockedCategories.includes('questions') },
         { id: 'time', name: 'Time & Days', unlocked: unlockedCategories.includes('time') },
         { id: 'food', name: 'Food & Drinks', unlocked: unlockedCategories.includes('food') },
-        { id: 'colours', name: 'Colours', unlocked: unlockedCategories.includes('colours') },
         { id: 'things', name: 'Objects & Things', unlocked: unlockedCategories.includes('things') },
         { id: 'animals', name: 'Animals', unlocked: unlockedCategories.includes('animals') },
         { id: 'seasons', name: 'Weather & Seasons', unlocked: unlockedCategories.includes('seasons') },
@@ -219,12 +408,6 @@ export function Learn() {
     const lessonProgress = (calcLessonsCompleted + calcSignsLearned) / (TOTAL_LESSONS + TOTAL_SIGNS_AVAILABLE) * 100;
     const progressPercent = Math.min(100, Math.round(lessonProgress));
 
-    const saveHelpSeen = (helpKey) => {
-        const updated = { ...hasSeenHelp, [helpKey]: true };
-        setHasSeenHelp(updated);
-        localStorage.setItem('learnPageHelpSeen', JSON.stringify(updated));
-    };
-
     useEffect(() => {
         if (location.state?.selectedCategory) {
             const category = categories.find(cat => cat.id === location.state.selectedCategory);
@@ -239,7 +422,7 @@ export function Learn() {
         setCurrentCategory(null);
         setSelectedSection('dashboard');
         
-        if (!hasSeenHelp.dashboard) {
+        if (stats && !stats.hasSeenCategoryHelp?.dashboard) {
             setTimeout(() => {
                 showHelp(CATEGORY_HELP_MESSAGES.dashboard, 'center', 'dashboard');
             }, 300);
@@ -296,16 +479,24 @@ export function Learn() {
     const showHelp = (message, position, helpKey) => {
         setHelpMessageContent(message);
         setHelpMessagePosition(position);
-        setShowHelpMessage(true);
-        
         setShowHelpMessage({ message, position, helpKey });
     };
 
     const handleCloseHelp = () => {
         if (showHelpMessage.helpKey) {
-            saveHelpSeen(showHelpMessage.helpKey);
+           markHelpSeen(showHelpMessage.helpKey);
         }
         setShowHelpMessage(false);
+    };
+
+    const getLockedCategoryMessage = (categoryId) => {
+        const currentIndex = CATEGORY_PROGRESSION.indexOf(categoryId);
+        if (currentIndex <= 0) return "This category should be available. Please try again.";
+        
+        const previousCategory = CATEGORY_PROGRESSION[currentIndex - 1];
+        const previousCategoryName = categories.find(cat => cat.id === previousCategory)?.name || previousCategory;
+        
+        return `Complete the quiz in '${previousCategoryName}' to unlock this category!`;
     };
 
     const handleCategoryClick = (category) => {
@@ -313,27 +504,83 @@ export function Learn() {
             setCurrentCategory(category);
             setShowHelpMessage(false);
             
-            if (!hasSeenHelp[category.id]) {
+            if (stats && !stats.hasSeenCategoryHelp?.[category.id]) {
                 setTimeout(() => {
                     showHelp(CATEGORY_HELP_MESSAGES[category.id], 'center', category.id);
                 }, 300);
             }
         } else {
             showHelp(
-                `The '${category.name}' category is currently locked. Complete the quiz in the previous category to unlock new ones!`,
+                getLockedCategoryMessage(category.id),
                 'center',
                 `locked_${category.id}`
             );
         }
     };
 
-   useEffect(() => {
-        if (!hasSeenHelp.dashboard && selectedSection === 'dashboard' && !currentCategory) {
+    const retakePlacementTest = async () => {
+        console.log('Retaking placement test - resetting backend data');
+        
+        updateStats(prevStats => ({
+            ...prevStats,
+            placementTestCompleted: false,
+            placementResults: null,
+            unlockedCategories: ['alphabets'],
+            alphabetsQuizCompleted: false,
+            numbersQuizCompleted: false,
+            introduceQuizCompleted: false,
+            coloursQuizCompleted: false,
+            familyQuizCompleted: false,
+            feelingsQuizCompleted: false,
+            actionsQuizCompleted: false,
+            questionsQuizCompleted: false,
+            timeQuizCompleted: false,
+            foodQuizCompleted: false,
+            thingsQuizCompleted: false,
+            animalsQuizCompleted: false,
+            seasonsQuizCompleted: false,
+            phrasesQuizCompleted: false,
+            quizzesCompleted: 0
+        }));
+        
+        setShowPlacementTest(true);
+    };
+
+    useEffect(() => {
+        if (stats && 
+            selectedSection === 'dashboard' && 
+            !currentCategory && 
+            !showPlacementTest && 
+            !stats.hasSeenCategoryHelp?.dashboard &&
+            stats.placementTestCompleted) {
             setTimeout(() => {
                 showHelp(CATEGORY_HELP_MESSAGES.dashboard, 'center', 'dashboard');
             }, 500);
         }
-    }, [selectedSection, currentCategory, hasSeenHelp.dashboard]);
+    }, [selectedSection, currentCategory, showPlacementTest, stats?.hasSeenCategoryHelp?.dashboard, stats?.placementTestCompleted,stats]);
+
+    if (isLoading || !stats) {
+        return (
+            <div className="duo-app">
+                <div className="learn-main-content flex items-center justify-center min-h-screen">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                        <p className="text-gray-600">Loading your learning progress...</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (showPlacementTest) {
+        return (
+            <PlacementTest 
+                onComplete={handlePlacementComplete}
+                onSkip={handlePlacementSkip}
+                onClose={handleClosePlacementTest}  
+            />
+        );
+    }
 
     return (
         <div className="duo-app">
@@ -343,12 +590,13 @@ export function Learn() {
                 signsLearned={signsLearned}
                 lessonsCompleted={lessonsCompleted}
                 quizzesCompleted={quizzesCompleted}
+                placementTestCompleted={stats?.placementTestCompleted || false}
+                onRetakePlacementTest={retakePlacementTest}
             />
 
             <div className="learn-main-content relative min-h-screen">
                 {selectedSection === 'dashboard' && !currentCategory && (
                     <div className="dashboard">
-                        <PageTitle />
                         <div className="category-tiles grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 px-4 sm:px-6 lg:px-8">
                             {categories.map(cat => (
                                 <CategoryTile
@@ -525,366 +773,85 @@ export function Learn() {
                                         </div>
                                     </div>
                                 </>
-                            ) : currentCategory.id === 'introduce' ? ( 
-                                <>
-                                    {INTRODUCTION_WORDS.map((word) => (
-                                        <LevelTile
-                                            key={word}
-                                            level={word.charAt(0).toUpperCase() + word.slice(1)} 
-                                            unlocked={true} 
-                                            onClick={() => navigateToSign(word.toLowerCase(), 'introduce')}
-                                        />
-                                    ))}
-                                    <LevelTile
-                                        key={'introduce-quiz'}
-                                        level={'Quiz'}
-                                        unlocked={
-                                            INTRODUCTION_WORDS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))
+                            ) : [
+                                'introduce', 'family', 'feelings', 'actions', 'questions', 
+                                'time', 'food', 'things', 'animals', 'seasons'
+                            ].includes(currentCategory.id) ? (
+                                (() => {
+                                    const getWordsForCategory = (categoryId) => {
+                                        switch (categoryId) {
+                                            case 'introduce': return INTRODUCTION_WORDS;
+                                            case 'family': return FAMILY_MEMBERS;
+                                            case 'feelings': return EMOTIONS_FEELINGS;
+                                            case 'actions': return COMMON_ACTIONS;
+                                            case 'questions': return ASKING_QUESTIONS;
+                                            case 'time': return TIME_DAYS;
+                                            case 'food': return FOOD_DRINKS;
+                                            case 'things': return OBJECTS_THINGS;
+                                            case 'animals': return ANIMALS;
+                                            case 'seasons': return SEASONS_WEATHER;
+                                            default: return [];
                                         }
-                                        onClick={() => {
-                                            if (INTRODUCTION_WORDS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))) {
-                                                navigate(getQuizRoute(currentCategory.id));
-                                            } else {
-                                                showHelp(
-                                                    `You need to learn all words in the 'Introduce Yourself' category to unlock this quiz. Keep practicing!`,
-                                                    'center',
-                                                    'introduce_quiz_locked'
-                                                );
-                                            }
-                                        }}
-                                        style={{
-                                            backgroundColor: INTRODUCTION_WORDS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
-                                            color: INTRODUCTION_WORDS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
-                                            fontWeight: 'bold',
-                                            fontSize: '12px sm:14px'
-                                        }}
-                                    />
-                                </>
-                            ) :  currentCategory.id === 'family' ? ( 
-                                <>
-                                    {FAMILY_MEMBERS.map((word) => (
-                                        <LevelTile
-                                            key={word}
-                                            level={word.charAt(0).toUpperCase() + word.slice(1)} 
-                                            unlocked={true} 
-                                            onClick={() => navigateToSign(word.toLowerCase(), 'family')}
-                                        />
-                                    ))}
-                                    <LevelTile
-                                        key={'family-quiz'}
-                                        level={'Quiz'}
-                                        unlocked={
-                                            FAMILY_MEMBERS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))
-                                        }
-                                        onClick={() => {
-                                            if (FAMILY_MEMBERS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))) {
-                                                navigate(getQuizRoute(currentCategory.id));
-                                            } else {
-                                                showHelp(
-                                                    `You need to learn all words in the 'Family Member' category to unlock this quiz. Keep practicing!`,
-                                                    'center',
-                                                    'family_quiz_locked'
-                                                );
-                                            }
-                                        }}
-                                        style={{
-                                            backgroundColor: FAMILY_MEMBERS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
-                                            color: FAMILY_MEMBERS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
-                                            fontWeight: 'bold',
-                                            fontSize: '12px sm:14px'
-                                        }}
-                                    />
-                                </>
-                            ):
-                            currentCategory.id === 'feelings' ? ( 
-                                <>
-                                    {EMOTIONS_FEELINGS.map((word) => (
-                                        <LevelTile
-                                            key={word}
-                                            level={word.charAt(0).toUpperCase() + word.slice(1)} 
-                                            unlocked={true} 
-                                            onClick={() => navigateToSign(word.toLowerCase(), 'feelings')}
-                                        />
-                                    ))}
-                                    <LevelTile
-                                        key={'feelings-quiz'}
-                                        level={'Quiz'}
-                                        unlocked={
-                                            EMOTIONS_FEELINGS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))
-                                        }
-                                        onClick={() => {
-                                            if (EMOTIONS_FEELINGS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))) {
-                                                navigate(getQuizRoute(currentCategory.id));
-                                            } else {
-                                                showHelp(
-                                                    `You need to learn all words in the 'Emotions and Feelings' category to unlock this quiz. Keep practicing!`,
-                                                    'center',
-                                                    'feelings_quiz_locked'
-                                                );
-                                            }
-                                        }}
-                                        style={{
-                                            backgroundColor: EMOTIONS_FEELINGS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
-                                            color: EMOTIONS_FEELINGS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
-                                            fontWeight: 'bold',
-                                            fontSize: '12px sm:14px'
-                                        }}
-                                    />
-                                </>
-                            ):
-                            currentCategory.id === 'actions' ? ( 
-                                <>
-                                    {COMMON_ACTIONS.map((word) => (
-                                        <LevelTile
-                                            key={word}
-                                            level={word.charAt(0).toUpperCase() + word.slice(1)} 
-                                            unlocked={true} 
-                                            onClick={() => navigateToSign(word.toLowerCase(), 'actions')}
-                                        />
-                                    ))}
-                                    <LevelTile
-                                        key={'actions-quiz'}
-                                        level={'Quiz'}
-                                        unlocked={
-                                            COMMON_ACTIONS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))
-                                        }
-                                        onClick={() => {
-                                            if (COMMON_ACTIONS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))) {
-                                                navigate(getQuizRoute(currentCategory.id));
-                                            } else {
-                                                showHelp(
-                                                    `You need to learn all words in the 'Common Actions' category to unlock this quiz. Keep practicing!`,
-                                                    'center',
-                                                    'actions_quiz_locked'
-                                                );
-                                            }
-                                        }}
-                                        style={{
-                                            backgroundColor: COMMON_ACTIONS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
-                                            color: COMMON_ACTIONS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
-                                            fontWeight: 'bold',
-                                            fontSize: '12px sm:14px'
-                                        }}
-                                    />
-                                </>
-                            ):
-                            currentCategory.id === 'questions' ? ( 
-                                <>
-                                    {ASKING_QUESTIONS.map((word) => (
-                                        <LevelTile
-                                            key={word}
-                                            level={word.charAt(0).toUpperCase() + word.slice(1)} 
-                                            unlocked={true} 
-                                            onClick={() => navigateToSign(word.toLowerCase(), 'questions')}
-                                        />
-                                    ))}
-                                    <LevelTile
-                                        key={'questions-quiz'}
-                                        level={'Quiz'}
-                                        unlocked={
-                                            ASKING_QUESTIONS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))
-                                        }
-                                        onClick={() => {
-                                            if (ASKING_QUESTIONS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))) {
-                                                navigate(getQuizRoute(currentCategory.id));
-                                            } else {
-                                                showHelp(
-                                                    `You need to learn all words in the 'Asking Questions' category to unlock this quiz. Keep practicing!`,
-                                                    'center',
-                                                    'questions_quiz_locked'
-                                                );
-                                            }
-                                        }}
-                                        style={{
-                                            backgroundColor: ASKING_QUESTIONS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
-                                            color: ASKING_QUESTIONS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
-                                            fontWeight: 'bold',
-                                            fontSize: '12px sm:14px'
-                                        }}
-                                    />
-                                </>
-                            ): 
-                            currentCategory.id === 'time' ? ( 
-                                <>
-                                    {TIME_DAYS.map((word) => (
-                                        <LevelTile
-                                            key={word}
-                                            level={word.charAt(0).toUpperCase() + word.slice(1)} 
-                                            unlocked={true} 
-                                            onClick={() => navigateToSign(word.toLowerCase(), 'time')}
-                                        />
-                                    ))}
-                                    <LevelTile
-                                        key={'time-quiz'}
-                                        level={'Quiz'}
-                                        unlocked={
-                                            TIME_DAYS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))
-                                        }
-                                        onClick={() => {
-                                            if (TIME_DAYS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))) {
-                                                navigate(getQuizRoute(currentCategory.id));
-                                            } else {
-                                                showHelp(
-                                                    `You need to learn all words in the 'Time and Days' category to unlock this quiz. Keep practicing!`,
-                                                    'center',
-                                                    'time_quiz_locked'
-                                                );
-                                            }
-                                        }}
-                                        style={{
-                                            backgroundColor: TIME_DAYS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
-                                            color: TIME_DAYS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
-                                            fontWeight: 'bold',
-                                            fontSize: '12px sm:14px'
-                                        }}
-                                    />
-                                </>
-                            ):
-                            currentCategory.id === 'food' ? ( 
-                                <>
-                                    {FOOD_DRINKS.map((word) => (
-                                        <LevelTile
-                                            key={word}
-                                            level={word.charAt(0).toUpperCase() + word.slice(1)} 
-                                            unlocked={true} 
-                                            onClick={() => navigateToSign(word.toLowerCase(), 'food')}
-                                        />
-                                    ))}
-                                    <LevelTile
-                                        key={'food-quiz'}
-                                        level={'Quiz'}
-                                        unlocked={
-                                            FOOD_DRINKS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))
-                                        }
-                                        onClick={() => {
-                                            if (FOOD_DRINKS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))) {
-                                                navigate(getQuizRoute(currentCategory.id));
-                                            } else {
-                                                showHelp(
-                                                    `You need to learn all words in the 'Food and Drinks' category to unlock this quiz. Keep practicing!`,
-                                                    'center',
-                                                    'food_quiz_locked'
-                                                );
-                                            }
-                                        }}
-                                        style={{
-                                            backgroundColor: FOOD_DRINKS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
-                                            color: FOOD_DRINKS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
-                                            fontWeight: 'bold',
-                                            fontSize: '12px sm:14px'
-                                        }}
-                                    />
-                                </>
-                            ):
-                            currentCategory.id === 'things' ? ( 
-                                <>
-                                    {OBJECTS_THINGS.map((word) => (
-                                        <LevelTile
-                                            key={word}
-                                            level={word.charAt(0).toUpperCase() + word.slice(1)} 
-                                            unlocked={true} 
-                                            onClick={() => navigateToSign(word.toLowerCase(), 'things')}
-                                        />
-                                    ))}
-                                    <LevelTile
-                                        key={'things-quiz'}
-                                        level={'Quiz'}
-                                        unlocked={
-                                            OBJECTS_THINGS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))
-                                        }
-                                        onClick={() => {
-                                            if (OBJECTS_THINGS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))) {
-                                                navigate(getQuizRoute(currentCategory.id));
-                                            } else {
-                                                showHelp(
-                                                    `You need to learn all words in the 'Object and Things' category to unlock this quiz. Keep practicing!`,
-                                                    'center',
-                                                    'things_quiz_locked'
-                                                );
-                                            }
-                                        }}
-                                        style={{
-                                            backgroundColor: OBJECTS_THINGS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
-                                            color: OBJECTS_THINGS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
-                                            fontWeight: 'bold',
-                                            fontSize: '12px sm:14px'
-                                        }}
-                                    />
-                                </>
-                            ):
-                            currentCategory.id === 'animals' ? ( 
-                                <>
-                                    {ANIMALS.map((word) => (
-                                        <LevelTile
-                                            key={word}
-                                            level={word.charAt(0).toUpperCase() + word.slice(1)} 
-                                            unlocked={true} 
-                                            onClick={() => navigateToSign(word.toLowerCase(), 'animals')}
-                                        />
-                                    ))}
-                                    <LevelTile
-                                        key={'animals-quiz'}
-                                        level={'Quiz'}
-                                        unlocked={
-                                            ANIMALS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))
-                                        }
-                                        onClick={() => {
-                                            if (ANIMALS.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))) {
-                                                navigate(getQuizRoute(currentCategory.id));
-                                            } else {
-                                                showHelp(
-                                                    `You need to learn all words in the 'Animals' category to unlock this quiz. Keep practicing!`,
-                                                    'center',
-                                                    'animals_quiz_locked'
-                                                );
-                                            }
-                                        }}
-                                        style={{
-                                            backgroundColor: ANIMALS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
-                                            color: ANIMALS.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
-                                            fontWeight: 'bold',
-                                            fontSize: '12px sm:14px'
-                                        }}
-                                    />
-                                </>
-                            ): currentCategory.id === 'seasons' ? ( 
-                                <>
-                                    {SEASONS_WEATHER.map((word) => (
-                                        <LevelTile
-                                            key={word}
-                                            level={word.charAt(0).toUpperCase() + word.slice(1)} 
-                                            unlocked={true} 
-                                            onClick={() => navigateToSign(word.toLowerCase(), 'seasons')}
-                                        />
-                                    ))}
-                                    <LevelTile
-                                        key={'seasons-quiz'}
-                                        level={'Quiz'}
-                                        unlocked={
-                                            SEASONS_WEATHER.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))
-                                        }
-                                        onClick={() => {
-                                            if (SEASONS_WEATHER.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))) {
-                                                navigate(getQuizRoute(currentCategory.id));
-                                            } else {
-                                                showHelp(
-                                                    `You need to learn all words in the 'Seasons and Weather' category to unlock this quiz. Keep practicing!`,
-                                                    'center',
-                                                    'seasons_quiz_locked'
-                                                );
-                                            }
-                                        }}
-                                        style={{
-                                            backgroundColor: SEASONS_WEATHER.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
-                                            color: SEASONS_WEATHER.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
-                                            fontWeight: 'bold',
-                                            fontSize: '12px sm:14px'
-                                        }}
-                                    />
-                                </>
-                            ):
-                            (
-                               
+                                    };
+
+                                    const getCategoryDisplayName = (categoryId) => {
+                                        const names = {
+                                            'introduce': 'Introduce Yourself',
+                                            'family': 'Family Members',
+                                            'feelings': 'Emotions and Feelings',
+                                            'actions': 'Common Actions',
+                                            'questions': 'Asking Questions',
+                                            'time': 'Time and Days',
+                                            'food': 'Food and Drinks',
+                                            'things': 'Objects and Things',
+                                            'animals': 'Animals',
+                                            'seasons': 'Weather and Seasons'
+                                        };
+                                        return names[categoryId] || categoryId;
+                                    };
+
+                                    const words = getWordsForCategory(currentCategory.id);
+                                    const displayName = getCategoryDisplayName(currentCategory.id);
+                                    
+                                    return (
+                                        <>
+                                            {words.map((word) => (
+                                                <LevelTile
+                                                    key={word}
+                                                    level={word.charAt(0).toUpperCase() + word.slice(1)} 
+                                                    unlocked={true} 
+                                                    onClick={() => navigateToSign(word.toLowerCase(), currentCategory.id)}
+                                                />
+                                            ))}
+                                            <LevelTile
+                                                key={`${currentCategory.id}-quiz`}
+                                                level={'Quiz'}
+                                                unlocked={
+                                                    words.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))
+                                                }
+                                                onClick={() => {
+                                                    if (words.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))) {
+                                                        navigate(getQuizRoute(currentCategory.id));
+                                                    } else {
+                                                        showHelp(
+                                                            `You need to learn all words in the '${displayName}' category to unlock this quiz. Keep practicing!`,
+                                                            'center',
+                                                            `${currentCategory.id}_quiz_locked`
+                                                        );
+                                                    }
+                                                }}
+                                                style={{
+                                                    backgroundColor: words.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
+                                                    color: words.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
+                                                    fontWeight: 'bold',
+                                                    fontSize: '12px sm:14px'
+                                                }}
+                                            />
+                                        </>
+                                    );
+                                })()
+                            ) : (
+                              
                                 <>
                                     {[...Array(5)].map((_, index) => (
                                         <LevelTile

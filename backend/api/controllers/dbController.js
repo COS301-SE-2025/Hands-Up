@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 import path from 'path'; 
 import fs from 'fs/promises';
+import { sendRegistrationEmail } from './emailService.js';
 
 const activeSessions = new Map();
 const resetTokens = new Map();
@@ -42,14 +43,63 @@ export const learningProgress = async (req, res) => {
                 [username]
             );
 
+            const detailedResult = await pool.query(
+                `SELECT 
+                    "learnedSigns", 
+                    "learnedPhrases", 
+                    "unlockedCategories", 
+                    "placementTestCompleted", 
+                    "placementResults",
+                    "quizzesCompleted",
+                    "alphabetsQuizCompleted",
+                    "numbersQuizCompleted",
+                    "introduceQuizCompleted",
+                    "coloursQuizCompleted",
+                    "familyQuizCompleted",
+                    "feelingsQuizCompleted",
+                    "actionsQuizCompleted",
+                    "questionsQuizCompleted",
+                    "timeQuizCompleted",
+                    "foodQuizCompleted",
+                    "thingsQuizCompleted",
+                    "animalsQuizCompleted",
+                    "seasonsQuizCompleted",
+                    "phrasesQuizCompleted",
+                    "hasSeenWelcome",
+                    "hasSeenCategoryHelp"
+                 FROM learn_details
+                 JOIN users ON learn_details."userID" = users."userID"
+                 WHERE users.username = $1`,
+                [username]
+            );
+
             if (result.rowCount === 0) {
                 return res.status(200).json({ status: "success", message: 'No learning progress found for this user.', data: [] });
             }
 
+            const basicData = result.rows[0];
+            const detailedData = detailedResult.rows[0] || {};
+            const learnedSigns = detailedData.learnedSigns ? JSON.parse(detailedData.learnedSigns) : [];
+            const learnedPhrases = detailedData.learnedPhrases ? JSON.parse(detailedData.learnedPhrases) : [];
+            const unlockedCategories = detailedData.unlockedCategories ? JSON.parse(detailedData.unlockedCategories) : ['alphabets'];
+            const placementResults = detailedData.placementResults ? JSON.parse(detailedData.placementResults) : null;
+            const hasSeenCategoryHelp = detailedData.hasSeenCategoryHelp ? JSON.parse(detailedData.hasSeenCategoryHelp) : {};
+
+            const mergedData = {
+                ...basicData,
+                ...detailedData,
+                learnedSigns,
+                learnedPhrases,
+                unlockedCategories,
+                placementResults,
+                hasSeenCategoryHelp,
+                signsLearned: learnedSigns.length
+            };
+
             res.status(200).json({
                 status: "success",
                 message: 'Learning progress retrieved successfully',
-                data: result.rows,
+                data: [mergedData],
             });
 
         } catch (err) {
@@ -64,51 +114,145 @@ export const learningProgress = async (req, res) => {
         
         try {
             const progressData = req.body;
-            console.log("Backend received progressData for update:", progressData); // Debugging line
+            console.log("Backend received progressData for update:", progressData);
 
             if (!username || !progressData) {
                 return res.status(400).json({ status: "error", message: 'Username and progress data are required' });
             }
             const {
                 lessonsCompleted = 0,
-                signsLearned = 0,
                 streak = 0,
-                currentLevel = 'Bronze' 
+                currentLevel = 'Bronze',
+                learnedSigns = [],
+                learnedPhrases = [],
+                unlockedCategories = ['alphabets'],
+                placementTestCompleted = false,
+                placementResults = null,
+                quizzesCompleted = 0,
+                alphabetsQuizCompleted = false,
+                numbersQuizCompleted = false,
+                introduceQuizCompleted = false,
+                coloursQuizCompleted = false,
+                familyQuizCompleted = false,
+                feelingsQuizCompleted = false,
+                actionsQuizCompleted = false,
+                questionsQuizCompleted = false,
+                timeQuizCompleted = false,
+                foodQuizCompleted = false,
+                thingsQuizCompleted = false,
+                animalsQuizCompleted = false,
+                seasonsQuizCompleted = false,
+                phrasesQuizCompleted = false,
+                hasSeenWelcome = false,
+                hasSeenCategoryHelp = {}
             } = progressData;
 
-            if (typeof lessonsCompleted !== 'number' || typeof signsLearned !== 'number' || typeof streak !== 'number') {
-                return res.status(400).json({ status: "error", message: 'lessonsCompleted, signsLearned, and streak must be numbers.' });
+            const signsLearned = Array.isArray(learnedSigns) ? learnedSigns.length : 0;
+
+            if (typeof lessonsCompleted !== 'number' || typeof streak !== 'number') {
+                return res.status(400).json({ status: "error", message: 'lessonsCompleted and streak must be numbers.' });
             }
             
-            const result = await pool.query(
+            await pool.query('BEGIN');
+         
+            const basicResult = await pool.query(
                 `UPDATE learn SET
                     "lessonsCompleted" = $1,
                     "signsLearned" = $2,
                     streak = $3,
                     "currentLevel" = $4
                  FROM users
-                 WHERE learn."userID" = users."userID" AND users.username = $5`,
+                 WHERE learn."userID" = users."userID" AND users.username = $5
+                 RETURNING learn."userID"`,
+                [lessonsCompleted, signsLearned, streak, currentLevel, username]
+            );
+
+            if (basicResult.rowCount === 0) {
+                await pool.query('ROLLBACK');
+                return res.status(404).json({ status: "error", message: 'User learning record not found.' });
+            }
+
+            const userID = basicResult.rows[0].userID;
+
+         await pool.query(
+                `INSERT INTO learn_details (
+                    "userID", "learnedSigns", "learnedPhrases", "unlockedCategories", 
+                    "placementTestCompleted", "placementResults", "quizzesCompleted",
+                    "alphabetsQuizCompleted", "numbersQuizCompleted", "introduceQuizCompleted",
+                    "coloursQuizCompleted", "familyQuizCompleted", "feelingsQuizCompleted",
+                    "actionsQuizCompleted", "questionsQuizCompleted", "timeQuizCompleted",
+                    "foodQuizCompleted", "thingsQuizCompleted", "animalsQuizCompleted",
+                    "seasonsQuizCompleted", "phrasesQuizCompleted", "hasSeenWelcome", "hasSeenCategoryHelp"
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
+                ON CONFLICT ("userID") DO UPDATE SET
+                    "learnedSigns" = EXCLUDED."learnedSigns",
+                    "learnedPhrases" = EXCLUDED."learnedPhrases",
+                    "unlockedCategories" = EXCLUDED."unlockedCategories",
+                    "placementTestCompleted" = EXCLUDED."placementTestCompleted",
+                    "placementResults" = EXCLUDED."placementResults",
+                    "quizzesCompleted" = EXCLUDED."quizzesCompleted",
+                    "alphabetsQuizCompleted" = EXCLUDED."alphabetsQuizCompleted",
+                    "numbersQuizCompleted" = EXCLUDED."numbersQuizCompleted",
+                    "introduceQuizCompleted" = EXCLUDED."introduceQuizCompleted",
+                    "coloursQuizCompleted" = EXCLUDED."coloursQuizCompleted",
+                    "familyQuizCompleted" = EXCLUDED."familyQuizCompleted",
+                    "feelingsQuizCompleted" = EXCLUDED."feelingsQuizCompleted",
+                    "actionsQuizCompleted" = EXCLUDED."actionsQuizCompleted",
+                    "questionsQuizCompleted" = EXCLUDED."questionsQuizCompleted",
+                    "timeQuizCompleted" = EXCLUDED."timeQuizCompleted",
+                    "foodQuizCompleted" = EXCLUDED."foodQuizCompleted",
+                    "thingsQuizCompleted" = EXCLUDED."thingsQuizCompleted",
+                    "animalsQuizCompleted" = EXCLUDED."animalsQuizCompleted",
+                    "seasonsQuizCompleted" = EXCLUDED."seasonsQuizCompleted",
+                    "phrasesQuizCompleted" = EXCLUDED."phrasesQuizCompleted",
+                    "hasSeenWelcome" = EXCLUDED."hasSeenWelcome",
+                    "hasSeenCategoryHelp" = EXCLUDED."hasSeenCategoryHelp"`,
                 [
-                    lessonsCompleted,
-                    signsLearned,
-                    streak,
-                    currentLevel,
-                    username
+                    userID,
+                    JSON.stringify(learnedSigns),
+                    JSON.stringify(learnedPhrases),
+                    JSON.stringify(unlockedCategories),
+                    placementTestCompleted,
+                    placementResults ? JSON.stringify(placementResults) : null,
+                    quizzesCompleted,
+                    alphabetsQuizCompleted,
+                    numbersQuizCompleted,
+                    introduceQuizCompleted,
+                    coloursQuizCompleted,
+                    familyQuizCompleted,
+                    feelingsQuizCompleted,
+                    actionsQuizCompleted,
+                    questionsQuizCompleted,
+                    timeQuizCompleted,
+                    foodQuizCompleted,
+                    thingsQuizCompleted,
+                    animalsQuizCompleted,
+                    seasonsQuizCompleted,
+                    phrasesQuizCompleted,
+                    hasSeenWelcome,
+                    JSON.stringify(hasSeenCategoryHelp)
                 ]
             );
 
-            if (result.rowCount === 0) {
-                return res.status(404).json({ status: "error", message: 'User learning record not found or no changes applied.' });
-            }
+            await pool.query('COMMIT');
 
-            res.status(200).json({ status: "success", message: 'Learning progress updated successfully' });
+            console.log(`Learning progress updated for ${username}. Signs learned: ${signsLearned} (from ${learnedSigns.length} signs in array)`);
+
+            res.status(200).json({ 
+                status: "success", 
+                message: 'Learning progress updated successfully',
+                data: {
+                    signsLearned,
+                    learnedSignsCount: learnedSigns.length
+                }
+            });
 
         } catch (err) {
+            await pool.query('ROLLBACK');
             console.error('DB PUT error (learningProgress):', err);
             res.status(500).json({ status: "error", message: 'Internal Server Error' });
         }
     }
-    
 };
 
 
@@ -142,7 +286,30 @@ export const signUpUser = async (req, res) => {
             [userID, 0, 0, 0, 'Bronze']
         );
 
+        await pool.query(
+            `INSERT INTO learn_details (
+                "userID", "learnedSigns", "learnedPhrases", "unlockedCategories", 
+                "placementTestCompleted", "quizzesCompleted"
+            ) VALUES ($1, $2, $3, $4, $5, $6)`,
+            [
+                userID, 
+                JSON.stringify([]), 
+                JSON.stringify([]), 
+                JSON.stringify(['alphabets']), 
+                false, 
+                0
+            ]
+        );
+
         await pool.query('COMMIT');
+
+        try {
+            await sendRegistrationEmail(email, username);
+            console.log(`Registration email sent to ${email}`);
+        } catch (emailErr) {
+            console.error('Failed to send registration email:', emailErr);
+            // Don't return an error here; the user is already registered
+        }
 
         res.status(200).json({
             success: true,
@@ -233,8 +400,8 @@ export const loginUser = async (req, res) => {
 
         res.cookie('sessionId', sessionId, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // Use secure in production
-            sameSite: 'Lax', // or 'Strict'
+            secure: process.env.NODE_ENV === 'production', 
+            sameSite: 'Lax', 
             maxAge: 1000 * 60 * 60 * 24, // 24 hours
             path: '/',
         });
@@ -743,5 +910,56 @@ export const uploadUserAvatar = async (req, res) => {
             await fs.unlink(filePath).catch(unlinkErr => console.error("Error deleting partially saved avatar file during error:", unlinkErr));
         }
         res.status(500).json({ status: "error", message: 'Internal Server Error during avatar upload: ' + error.message });
+    }
+};
+
+export const deleteUserAvatar = async (req, res) => {
+    console.log('[dbController.js] deleteUserAvatar function entered.');
+    const userID = parseInt(req.params.id);
+
+    // 1. Authorization Check
+    if (!req.user || req.user.id !== userID) {
+        console.warn(`[dbController.js] Unauthorized avatar deletion attempt for user ID ${userID} by user ${req.user ? req.user.id : 'N/A'}`);
+        return res.status(403).json({ error: 'Forbidden: You can only delete the avatar for your own account.' });
+    }
+
+    try {
+        // Fetch the current avatar URL from the database
+        const userResult = await pool.query('SELECT avatarurl FROM users WHERE "userID" = $1', [userID]);
+        const currentAvatarUrl = userResult.rows[0]?.avatarurl;
+
+        if (!currentAvatarUrl) {
+            console.log(`[dbController.js] No avatar found to delete for user ID ${userID}.`);
+            return res.status(200).json({ status: "success", message: 'No avatar found to delete.' });
+        }
+        
+        // 2. Delete the physical file from the server
+        const filePath = path.join(process.cwd(), currentAvatarUrl);
+        if (await fs.stat(filePath).catch(() => false)) { // Check if file exists
+            await fs.unlink(filePath);
+            console.log(`[dbController.js] Old avatar file deleted: ${filePath}`);
+        }
+
+        // 3. Update the database to set avatarurl to NULL
+        const result = await pool.query(
+            `UPDATE users SET "avatarurl" = NULL WHERE "userID" = $1 RETURNING "userID", username, "avatarurl"`,
+            [userID]
+        );
+        console.log('[dbController.js] Database updated to clear avatar URL:', result.rows[0]);
+
+        // 4. Send success response
+        res.status(200).json({
+            status: "success",
+            message: 'Avatar deleted successfully',
+            data: {
+                userID: result.rows[0].userID,
+                username: result.rows[0].username,
+                avatarurl: result.rows[0].avatarurl,
+            },
+        });
+
+    } catch (error) {
+        console.error('[dbController.js] Error in deleteUserAvatar:', error);
+        res.status(500).json({ status: "error", message: 'Internal Server Error during avatar deletion: ' + error.message });
     }
 };

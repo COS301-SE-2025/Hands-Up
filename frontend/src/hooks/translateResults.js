@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { processImage, processWords} from '../utils/apiCalls';
-// import SignLanguageAPI  from '../utils/apiCalls';
+import { processLetters, processWords, produceSentence} from '../utils/apiCalls';
 import { useModelSwitch } from '../contexts/modelContext';
-import { v4 as uuidv4 } from 'uuid';
+import { useDexterity } from '../contexts/dexterityContext';
 
 export function useTranslator() {
     const videoRef = useRef(null);
@@ -12,19 +11,61 @@ export function useTranslator() {
     const [result, setResult] = useState("");
     const [confidence, setConfidence] = useState("Awaiting capture to detect confidence level...");
     const [recording, setRecording] = useState(false);
-    const [capturedImage, setCapturedImage] = useState(null);
-    const [capturedType, setCapturedType] = useState(null);
-    const [captureHistory, setCaptureHistory] = useState([]);
-    const [capturedBlob, setCapturedBlob] = useState(null);
     const [autoCaptureEnabled, setAutoCaptureEnabled] = useState(false);
     const [landmarkFrames, setLandmarkFrames] = useState([]);
     const { modelState } = useModelSwitch();
     const activeModelRef = useRef(modelState.model);
-    const [isSwitching, setIsSwitching] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [sequenceNum, setSequenceNum] = useState(90);
+    const [translating, setTranslating] = useState(false);
+    const { dexterity } = useDexterity();
 
-    const stopRecording = useCallback(() => {
+    const convertGloss = async () => {
+
+        if (result.trim()) {
+            const hasAlphabets = /[a-zA-Z]/.test(result);
+            const wordCount = result.trim().split(/\s+/).length;
+
+            const video = videoRef.current;
+            const canvas = canvasRef1.current;
+
+            if (!hasAlphabets || wordCount < 2) {
+                const ctx = canvas.getContext('2d');
+
+                canvas.width = video.videoWidth*0.2;
+                canvas.height = video.videoHeight*0.2;
+                ctx.shadowColor = 'rgba(255, 0, 0, 0.7)'; 
+                ctx.shadowBlur = 10;     
+                ctx.font = 'bold 24px Sans-serif';
+                ctx.fillStyle = 'red';
+                ctx.textAlign = 'center';
+                ctx.fillText('English Translation Not Available...', canvas.width / 2, canvas.height / 2);
+            }
+
+            try {
+                setTranslating(true);
+                const translation = await produceSentence(result);
+
+                if (translation.translation && translation.translation !== "?") {
+                    setResult(translation.translation);
+                } else {
+                    const currentResult = result;
+
+                    setResult("English Translation Not Available");
+
+                    setTimeout(() => {
+                        setResult(currentResult);
+                    }, 2000); 
+                }
+            } catch (err) {
+                console.error("Error producing sentence:", err);
+            } finally {
+                setTranslating(false);
+            }
+        }
+    }
+
+    const stopRecording = useCallback(async () => {
         setRecording(false);
         setAutoCaptureEnabled(false);
         setLandmarkFrames([]);
@@ -33,12 +74,11 @@ export function useTranslator() {
     const startRecording = useCallback(async () => {
         if (recording) {
             stopRecording();
-            setCapturedImage(null);
         } else {
             setAutoCaptureEnabled(true);
             setRecording(true);
         }
-    }, [recording, stopRecording, setCapturedImage, setAutoCaptureEnabled, setRecording]);
+    }, [recording, stopRecording, setAutoCaptureEnabled, setRecording]);
 
     const sendSequenceToBackend = useCallback(async (blobs) => {
         
@@ -46,11 +86,6 @@ export function useTranslator() {
         const requiredFrames = sequenceNum;
 
         if (!Array.isArray(blobs) || blobs.length !== requiredFrames || processingRef.current) return;
-
-        if (isSwitching) {
-            console.log("Skipping prediction during swipe...");
-            return;
-        }
 
         setIsProcessing(true);
         processingRef.current = true;
@@ -65,29 +100,34 @@ export function useTranslator() {
             if (currentModel === 'glosses') {
                 response = await processWords(formData);
             } else {
-                response = await processImage(formData);
+                response = await processLetters(formData);
             }
             if (!response) {
                 console.error("Invalid response from API:", response);
                 return;
             }
-
-            console.log(response)
+            
             setResult(prev => {
-                if (activeModelRef.current === 'alpha') {
-                    if (response?.letter === 'SPACE') return prev + ' ';
-                    if (response?.letter === 'DEL') return prev.slice(0, -1);
+                let newResult = prev || "";
 
-                    setConfidence((response?.confidenceLetter * 100).toFixed(2) + "%");
-                    return prev + (response?.letter || '');
+                if (activeModelRef.current === 'alpha') {
+                    const letter = response?.letter ?? '';
+                    if (letter === 'SPACE') newResult += ' ';
+                    else if (letter === 'DEL') newResult = newResult.slice(0, -1);
+                    else newResult += letter;
+
+                    setConfidence(`${((response?.confidenceLetter ?? 0) * 100).toFixed(2)}%`);
                 } else if (activeModelRef.current === 'num') {
-                    setConfidence((response?.confidenceNumber * 100).toFixed(2) + "%");
-                    return prev + (response?.number + ' ' || '');
+                    newResult += (response?.number ?? '') + ' ';
+                    setConfidence(`${((response?.confidenceNumber ?? 0) * 100).toFixed(2)}%`);
                 } else if (activeModelRef.current === 'glosses') {
-                    setConfidence((response?.confidence * 100).toFixed(2) + "%");
-                    return prev + (response?.word + ' ' || '');
+                    newResult += (response?.word ?? '') + ' ';
+                    setConfidence(`${((response?.confidence ?? 0) * 100).toFixed(2)}%`);
                 }
-                return prev; 
+
+                newResult = newResult.replace(/undefined/g, '');
+
+                return newResult;
             });
 
         } catch (err) {
@@ -99,106 +139,89 @@ export function useTranslator() {
             processingRef.current = false;
             setLandmarkFrames([]);
         }
-    }, [setResult, setConfidence, isSwitching, sequenceNum]);
+    }, [setResult, setConfidence, sequenceNum]);
 
     const captureImageFromVideo = useCallback(() => {
-        const video = videoRef.current;
-        const canvas = canvasRef1.current;
-        const currentModel = activeModelRef.current;
-        const requiredFrames = currentModel === 'glosses' ? 90 : 20;
-
-        if (video && canvas) {
-
-            canvas.toBlob(async (blob) => {
-                if (!blob) {
-                    console.error("Canvas toBlob failed to create a blob.");
-                    return;
-                }
-                const url = URL.createObjectURL(blob);
-                setCapturedImage(url);
-                setCapturedType('image');
-                setCapturedBlob(blob);
-                setCaptureHistory(prev => [
-                    { id: uuidv4(), url, type: 'image', blob, timestamp: new Date().toLocaleTimeString() },
-                    ...prev.slice(0, 4)
-                ]);
-
-                setLandmarkFrames(prevFrames => {
-                    const updated = [...prevFrames, blob];
-
-                    if (updated.length === requiredFrames) {
-                        sendSequenceToBackend(updated);
-                        setLandmarkFrames([]);
-                        // stopRecording();
-                        return [];
-                    }
-
-                    return updated;
-                });
-               
-            }, 'image/jpeg', 0.8);
-        }
-    }, [
-        videoRef,
-        canvasRef1,
-        setCapturedImage,
-        setCapturedType,
-        setCapturedBlob,
-        setCaptureHistory,
-        setLandmarkFrames,
-        sendSequenceToBackend,
-    ]);
-
-    useEffect(() => {
-    const canvas = canvasRef1.current;
     const video = videoRef.current;
-    if (!canvas || !video) return;
+    const currentModel = activeModelRef.current;
+    const requiredFrames = currentModel === 'glosses' ? 90 : 20;
+    if (!video) return;
 
-    const ctx = canvas.getContext('2d');
-    let animationFrameId;
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = video.videoWidth;
+    tempCanvas.height = video.videoHeight;
+    const tempCtx = tempCanvas.getContext('2d');
+    if (!tempCtx) return;
 
-    const draw = () => {
-        if (video.readyState >= 2) {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    if (dexterity === 'left') {
+        tempCtx.save();
+        tempCtx.translate(tempCanvas.width, 0);
+        tempCtx.scale(-1, 1);
+    }
 
-            if (isProcessing) {
-                ctx.fillStyle = 'rgba(0,0,0,0.5)'; 
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.translate(canvas.width, 0);
-                ctx.scale(-1, 1);
+    tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
 
-                ctx.font = 'bold 24px Sans-serif';
-                ctx.fillStyle = 'green';
-                ctx.textAlign = 'center';
-                ctx.fillText('Processing...', canvas.width / 2, canvas.height / 2);
+    if (dexterity === 'left') tempCtx.restore();
+
+    tempCanvas.toBlob(async (blob) => {
+        if (!blob) return;
+
+        setLandmarkFrames(prev => {
+            const updated = [...prev, blob];
+            if (updated.length === requiredFrames) {
+                sendSequenceToBackend(updated);
+                return [];
             }
-        }
-        animationFrameId = requestAnimationFrame(draw);
-    };
-
-    draw();
-    return () => cancelAnimationFrame(animationFrameId);
-}, [isProcessing, canvasRef1, videoRef]);
+            return updated;
+        });
+    }, 'image/jpeg', 0.8);
+}, [dexterity, sendSequenceToBackend]);
 
     useEffect(() => {
-        setIsSwitching(true);
+        const canvas = canvasRef1.current;
+        const video = videoRef.current;
+        if (!canvas || !video) return;
 
-        const timeout = setTimeout(() => {
-            activeModelRef.current = modelState.model;
-            setSequenceNum(modelState.model === 'glosses' ? 90 : 20);
-            setIsSwitching(false); 
-        }, 500); 
+        const ctx = canvas.getContext('2d');
+        let animationFrameId;
 
-        return () => clearTimeout(timeout);
+        const draw = () => {
+            if (video.readyState >= 2) {
+                canvas.width = video.videoWidth*0.2;
+                canvas.height = video.videoHeight*0.2;
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.shadowColor = 'rgba(255, 0, 0, 0.7)'; 
+                ctx.shadowBlur = 10;   
+                ctx.font = 'bold 20px Sans-serif';
+                ctx.fillStyle = 'red';
+                ctx.textAlign = 'center';
+
+                if (isProcessing) {
+                    ctx.fillText('Processing', canvas.width / 2, canvas.height / 2);
+                } else if(recording) {
+                    ctx.fillText('Capturing', canvas.width / 2, canvas.height / 2);
+                }
+            }
+            animationFrameId = requestAnimationFrame(draw);
+        };
+
+        draw();
+        return () => cancelAnimationFrame(animationFrameId);
+    }, [isProcessing, recording]);
+
+
+    useEffect(() => {
+        activeModelRef.current = modelState.model;
+        setSequenceNum(modelState.model === 'glosses' ? 90 : 20);
+          
     }, [modelState.model, setSequenceNum]);
 
    useEffect(() => {
         let intervalId;
 
         const requiredFrames = modelState.model === 'glosses' ? 90 : 20;
-        const intervalDuration = 600 / requiredFrames; 
+        const intervalDuration = 500 / requiredFrames; 
 
         if (autoCaptureEnabled && videoRef.current) {
             intervalId = setInterval(() => {
@@ -213,8 +236,13 @@ export function useTranslator() {
     useEffect(() => {
         const enableCamera = async () => {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                if (videoRef.current) videoRef.current.srcObject = stream;
+                const stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    width: { ideal: 1920 }, 
+                    height: { ideal: 1080 },
+                }
+                });
+                videoRef.current.srcObject = stream;
             } catch (err) {
                 console.error(err);
                 setResult('Camera access denied.');
@@ -231,44 +259,6 @@ export function useTranslator() {
         };
     }, [setResult]);
 
-    // const handleFileUpload = async (e) => {
-    //     const file = e.target.files?.[0];
-    //     if (!file) return;
-
-    //     const isVideo = file.type.includes('video');
-    //     const isImage = file.type.includes('image');
-    //     const url = URL.createObjectURL(file);
-
-    //     setResult(`Processing uploaded ${isVideo ? 'video' : 'image'}...`);
-    //     setCapturedImage(url);
-    //     setCapturedType(isVideo ? 'video' : 'image');
-    //     setCapturedBlob(file);
-
-    //     setCaptureHistory(prev => [
-    //         { id: uuidv4(), url, type: isVideo ? 'video' : 'image', blob: file, timestamp: new Date().toLocaleTimeString() },
-    //         ...prev.slice(0, 4)
-    //     ]);
-
-    //     if (isVideo) {
-    //         const videoResult = await SignLanguageAPI.processVideo(file);
-            
-    //         setResult(videoResult.phrase !== "Nothing detected" ? videoResult.phrase : "No sign detected");
-    //         if (videoResult.confidence> 0) {
-    //             const avg = videoResult.confidence*100;
-    //             setConfidence(avg.toFixed(2) + "%");
-    //         } else {
-    //             setConfidence("0%");
-    //         }
-    //         setRecording(false);
-    //     } else if (isImage) {
-    //         const imgResult = await processImage(file);
-    //         setResult(imgResult.phrase || "No sign detected");
-    //         setConfidence((imgResult.confidence * 100).toFixed(2) + "%");
-    //     } else {
-    //         setResult("Unsupported file type. Please upload an image or video.");
-    //     }
-    // };
-
     return {
         videoRef,
         canvasRef1,
@@ -276,15 +266,13 @@ export function useTranslator() {
         result,
         confidence,
         recording,
-        capturedImage,
-        capturedType,
-        captureHistory,
-        capturedBlob,
         startRecording,
         stopRecording,
         setResult,
         autoCaptureEnabled,
         setAutoCaptureEnabled,
         landmarkFrames,
+        convertGloss,
+        translating, 
     };
 }

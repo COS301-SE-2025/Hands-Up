@@ -1,24 +1,24 @@
-name: Integration Tests
+name: End To End Tests
 
 on:
   pull_request:
     branches: [main, dev]
   push:
-    branches: [main, dev]
+    branches: [main, dev, tests/unit]
 
 permissions:
   contents: read
 
 jobs:
   run-cypress-tests:
-    name: Cypress Integration Tests
+    name: Cypress End to End Tests
     runs-on: ubuntu-latest
 
     env:
       DB_USER: ${{ secrets.DB_USER }}
       DB_PASS: ${{ secrets.DB_PASS }}
       DB_NAME: ${{ secrets.DB_NAME }}
-      DB_HOST: localhost # This is for the API and frontend to connect to the host machine's exposed port
+      DB_HOST: localhost # This is for the API and frontend to connect to the host machine's exposed port 
       DB_PORT: 5432
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       API_PORT: 2000
@@ -202,4 +202,31 @@ jobs:
           path: |
             cypress/videos
             cypress/screenshots
+          retention-days: 7
+  run-unit-tests:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Run unit tests with coverage
+        # Your package.json script for running unit tests is 'test-coverage'
+        run: npm run test-coverage
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always() # Always run this step, even if tests fail
+        with:
+          name: unit-test-coverage-report
+          path: tests/coverage
           retention-days: 7
