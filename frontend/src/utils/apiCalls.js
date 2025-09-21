@@ -2,6 +2,8 @@ const API_BASE_URL_AUTH = 'https://hands-up.onrender.com/handsUPApi/auth';
 const API_BASE_URL_USER = 'https://hands-up.onrender.com/handsUPApi/user';
 const API_BASE_URL_LEARNING = 'https://hands-up.onrender.com/handsUPApi/learning';
 const API_BASE_URL = "https://hands-up.onrender.com/handsUPApi";
+const TRANSLATE_API_ROUTE = 'https://hands-up.onrender.com/handsUPApi/sign';
+
 
 export const handleApiResponse = async (response) => {
     const data = await response.json();
@@ -274,7 +276,7 @@ export const logout = async () => {
     }
 };
 
-export const resetPassword = async (email) => {
+export const resetPassword = async (credentials) => {
     
     
     try {
@@ -385,22 +387,7 @@ export const updateUserPassword = async (userID, name, surname, username, email,
 
 
 
-export const updateLearningProgress = async (username, progressData) => {
-    try {
-        const response = await fetch(`${API_BASE_URL_LEARNING}/progress/${username}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(progressData),
-            credentials: 'include',
-        });
-        return handleApiResponse(response);
-    } catch (error) {
-        console.error("Error updating progress", error);
-        throw error;
-    }
-};
+
 
 
 export const deleteUserAccount = async (userID) => {
@@ -597,24 +584,7 @@ export const getCurriculumStructure = async () => {
     }
 };
 
-export const resetPassword = async (email) => {
-    console.log("[API_CALLS - resetPassword] Sending password reset request for:", email);
-    
-    try {
-        const response = await fetch(`${API_BASE_URL_AUTH}/reset-password`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify({ email }),
-        });
 
-        return handleApiResponse(response);
-    }catch (error) {
-        console.error("Error deleting user account:", error);
-        throw error;
-    }};
 
 // signLanguageAPI.js
 class SignLanguageAPI {
