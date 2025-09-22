@@ -12,9 +12,10 @@ export function TestSetup({ isOpen, onClose }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const landmarkerRef = useRef(null);
+  const modalInit = <>Ensure that your face is visible against the background with no harsh lighting. <br /><br/> <p className="modal-instruction">Press start to begin</p> </>
 
   const [brightness, setBrightness] = useState(0);
-  const [detectionStatus, setDetectionStatus] = useState(<>Ensure that your face is visible against the background<br />Press start to begin.</>);
+  const [detectionStatus, setDetectionStatus] = useState(modalInit);
   const [stage, setStage] = useState('start');
   const timeoutRef = useRef(null);
   const animationFrameRef = useRef(null);
@@ -51,13 +52,7 @@ export function TestSetup({ isOpen, onClose }) {
     }
     
     setStage('start');
-    updateStatus(
-      <>
-        Ensure that your face is visible against the background
-        <br />
-        Press start to begin.
-      </>
-    );
+    updateStatus(modalInit);
     
     onClose();
   };
@@ -191,7 +186,7 @@ export function TestSetup({ isOpen, onClose }) {
                   updateStatus('Hold up your hand');
                   timeoutRef.current = null;
                 }
-              }, 1000);
+              }, 500);
             }
           } else {
             updateStatus(currentBrightness < 80 ? 'Too dark, move to better lighting' : 'Too bright, move to a dimmer area');
@@ -228,12 +223,15 @@ export function TestSetup({ isOpen, onClose }) {
                       updateStatus('Show a peace sign');
                       timeoutRef.current = null;
                     }
-                  }, 1000);
+                  }, 500);
                 }
               } else if (stage === 'peace') {
                 if (results.landmarks.some(isPeaceSign)) {
                   if (!timeoutRef.current) {
-                    updateStatus("All tests passed. You're all set!");
+                    updateStatus(
+                      <>All tests passed. You're all set &nbsp;
+                      <i className="fas fa-circle-check" style={{ color: "var(--dark-green)", marginRight: "6px" }}></i></>
+                    );
                     timeoutRef.current = setTimeout(() => {
                       setStage('done');
                       timeoutRef.current = null;
@@ -300,16 +298,13 @@ export function TestSetup({ isOpen, onClose }) {
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <h3 style={{ color: 'var(--dark-green)' }}>Test Your Setup</h3>
-        <p style={{ color: 'black' }}>Follow the steps below</p>
-        <br />
+        <h3 className="modal-title">Test Your Setup</h3>
+        <p className="modal-description">Follow the steps below</p>
         <div className="video-container">
           <video ref={videoRef} autoPlay muted playsInline />
           <canvas className="modal-canvas bordered-canvas" ref={canvasRef} />
         </div>
-        <br></br>
         <p className={`modal-text stage-${stage}`}>{detectionStatus}</p>
-        <br />
         {stage === 'start' && (
           <button
             onClick={() => {
@@ -317,9 +312,8 @@ export function TestSetup({ isOpen, onClose }) {
               if (!timeoutRef.current) {
                 timeoutRef.current = setTimeout(() => {
                   setStage("lighting");
-                  updateStatus("Checking lighting...");
                   timeoutRef.current = null;
-                }, 1500);
+                }, 500);
               }
             }}
             className="recognizer-control-button recognizer-test-button stage-complete"
@@ -327,12 +321,13 @@ export function TestSetup({ isOpen, onClose }) {
             Start
           </button>
         )}
+        <br />
         {stage === 'done' ? (
           <button
             onClick={() => {
               handleClose();
             }}
-            className="recognizer-control-button recognizer-test-button stage-complete"
+            className="recognizer-control-button recognizer-test-button sta.ge-complete"
           >
             Continue To Translate
           </button>
