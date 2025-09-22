@@ -1,12 +1,12 @@
 import os
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException,FastAPI,Request
 from fastapi.responses import JSONResponse
 from typing import List
 from dotenv import load_dotenv
 import httpx
 
 router = APIRouter(prefix="/handsUPApi/sign")
-
+app = FastAPI()
 load_dotenv()
 HUGGINGFACE_BASE_URL = os.getenv("HUGGINGFACE_BASE_URL")
 
@@ -27,6 +27,12 @@ async def sendToHF(url: str, frames: List[UploadFile]):
         except httpx.HTTPStatusError as e:
             print(f"HTTP error: {e.response.text}")
             raise HTTPException(status_code=e.response.status_code, detail=e.response.text)
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    print(f"Incoming Request URL: {request.url}")
+    response = await call_next(request)
+    return response
 
 
 @router.post("/processLetters")
