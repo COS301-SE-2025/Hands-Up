@@ -6,7 +6,7 @@ import "../styles/layout.css";
 import logo from "../images/logo2.png";
 import {HelpMenu} from './help.js'; 
 
-const BACKEND_BASE_URL = "http://localhost:2000"; 
+const BACKEND_BASE_URL = "https://hands-up.onrender.com"; 
 const NAV_ITEMS = ["Home", "Learn", "Translator", "Sign Surfers"];
 
 const NAV_PATHS = {
