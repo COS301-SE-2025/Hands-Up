@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main, dev]
   push:
-    branches: [main, dev, tests/unit]
+    branches: [main, dev, tests/unit] #random comment
 
 permissions:
   contents: read
