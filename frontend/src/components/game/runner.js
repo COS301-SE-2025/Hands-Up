@@ -26,7 +26,7 @@ export default function Runner({ gameStarted }) {
   const jumpStartYRef = useRef(0);
   const jumpStartTimeRef = useRef(0);
   const JUMP_DURATION = 2; 
-  const JUMP_HEIGHT = 3; 
+  const JUMP_HEIGHT = 2.8; 
 
   useEffect(() => {
     if (actions && actions["Armature|mixamo.com|Layer0"]) {

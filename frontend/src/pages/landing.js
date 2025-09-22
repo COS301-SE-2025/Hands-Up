@@ -56,11 +56,6 @@ export function Landing(){
 
       <div className="hero-container">
         <div className="hero-div">
-          {/* <div className="side-image left-image">
-            <div style={{ width: '100%', height: '85vh' }}>
-              <ModelViewer modelPath={'/models/angieSalute.glb'}/>
-            </div>
-          </div> */}
           <div>
             <h1 className="hero-div-h1">Welcome to Hands UP</h1>
             <p className="hero-div-p">Empowering Communication <br></br> One Sign at a Time.</p>
@@ -147,11 +142,11 @@ export function Landing(){
           <div className="landing-feature-card" data-aos="fade-up">
             <div className="card-inner">
               <div className="card-front one-front">
-                <FaGlobeAfrica className="landing-feature-icon" />
-                <p>Multi-Language Support <br></br>(Coming Soon)</p>
+                <FaGamepad className="landing-feature-icon" />
+                <p>Fun Challenges</p>
               </div>
               <div className="card-back">
-                <p>Currently supports American Sign Language (ASL), with plans to expand to SASL, BSL and more.</p>
+                <p>Play a fun sign-collecting game where you grab the right signs to build words as you go!</p>
               </div>
             </div>
           </div>
@@ -159,11 +154,11 @@ export function Landing(){
           <div className="landing-feature-card" data-aos="fade-up">
             <div className="card-inner">
               <div className="card-front two-front">
-                <FaGamepad className="landing-feature-icon" />
-                <p>Fun Challenges <br></br>(Coming Soon)</p>
+                <FaGlobeAfrica className="landing-feature-icon" />
+                <p>Multi-Language Support <br></br>(Coming Soon)</p>
               </div>
               <div className="card-back">
-                <p>Play a fun sign-collecting game where you grab the right signs to build words and phrases as you go!</p>
+                <p>Currently supports American Sign Language (ASL), with plans to expand to SASL, BSL and more.</p>
               </div>
             </div>
           </div>

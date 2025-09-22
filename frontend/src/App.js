@@ -22,12 +22,10 @@ import { Game } from "./pages/game";
 import GameGuide from "./components/game/gameGuide";
 import ErrorBoundary from "./components/errorBoundary";
 import ErrorFallback from "./components/errorFallback";
-import { useGLTF } from "@react-three/drei";
 
 function App() {
-  useGLTF.preload('/models/angieWaving.glb');
+
   return (
- 
     <Router>
       <AuthProvider> 
         <LearningStatsProvider>

@@ -10,7 +10,7 @@ export function DexterityToggle() {
     return (
         <div className="dexterity-toggle">
             <label className="toggle-label">
-                <span className="toggle-text"> Dexterity: {isRight ? 'Right Handed' : 'Left Handed'}</span>
+                <span className="toggle-text"> Handedness: {isRight ? 'Right' : 'Left'}</span>
                 <div className="toggle-btn">
                     <input
                         type="checkbox"
