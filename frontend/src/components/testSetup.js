@@ -229,7 +229,7 @@ export function TestSetup({ isOpen, onClose }) {
                 if (results.landmarks.some(isPeaceSign)) {
                   if (!timeoutRef.current) {
                     updateStatus(
-                      <>All tests passed. You're all set &nbsp;
+                      <>All tests passed. You&lsquo;re all set &nbsp;
                       <i className="fas fa-circle-check" style={{ color: "var(--dark-green)", marginRight: "6px" }}></i></>
                     );
                     timeoutRef.current = setTimeout(() => {
