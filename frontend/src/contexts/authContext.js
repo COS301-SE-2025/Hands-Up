@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { login as apiLogin, logout as apiLogout, getUserData,resetPassword as apiResetPassword,confirmPasswordReset as apiConfirmPasswordReset} from '../utils/apiCalls';
 import { useNavigate } from 'react-router-dom';
+import LoadingSpinner from '../components/loadingSpinner';
 
 const AuthContext = createContext();
 
@@ -118,6 +119,10 @@ const confirmPasswordReset = async (email, token, newPassword,confirmNewPassword
         justSignedUp,
         setJustSignedUp,
     };
+
+    if (loading) {
+        return <LoadingSpinner />;
+    }
 
     return (
         <AuthContext.Provider value={value}>
