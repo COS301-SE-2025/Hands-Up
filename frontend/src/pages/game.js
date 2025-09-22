@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unknown-property */
 import React,  { useEffect, useState, useRef, Suspense } from 'react';
 import { Canvas} from '@react-three/fiber';
-import { Loader } from '@react-three/drei';
+import LoadingSpinner from '../components/loadingSpinner';
 
 import { RunnerPosProvider } from '../contexts/game/runnerPosition';
 import { VehicleSpawner } from '../components/game/spawnCars';
@@ -24,6 +24,8 @@ const wordList = ["ALBERTON", "BALLITO", "BENONI", "BLOEMFONTEIN", "BOKSBURG",
   "THEMBISA", "UPINGTON", "VEREENIGING", "ZULU LAND"];
 
 export function Game() {
+    const [loading, setLoading] = useState(true);
+
     const [gameStarted, setGameStarted] = useState(false);
     const [gameOver, setGameOver] = useState(false);
     const [gamePaused, setGamePaused] = useState(false);
@@ -44,7 +46,12 @@ export function Game() {
     const [showCamera, setShowCamera] = useState(false);
     const [progress, setProgress] = useState(0);
     const [userInput, setUserInput] = useState(true);
-    const [inputIndex, setInputIndex] = useState(1);
+    const [inputIndex, setInputIndex] = useState(2);
+
+    useEffect(() => {
+      const timer = setTimeout(() => setLoading(false), 3000);
+      return () => clearTimeout(timer);
+    }, []);
 
     useEffect(() => {
       if (!gameStarted) return;
@@ -165,7 +172,8 @@ export function Game() {
     }, [distance]);
 
     return (
-      <div style={{ position: 'relative', height: '100vh' }}>   
+      <div style={{ position: 'relative', height: '100vh' }}>  
+        {loading && <LoadingSpinner />} 
         <div style={{ height: '100%', filter: gameStarted ? 'none' : 'blur(4px)', transition: 'filter 0.5s',
                       background: `linear-gradient(to bottom, lightblue 0%, deepskyblue 40%, #4CAF50 54%, #2E7D32 100%)`}}> 
 
@@ -263,7 +271,6 @@ export function Game() {
             </Canvas>
           </RunnerPosProvider>
         </div>
-        <Loader />
 
         {!gameStarted && !gameOver && !gamePaused && !gameStopped && !showCamera && <StartScreen onStart={() => setGameStarted(true)} />}
         {!gameStarted && gameOver && <GameOverScreen distance={distance} wordsCollected={wordsCollected} onReplay={handleReplay}/>}
