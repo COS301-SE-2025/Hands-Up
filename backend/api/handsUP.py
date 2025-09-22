@@ -7,7 +7,7 @@ app.include_router(sign_router)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  
+    allow_origins=["https://handsup.onrender.com"],  
     allow_credentials=True,
     allow_methods=["*"],  
     allow_headers=["*"],  
