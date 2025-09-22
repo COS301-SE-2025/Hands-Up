@@ -2,7 +2,7 @@ const API_BASE_URL_AUTH = 'https://hands-up.onrender.com/handsUPApi/auth';
 const API_BASE_URL_USER = 'https://hands-up.onrender.com/handsUPApi/user';
 const API_BASE_URL_LEARNING = 'https://hands-up.onrender.com/handsUPApi/learning';
 const API_BASE_URL = "https://hands-up.onrender.com/handsUPApi";
-const TRANSLATE_API_ROUTE = 'https://hands-up.onrender.com/handsUPApi/sign';
+const TRANSLATE_API_ROUTE = 'https://handup-service.onrender.com/handsUPApi/sign';
 
 
 export const handleApiResponse = async (response) => {
