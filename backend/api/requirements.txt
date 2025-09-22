@@ -12,3 +12,4 @@ transformers==4.56.2
 uvicorn==0.36.0
 numpy
 gunicorn
+python-dotenv
