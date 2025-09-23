@@ -16,6 +16,10 @@ export function Landing(){
   const goToLogin = () => navigate('/login');
   const goToSignup = () => navigate('/signup');
   const goToTranslator = () => navigate('/translator');
+  // Add these state variables inside your Landing component
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showInstallBtn, setShowInstallBtn] = useState(false);
+  const [isPWAInstalled, setIsPWAInstalled] = useState(false);
 
   const [error, setError] = useState('');
 
@@ -26,12 +30,57 @@ export function Landing(){
     }, 3000); 
   };
 
+  // Inside your useEffect hook
   useEffect(() => {
+    // PWA install prompt handler
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault(); 
+      setDeferredPrompt(e); 
+      setShowInstallBtn(true);
+    };
+
+    // Add a listener for the 'appinstalled' event to update state
+    const handleAppInstalled = () => {
+      setIsPWAInstalled(true);
+      setShowInstallBtn(false);
+    };
+
+    // Check if the app is already in standalone mode on page load
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setIsPWAInstalled(true);
+    }
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    // Initialize AOS and other logic
     AOS.init({
-      duration: 1000, 
-      once: false,     
+      duration: 1000,
+      once: false,
     });
+
+    // Cleanup function
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
   }, []);
+
+  // Function to handle the install click
+  const handleInstallClick = () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      // Prompt is used, reset state
+      setDeferredPrompt(null);
+      setShowInstallBtn(false);
+    }
+  };
+
+  // Function to handle the open app click
+  const handleOpenAppClick = () => {
+    // Redirects the user to the app's home page
+    navigate('/');
+  };
 
   return (
     <div className="landing-container">
@@ -178,11 +227,17 @@ export function Landing(){
         
         <div className="help-container">
           <div className="download-info" data-aos="fade-up">
-            <h3>How to Download</h3>
-            <p>Download info coming soon...</p>
+            <h3>Get the Hands UP App</h3>
+            <p>Install Hands UP to get instant access and a seamless experience right from your home screen. It works just like a native app, with full-screen views and faster performance.</p>
             <img src={devices} alt="Devices" className="device-image"/>
-            {/* <a href="https://play.google.com" target="_blank" rel="noopener noreferrer" className="download-button">Download Now</a> */}
-            <button className="download-button" onClick={handleClick}>Download Now</button>
+            {isPWAInstalled ? (
+              <button className="download-button" onClick={handleOpenAppClick}>Open App</button>
+            ) : showInstallBtn ? (
+              <button className="download-button" onClick={handleInstallClick}>Download Now</button>
+            ) : (
+              // Fallback for when no prompt is available
+              <button className="download-button" onClick={handleClick}>Coming soon</button>
+            )}
             {error && <p className="error-message">{error}</p>}
           </div>
 
