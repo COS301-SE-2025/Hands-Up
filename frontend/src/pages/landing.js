@@ -18,7 +18,7 @@ export function Landing(){
   const goToTranslator = () => navigate('/translator');
   // Add these state variables inside your Landing component
   const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [showInstallBtn, setShowInstallBtn] = useState(true);
+  const [showInstallBtn, setShowInstallBtn] = useState(false);
   const [isPWAInstalled, setIsPWAInstalled] = useState(false);
 
   const [error, setError] = useState('');
