@@ -3,7 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { Suspense } from 'react';
 import { Play, Pause, RotateCcw, Volume2, VolumeX, Star, Heart, ArrowLeft, Video } from 'lucide-react';
-
+import PropTypes from 'prop-types';
 import { AngieSigns } from '../components/angieSigns';
 import { getLandmarks } from '../utils/apiCalls';
 
@@ -87,10 +87,15 @@ const FloatingDecoration = ({ emoji, delay, duration = 4 }) => (
   </div>
 );
 
+FloatingDecoration.propTypes = {
+  emoji: PropTypes.string.isRequired,
+  delay: PropTypes.number.isRequired,
+  duration: PropTypes.number
+}
+
 export function NurseryRhymesPage() {
   const [selectedRhyme, setSelectedRhyme] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
   const [favorites, setFavorites] = useState([]);
   const [landmarks, setLandmarks] = useState([]);
@@ -135,7 +140,6 @@ export function NurseryRhymesPage() {
     if (!selectedRhyme || isPlaying) return;
     
     setIsPlaying(true);
-    setCurrentWordIndex(0);
     
     if (videoPlayer) {
       videoPlayer.playVideo();
@@ -157,7 +161,6 @@ export function NurseryRhymesPage() {
         return;
       }
       
-      setCurrentWordIndex(wordIndex);
       wordIndex++;
       intervalRef.current = setTimeout(playNextWord, wordDuration);
     };
@@ -177,7 +180,6 @@ export function NurseryRhymesPage() {
 
   const resetPlayback = useCallback(() => {
     pausePlayback();
-    setCurrentWordIndex(0);
     if (videoPlayer) {
       videoPlayer.seekTo(0);
     }
@@ -248,7 +250,7 @@ export function NurseryRhymesPage() {
         clearTimeout(intervalRef.current);
       }
     };
-  }, [selectedRhyme, isMuted, loadLandmarks]);
+  }, [selectedRhyme, isMuted, loadLandmarks,videoPlayer]);
 
   const RhymeCard = ({ rhyme }) => (
     <div 
@@ -311,6 +313,19 @@ export function NurseryRhymesPage() {
     </div>
   );
 
+   RhymeCard.propTypes = {
+    rhyme: PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+      bgGradient: PropTypes.string,
+      shadowColor: PropTypes.string,
+      decorations: PropTypes.array,
+      emoji: PropTypes.string,
+      lines: PropTypes.arrayOf(PropTypes.string).isRequired,
+    }).isRequired
+  };
+
+
   if (selectedRhyme) {
     return (
       <div className="nursery-detail-page">
@@ -347,7 +362,9 @@ export function NurseryRhymesPage() {
                       ) : (
                         <Suspense fallback={<ModelLoadingFallback />}>
                           <Canvas camera={{ position: [0, 0.2, 2], fov: 40 }}>
+                            {/* eslint-disable react/no-unknown-property */}
                             <ambientLight intensity={5} />
+                            {/* eslint-disable react/no-unknown-property */}
                             <group position={[0, -0.9, 0]}>
                               <AngieSigns 
                                 landmarks={landmarks} 
@@ -1161,3 +1178,24 @@ export function NurseryRhymesPage() {
     </div>
   );
 }
+
+NurseryRhymesPage.propTypes = {
+  rhyme: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    bgGradient: PropTypes.string,
+    shadowColor: PropTypes.string,
+    decorations: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string,
+      })
+    ),
+    emoji: PropTypes.string,
+    lines: PropTypes.arrayOf(PropTypes.string).isRequired,
+  }).isRequired,
+  emoji: PropTypes.string,
+  delay: PropTypes.number,
+  duration: PropTypes.number,
+  currentWordIndex: PropTypes.number,
+  videoPlayer: PropTypes.object, 
+};

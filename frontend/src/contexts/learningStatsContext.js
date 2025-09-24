@@ -251,7 +251,7 @@ export const LearningStatsProvider = ({ children }) => {
                 clearTimeout(saveTimeoutRef.current);
             }
         };
-    }, []);
+    }, [loadStatsFromBackend]);
 
     useEffect(() => {
         if (!stats || !hasLoadedFromBackend || isLoading) {
