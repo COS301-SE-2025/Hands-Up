@@ -48,7 +48,7 @@ const NURSERY_RHYMES = [
     id: 'wheels-bus',
     title: 'The Wheels on the Bus',
     emoji: '🚌',
-    bgGradient: 'linear-gradient(135deg, #FF4500 0%, #FF6347 50%, #DC143C 100%)',
+    bgGradient: 'linear-gradient(135deg, #09ff00ff 0%, #32CD32 50%, #228B22 100%)',
     shadowColor: 'rgba(255, 69, 0, 0.4)',
     words: ['wheels', 'bus', 'go', 'round', 'all', 'through', 'town', 'wipers', 'swish', 'doors', 'open', 'shut'],
     lines: [
@@ -189,68 +189,73 @@ export function NurseryRhymesPage() {
   }, [selectedRhyme, pausePlayback, loadLandmarks, videoPlayer]);
 
  
-  useEffect(() => {
-    if (selectedRhyme) {
-      if (videoPlayer) {
-        videoPlayer.destroy();
-        setVideoPlayer(null);
-      }
-
-      if (!window.YT) {
-        const tag = document.createElement('script');
-        tag.src = 'https://www.youtube.com/iframe_api';
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-      }
-
-      const initializePlayer = () => {
-        if (window.YT && window.YT.Player) {
-          const player = new window.YT.Player('youtube-player', {
-            height: '100%',
-            width: '100%',
-            videoId: selectedRhyme.videoId,
-            playerVars: {
-              autoplay: 0,
-              controls: 1,
-              disablekb: 0,
-              fs: 1,
-              iv_load_policy: 3,
-              modestbranding: 1,
-              rel: 0,
-              showinfo: 0
+useEffect(() => {
+  if (selectedRhyme) {
+    let player;
+    
+    const initializePlayer = () => {
+      if (window.YT && window.YT.Player) {
+        // Destroy existing player first
+        if (videoPlayer) {
+          videoPlayer.destroy();
+        }
+        
+        player = new window.YT.Player('youtube-player', {
+          height: '100%',
+          width: '100%',
+          videoId: selectedRhyme.videoId,
+          playerVars: {
+            autoplay: 0,
+            controls: 1,
+            disablekb: 0,
+            fs: 1,
+            iv_load_policy: 3,
+            modestbranding: 1,
+            rel: 0,
+            showinfo: 0
+          },
+          events: {
+            onReady: () => {
+              setVideoPlayer(player);
+              if (isMuted) {
+                player.mute();
+              }
             },
-            events: {
-              onReady: () => {
-                setVideoPlayer(player);
-                if (isMuted) {
-                  player.mute();
-                }
-              },
-              onStateChange: (event) => {
-                if (event.data === window.YT.PlayerState.ENDED) {
-                  setIsPlaying(false);
-                }
+            onStateChange: (event) => {
+              if (event.data === window.YT.PlayerState.ENDED) {
+                setIsPlaying(false);
               }
             }
-          });
-        }
-      };
-
-      if (window.YT && window.YT.Player) {
-        initializePlayer();
-      } else {
-        window.onYouTubeIframeAPIReady = initializePlayer;
+          }
+        });
       }
+    };
 
-      loadLandmarks(selectedRhyme.landmarkWord);
+    // Load YouTube API if not already loaded
+    if (!window.YT) {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      
+      window.onYouTubeIframeAPIReady = initializePlayer;
+    } else {
+      initializePlayer();
     }
 
+    loadLandmarks(selectedRhyme.landmarkWord);
+
+    // Cleanup function
     return () => {
       if (intervalRef.current) {
         clearTimeout(intervalRef.current);
       }
+      if (player) {
+        player.destroy();
+      }
     };
-  }, [selectedRhyme, isMuted, loadLandmarks,videoPlayer]);
+  }
+}, [selectedRhyme, isMuted, loadLandmarks]); 
 
   const RhymeCard = ({ rhyme }) => (
     <div 
@@ -816,7 +821,8 @@ export function NurseryRhymesPage() {
         }
 
         .header-content {
-          background: rgba(255, 255, 255, 0.9);
+          background-image: linear-gradient(90deg, #FFC542, #bdd957, #7ED957);
+  
           border-radius: 30px;
           padding: 40px;
           box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
@@ -845,6 +851,7 @@ export function NurseryRhymesPage() {
 
         .title-section {
           display: flex;
+          
           align-items: center;
           justify-content: center;
           gap: 30px;
@@ -854,9 +861,7 @@ export function NurseryRhymesPage() {
         .main-title {
           font-size: 3.5rem;
           font-weight: 900;
-          background: linear-gradient(135deg, #FF6B6B, #4ECDC4, #45B7D1, #96CEB4);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
+          background: black;
           background-clip: text;
           margin: 0;
           text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
@@ -897,7 +902,7 @@ export function NurseryRhymesPage() {
         }
 
         .badge.video {
-          background: linear-gradient(135deg, #FF4081, #FF80AB);
+          background: linear-gradient(135deg, #FFD700, #FFEAA7);
           color: white;
         }
 
@@ -908,7 +913,7 @@ export function NurseryRhymesPage() {
 
         .badge.kids {
           background: linear-gradient(135deg, #FFD700, #FFEAA7);
-          color: #333;
+          color: #ffffffff;
         }
 
         .badge-emoji {
