@@ -47,6 +47,8 @@ export function Game() {
     const [progress, setProgress] = useState(0);
     const [userInput, setUserInput] = useState(true);
     const [inputIndex, setInputIndex] = useState(2);
+    const [receivedLetter, setReceivedLetter] = useState(false);
+    const [letterReceived, setLetterReceived] = useState('');
 
     useEffect(() => {
       const timer = setTimeout(() => setLoading(false), 3000);
@@ -63,7 +65,7 @@ export function Game() {
         setShowCamera(true);
         setProgress(0);
 
-        const duration = 20000; 
+        const duration = 30000; 
         const interval = 100; 
         let elapsed = 0;
 
@@ -125,7 +127,8 @@ export function Game() {
         const newLives = Math.max(l - 1, 0);
         if (newLives === 0) {
           setGameStarted(false); 
-          setGameOver(true);  
+          setGameOver(true); 
+          setShowCamera(false); 
         }
         else {
           setLifeLost(true);
@@ -208,6 +211,19 @@ export function Game() {
                 {l}
               </span>
             ))}
+
+            {receivedLetter && ( 
+              <div style={{
+                color: 'red',
+                fontSize: '1.2rem',
+                fontWeight: 'bold',
+                fontFamily: 'Arial, Helvetica, sans-serif',
+                textAlign: 'center',
+                minHeight: '1.5rem'
+              }}>
+                {letterReceived}
+              </div>
+            )}
           </div>
 
           <div style={{ position: 'absolute', top: 0, right: '1.5%', display: 'flex', flexDirection: 'column', zIndex: 11 }}>
@@ -230,6 +246,10 @@ export function Game() {
               onLetterDetected={(letter) => {
                 const targetLetter = currentWord[letterIndex].toUpperCase();
 
+                if (letter === '') setLetterReceived('NO LETTER DETECTED');
+                else setLetterReceived("DETECTED " + letter);
+                setReceivedLetter(true);
+
                 if (letter === targetLetter) {
                   // correct letter 
                   setLetterIndex(idx => {
@@ -247,6 +267,7 @@ export function Game() {
                 else {
                   handleCollision();
                 }
+                setTimeout(() => setReceivedLetter(false), 2000);
               }}    
             /> 
           )}
