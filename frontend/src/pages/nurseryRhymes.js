@@ -4,7 +4,7 @@ import { OrbitControls } from '@react-three/drei';
 import { Suspense } from 'react';
 import { Play, Pause, RotateCcw, Volume2, VolumeX, Star, Heart, ArrowLeft, Video } from 'lucide-react';
 import PropTypes from 'prop-types';
-import { AngieSigns } from '../components/angieSigns';
+import { AngieSings } from '../components/angieSings';
 import { getLandmarks } from '../utils/apiCalls';
 
 const NURSERY_RHYMES = [
@@ -42,7 +42,7 @@ const NURSERY_RHYMES = [
     decorations: ['🦈', '🌊', '🐠', '💙'],
     videoId: 'XqZsoesa55w',
     videoDuration: 106,
-    landmarkWord: 'niceToMeetYou'
+    landmarkWord: 'nursery_rhymes/babyShark'
   },
   {
     id: 'wheels-bus',
@@ -250,7 +250,7 @@ export function NurseryRhymesPage() {
         clearTimeout(intervalRef.current);
       }
     };
-  }, [selectedRhyme, isMuted, loadLandmarks,videoPlayer]);
+  }, [selectedRhyme, isMuted, loadLandmarks]);
 
   const RhymeCard = ({ rhyme }) => (
     <div 
@@ -366,10 +366,8 @@ export function NurseryRhymesPage() {
                             <ambientLight intensity={5} />
                             {/* eslint-disable react/no-unknown-property */}
                             <group position={[0, -0.9, 0]}>
-                              <AngieSigns 
-                                landmarks={landmarks} 
-                                replay={replayKey}
-                                duration={2.5}
+                              <AngieSings 
+                                filename={selectedRhyme.landmarkWord}
                               />
                             </group>
                             <OrbitControls 
