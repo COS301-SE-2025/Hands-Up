@@ -1,4 +1,7 @@
-{
+{ 
+  "sequence": [
+    "baby", "left_shark", "baby_do", "baby", "left_shark", "baby_do", "baby", "left_shark", "baby_do", "baby", "left_shark"
+  ],
   "right_shark": {
     "mixamorigRightArm": {
       "keyframes": [
