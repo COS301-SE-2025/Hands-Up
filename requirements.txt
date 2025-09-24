@@ -7,3 +7,7 @@ flask-cors
 python-dotenv
 scikit-learn
 pandas
+fastapi
+httpx
+uvicorn
+pythom-multipart

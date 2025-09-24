@@ -1,5 +1,4 @@
- 
-import React, { useState,useCallback, useEffect, useMemo} from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/learnSidebar';
 import { CategoryTile } from '../components/learnCategoryTile';
@@ -94,7 +93,7 @@ const HelpMessage = ({ message, onClose, position }) => {
                     ) : (
                         <div className="flex items-center justify-center w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg">
                             <div className="text-center">
-                                <div className="text-4xl mb-2">🤟</div>
+                                <div className="text-4xl mb-2"></div>
                                 <div className="text-sm text-gray-600 font-medium">HandsUP</div>
                                 <div className="text-xs text-gray-500 mt-1">
                                     {!hasWebGL ? 'WebGL not available' : 'Using fallback display'}
@@ -181,117 +180,156 @@ const CATEGORY_HELP_MESSAGES = {
 };
 
 export function Learn() {
-    const { stats, updateStats, markHelpSeen, isLoading } = useLearningStats();
+    const { stats, completePlacementTest, markHelpSeen, isLoading, hasLoadedFromBackend, updateStats } = useLearningStats();
     const [selectedSection, setSelectedSection] = useState('dashboard');
     const [currentCategory, setCurrentCategory] = useState(null);
     const [unlockedLevels] = useState(27); 
     const navigate = useNavigate();
     const location = useLocation();
     const [showHelpMessage, setShowHelpMessage] = useState(false);
-    const [helpMessageContent, setHelpMessageContent] = useState('');
-    const [helpMessagePosition, setHelpMessagePosition] = useState('top-right');
     const [showPlacementTest, setShowPlacementTest] = useState(false);
 
-  useEffect(() => {
-        if (stats && !isLoading) {
-            const placementTestCompleted = stats.placementTestCompleted;
-            const hasSeenWelcome = stats.hasSeenCategoryHelp?.welcome;
-            
-            if (!placementTestCompleted) {
-                console.log('Placement test not completed in backend');
-                if (!hasSeenWelcome) {
-                    setTimeout(() => {
-                        showHelp("Welcome to HandsUP! Here you'll learn sign language through interactive lessons and quizzes. We'll start with a quick placement test to assess your current knowledge and unlock the right categories for your level. This ensures you get the best learning experience tailored just for you!", 'center', 'welcome');
-                    }, 500);
-                } else {
-                    setShowPlacementTest(true);
-                }
-            } else {
-                console.log('Placement test already completed in backend');
-                setShowPlacementTest(false);
+    const hasShownWelcomeThisSessionRef = useRef(false);
+    const hasShownDashboardThisSessionRef = useRef(false);
+    const shownCategoryHelpRef = useRef(new Set());
+    const initializationCompleteRef = useRef(false);
+
+    const normalizedStats = useMemo(() => {
+        if (!stats) return null;
+        
+        let actualStats = stats;
+        const hasNestedStructure = Object.keys(stats).some(key => !isNaN(parseInt(key)));
+        
+        if (hasNestedStructure) {
+            const numericKeys = Object.keys(stats).filter(key => !isNaN(parseInt(key)));
+            if (numericKeys.length > 0) {
+                actualStats = stats[numericKeys[0]] || stats;
             }
         }
-    }, [stats?.placementTestCompleted, stats?.hasSeenCategoryHelp?.welcome, isLoading,stats]);
-    
+        
+        return actualStats;
+    }, [stats]);
+
+    const isNewUser = useMemo(() => {
+        if (!normalizedStats) return true;
+        
+        if (normalizedStats.isNewUser !== undefined) {
+            return normalizedStats.isNewUser;
+        }
+        
+        const hasAnyProgress = normalizedStats.placementTestCompleted || 
+                              (normalizedStats.lessonsCompleted || 0) > 0 || 
+                              (normalizedStats.signsLearned || 0) > 0 || 
+                              (normalizedStats.learnedSigns || []).length > 0;
+        
+        return !hasAnyProgress;
+    }, [normalizedStats]);
+
+    useEffect(() => {
+        if (!normalizedStats || isLoading || !hasLoadedFromBackend || initializationCompleteRef.current) {
+            console.log('Initialization skipped:', { 
+                hasStats: !!normalizedStats, 
+                isLoading, 
+                hasLoadedFromBackend, 
+                initializationComplete: initializationCompleteRef.current 
+            });
+            return;
+        }
+
+        console.log('=== LEARN COMPONENT INITIALIZATION ===');
+        console.log('Normalized stats unlockedCategories:', normalizedStats.unlockedCategories);
+        console.log('isNewUser:', isNewUser);
+        console.log('placementTestCompleted:', normalizedStats.placementTestCompleted);
+        console.log('hasSeenWelcome:', normalizedStats.hasSeenWelcome);
+
+        initializationCompleteRef.current = true;
+
+        if (isNewUser && !normalizedStats.hasSeenWelcome && !hasShownWelcomeThisSessionRef.current && !normalizedStats.placementTestCompleted) {
+            console.log('Showing welcome message for truly new user');
+            hasShownWelcomeThisSessionRef.current = true;
+            setTimeout(() => {
+                setShowHelpMessage({ 
+                    message: CATEGORY_HELP_MESSAGES.welcome, 
+                    position: 'center', 
+                    helpKey: 'welcome' 
+                });
+            }, 500);
+        }
+        else if (isNewUser && normalizedStats.hasSeenWelcome && !normalizedStats.placementTestCompleted && !hasShownWelcomeThisSessionRef.current) {
+            console.log('User has seen welcome, showing placement test directly');
+            hasShownWelcomeThisSessionRef.current = true;
+            setTimeout(() => {
+                setShowPlacementTest(true);
+            }, 500);
+        }
+
+        console.log('=== INITIALIZATION COMPLETE ===');
+    }, [normalizedStats, isLoading, hasLoadedFromBackend, isNewUser]);
+
     const handleClosePlacementTest = () => {
-        console.log('=== CLOSING PLACEMENT TEST ===');
+        console.log('=== PLACEMENT TEST CLOSED (X BUTTON) ===');
         setShowPlacementTest(false);
+        
+        if (isNewUser && !normalizedStats?.placementTestCompleted) {
+            markHelpSeen('welcome');
+        }
     };
 
-    const handlePlacementComplete = async (results) => {
-        console.log('Placement test results received:', results);
-        
-        const updatedStats = {
-            ...stats,
-            placementTestCompleted: true,
-            placementResults: results,
-            unlockedCategories: [...new Set([
-                'alphabets', 
-                ...(stats?.unlockedCategories || []),
-                ...results.unlockedCategories
-            ])],
-            startingLevel: results.startingLevel || 'beginner'
-        };
-        
-        console.log('Updating stats with placement results:', updatedStats);
-        
-        updateStats(() => updatedStats);
-        
-        setShowPlacementTest(false);
+const handlePlacementComplete = async (results) => {
+    console.log('=== PLACEMENT TEST COMPLETED ===');
+    console.log('Results:', results);
+    
+    completePlacementTest(results, true); 
+    
+    setShowPlacementTest(false);
 
-        setTimeout(() => {
-            showHelp(
-                `Placement test complete! Based on your results, you're starting at ${results.startingLevel} level with ${results.unlockedCategories.length} categories unlocked. Great job!`,
-                'center',
-                'placement_complete'
-            );
-        }, 500);
-    };
+    setTimeout(() => {
+        setShowHelpMessage({ 
+            message: `Placement test complete! Based on your results, you're starting at ${results.startingLevel} level with ${results.unlockedCategories.length} categories unlocked. Great job!`,
+            position: 'center',
+            helpKey: 'placement_complete'
+        });
+    }, 500);
+};
 
-    const handlePlacementSkip = async (results) => {
-        console.log('Placement test skipped, results:', results);
-        
-        const updatedStats = {
-            ...stats,
-            placementTestCompleted: true,
-            placementResults: results,
-            unlockedCategories: [...new Set([
-                'alphabets', 
-                ...(stats?.unlockedCategories || []),
-                ...results.unlockedCategories
-            ])],
-            startingLevel: results.startingLevel
-        };
-        
-        console.log('Updated stats after skipping placement test:', updatedStats);
-        updateStats(() => updatedStats);
-        
-        setShowPlacementTest(false);
+const handlePlacementSkip = async (results) => {
+    console.log('=== PLACEMENT TEST SKIPPED ===');
+    console.log('Results:', results);
+    
+   completePlacementTest({
+        ...results,
+        unlockedCategories: ['alphabets'],
+        skipMerge: true 
+    });
+    
+    setShowPlacementTest(false);
 
-        setTimeout(() => {
-            showHelp(
-                "Welcome! Since you skipped the placement test, you'll start from the beginning with the Alphabet category. You can always retake the placement test later!",
-                'center',
-                'placement_skipped'
-            );
-        }, 500);
-    };
+    setTimeout(() => {
+        setShowHelpMessage({ 
+            message: "Welcome! Since you skipped the placement test, you'll start from the beginning with the Alphabet category. You can always retake the placement test later!",
+            position: 'center',
+            helpKey: 'placement_skipped'
+        });
+    }, 500);
+};
+
+ 
 
     const unlockedCategories = useMemo(() => {
-        console.log('=== Computing unlocked categories from backend data ===');
-        console.log('Current stats:', stats);
+        console.log('=== Computing unlocked categories ===');
+        console.log('Backend unlockedCategories:', normalizedStats?.unlockedCategories);
         
-        if (!stats) {
+        if (!normalizedStats) {
             console.log('No stats available, defaulting to alphabets only');
             return ['alphabets'];
         }
         
         let finalUnlocked = ['alphabets'];
-        const backendUnlocked = stats.unlockedCategories;
+        const backendUnlocked = normalizedStats.unlockedCategories;
+        
         if (backendUnlocked && Array.isArray(backendUnlocked) && backendUnlocked.length > 0) {
-            console.log('Found backend unlocked categories:', backendUnlocked);
             finalUnlocked = [...new Set([...finalUnlocked, ...backendUnlocked])];
-            console.log('After adding backend categories:', finalUnlocked);
+            console.log('Merged unlocked categories with backend:', finalUnlocked);
         }
         
         for (let i = 0; i < CATEGORY_PROGRESSION.length - 1; i++) {
@@ -299,73 +337,80 @@ export function Learn() {
             const nextCategory = CATEGORY_PROGRESSION[i + 1];
             const quizKey = `${currentCategory}QuizCompleted`;
             
-            if (finalUnlocked.includes(currentCategory) && stats[quizKey]) {
+            if (finalUnlocked.includes(currentCategory) && normalizedStats[quizKey]) {
                 if (!finalUnlocked.includes(nextCategory)) {
                     finalUnlocked.push(nextCategory);
-                    console.log(`Progressive unlock: ${nextCategory} (${currentCategory} quiz completed)`);
+                    console.log('Progressive unlock:', nextCategory);
                 }
             }
         }
         
         console.log('=== Final unlocked categories:', finalUnlocked, '===');
         return finalUnlocked;
-    }, [
-        stats
-    ]);
+    }, [normalizedStats]);
 
-  const unlockNextCategory = useCallback(async (completedCategory) => {
+const unlockNextCategory = useCallback(async (completedCategory) => {
     console.log(`Attempting to unlock next category after completing: ${completedCategory}`);
     
     const currentIndex = CATEGORY_PROGRESSION.indexOf(completedCategory);
-    if (currentIndex !== -1 && currentIndex < CATEGORY_PROGRESSION.length - 1) {
-        const nextCategory = CATEGORY_PROGRESSION[currentIndex + 1];
+    
+    updateStats(prevStats => {
+        const currentUnlocked = prevStats?.unlockedCategories || ['alphabets'];
+        const quizCompletedKey = `${completedCategory}QuizCompleted`;
         
-        updateStats(prevStats => {
-            const currentUnlocked = prevStats?.unlockedCategories || ['alphabets'];
-            const quizCompletedKey = `${completedCategory}QuizCompleted`;
+        let updatedStats = {
+            ...prevStats,
+            [quizCompletedKey]: true,
+            quizzesCompleted: (prevStats?.quizzesCompleted || 0) + 1
+        };
+        
+        if (currentIndex !== -1 && currentIndex < CATEGORY_PROGRESSION.length - 1) {
+            const nextCategory = CATEGORY_PROGRESSION[currentIndex + 1];
             
             if (!currentUnlocked.includes(nextCategory)) {
                 const updatedUnlocked = [...currentUnlocked, nextCategory];
                 console.log(`Unlocking category: ${nextCategory}`, updatedUnlocked);
                 
-                return {
-                    ...prevStats,
-                    unlockedCategories: updatedUnlocked,
-                    [quizCompletedKey]: true,
-                    quizzesCompleted: (prevStats?.quizzesCompleted || 0) + 1
-                };
-            } else {
-                return {
-                    ...prevStats,
-                    [quizCompletedKey]: true,
-                    quizzesCompleted: (prevStats?.quizzesCompleted || 0) + 1
+                updatedStats = {
+                    ...updatedStats,
+                    unlockedCategories: updatedUnlocked
                 };
             }
-        });
-    } else {
-        const quizCompletedKey = `${completedCategory}QuizCompleted`;
-        updateStats(prevStats => ({
-            ...prevStats,
-            [quizCompletedKey]: true,
-            quizzesCompleted: (prevStats?.quizzesCompleted || 0) + 1
-        }));
-    }
-}, [updateStats]); 
+        }
+        
+        if (prevStats?.placementTestCompleted) {
+            updatedStats.placementTestCompleted = true;
+            updatedStats.placementResults = prevStats.placementResults;
+        }
+        
+        return updatedStats;
+    });
+}, [updateStats]);
 
-    useEffect(() => {
-        const handleQuizCompletion = (event) => {
-            const { category } = event.detail;
-            console.log(`Quiz completion detected for category: ${category}`);
+useEffect(() => {
+    const handleQuizCompletion = (event) => {
+        const { category, score, passed } = event.detail;
+        console.log(`Quiz completion detected for category: ${category}, Passed: ${passed}, Score: ${score}`);
+        
+        if (passed) {
             unlockNextCategory(category);
-        };
+        } else {
+            updateStats(prevStats => ({
+                ...prevStats,
+                quizzesCompleted: (prevStats?.quizzesCompleted || 0) + 1,
+                lastQuizScore: score,
+                lastQuizCategory: category
+            }));
+        }
+    };
 
-        window.addEventListener('quizCompleted', handleQuizCompletion);
-        return () => window.removeEventListener('quizCompleted', handleQuizCompletion);
-    }, [unlockNextCategory]);
+    window.addEventListener('quizCompleted', handleQuizCompletion);
+    return () => window.removeEventListener('quizCompleted', handleQuizCompletion);
+}, [unlockNextCategory, updateStats]);
 
-    const lessonsCompleted = stats?.lessonsCompleted || 0;
-    const signsLearned = stats?.signsLearned || 0;
-    const quizzesCompleted = stats?.quizzesCompleted || 0;
+    const lessonsCompleted = normalizedStats?.lessonsCompleted || 0;
+    const signsLearned = normalizedStats?.signsLearned || 0;
+    const quizzesCompleted = normalizedStats?.quizzesCompleted || 0;
 
     const categories = useMemo(() => [
         { id: 'alphabets', name: 'The Alphabet', unlocked: unlockedCategories.includes('alphabets') },
@@ -422,9 +467,20 @@ export function Learn() {
         setCurrentCategory(null);
         setSelectedSection('dashboard');
         
-        if (stats && !stats.hasSeenCategoryHelp?.dashboard) {
+        const shouldShowDashboard = normalizedStats && 
+                                   normalizedStats.placementTestCompleted && 
+                                   !normalizedStats.hasSeenCategoryHelp?.dashboard && 
+                                   !hasShownDashboardThisSessionRef.current &&
+                                   !isNewUser;
+        
+        if (shouldShowDashboard) {
+            hasShownDashboardThisSessionRef.current = true;
             setTimeout(() => {
-                showHelp(CATEGORY_HELP_MESSAGES.dashboard, 'center', 'dashboard');
+                setShowHelpMessage({ 
+                    message: CATEGORY_HELP_MESSAGES.dashboard, 
+                    position: 'center', 
+                    helpKey: 'dashboard' 
+                });
             }, 300);
         }
     };
@@ -443,48 +499,33 @@ export function Learn() {
     
     const getQuizRoute = (categoryId) => {
         switch (categoryId) {
-            case 'alphabets':
-                return '/quiz';
-            case 'numbers':
-                return '/numbers-quiz';
-            case 'introduce':
-                return '/introduce-quiz';
-            case 'colours':
-                return '/colours-quiz';
-            case 'family':
-                return '/family-quiz';
-            case 'feelings':
-                return '/feelings-quiz';
-            case 'actions':
-                return '/actions-quiz';
-            case 'questions':   
-                return '/questions-quiz';
-            case 'time':    
-                return '/time-quiz';
-            case 'food':
-                return '/food-quiz';
-            case 'things':
-                return '/things-quiz';
-            case 'animals':
-                return '/animals-quiz';
-            case 'seasons':
-                return '/seasons-quiz';
-            case 'phrases':
-                return '/phrases-quiz';
-            default:
-                return '/quiz'; 
+            case 'alphabets': return '/quiz';
+            case 'numbers': return '/numbers-quiz';
+            case 'introduce': return '/introduce-quiz';
+            case 'colours': return '/colours-quiz';
+            case 'family': return '/family-quiz';
+            case 'feelings': return '/feelings-quiz';
+            case 'actions': return '/actions-quiz';
+            case 'questions': return '/questions-quiz';
+            case 'time': return '/time-quiz';
+            case 'food': return '/food-quiz';
+            case 'things': return '/things-quiz';
+            case 'animals': return '/animals-quiz';
+            case 'seasons': return '/seasons-quiz';
+            case 'phrases': return '/phrases-quiz';
+            default: return '/quiz';
         }
-    };
-
-    const showHelp = (message, position, helpKey) => {
-        setHelpMessageContent(message);
-        setHelpMessagePosition(position);
-        setShowHelpMessage({ message, position, helpKey });
     };
 
     const handleCloseHelp = () => {
         if (showHelpMessage.helpKey) {
-           markHelpSeen(showHelpMessage.helpKey);
+            markHelpSeen(showHelpMessage.helpKey);
+            
+            if (showHelpMessage.helpKey === 'welcome' && isNewUser && !normalizedStats?.placementTestCompleted) {
+                setTimeout(() => {
+                    setShowPlacementTest(true);
+                }, 300);
+            }
         }
         setShowHelpMessage(false);
     };
@@ -504,23 +545,30 @@ export function Learn() {
             setCurrentCategory(category);
             setShowHelpMessage(false);
             
-            if (stats && !stats.hasSeenCategoryHelp?.[category.id]) {
+            const hasSeenFromBackend = normalizedStats?.hasSeenCategoryHelp?.[category.id] === true;
+            const hasShownThisSession = shownCategoryHelpRef.current.has(category.id);
+            
+            if (!hasSeenFromBackend && !hasShownThisSession) {
+                shownCategoryHelpRef.current.add(category.id);
                 setTimeout(() => {
-                    showHelp(CATEGORY_HELP_MESSAGES[category.id], 'center', category.id);
+                    setShowHelpMessage({ 
+                        message: CATEGORY_HELP_MESSAGES[category.id], 
+                        position: 'center', 
+                        helpKey: category.id 
+                    });
                 }, 300);
             }
         } else {
-            showHelp(
-                getLockedCategoryMessage(category.id),
-                'center',
-                `locked_${category.id}`
-            );
+            setShowHelpMessage({ 
+                message: getLockedCategoryMessage(category.id),
+                position: 'center',
+                helpKey: `locked_${category.id}`
+            });
         }
     };
 
     const retakePlacementTest = async () => {
-        console.log('Retaking placement test - resetting backend data');
-        
+       
         updateStats(prevStats => ({
             ...prevStats,
             placementTestCompleted: false,
@@ -546,20 +594,7 @@ export function Learn() {
         setShowPlacementTest(true);
     };
 
-    useEffect(() => {
-        if (stats && 
-            selectedSection === 'dashboard' && 
-            !currentCategory && 
-            !showPlacementTest && 
-            !stats.hasSeenCategoryHelp?.dashboard &&
-            stats.placementTestCompleted) {
-            setTimeout(() => {
-                showHelp(CATEGORY_HELP_MESSAGES.dashboard, 'center', 'dashboard');
-            }, 500);
-        }
-    }, [selectedSection, currentCategory, showPlacementTest, stats?.hasSeenCategoryHelp?.dashboard, stats?.placementTestCompleted,stats]);
-
-    if (isLoading || !stats) {
+    if (isLoading || !normalizedStats || !hasLoadedFromBackend) {
         return (
             <div className="duo-app">
                 <div className="learn-main-content flex items-center justify-center min-h-screen">
@@ -590,7 +625,7 @@ export function Learn() {
                 signsLearned={signsLearned}
                 lessonsCompleted={lessonsCompleted}
                 quizzesCompleted={quizzesCompleted}
-                placementTestCompleted={stats?.placementTestCompleted || false}
+                placementTestCompleted={normalizedStats?.placementTestCompleted || false}
                 onRetakePlacementTest={retakePlacementTest}
             />
 
@@ -643,11 +678,11 @@ export function Learn() {
                                             if (signsLearned >= 5) {
                                                 navigate(getQuizRoute(currentCategory.id));
                                             } else {
-                                                showHelp(
-                                                    `You need to learn at least 5 signs in the Alphabet category to unlock this quiz. Keep practicing!`,
-                                                    'center',
-                                                    'alphabet_quiz_locked'
-                                                );
+                                                setShowHelpMessage({ 
+                                                    message: `You need to learn at least 5 signs in the Alphabet category to unlock this quiz. Keep practicing!`,
+                                                    position: 'center',
+                                                    helpKey: 'alphabet_quiz_locked'
+                                                });
                                             }
                                         }}
                                         style={{
@@ -738,19 +773,19 @@ export function Learn() {
                                     ))}
                                     <div
                                         className={`level-card phrase-card phrase-quiz w-full ${
-                                            COMMON_PHRASES.every(phrase => stats?.learnedPhrases?.includes(phrase.id))
+                                            COMMON_PHRASES.every(phrase => normalizedStats?.learnedPhrases?.includes(phrase.id))
                                                 ? 'unlocked' 
                                                 : 'locked'
                                         }`}
                                         onClick={() => {
-                                            if (COMMON_PHRASES.every(phrase => stats?.learnedPhrases?.includes(phrase.id))) {
+                                            if (COMMON_PHRASES.every(phrase => normalizedStats?.learnedPhrases?.includes(phrase.id))) {
                                                 navigate(getQuizRoute(currentCategory.id));
                                             } else {
-                                                showHelp(
-                                                    `You need to learn all phrases in the 'Common Phrases' category to unlock this quiz. Keep practicing!`,
-                                                    'center',
-                                                    'phrases_quiz_locked'
-                                                );
+                                                setShowHelpMessage({ 
+                                                    message: `You need to learn all phrases in the 'Common Phrases' category to unlock this quiz. Keep practicing!`,
+                                                    position: 'center',
+                                                    helpKey: 'phrases_quiz_locked'
+                                                });
                                             }
                                         }}
                                     >
@@ -762,7 +797,7 @@ export function Learn() {
                                                 <div className="phrase-text">
                                                     <h3 className="phrase-title text-sm sm:text-base font-semibold">Phrases Quiz</h3>
                                                     <p className="phrase-subtitle text-xs sm:text-sm text-gray-600">
-                                                        {COMMON_PHRASES.every(phrase => stats?.learnedPhrases?.includes(phrase.id))
+                                                        {COMMON_PHRASES.every(phrase => normalizedStats?.learnedPhrases?.includes(phrase.id))
                                                             ? 'Test your phrase knowledge!'
                                                             : 'Complete all phrases to unlock'
                                                         }
@@ -827,22 +862,22 @@ export function Learn() {
                                                 key={`${currentCategory.id}-quiz`}
                                                 level={'Quiz'}
                                                 unlocked={
-                                                    words.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))
+                                                    words.every(word => normalizedStats?.learnedSigns?.includes(word.toLowerCase()))
                                                 }
                                                 onClick={() => {
-                                                    if (words.every(word => stats?.learnedSigns?.includes(word.toLowerCase()))) {
+                                                    if (words.every(word => normalizedStats?.learnedSigns?.includes(word.toLowerCase()))) {
                                                         navigate(getQuizRoute(currentCategory.id));
                                                     } else {
-                                                        showHelp(
-                                                            `You need to learn all words in the '${displayName}' category to unlock this quiz. Keep practicing!`,
-                                                            'center',
-                                                            `${currentCategory.id}_quiz_locked`
-                                                        );
+                                                        setShowHelpMessage({ 
+                                                            message: `You need to learn all words in the '${displayName}' category to unlock this quiz. Keep practicing!`,
+                                                            position: 'center',
+                                                            helpKey: `${currentCategory.id}_quiz_locked`
+                                                        });
                                                     }
                                                 }}
                                                 style={{
-                                                    backgroundColor: words.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
-                                                    color: words.every(word => stats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
+                                                    backgroundColor: words.every(word => normalizedStats?.learnedSigns?.includes(word.toLowerCase())) ? '#ffc107' : '#ccc',
+                                                    color: words.every(word => normalizedStats?.learnedSigns?.includes(word.toLowerCase())) ? '#fff' : '#666',
                                                     fontWeight: 'bold',
                                                     fontSize: '12px sm:14px'
                                                 }}
@@ -851,7 +886,6 @@ export function Learn() {
                                     );
                                 })()
                             ) : (
-                              
                                 <>
                                     {[...Array(5)].map((_, index) => (
                                         <LevelTile
@@ -888,8 +922,8 @@ export function Learn() {
 
                 {showHelpMessage && (
                     <HelpMessage
-                        message={showHelpMessage.message || helpMessageContent}
-                        position={showHelpMessage.position || helpMessagePosition}
+                        message={showHelpMessage.message}
+                        position={showHelpMessage.position}
                         onClose={handleCloseHelp}
                     />
                 )}
