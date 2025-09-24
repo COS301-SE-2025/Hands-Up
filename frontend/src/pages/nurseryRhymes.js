@@ -255,7 +255,7 @@ useEffect(() => {
       }
     };
   }
-}, [selectedRhyme, isMuted, loadLandmarks]); 
+}, [selectedRhyme, isMuted, loadLandmarks,videoPlayer]); 
 
   const RhymeCard = ({ rhyme }) => (
     <div 
