@@ -747,6 +747,14 @@
 
 /* Half-screen mode - Dropdown sidebar behavior */
 @media (max-width: 768px) {
+
+  .help-button {
+    bottom: 2rem;
+    right: 2rem;
+    /* Add consistent positioning that doesn't shift when modal opens */
+    position: fixed;
+    z-index: 100; /* Higher than modal to stay visible */
+  }
   .help-modal {
     max-width: 95vw;
     max-height: 95vh;
@@ -759,7 +767,17 @@
   
   /* Show toggle button in mobile */
   .help-sidebar-toggle {
-    display: block;
+    top: 1.5rem;
+    left: 1.5rem;
+    /* Match the styling and size of help button for visual consistency */
+    padding: 1rem;
+    border-radius: 16px;
+    /* Ensure it's the same size as help button */
+    width: auto;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   
   /* Sidebar as overlay dropdown */
@@ -861,15 +879,28 @@
   
   .help-modal-header {
     padding: 1.5rem;
-    padding-left: 4rem; /* Make room for toggle button */
+    padding-left: 5rem; /* Increased to match button size + spacing */
+    position: relative;
   }
   
   .help-modal-title {
     font-size: 1.5rem;
   }
+
+  .help-sidebar-toggle-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
 }
 
 @media (max-width: 480px) {
+  .help-button {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    padding: 0.875rem;
+    border-radius: 14px;
+  }
+
   .help-modal-overlay {
     padding: 0.75rem;
   }
@@ -894,7 +925,7 @@
   
   .help-modal-header {
     padding: 1.25rem;
-    padding-left: 4rem;
+    padding-left: 4.5rem;
   }
   
   .help-modal-title {
@@ -908,8 +939,15 @@
   }
   
   .help-sidebar-toggle {
-    top: 0.75rem;
-    left: 0.75rem;
+    top: 1.25rem;
+    left: 1.25rem;
+    padding: 0.875rem;
+    border-radius: 14px;
+  }
+
+  .help-sidebar-toggle-icon {
+    width: 1.25rem;
+    height: 1.25rem;
   }
 }
 
