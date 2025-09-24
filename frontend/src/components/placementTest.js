@@ -236,7 +236,8 @@ const PlacementTest = ({ onComplete, onSkip, onClose }) => {
     };
 
     const handleClose = () => {
-        console.log('=== PLACEMENT TEST CLOSED ===');
+        console.log('=== PLACEMENT TEST CLOSED (X BUTTON) ===');
+        console.log('Closing placement test without affecting any state');
         if (onClose) {
             onClose();
         }
@@ -249,14 +250,7 @@ const PlacementTest = ({ onComplete, onSkip, onClose }) => {
         return (
             <div className="placement-test-overlay">
                 <div className="results-card">
-                    <button 
-                        onClick={handleClose}
-                        className="close-button"
-                        aria-label="Close placement test"
-                    >
-                        ×
-                    </button>
-
+                   
                     <div className="angie-avatar-container">
                         <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
                             {/* eslint-disable react/no-unknown-property */}
@@ -308,6 +302,7 @@ const PlacementTest = ({ onComplete, onSkip, onClose }) => {
                     onClick={handleClose}
                     className="close-button"
                     aria-label="Close placement test"
+                    title="Close placement test (your progress will not be saved)"
                 >
                     ×
                 </button>

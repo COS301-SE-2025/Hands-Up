@@ -54,6 +54,15 @@ app.use((req, res, next) => {
     next();
 });
 
+app.get('/api/user', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    
+    if (req.user) {
+        res.json({ user: req.user });
+    } else {
+        res.status(401).json({ error: 'Not authenticated' });
+    }
+});
 
 app.get('/health', (req, res) => {
     res.status(200).send('OK');
