@@ -1,7 +1,5 @@
--- Create the enum type for current_level
 CREATE TYPE "levelType" AS ENUM ('Gold', 'Silver', 'Bronze','Platinum', 'Diamond','Ruby');
 
--- Create the users table
 CREATE TABLE public.users (
     "userID" SERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
@@ -12,7 +10,6 @@ CREATE TABLE public.users (
     avatarurl VARCHAR(255) DEFAULT NULL
 );
 
--- Create the learn table
 CREATE TABLE public.learn (
     "userID" INTEGER NOT NULL,
     "lessonsCompleted" INTEGER DEFAULT 0,
@@ -25,7 +22,7 @@ CREATE TABLE public.learn (
         ON DELETE CASCADE
 );
 
-CREATE TABLE learn_details (
+CREATE TABLE public.learn_details (
     "detailID" SERIAL PRIMARY KEY,
     "userID" INTEGER NOT NULL REFERENCES users("userID") ON DELETE CASCADE,
     "learnedSigns" TEXT DEFAULT '[]', 
@@ -34,7 +31,7 @@ CREATE TABLE learn_details (
     "placementTestCompleted" BOOLEAN DEFAULT FALSE,
     "placementResults" TEXT DEFAULT NULL, 
     "quizzesCompleted" INTEGER DEFAULT 0,
-     "alphabetsQuizCompleted" BOOLEAN DEFAULT FALSE,
+    "alphabetsQuizCompleted" BOOLEAN DEFAULT FALSE,
     "numbersQuizCompleted" BOOLEAN DEFAULT FALSE,
     "introduceQuizCompleted" BOOLEAN DEFAULT FALSE,
     "coloursQuizCompleted" BOOLEAN DEFAULT FALSE,
@@ -48,6 +45,8 @@ CREATE TABLE learn_details (
     "animalsQuizCompleted" BOOLEAN DEFAULT FALSE,
     "seasonsQuizCompleted" BOOLEAN DEFAULT FALSE,
     "phrasesQuizCompleted" BOOLEAN DEFAULT FALSE,
+    "hasSeenWelcome" BOOLEAN DEFAULT FALSE,
+    "hasSeenCategoryHelp" TEXT DEFAULT '{}',
     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE("userID") 
@@ -63,6 +62,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Create trigger
 CREATE TRIGGER trigger_update_learn_details_updated_at
     BEFORE UPDATE ON learn_details
     FOR EACH ROW

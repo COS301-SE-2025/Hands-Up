@@ -299,7 +299,17 @@ export function SignQuiz() {
                         detail: { category, score: finalScore, passed: true }
                     });
                     window.dispatchEvent(event);
-                }
+                }else {
+    const event = new CustomEvent('quizCompleted', {
+        detail: { 
+            category, 
+            score: finalScore, 
+            passed: false,
+            percentage 
+        }
+    });
+    window.dispatchEvent(event);
+}
                 
                 updateStats(prevStats => ({
                     ...prevStats,

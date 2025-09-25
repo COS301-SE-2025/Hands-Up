@@ -85,6 +85,18 @@ export const learningProgress = async (req, res) => {
             const placementResults = detailedData.placementResults ? JSON.parse(detailedData.placementResults) : null;
             const hasSeenCategoryHelp = detailedData.hasSeenCategoryHelp ? JSON.parse(detailedData.hasSeenCategoryHelp) : {};
 
+            const isNewUser = (basicData.lessonsCompleted || 0) === 0 && 
+                            (basicData.signsLearned || 0) === 0 && 
+                            learnedSigns.length === 0;
+
+            console.log(`=== USER PROGRESS CHECK FOR ${username} ===`);
+            console.log('lessonsCompleted:', basicData.lessonsCompleted);
+            console.log('signsLearned:', basicData.signsLearned);
+            console.log('learnedSigns array length:', learnedSigns.length);
+            console.log('isNewUser:', isNewUser);
+            console.log('hasSeenWelcome:', detailedData.hasSeenWelcome);
+            console.log('placementTestCompleted:', detailedData.placementTestCompleted);
+
             const mergedData = {
                 ...basicData,
                 ...detailedData,
@@ -93,7 +105,8 @@ export const learningProgress = async (req, res) => {
                 unlockedCategories,
                 placementResults,
                 hasSeenCategoryHelp,
-                signsLearned: learnedSigns.length
+                signsLearned: learnedSigns.length,
+                isNewUser 
             };
 
             res.status(200).json({
