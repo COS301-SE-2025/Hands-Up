@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { Suspense } from 'react';
-import { Play, Pause, RotateCcw, Volume2, VolumeX, Star, Heart, ArrowLeft, Video } from 'lucide-react';
+import { Play, Pause, RotateCcw, Star, Heart, ArrowLeft, Video } from 'lucide-react';
 import PropTypes from 'prop-types';
 import { AngieSigns } from '../components/angieSigns';
 import { getLandmarks } from '../utils/apiCalls';
