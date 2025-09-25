@@ -186,7 +186,7 @@ export function TestSetup({ isOpen, onClose }) {
                   updateStatus('Hold up your hand');
                   timeoutRef.current = null;
                 }
-              }, 500);
+              }, 0);
             }
           } else {
             updateStatus(currentBrightness < 80 ? 'Too dark, move to better lighting' : 'Too bright, move to a dimmer area');
@@ -223,7 +223,7 @@ export function TestSetup({ isOpen, onClose }) {
                       updateStatus('Show a peace sign');
                       timeoutRef.current = null;
                     }
-                  }, 500);
+                  }, 0);
                 }
               } else if (stage === 'peace') {
                 if (results.landmarks.some(isPeaceSign)) {
@@ -235,7 +235,7 @@ export function TestSetup({ isOpen, onClose }) {
                     timeoutRef.current = setTimeout(() => {
                       setStage('done');
                       timeoutRef.current = null;
-                    }, 500);
+                    }, 0);
                   }
                 } else {
                   updateStatus("Show a peace sign");
@@ -313,7 +313,7 @@ export function TestSetup({ isOpen, onClose }) {
                 timeoutRef.current = setTimeout(() => {
                   setStage("lighting");
                   timeoutRef.current = null;
-                }, 500);
+                }, 0);
               }
             }}
             className="recognizer-control-button recognizer-test-button stage-complete"
