@@ -9,21 +9,21 @@ import { getLandmarks } from '../utils/apiCalls';
 
 const NURSERY_RHYMES = [
   {
-    id: 'itsy-bitsy-spider',
-    title: 'Itsy Bitsy Spider',
-    emoji: '🕷️',
-    bgGradient: 'linear-gradient(135deg, #9370DB 0%, #8A2BE2 50%, #4B0082 100%)',
-    shadowColor: 'rgba(147, 112, 219, 0.4)',
-    words: ['itsy', 'bitsy', 'spider', 'climbed', 'up', 'water', 'spout', 'down', 'came', 'rain', 'washed', 'out'],
+    id: 'row-your-boat',
+    title: 'Row, Row, Row Your Boat',
+    emoji: '🚣‍♂️',
+    bgGradient: 'linear-gradient(135deg, #00BFFF 0%, #87CEEB 50%, #B0E0E6 100%)',
+    shadowColor: 'rgba(135, 206, 235, 0.4)',
+    words: ['row', 'boat', 'gently', 'down', 'stream', 'merrily', 'life', 'but', 'dream'],
     lines: [
-      'The itsy bitsy spider climbed up the water spout',
-      'Down came the rain and washed the spider out',
-      'Out came the sun and dried up all the rain',
-      'And the itsy bitsy spider climbed up the spout again'
+      'Row, row, row your boat',
+      'Gently down the stream',
+      'Merrily, merrily, merrily, merrily',
+      'Life is but a dream'
     ],
-    decorations: ['🕷️', '🌧️', '☀️', '💧'],
-    videoId: 'BFXHaXacZjw',
-    videoDuration: 120,
+    decorations: ['🚣‍♂️', '🌊', '🎵', '💭'],
+    videoId: 'PZJS2_pWMpE',
+    videoDuration: 180,
     landmarkWord: 'myBrotherAndSister'
   },
   {
@@ -96,7 +96,6 @@ FloatingDecoration.propTypes = {
 export function NurseryRhymesPage() {
   const [selectedRhyme, setSelectedRhyme] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
   const [favorites, setFavorites] = useState([]);
   const [landmarks, setLandmarks] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -125,16 +124,7 @@ export function NurseryRhymesPage() {
     );
   };
 
-  const toggleMute = () => {
-    setIsMuted(prev => !prev);
-    if (videoPlayer) {
-      if (isMuted) {
-        videoPlayer.unMute();
-      } else {
-        videoPlayer.mute();
-      }
-    }
-  };
+
 
   const startPlayback = useCallback(async () => {
     if (!selectedRhyme || isPlaying) return;
@@ -195,7 +185,6 @@ useEffect(() => {
     
     const initializePlayer = () => {
       if (window.YT && window.YT.Player) {
-        // Destroy existing player first
         if (videoPlayer) {
           videoPlayer.destroy();
         }
@@ -217,9 +206,7 @@ useEffect(() => {
           events: {
             onReady: () => {
               setVideoPlayer(player);
-              if (isMuted) {
-                player.mute();
-              }
+             
             },
             onStateChange: (event) => {
               if (event.data === window.YT.PlayerState.ENDED) {
@@ -231,7 +218,6 @@ useEffect(() => {
       }
     };
 
-    // Load YouTube API if not already loaded
     if (!window.YT) {
       const tag = document.createElement('script');
       tag.src = 'https://www.youtube.com/iframe_api';
@@ -245,7 +231,6 @@ useEffect(() => {
 
     loadLandmarks(selectedRhyme.landmarkWord);
 
-    // Cleanup function
     return () => {
       if (intervalRef.current) {
         clearTimeout(intervalRef.current);
@@ -255,7 +240,7 @@ useEffect(() => {
       }
     };
   }
-}, [selectedRhyme, isMuted, loadLandmarks,videoPlayer]); 
+}, [selectedRhyme, loadLandmarks]); 
 
   const RhymeCard = ({ rhyme }) => (
     <div 
@@ -410,13 +395,7 @@ useEffect(() => {
                   Restart
                 </button>
                 
-                <button
-                  onClick={toggleMute}
-                  className={`control-btn ${isMuted ? 'muted' : 'unmuted'}`}
-                >
-                  {isMuted ? <VolumeX /> : <Volume2 />}
-                  {isMuted ? 'Unmute' : 'Mute'}
-                </button>
+
               </div>
             </div>
           </div>
@@ -425,11 +404,11 @@ useEffect(() => {
         <style jsx>{`
           .nursery-detail-page {
             min-height: 100vh;
-            background: linear-gradient(135deg, #FFE5F1 0%, #E5F3FF 30%, #F0FFFF 60%, #FFF0F5 100%);
+            background: #f0f2f5;
             position: relative;
             min-width:1330px;
             overflow-x: auto;
-            font-family: 'Comic Neue', 'Fredoka One', 'Arial Rounded MT', sans-serif;
+            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacMacSystemFont, Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
           }
 
           .background-decorations {
@@ -448,10 +427,19 @@ useEffect(() => {
             font-size: 2.5rem;
             opacity: 0.3;
             animation: magical-float infinite ease-in-out;
-            left: ${Math.random() * 100}%;
-            top: ${Math.random() * 100}%;
             filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
           }
+          
+          .floating-decoration:nth-child(1) { right: 5%; top: 10%; }
+          .floating-decoration:nth-child(2) { right: 15%; top: 25%; }
+          .floating-decoration:nth-child(3) { right: 8%; top: 40%; }
+          .floating-decoration:nth-child(4) { right: 20%; top: 55%; }
+          .floating-decoration:nth-child(5) { right: 10%; top: 70%; }
+          .floating-decoration:nth-child(6) { right: 25%; top: 85%; }
+          .floating-decoration:nth-child(7) { right: 3%; top: 30%; }
+          .floating-decoration:nth-child(8) { right: 18%; top: 45%; }
+          .floating-decoration:nth-child(9) { right: 12%; top: 60%; }
+          .floating-decoration:nth-child(10) { right: 22%; top: 75%; }
 
           @keyframes magical-float {
             0%, 100% { 
@@ -485,21 +473,22 @@ useEffect(() => {
             align-items: center;
             gap: 10px;
             padding: 15px 25px;
-            background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+            background: #fae152;
+            color: #4e7a51;
             border: none;
-            border-radius: 50px;
+            border-radius: 0.5rem;
             font-size: 18px;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+            box-shadow: 0 5px 15px rgba(250, 225, 82, 0.4);
             transition: all 0.3s ease;
             z-index: 100;
-            color: white;
           }
 
           .back-btn:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
+            background: #ffe033;
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(250, 225, 82, 0.6);
           }
 
           .rhyme-info {
@@ -674,27 +663,27 @@ useEffect(() => {
           }
 
           .control-btn.play {
-            background: linear-gradient(135deg, #32CD32, #228B22);
+            background: linear-gradient(135deg, #2da335, #7ED957);
             color: white;
           }
 
           .control-btn.pause {
-            background: linear-gradient(135deg, #FF6B6B, #DC143C);
+            background: #58983D;
             color: white;
           }
 
           .control-btn.reset {
-            background: linear-gradient(135deg, #4169E1, #0000FF);
+            background: #4e7a51;
             color: white;
           }
 
           .control-btn.unmuted {
-            background: linear-gradient(135deg, #9370DB, #4B0082);
-            color: white;
+            background: #fae152;
+            color: #4e7a51;
           }
 
           .control-btn.muted {
-            background: linear-gradient(135deg, #808080, #696969);
+            background: #58983D;
             color: white;
           }
 
@@ -762,20 +751,7 @@ useEffect(() => {
               </div>
             </div>
             
-            <div className="feature-badges">
-              <div className="badge video">
-                <span className="badge-emoji"></span>
-                YouTube Videos
-              </div>
-              <div className="badge interactive">
-                <span className="badge-emoji"></span>
-                Sign Learning
-              </div>
-              <div className="badge kids">
-                <span className="badge-emoji"></span>
-                Kid Friendly
-              </div>
-            </div>
+           
           </div>
         </div>
 
@@ -789,11 +765,11 @@ useEffect(() => {
       <style jsx>{`
         .nursery-main-page {
           min-height: 100vh;
-          background: linear-gradient(135deg, #FFE5F1 0%, #E5F3FF 25%, #F0FFFF 50%, #FFF0F5 75%, #E8F5E8 100%);
+          background: #f0f2f5;
           position: relative;
           width: 100%;
           overflow-x: hidden;
-          font-family: 'Comic Neue', 'Fredoka One', 'Arial Rounded MT', sans-serif;
+          font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacMacSystemFont, Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
         }
 
         .main-background-decorations {
@@ -821,13 +797,11 @@ useEffect(() => {
         }
 
         .header-content {
-          background-image: linear-gradient(90deg, #FFC542, #bdd957, #7ED957);
-  
-          border-radius: 30px;
+          background: linear-gradient(to right, #4e7a51, #7ED957);
+          border-radius: 1rem;
           padding: 40px;
-          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
-          backdrop-filter: blur(10px);
-          border: 3px solid rgba(255, 255, 255, 0.5);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+          border: none;
           position: relative;
           overflow: hidden;
         }
@@ -839,7 +813,6 @@ useEffect(() => {
           left: 0;
           right: 0;
           height: 6px;
-          background: linear-gradient(90deg, #FF6B6B, #4ECDC4, #45B7D1, #96CEB4, #FFEAA7);
           animation: rainbow-flow 3s linear infinite;
           background-size: 200% 100%;
         }
@@ -861,19 +834,18 @@ useEffect(() => {
         .main-title {
           font-size: 3.5rem;
           font-weight: 900;
-          background: black;
-          background-clip: text;
+          color: white;
           margin: 0;
-          text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+          text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
           letter-spacing: 2px;
         }
 
         .subtitle {
           font-size: 1.6rem;
-          color: #555;
+          color: rgba(255, 255, 255, 0.95);
           margin: 10px 0 0 0;
           font-weight: 600;
-          text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+          text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
         }
 
         .feature-badges {
@@ -902,18 +874,21 @@ useEffect(() => {
         }
 
         .badge.video {
-          background: linear-gradient(135deg, #FFD700, #FFEAA7);
-          color: white;
+          background: #fae152;
+          color: #4e7a51;
+          border: 2px solid rgba(255, 255, 255, 0.3);
         }
 
         .badge.interactive {
-          background: linear-gradient(135deg, #32CD32, #90EE90);
+          background: linear-gradient(135deg, #2da335, #7ED957);
           color: white;
+          border: 2px solid rgba(255, 255, 255, 0.3);
         }
 
         .badge.kids {
-          background: linear-gradient(135deg, #FFD700, #FFEAA7);
-          color: #ffffffff;
+          background: #ffe44d;
+          color: #4e7a51;
+          border: 2px solid rgba(255, 255, 255, 0.3);
         }
 
         .badge-emoji {
