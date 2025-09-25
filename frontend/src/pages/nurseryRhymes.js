@@ -9,21 +9,20 @@ import { getLandmarks } from '../utils/apiCalls';
 
 const NURSERY_RHYMES = [
   {
-    id: 'itsy-bitsy-spider',
-    title: 'Itsy Bitsy Spider',
-    emoji: '🕷️',
+    id: 'row-your-boat',
+    title: 'Row, Row, Row Your Boat',
+    emoji: '🚣‍♂️',
     bgGradient: 'linear-gradient(135deg, #9370DB 0%, #8A2BE2 50%, #4B0082 100%)',
-    shadowColor: 'rgba(147, 112, 219, 0.4)',
-    words: ['itsy', 'bitsy', 'spider', 'climbed', 'up', 'water', 'spout', 'down', 'came', 'rain', 'washed', 'out'],
+    words: ['row', 'boat', 'gently', 'down', 'stream', 'merrily', 'life', 'but', 'dream'],
     lines: [
-      'The itsy bitsy spider climbed up the water spout',
-      'Down came the rain and washed the spider out',
-      'Out came the sun and dried up all the rain',
-      'And the itsy bitsy spider climbed up the spout again'
+      'Row, row, row your boat',
+      'Gently down the stream',
+      'Merrily, merrily, merrily, merrily',
+      'Life is but a dream'
     ],
-    decorations: ['🕷️', '🌧️', '☀️', '💧'],
-    videoId: 'BFXHaXacZjw',
-    videoDuration: 120,
+    decorations: ['🚣‍♂️', '🌊', '🎵', '💭'],
+    videoId: 'PZJS2_pWMpE',
+    videoDuration: 180,
     landmarkWord: 'myBrotherAndSister'
   },
   {
@@ -31,7 +30,6 @@ const NURSERY_RHYMES = [
     title: 'Baby Shark',
     emoji: '🦈',
     bgGradient: 'linear-gradient(135deg, #00BFFF 0%, #1E90FF 50%, #0000CD 100%)',
-    shadowColor: 'rgba(30, 144, 255, 0.4)',
     words: ['baby', 'shark', 'doo', 'mommy', 'daddy', 'grandma', 'grandpa', 'lets', 'go', 'hunt', 'run', 'away'],
     lines: [
       'Baby shark, doo doo doo doo doo doo',
@@ -48,8 +46,7 @@ const NURSERY_RHYMES = [
     id: 'wheels-bus',
     title: 'The Wheels on the Bus',
     emoji: '🚌',
-    bgGradient: 'linear-gradient(135deg, #FF4500 0%, #FF6347 50%, #DC143C 100%)',
-    shadowColor: 'rgba(255, 69, 0, 0.4)',
+    bgGradient: 'linear-gradient(135deg, #fff678ff 0%, #ffda0aff 50%, #ffe44d 100%)',
     words: ['wheels', 'bus', 'go', 'round', 'all', 'through', 'town', 'wipers', 'swish', 'doors', 'open', 'shut'],
     lines: [
       'The wheels on the bus go round and round',
@@ -275,7 +272,7 @@ export function NurseryRhymesPage() {
       <div className="card-content">
         <div className="card-header">
           <div className="main-emoji">{rhyme.emoji}</div>
-          <button
+          {/* <button
             onClick={(e) => {
               e.stopPropagation();
               toggleFavorite(rhyme.id);
@@ -285,7 +282,7 @@ export function NurseryRhymesPage() {
             <Heart 
               className={favorites.includes(rhyme.id) ? 'favorited' : ''}
             />
-          </button>
+          </button> */}
         </div>
         
         <h3 className="card-title">{rhyme.title}</h3>
@@ -309,7 +306,7 @@ export function NurseryRhymesPage() {
         </div>
       </div>
       
-      <div className="shine-effect"></div>
+      {/* <div className="shine-effect"></div> */}
     </div>
   );
 
@@ -329,8 +326,6 @@ export function NurseryRhymesPage() {
   if (selectedRhyme) {
     return (
       <div className="nursery-detail-page">
-        
-
         <div className="detail-container">
           <div className="detail-header">
             <button 
@@ -418,7 +413,6 @@ export function NurseryRhymesPage() {
         <style jsx>{`
           .nursery-detail-page {
             min-height: 100vh;
-            background: linear-gradient(135deg, #FFE5F1 0%, #E5F3FF 30%, #F0FFFF 60%, #FFF0F5 100%);
             position: relative;
             min-width:1330px;
             overflow-x: auto;
@@ -754,21 +748,6 @@ export function NurseryRhymesPage() {
                 <p className="subtitle">Watch videos and learn sign language together!</p>
               </div>
             </div>
-            
-            <div className="feature-badges">
-              <div className="badge video">
-                <span className="badge-emoji"></span>
-                YouTube Videos
-              </div>
-              <div className="badge interactive">
-                <span className="badge-emoji"></span>
-                Sign Learning
-              </div>
-              <div className="badge kids">
-                <span className="badge-emoji"></span>
-                Kid Friendly
-              </div>
-            </div>
           </div>
         </div>
 
@@ -782,7 +761,6 @@ export function NurseryRhymesPage() {
       <style jsx>{`
         .nursery-main-page {
           min-height: 100vh;
-          background: linear-gradient(135deg, #FFE5F1 0%, #E5F3FF 25%, #F0FFFF 50%, #FFF0F5 75%, #E8F5E8 100%);
           position: relative;
           width: 100%;
           overflow-x: hidden;
@@ -815,7 +793,8 @@ export function NurseryRhymesPage() {
 
         .header-content {
           background: rgba(255, 255, 255, 0.9);
-          border-radius: 30px;
+          border-bottom-left-radius: 30px;
+          border-bottom-right-radius: 30px;
           padding: 40px;
           box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
           backdrop-filter: blur(10px);
@@ -852,7 +831,7 @@ export function NurseryRhymesPage() {
         .main-title {
           font-size: 3.5rem;
           font-weight: 900;
-          background: linear-gradient(135deg, #FF6B6B, #4ECDC4, #45B7D1, #96CEB4);
+          background: #7ED957;          
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
