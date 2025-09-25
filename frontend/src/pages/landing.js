@@ -8,10 +8,12 @@ import '../styles/landing.css';
 import video1 from "../media/landing_video1.mp4";
 import logo from "../media/logo.png";
 import devices from "../media/devices.png";
-import ModelViewer from '../components/mascotModelViewer'
-
+//import ModelViewer from '../components/mascotModelViewer'
+// import { AngieSigns } from '../components/angieSigns';
+import { AngieSings } from '../components/angieSings';
+import { Canvas } from '@react-three/fiber';
 export function Landing(){
-
+  
   const navigate = useNavigate();
   const goToLogin = () => navigate('/login');
   const goToSignup = () => navigate('/signup');
@@ -26,6 +28,29 @@ export function Landing(){
     }, 3000); 
   };
 
+  const sequence = [
+    'hello',
+    'thank_you',
+    'hello',
+    'thank_you'
+  ];
+  const delay = 3000;
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+
+   useEffect(() => {
+    if (currentIndex >= sequence.length) return;
+
+    const timer = setTimeout(() => {
+      setCurrentIndex((prev) => prev + 1);
+    }, delay);
+
+    return () => clearTimeout(timer);
+  }, [currentIndex]);
+
+  const currentWord = sequence[currentIndex] || sequence[sequence.length - 1];
+
+  
   useEffect(() => {
     AOS.init({
       duration: 1000, 
@@ -64,10 +89,19 @@ export function Landing(){
               <button className="hero-button" onClick={goToSignup}>Start Learning</button>
             </div>
           </div>
-          <div className="side-image right-image">
-            <div style={{ width: '100%', height: '85vh' }}>
+          <div className="side-image right-image" style={{ width: '100%', height: '85vh' }}>
+             {/* <div style={{ width: '100%', height: '85vh' }}>
               <ModelViewer modelPath={'/models/angieWaving.glb'}/>
-            </div>
+            </div> */}
+            <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
+              {/* eslint-disable react/no-unknown-property */} 
+              <ambientLight intensity={5} />
+
+              {/* eslint-disable-next-line react/no-unknown-property */}
+              <group position={[0, -1.1, 0]}>
+                 <AngieSings word={currentWord} />
+              </group>
+            </Canvas>
           </div>
         </div>
       </div>
