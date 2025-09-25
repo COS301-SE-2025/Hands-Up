@@ -185,9 +185,7 @@ useEffect(() => {
     
     const initializePlayer = () => {
       if (window.YT && window.YT.Player) {
-        if (videoPlayer) {
-          videoPlayer.destroy();
-        }
+        
         
         player = new window.YT.Player('youtube-player', {
           height: '100%',
