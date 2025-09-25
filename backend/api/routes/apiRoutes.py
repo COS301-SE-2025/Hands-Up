@@ -1,5 +1,5 @@
 import os
-from fastapi import APIRouter, UploadFile, File, HTTPException,FastAPI,Request
+from fastapi import APIRouter, UploadFile, File, HTTPException, FastAPI, Request
 from fastapi.responses import JSONResponse
 from typing import List
 from dotenv import load_dotenv
@@ -19,6 +19,19 @@ async def sendToHF(url: str, frames: List[UploadFile]):
     async with httpx.AsyncClient(timeout=300) as client:
         try:
             response = await client.post(url, files=files_to_send)
+            response.raise_for_status()
+            return response.json()
+        except httpx.RequestError as e:
+            print(f"Request error: {e}")
+            raise HTTPException(status_code=500, detail=str(e))
+        except httpx.HTTPStatusError as e:
+            print(f"HTTP error: {e.response.text}")
+            raise HTTPException(status_code=e.response.status_code, detail=e.response.text)
+
+async def sendJsonToHF(url: str, data: dict):
+    async with httpx.AsyncClient(timeout=300) as client:
+        try:
+            response = await client.post(url, json=data)
             response.raise_for_status()
             return response.json()
         except httpx.RequestError as e:
@@ -66,6 +79,7 @@ async def sign_sentence(data: dict):
     if not gloss_input:
         raise HTTPException(status_code=400, detail="No gloss provided")
 
-    from controllers.glossController import translateGloss
-    translation = translateGloss(gloss_input)
-    return {"translation": translation}
+    url = f"{HUGGINGFACE_BASE_URL}/sentence"
+    
+    result = await sendJsonToHF(url, {"gloss": gloss_input})
+    return JSONResponse(content=result)
