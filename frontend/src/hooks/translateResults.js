@@ -45,7 +45,7 @@ export function useTranslator() {
             try {
                 setTranslating(true);
                 const translation = await produceSentence(result);
-
+                console.log(translation);
                 if (translation.translation && translation.translation !== "?") {
                     setResult(translation.translation);
                 } else {
