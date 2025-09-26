@@ -1,19 +1,15 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
-import { Suspense } from 'react';
-import { Play, Pause, RotateCcw, Star, Heart, ArrowLeft, Video } from 'lucide-react';
+import { Play, Pause, RotateCcw, Volume2, VolumeX, Star, ArrowLeft, Video } from 'lucide-react';
+import { AngieSings } from '../components/angieSings';
 import PropTypes from 'prop-types';
-import { AngieSigns } from '../components/angieSigns';
-import { getLandmarks } from '../utils/apiCalls';
 
 const NURSERY_RHYMES = [
   {
     id: 'row-your-boat',
     title: 'Row, Row, Row Your Boat',
     emoji: '🚣‍♂️',
-    bgGradient: 'linear-gradient(135deg, #00BFFF 0%, #87CEEB 50%, #B0E0E6 100%)',
-    shadowColor: 'rgba(135, 206, 235, 0.4)',
+    bgGradient: 'linear-gradient(135deg, #9370DB 0%, #8A2BE2 50%, #4B0082 100%)',
     words: ['row', 'boat', 'gently', 'down', 'stream', 'merrily', 'life', 'but', 'dream'],
     lines: [
       'Row, row, row your boat',
@@ -31,7 +27,6 @@ const NURSERY_RHYMES = [
     title: 'Baby Shark',
     emoji: '🦈',
     bgGradient: 'linear-gradient(135deg, #00BFFF 0%, #1E90FF 50%, #0000CD 100%)',
-    shadowColor: 'rgba(30, 144, 255, 0.4)',
     words: ['baby', 'shark', 'doo', 'mommy', 'daddy', 'grandma', 'grandpa', 'lets', 'go', 'hunt', 'run', 'away'],
     lines: [
       'Baby shark, doo doo doo doo doo doo',
@@ -42,14 +37,13 @@ const NURSERY_RHYMES = [
     decorations: ['🦈', '🌊', '🐠', '💙'],
     videoId: 'XqZsoesa55w',
     videoDuration: 106,
-    landmarkWord: 'niceToMeetYou'
+    landmarkWord: 'nursery_rhymes/babyShark'
   },
   {
     id: 'wheels-bus',
     title: 'The Wheels on the Bus',
     emoji: '🚌',
-    bgGradient: 'linear-gradient(135deg, #09ff00ff 0%, #32CD32 50%, #228B22 100%)',
-    shadowColor: 'rgba(255, 69, 0, 0.4)',
+    bgGradient: 'linear-gradient(135deg, #fff678ff 0%, #ffda0aff 50%, #ffe44d 100%)',
     words: ['wheels', 'bus', 'go', 'round', 'all', 'through', 'town', 'wipers', 'swish', 'doors', 'open', 'shut'],
     lines: [
       'The wheels on the bus go round and round',
@@ -96,33 +90,10 @@ FloatingDecoration.propTypes = {
 export function NurseryRhymesPage() {
   const [selectedRhyme, setSelectedRhyme] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [favorites, setFavorites] = useState([]);
-  const [landmarks, setLandmarks] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
   const [replayKey, setReplayKey] = useState(0);
   const [videoPlayer, setVideoPlayer] = useState(null);
   const intervalRef = useRef(null);
-
-  const loadLandmarks = useCallback(async (landmarkWord) => {
-    setLoading(true);
-    try {
-      const data = await getLandmarks(landmarkWord);
-      setLandmarks(data || []);
-    } catch (error) {
-      console.error('Failed to load landmarks for:', landmarkWord, error);
-      setLandmarks([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const toggleFavorite = (rhymeId) => {
-    setFavorites(prev => 
-      prev.includes(rhymeId) 
-        ? prev.filter(id => id !== rhymeId)
-        : [...prev, rhymeId]
-    );
-  };
 
 
 
@@ -135,14 +106,13 @@ export function NurseryRhymesPage() {
       videoPlayer.playVideo();
     }
     
-    await loadLandmarks(selectedRhyme.landmarkWord);
     setReplayKey(prev => prev + 1);
     
     let wordIndex = 0;
     const wordDuration = selectedRhyme.videoDuration ? 
       (selectedRhyme.videoDuration * 1000) / selectedRhyme.words.length : 3000;
     
-    const playNextWord = async () => {
+    const playNextWord = () => {
       if (wordIndex >= selectedRhyme.words.length) {
         setIsPlaying(false);
         if (videoPlayer) {
@@ -156,7 +126,7 @@ export function NurseryRhymesPage() {
     };
     
     playNextWord();
-  }, [selectedRhyme, isPlaying, loadLandmarks, videoPlayer]);
+  }, [selectedRhyme, isPlaying, videoPlayer]);
 
   const pausePlayback = useCallback(() => {
     setIsPlaying(false);
@@ -173,72 +143,69 @@ export function NurseryRhymesPage() {
     if (videoPlayer) {
       videoPlayer.seekTo(0);
     }
-    if (selectedRhyme) {
-      loadLandmarks(selectedRhyme.landmarkWord);
-    }
-  }, [selectedRhyme, pausePlayback, loadLandmarks, videoPlayer]);
-
+    setReplayKey(prev => prev + 1);
+  }, [pausePlayback, videoPlayer]);
  
-useEffect(() => {
-  if (selectedRhyme) {
-    let player;
-    
-    const initializePlayer = () => {
-      if (window.YT && window.YT.Player) {
-        
-        
-        player = new window.YT.Player('youtube-player', {
-          height: '100%',
-          width: '100%',
-          videoId: selectedRhyme.videoId,
-          playerVars: {
-            autoplay: 0,
-            controls: 1,
-            disablekb: 0,
-            fs: 1,
-            iv_load_policy: 3,
-            modestbranding: 1,
-            rel: 0,
-            showinfo: 0
-          },
-          events: {
-            onReady: () => {
-              setVideoPlayer(player);
-             
+  useEffect(() => {
+    if (selectedRhyme) {
+      if (videoPlayer) {
+        videoPlayer.destroy();
+        setVideoPlayer(null);
+      }
+
+      if (!window.YT) {
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      }
+
+      const initializePlayer = () => {
+        if (window.YT && window.YT.Player) {
+          const player = new window.YT.Player('youtube-player', {
+            height: '100%',
+            width: '100%',
+            videoId: selectedRhyme.videoId,
+            playerVars: {
+              autoplay: 0,
+              controls: 1,
+              disablekb: 0,
+              fs: 1,
+              iv_load_policy: 3,
+              modestbranding: 1,
+              rel: 0,
+              showinfo: 0
             },
-            onStateChange: (event) => {
-              if (event.data === window.YT.PlayerState.ENDED) {
-                setIsPlaying(false);
+            events: {
+              onReady: () => {
+                setVideoPlayer(player);
+                
+              },
+              onStateChange: (event) => {
+                if (event.data === window.YT.PlayerState.ENDED) {
+                  setIsPlaying(false);
+                }
               }
             }
-          }
-        });
+          });
+        }
+      };
+
+      if (window.YT && window.YT.Player) {
+        initializePlayer();
+      } 
+      else {
+        window.onYouTubeIframeAPIReady = initializePlayer;
       }
-    };
-
-    if (!window.YT) {
-      const tag = document.createElement('script');
-      tag.src = 'https://www.youtube.com/iframe_api';
-      const firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-      
-      window.onYouTubeIframeAPIReady = initializePlayer;
-    } else {
-      initializePlayer();
     }
-
-    loadLandmarks(selectedRhyme.landmarkWord);
 
     return () => {
       if (intervalRef.current) {
         clearTimeout(intervalRef.current);
       }
-      if (player) {
-        player.destroy();
-      }
     };
-  }
-}, [selectedRhyme, loadLandmarks]); 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRhyme, isMuted]);
 
   const RhymeCard = ({ rhyme }) => (
     <div 
@@ -263,17 +230,6 @@ useEffect(() => {
       <div className="card-content">
         <div className="card-header">
           <div className="main-emoji">{rhyme.emoji}</div>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleFavorite(rhyme.id);
-            }}
-            className="favorite-btn"
-          >
-            <Heart 
-              className={favorites.includes(rhyme.id) ? 'favorited' : ''}
-            />
-          </button>
         </div>
         
         <h3 className="card-title">{rhyme.title}</h3>
@@ -295,9 +251,8 @@ useEffect(() => {
             ))}
           </div>
         </div>
-      </div>
-      
-      <div className="shine-effect"></div>
+      </div>      
+      {/* <div className="shine-effect"></div> */}
     </div>
   );
 
@@ -317,8 +272,6 @@ useEffect(() => {
   if (selectedRhyme) {
     return (
       <div className="nursery-detail-page">
-        
-
         <div className="detail-container">
           <div className="detail-header">
             <button 
@@ -333,7 +286,7 @@ useEffect(() => {
               <div className="rhyme-emoji">{selectedRhyme.emoji}</div>
               <div>
                 <h1>{selectedRhyme.title}</h1>
-                <p>Watch the video and learn signs with Angie!</p>
+                <p>Watch and sign along with Angie!</p>
               </div>
             </div>
           </div>
@@ -345,30 +298,18 @@ useEffect(() => {
                   <div id="youtube-player" className="youtube-player"></div>
                   <div className="angie-overlay">
                     <div className="canvas-container-overlay">
-                      {loading ? (
-                        <ModelLoadingFallback />
-                      ) : (
-                        <Suspense fallback={<ModelLoadingFallback />}>
-                          <Canvas camera={{ position: [0, 0.2, 2], fov: 40 }}>
-                            {/* eslint-disable react/no-unknown-property */}
-                            <ambientLight intensity={5} />
-                            {/* eslint-disable react/no-unknown-property */}
-                            <group position={[0, -0.9, 0]}>
-                              <AngieSigns 
-                                landmarks={landmarks} 
-                                replay={replayKey}
-                                duration={2.5}
-                              />
-                            </group>
-                            <OrbitControls 
-                              enablePan={false} 
-                              maxPolarAngle={Math.PI / 2} 
-                              minDistance={2.5} 
-                              maxDistance={3.5} 
+                      <Suspense fallback={<ModelLoadingFallback />}>
+                        <Canvas camera={{ position: [0, 0.2, 2], fov: 40 }}>
+                          {/* eslint-disable react/no-unknown-property */}
+                          <ambientLight intensity={8} />
+                          <group position={[0, -1.2, 0]}>
+                            <AngieSings 
+                              key={replayKey}
+                              filename={selectedRhyme.landmarkWord}
                             />
-                          </Canvas>
-                        </Suspense>
-                      )}
+                          </group>
+                        </Canvas>
+                      </Suspense>
                     </div>
                   </div>
                 </div>
@@ -378,7 +319,6 @@ useEffect(() => {
                 <button
                   onClick={isPlaying ? pausePlayback : startPlayback}
                   className={`control-btn ${isPlaying ? 'pause' : 'play'}`}
-                  disabled={loading}
                 >
                   {isPlaying ? <Pause /> : <Play />}
                   {isPlaying ? 'Pause' : 'Play Video'}
@@ -387,13 +327,12 @@ useEffect(() => {
                 <button
                   onClick={resetPlayback}
                   className="control-btn reset"
-                  disabled={loading}
                 >
                   <RotateCcw />
                   Restart
                 </button>
                 
-
+                
               </div>
             </div>
           </div>
@@ -402,11 +341,10 @@ useEffect(() => {
         <style jsx>{`
           .nursery-detail-page {
             min-height: 100vh;
-            background: #f0f2f5;
             position: relative;
             min-width:1330px;
             overflow-x: auto;
-            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacMacSystemFont, Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            font-family: 'Comic Neue', 'Fredoka One', 'Arial Rounded MT', sans-serif;
           }
 
           .background-decorations {
@@ -425,19 +363,10 @@ useEffect(() => {
             font-size: 2.5rem;
             opacity: 0.3;
             animation: magical-float infinite ease-in-out;
+            left: ${Math.random() * 100}%;
+            top: ${Math.random() * 100}%;
             filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
           }
-          
-          .floating-decoration:nth-child(1) { right: 5%; top: 10%; }
-          .floating-decoration:nth-child(2) { right: 15%; top: 25%; }
-          .floating-decoration:nth-child(3) { right: 8%; top: 40%; }
-          .floating-decoration:nth-child(4) { right: 20%; top: 55%; }
-          .floating-decoration:nth-child(5) { right: 10%; top: 70%; }
-          .floating-decoration:nth-child(6) { right: 25%; top: 85%; }
-          .floating-decoration:nth-child(7) { right: 3%; top: 30%; }
-          .floating-decoration:nth-child(8) { right: 18%; top: 45%; }
-          .floating-decoration:nth-child(9) { right: 12%; top: 60%; }
-          .floating-decoration:nth-child(10) { right: 22%; top: 75%; }
 
           @keyframes magical-float {
             0%, 100% { 
@@ -471,22 +400,21 @@ useEffect(() => {
             align-items: center;
             gap: 10px;
             padding: 15px 25px;
-            background: #fae152;
-            color: #4e7a51;
+            background: linear-gradient(135deg, #2da335, #7ED957);
             border: none;
-            border-radius: 0.5rem;
+            border-radius: 50px;
             font-size: 18px;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(250, 225, 82, 0.4);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
             transition: all 0.3s ease;
             z-index: 100;
+            color: white;
           }
 
           .back-btn:hover {
-            background: #ffe033;
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 8px 20px rgba(250, 225, 82, 0.6);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
           }
 
           .rhyme-info {
@@ -661,29 +589,20 @@ useEffect(() => {
           }
 
           .control-btn.play {
-            background: linear-gradient(135deg, #2da335, #7ED957);
+            background: linear-gradient(135deg, #32CD32, #228B22);
             color: white;
           }
 
           .control-btn.pause {
-            background: #58983D;
+            background: linear-gradient(135deg, #FF6B6B, #DC143C);
             color: white;
           }
 
           .control-btn.reset {
-            background: #4e7a51;
+            background: linear-gradient(135deg, #4169E1, #0000FF);
             color: white;
           }
 
-          .control-btn.unmuted {
-            background: #fae152;
-            color: #4e7a51;
-          }
-
-          .control-btn.muted {
-            background: #58983D;
-            color: white;
-          }
 
           .control-btn:hover:not(:disabled) {
             transform: translateY(-3px) scale(1.05);
@@ -748,8 +667,6 @@ useEffect(() => {
                 <p className="subtitle">Watch videos and learn sign language together!</p>
               </div>
             </div>
-            
-           
           </div>
         </div>
 
@@ -763,11 +680,10 @@ useEffect(() => {
       <style jsx>{`
         .nursery-main-page {
           min-height: 100vh;
-          background: #f0f2f5;
           position: relative;
           width: 100%;
           overflow-x: hidden;
-          font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacMacSystemFont, Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+          font-family: 'Comic Neue', 'Fredoka One', 'Arial Rounded MT', sans-serif;
         }
 
         .main-background-decorations {
@@ -795,11 +711,13 @@ useEffect(() => {
         }
 
         .header-content {
-          background: linear-gradient(to right, #4e7a51, #7ED957);
-          border-radius: 1rem;
+          background: rgba(255, 255, 255, 0.9);
+          border-bottom-left-radius: 30px;
+          border-bottom-right-radius: 30px;
           padding: 40px;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-          border: none;
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+          backdrop-filter: blur(10px);
+          border: 3px solid rgba(255, 255, 255, 0.5);
           position: relative;
           overflow: hidden;
         }
@@ -811,6 +729,7 @@ useEffect(() => {
           left: 0;
           right: 0;
           height: 6px;
+          background: linear-gradient(90deg, #FF6B6B, #4ECDC4, #45B7D1, #96CEB4, #FFEAA7);
           animation: rainbow-flow 3s linear infinite;
           background-size: 200% 100%;
         }
@@ -822,7 +741,6 @@ useEffect(() => {
 
         .title-section {
           display: flex;
-          
           align-items: center;
           justify-content: center;
           gap: 30px;
@@ -832,18 +750,21 @@ useEffect(() => {
         .main-title {
           font-size: 3.5rem;
           font-weight: 900;
-          color: white;
+          background: #7ED957;          
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
           margin: 0;
-          text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+          text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
           letter-spacing: 2px;
         }
 
         .subtitle {
           font-size: 1.6rem;
-          color: rgba(255, 255, 255, 0.95);
+          color: #555;
           margin: 10px 0 0 0;
           font-weight: 600;
-          text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+          text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
 
         .feature-badges {
@@ -872,21 +793,18 @@ useEffect(() => {
         }
 
         .badge.video {
-          background: #fae152;
-          color: #4e7a51;
-          border: 2px solid rgba(255, 255, 255, 0.3);
+          background: linear-gradient(135deg, #FF4081, #FF80AB);
+          color: white;
         }
 
         .badge.interactive {
-          background: linear-gradient(135deg, #2da335, #7ED957);
+          background: linear-gradient(135deg, #32CD32, #90EE90);
           color: white;
-          border: 2px solid rgba(255, 255, 255, 0.3);
         }
 
         .badge.kids {
-          background: #ffe44d;
-          color: #4e7a51;
-          border: 2px solid rgba(255, 255, 255, 0.3);
+          background: linear-gradient(135deg, #FFD700, #FFEAA7);
+          color: #333;
         }
 
         .badge-emoji {
