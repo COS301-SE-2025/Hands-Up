@@ -3,6 +3,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.apiRoutes import router as sign_router
+import uvicorn
 
 app = FastAPI()
 app.include_router(sign_router)

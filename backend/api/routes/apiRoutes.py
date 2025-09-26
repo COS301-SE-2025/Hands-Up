@@ -50,16 +50,10 @@ async def log_requests(request: Request, call_next):
 
 @router.post("/processLetters")
 async def process_letters(frames: List[UploadFile] = File(...)):
-    sequence_num = 20
-    if len(frames) != sequence_num:
-        raise HTTPException(status_code=400, detail=f"Exactly {sequence_num} frames required")
-
-    url = f"{HUGGINGFACE_BASE_URL}/detect-letters"
-
-    result = await sendToHF(url, frames)
-    print(f"Received result: {result}")
-    return JSONResponse(content=result)
-
+    sequence_list = []
+    for frame in frames:
+        pass
+    return detectFromImage(sequence_list)
 
 @router.post("/processWords")
 async def process_words(frames: List[UploadFile] = File(...)):
