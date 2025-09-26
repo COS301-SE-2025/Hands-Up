@@ -415,8 +415,8 @@ export const produceSentence = async (glossToConvert) => {
     });
 
     const data = await response.json();
-    // console.log("Response:", data);
-    return (data);
+    console.log("Response:", data);
+    return (data.translation);
 
   } catch (error) {
     console.error(error);
