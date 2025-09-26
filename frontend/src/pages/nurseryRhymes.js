@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Play, Pause, RotateCcw, Volume2, VolumeX, Star, ArrowLeft, Video } from 'lucide-react';
+import { Play, Pause, RotateCcw, Star, ArrowLeft, Video } from 'lucide-react';
 import { AngieSings } from '../components/angieSings';
 import PropTypes from 'prop-types';
 
@@ -90,7 +90,6 @@ FloatingDecoration.propTypes = {
 export function NurseryRhymesPage() {
   const [selectedRhyme, setSelectedRhyme] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
   const [replayKey, setReplayKey] = useState(0);
   const [videoPlayer, setVideoPlayer] = useState(null);
   const intervalRef = useRef(null);
@@ -205,7 +204,7 @@ export function NurseryRhymesPage() {
       }
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedRhyme, isMuted]);
+  }, [selectedRhyme]);
 
   const RhymeCard = ({ rhyme }) => (
     <div 
