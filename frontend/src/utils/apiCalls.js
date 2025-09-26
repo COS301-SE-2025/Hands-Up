@@ -1,7 +1,7 @@
 const API_BASE_URL_AUTH = 'https://hands-up.onrender.com/handsUPApi/auth';
 const API_BASE_URL_USER = 'https://hands-up.onrender.com/handsUPApi/user';
 const API_BASE_URL_LEARNING = 'https://hands-up.onrender.com/handsUPApi/learning';
-const API_BASE_URL = 'ttps://hands-up.onrender.com/handsUPApi';
+const API_BASE_URL = 'https://hands-up.onrender.com/handsUPApi';
 const TRANSLATE_API_ROUTE = 'https://tmkdt-handsup-backend.hf.space/handsUPApi/sign';
 
 
