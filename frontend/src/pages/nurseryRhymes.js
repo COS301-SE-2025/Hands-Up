@@ -1,11 +1,8 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
-import { Suspense } from 'react';
-import { Play, Pause, RotateCcw, Volume2, VolumeX, Star, Heart, ArrowLeft, Video } from 'lucide-react';
-import PropTypes from 'prop-types';
+import { Play, Pause, RotateCcw, Volume2, VolumeX, Star, ArrowLeft, Video } from 'lucide-react';
 import { AngieSings } from '../components/angieSings';
-import { getLandmarks } from '../utils/apiCalls';
+import PropTypes from 'prop-types';
 
 const NURSERY_RHYMES = [
   {
@@ -94,33 +91,9 @@ export function NurseryRhymesPage() {
   const [selectedRhyme, setSelectedRhyme] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [favorites, setFavorites] = useState([]);
-  const [landmarks, setLandmarks] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [replayKey, setReplayKey] = useState(0);
   const [videoPlayer, setVideoPlayer] = useState(null);
   const intervalRef = useRef(null);
-
-  const loadLandmarks = useCallback(async (landmarkWord) => {
-    setLoading(true);
-    try {
-      const data = await getLandmarks(landmarkWord);
-      setLandmarks(data || []);
-    } catch (error) {
-      console.error('Failed to load landmarks for:', landmarkWord, error);
-      setLandmarks([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const toggleFavorite = (rhymeId) => {
-    setFavorites(prev => 
-      prev.includes(rhymeId) 
-        ? prev.filter(id => id !== rhymeId)
-        : [...prev, rhymeId]
-    );
-  };
 
   const toggleMute = () => {
     setIsMuted(prev => !prev);
@@ -142,14 +115,13 @@ export function NurseryRhymesPage() {
       videoPlayer.playVideo();
     }
     
-    await loadLandmarks(selectedRhyme.landmarkWord);
     setReplayKey(prev => prev + 1);
     
     let wordIndex = 0;
     const wordDuration = selectedRhyme.videoDuration ? 
       (selectedRhyme.videoDuration * 1000) / selectedRhyme.words.length : 3000;
     
-    const playNextWord = async () => {
+    const playNextWord = () => {
       if (wordIndex >= selectedRhyme.words.length) {
         setIsPlaying(false);
         if (videoPlayer) {
@@ -163,7 +135,7 @@ export function NurseryRhymesPage() {
     };
     
     playNextWord();
-  }, [selectedRhyme, isPlaying, loadLandmarks, videoPlayer]);
+  }, [selectedRhyme, isPlaying, videoPlayer]);
 
   const pausePlayback = useCallback(() => {
     setIsPlaying(false);
@@ -180,11 +152,8 @@ export function NurseryRhymesPage() {
     if (videoPlayer) {
       videoPlayer.seekTo(0);
     }
-    if (selectedRhyme) {
-      loadLandmarks(selectedRhyme.landmarkWord);
-    }
-  }, [selectedRhyme, pausePlayback, loadLandmarks, videoPlayer]);
-
+    setReplayKey(prev => prev + 1);
+  }, [pausePlayback, videoPlayer]);
  
   useEffect(() => {
     if (selectedRhyme) {
@@ -235,11 +204,10 @@ export function NurseryRhymesPage() {
 
       if (window.YT && window.YT.Player) {
         initializePlayer();
-      } else {
+      } 
+      else {
         window.onYouTubeIframeAPIReady = initializePlayer;
       }
-
-      loadLandmarks(selectedRhyme.landmarkWord);
     }
 
     return () => {
@@ -247,7 +215,8 @@ export function NurseryRhymesPage() {
         clearTimeout(intervalRef.current);
       }
     };
-  }, [selectedRhyme, isMuted, loadLandmarks]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRhyme, isMuted]);
 
   const RhymeCard = ({ rhyme }) => (
     <div 
@@ -272,17 +241,6 @@ export function NurseryRhymesPage() {
       <div className="card-content">
         <div className="card-header">
           <div className="main-emoji">{rhyme.emoji}</div>
-          {/* <button
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleFavorite(rhyme.id);
-            }}
-            className="favorite-btn"
-          >
-            <Heart 
-              className={favorites.includes(rhyme.id) ? 'favorited' : ''}
-            />
-          </button> */}
         </div>
         
         <h3 className="card-title">{rhyme.title}</h3>
@@ -304,8 +262,7 @@ export function NurseryRhymesPage() {
             ))}
           </div>
         </div>
-      </div>
-      
+      </div>      
       {/* <div className="shine-effect"></div> */}
     </div>
   );
@@ -340,7 +297,7 @@ export function NurseryRhymesPage() {
               <div className="rhyme-emoji">{selectedRhyme.emoji}</div>
               <div>
                 <h1>{selectedRhyme.title}</h1>
-                <p>Watch the video and learn signs with Angie!</p>
+                <p>Watch and sign along with Angie!</p>
               </div>
             </div>
           </div>
@@ -352,28 +309,18 @@ export function NurseryRhymesPage() {
                   <div id="youtube-player" className="youtube-player"></div>
                   <div className="angie-overlay">
                     <div className="canvas-container-overlay">
-                      {loading ? (
-                        <ModelLoadingFallback />
-                      ) : (
-                        <Suspense fallback={<ModelLoadingFallback />}>
-                          <Canvas camera={{ position: [0, 0.2, 2], fov: 40 }}>
-                            {/* eslint-disable react/no-unknown-property */}
-                            <ambientLight intensity={5} />
-                            {/* eslint-disable react/no-unknown-property */}
-                            <group position={[0, -0.9, 0]}>
-                              <AngieSings 
-                                filename={selectedRhyme.landmarkWord}
-                              />
-                            </group>
-                            <OrbitControls 
-                              enablePan={false} 
-                              maxPolarAngle={Math.PI / 2} 
-                              minDistance={2.5} 
-                              maxDistance={3.5} 
+                      <Suspense fallback={<ModelLoadingFallback />}>
+                        <Canvas camera={{ position: [0, 0.2, 2], fov: 40 }}>
+                          {/* eslint-disable react/no-unknown-property */}
+                          <ambientLight intensity={8} />
+                          <group position={[0, -1.2, 0]}>
+                            <AngieSings 
+                              key={replayKey}
+                              filename={selectedRhyme.landmarkWord}
                             />
-                          </Canvas>
-                        </Suspense>
-                      )}
+                          </group>
+                        </Canvas>
+                      </Suspense>
                     </div>
                   </div>
                 </div>
@@ -383,7 +330,6 @@ export function NurseryRhymesPage() {
                 <button
                   onClick={isPlaying ? pausePlayback : startPlayback}
                   className={`control-btn ${isPlaying ? 'pause' : 'play'}`}
-                  disabled={loading}
                 >
                   {isPlaying ? <Pause /> : <Play />}
                   {isPlaying ? 'Pause' : 'Play Video'}
@@ -392,7 +338,6 @@ export function NurseryRhymesPage() {
                 <button
                   onClick={resetPlayback}
                   className="control-btn reset"
-                  disabled={loading}
                 >
                   <RotateCcw />
                   Restart
