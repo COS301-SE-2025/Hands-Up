@@ -197,7 +197,7 @@ const API_BASE_URL_AUTH = 'http://localhost:2000/handsUPApi/auth';
 const API_BASE_URL_USER = 'http://localhost:2000/handsUPApi/user';
 const API_BASE_URL_LEARNING = 'http://localhost:2000/handsUPApi/learning';
 const API_BASE_URL = "http://localhost:2000/handsUPApi";
-const TRANSLATE_API_ROUTE = 'http://127.0.0.1:5000/handsUPApi/sign';
+const TRANSLATE_API_ROUTE = 'https://tmkdt-handsup-backend.hf.space';
 
 export const handleApiResponse = async (response) => {
     const data = await response.json();
@@ -279,7 +279,7 @@ export const processLetters = async (formData) => {
 
 export const processWords = async (formData) => {
   
-
+  console.log(`${TRANSLATE_API_ROUTE}/processWords`);
   try {
     const response = await fetch(`${TRANSLATE_API_ROUTE}/processWords`, {
       method: 'POST',
