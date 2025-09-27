@@ -1,260 +1,508 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../contexts/authContext.js';
-import { useLearningStats } from '../contexts/learningStatsContext';
-import '../styles/home.css';
-import homeImage from '../images/picture1.png';
+import React, { useState, useRef, useEffect } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls, useGLTF } from '@react-three/drei';
+import PropTypes from 'prop-types';
 
-// Imports for the 3D animation
-import { Canvas } from '@react-three/fiber';
+// Angie Model Component that matches your structure
+/* eslint-disable react/no-unknown-property */
+function AngieEditor({ boneRotations, onBoneUpdate }) {
+  const { scene } = useGLTF('/models/angieWaving.glb');
+  const bones = useRef({});
+  const [modelReady, setModelReady] = useState(false);
 
-import { AngieSigns } from '../components/angieSigns';
-import { LANDMARK_FILES } from '../landmarks/index.js';
+  useEffect(() => {
+    if (!scene) return;
 
-// Hardcoded data for other sections
-const features = [
-    { id: 'translator', iconClass: 'fas fa-hand-paper', title: 'Translator', description: 'Instantly translate sign language into words or phrases with cutting-edge recognition.', link: '/translator' },
-    { id: 'learn', iconClass: 'fas fa-book-open', title: 'Learn & Practice', description: 'Dive into interactive lessons, engaging quizzes, and practical exercises designed for all levels.', link: '/learn' },
-    { id: 'profile', iconClass: 'fas fa-user-circle', title: 'Your Personalized Profile', description: 'Track your learning progress, manage your achievements, and customize your experience.', link: '/userProfile' },
-];
+    // Extract bones just like in your AngieSings component
+    scene.traverse((obj) => {
+      if (obj.isBone && obj.name.startsWith('mixamorig')) {
+        bones.current[obj.name] = obj;
+      }
+    });
 
-export function Home(){
-    const { currentUser, isLoggedIn, justSignedUp} = useAuth();
-    const { stats } = useLearningStats() || {};
+    // Apply initial pose like in your original
+    const upperArmL = bones.current['mixamorigLeftArm'];
+    const upperArmR = bones.current['mixamorigRightArm'];
+    const foreArmR = bones.current['mixamorigRightForeArm'];
+    const handR = bones.current['mixamorigRightHand'];
 
-    // Updated state to hold the word and the landmark data for the sign of the day
-    const [signOfTheDay, setSignOfTheDay] = useState(null);
-    const [activeFeatureIndex, setActiveFeatureIndex] = useState(0);
-    const carouselRef = useRef(null);
+    if (upperArmL) upperArmL.rotation.x = 1.1;
+    if (upperArmR) {
+      upperArmR.rotation.x = 0.9;
+      upperArmR.rotation.z = -0.3;
+    }
+    if (foreArmR) {
+      foreArmR.rotation.x = 0.5;
+      foreArmR.rotation.z = -2.8;
+    }
+    if (handR) handR.rotation.y = -1.5;
 
-    const [animationKey, setAnimationKey] = useState(0);
-
-    const lessonsCompleted = stats?.lessonsCompleted || 0;
-    const signsLearned = stats?.signsLearned || 0;
-    const practiseDays = stats?.streak || 0;
-    const currentLevel = stats?.currentLevel || "Bronze";
-
-    const TOTAL_LEVELS = 12;
-    const LESSONS_PER_LEVEL = 30;
-    const TOTAL_LESSONS = TOTAL_LEVELS * LESSONS_PER_LEVEL; 
-    const TOTAL_SIGNS = 26;
-
-    const calcLessonsCompleted = Math.min(lessonsCompleted, TOTAL_LESSONS);
-    const calcSignsLearned = Math.min(signsLearned, TOTAL_SIGNS);
-    const lessonProgress = (calcLessonsCompleted + calcSignsLearned) / (TOTAL_LESSONS + TOTAL_SIGNS) * 100;
-    const completionPercentage = Math.min(100, Math.round(lessonProgress));
-
-    useEffect(() => { 
-        // 1. Randomly select a word from the list of files
-        const randomIndex = Math.floor(Math.random() * LANDMARK_FILES.length);
-        const randomWord = LANDMARK_FILES[randomIndex];
+    setModelReady(true);
     
-        // 2. Dynamically import the corresponding JSON file
-        import(`../landmarks/${randomWord}.json`)
-            .then(module => {
-                const landmarkData = module.default; 
-                console.log("Loaded landmark data:", landmarkData);
-                // 3. Update the state with the word and the data
-                setSignOfTheDay({
-                    word: randomWord.charAt(0).toUpperCase() + randomWord.slice(1),
-                    landmarks: landmarkData,
-                    description: `Expand your vocabulary with today's sign! Keep practicing to master this word and many more.This is a dynamically loaded sign! The word is "${randomWord}".`,
-                });
-            })
-            .catch(error => {
-                console.error("Failed to load sign of the day data:", error);
-                // Optionally set a fallback state or message here
-            });
-    
-        const featureInterval = setInterval(() => {
-            setActiveFeatureIndex(prevIndex => (prevIndex + 1) % features.length);
-        }, 5000);
-    
-        return () => clearInterval(featureInterval);
-    }, []);
+    // Report available bones
+    if (onBoneUpdate) {
+      onBoneUpdate(Object.keys(bones.current));
+    }
+  }, [scene, onBoneUpdate]);
 
-    useEffect(() => {
-        if (!signOfTheDay) return;
-        
-        // This timer will re-render the animation every 2.5 seconds
-        // You can adjust this value to match your animation duration
-        const animationTimer = setInterval(() => {
-            setAnimationKey(prevKey => prevKey + 1);
-        }, 2500); // 2500ms = 2.5 seconds, which should be the length of your animation
+  useFrame(() => {
+    if (!modelReady) return;
 
-        // Clean up the timer when the component unmounts
-        return () => clearInterval(animationTimer);
-    }, [signOfTheDay]);
+    // Apply current rotations to bones
+    Object.keys(boneRotations).forEach(boneName => {
+      const bone = bones.current[boneName];
+      if (bone && boneRotations[boneName]) {
+        const [x, y, z] = boneRotations[boneName];
+        bone.rotation.set(x, y, z);
+      }
+    });
+  });
 
-    const userFirstName = currentUser?.name?.split(' ')[0] || "Valued Learner";
+  return (
+    <primitive 
+      object={scene} 
+      scale={4} 
+      position={[0, -2, 0]} 
+    />
+  );
+}
 
-    const getMedalClass = (level) => {
-        switch (level.toLowerCase()) {
-            case 'bronze': return 'fas fa-medal bronze-medal';
-            case 'silver': return 'fas fa-medal silver-medal';
-            case 'gold': return 'fas fa-medal gold-medal';
-            case 'platinum': return 'fas fa-award platinum-medal';
-            case 'diamond': return 'fas fa-star diamond-medal';
-            default: return 'fas fa-medal';
-        }
-    };
-
-    const calculateTranslateX = () => {
-        if (!carouselRef.current) return '0px';
-        const activeCard = carouselRef.current.children[activeFeatureIndex];
-        if (!activeCard) return '0px';
-        const cardCenter = activeCard.offsetLeft + activeCard.offsetWidth / 2;
-        const carouselCenter = carouselRef.current.offsetWidth / 2;
-        return `translateX(${carouselCenter - cardCenter}px)`;
-    };
-
-
-    return (
-        <div className="home-container">
-            <section className="home-hero-section animated-section">
-                <div className="home-content">
-
-
-                    {isLoggedIn && !justSignedUp ?(
-                        <h1 className="personalized-greeting">Welcome back, {userFirstName}! </h1>
-                    ) : (
-                        <h1>Welcome to Hands UP!</h1>
-                    )}
-                    <p className="home-tagline">Your journey to mastering sign language starts here. Connect, learn, and translate with ease.</p>
-                    <div className="home-buttons">
-                        <Link to="/translator" className="btn-primary">Start Translating</Link>
-                        <Link to="/learn" className="btn-secondary">Begin Learning</Link>
-                        <Link to="/game" className="btn-secondary">Sign Surfers</Link>
-                    </div>
-                </div>
-                <div className="home-image">
-                    <img src={homeImage} alt="Person signing" />
-                </div>
-            </section>
-
-            {isLoggedIn && (
-                <>
-                    <hr className="divider" />
-                    <section className="learning-overview-section animated-section">
-                        <h2 className="section-title">Your Learning Journey</h2>
-                        <div className="learning-overview-grid">
-                            <div className="learning-progress-card">
-                                <h3>Overall Progress</h3>
-                                <div className="progress-bar-container">
-                                    <div
-                                        className="progress-bar-fill"
-                                        style={{ width: `${completionPercentage}%`, background: `linear-gradient(90deg, #FFD700, #FFA500)` }} 
-                                    ></div>
-                                </div>
-                                <p className="progress-text">
-                                    <span className="progress-highlight">{completionPercentage}%</span> Completed
-                                </p>
-                                <p className="progress-details">{calcLessonsCompleted + calcSignsLearned} of {TOTAL_LESSONS+TOTAL_SIGNS} lessons</p>
-                                <Link to="/learn" className="btn-secondary small-btn">Continue Learning <i className="fas fa-arrow-right"></i></Link>
-                            </div>
-                            <div className="learning-stats-summary-card">
-                                <h3>Your Learning Stats</h3>
-                                <div className="stats-grid">
-                                    <div className="stat-item">
-                                        <i className="fas fa-book-reader stat-icon"></i>
-                                        <span className="stat-value">{calcLessonsCompleted}</span>
-                                        <span className="stat-label">Lessons Completed</span>
-                                    </div>
-                                    <div className="stat-item">
-                                        <i className="fas fa-sign-language stat-icon" style={{ color: '#FFD700' }}></i>
-                                        <span className="stat-value">{signsLearned}</span>
-                                        <span className="stat-label">Signs Learned</span>
-                                    </div>
-                                    <div className="stat-item">
-                                        <i className="fas fa-calendar-alt stat-icon"></i>
-                                        <span className="stat-value">{practiseDays}</span>
-                                        <span className="stat-label">Day Streak</span>
-                                    </div>
-                                    <div className="stat-item level-stat">
-                                        <i className={getMedalClass(currentLevel)}></i>
-                                        <span className="stat-value">{currentLevel}</span>
-                                        <span className="stat-label">Level</span>
-                                    </div>
-                                </div>
-                                <Link to="/learn" className="btn-secondary small-btn">View Full learning progress <i className="fas fa-user-circle"></i></Link>
-                            </div>
-                        </div>
-                    </section>
-                </>
-            )}
-
-            {signOfTheDay && (
-                <>
-                    <hr className="divider" />
-                    <section className="sign-of-the-day-section animated-section">
-
-                        <h2 className="section-title">Sign of the Day: &quot;{signOfTheDay.word}&quot; </h2>
-
-                        <div className="sign-content">
-                            <div className="sign-media">
-                                <Canvas camera={{ position: [0, 0.2, 3], fov: 35 }}>
-                                    {/* eslint-disable-next-line react/no-unknown-property */}
-                                    <ambientLight intensity={5} />
-                                    {/* eslint-disable-next-line react/no-unknown-property */}
-                                    <group position={[0, -1.1, 0]}>
-                                        <AngieSigns
-                                            key={animationKey}
-                                            landmarks={signOfTheDay.landmarks}
-                                            
-                                        />
-                                    </group>
-                                </Canvas>
-                            </div>
-                            <div className="sign-description">
-                                <p>{signOfTheDay.description}</p>
-                                <Link to="/learn" className="btn-secondary">Explore More Signs</Link>
-                            </div>
-                        </div>
-                    </section>
-                </>
-            )}
-
-            <hr className="divider" />
-
-            <section className="features-section animated-section">
-                <h2 className="section-title">Unlock Communication with Our Core Features</h2>
-                <div className="feature-carousel-outer-wrapper">
-                    <div
-                        className="feature-carousel"
-                        ref={carouselRef}
-                        style={{ transform: calculateTranslateX() }}
-                    >
-                        {features.map((feature, index) => (
-                            <Link
-                                to={feature.link}
-                                className={`feature-card ${index === activeFeatureIndex ? 'active-feature' : ''}`}
-                                key={feature.id}
-                            >
-                                <i className={`${feature.iconClass} feature-icon`}></i>
-                                <h3>{feature.title}</h3>
-                                <p>{feature.description}</p>
-                            </Link>
-                        ))}
-                    </div>
-                </div>
-                <div className="carousel-dots">
-                    {features.map((_, index) => (
-                        <span
-                            key={index}
-                            className={`dot ${index === activeFeatureIndex ? 'active' : ''}`}
-                            onClick={() => setActiveFeatureIndex(index)}
-                        ></span>
-                    ))}
-                </div>
-            </section>
-
-            <hr className="divider" />
-
-            <section className="cta-section animated-section">
-                <h2 className="section-title">Your Progress Inspires Us All! </h2>
-                <p>Every sign you learn, every lesson you complete, builds a stronger, more inclusive world. Keep going, the journey of communication is truly rewarding.</p>
-                <Link to="/learn" className="btn-final-cta">Keep Learning, Keep Growing</Link>
-            </section>
-        </div>
-    );
+AngieEditor.propTypes = {
+  boneRotations: PropTypes.object.isRequired,
+  onBoneUpdate: PropTypes.func
 };
+
+export function Home() {
+  const [currentWord, setCurrentWord] = useState('');
+  const [currentKeyframe, setCurrentKeyframe] = useState(0);
+  const [keyframes, setKeyframes] = useState([]);
+  const [selectedBone, setSelectedBone] = useState('mixamorigRightHand');
+  const [boneRotations, setBoneRotations] = useState({});
+  const [animationData, setAnimationData] = useState({});
+  const [availableBones, setAvailableBones] = useState([]);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackProgress, setPlaybackProgress] = useState(0);
+  const animationRef = useRef();
+
+  const boneGroups = {
+    'Right Arm': [
+      'mixamorigRightArm',
+      'mixamorigRightForeArm', 
+      'mixamorigRightHand'
+    ],
+    'Right Hand Fingers': [
+      'mixamorigRightHandThumb1', 'mixamorigRightHandThumb2', 'mixamorigRightHandThumb3',
+      'mixamorigRightHandIndex1', 'mixamorigRightHandIndex2', 'mixamorigRightHandIndex3',
+      'mixamorigRightHandMiddle1', 'mixamorigRightHandMiddle2', 'mixamorigRightHandMiddle3',
+      'mixamorigRightHandRing1', 'mixamorigRightHandRing2', 'mixamorigRightHandRing3',
+      'mixamorigRightHandPinky1', 'mixamorigRightHandPinky2', 'mixamorigRightHandPinky3'
+    ],
+    'Left Arm': [
+      'mixamorigLeftArm',
+      'mixamorigLeftForeArm',
+      'mixamorigLeftHand'
+    ],
+    'Left Hand Fingers': [
+      'mixamorigLeftHandThumb1', 'mixamorigLeftHandThumb2', 'mixamorigLeftHandThumb3',
+      'mixamorigLeftHandIndex1', 'mixamorigLeftHandIndex2', 'mixamorigLeftHandIndex3',
+      'mixamorigLeftHandMiddle1', 'mixamorigLeftHandMiddle2', 'mixamorigLeftHandMiddle3',
+      'mixamorigLeftHandRing1', 'mixamorigLeftHandRing2', 'mixamorigLeftHandRing3',
+      'mixamorigLeftHandPinky1', 'mixamorigLeftHandPinky2', 'mixamorigLeftHandPinky3'
+    ]
+  };
+
+  const commonHandPoses = {
+    'Open Hand (Right)': {
+      'mixamorigRightHandThumb1': [0, 0, -0.4],
+      'mixamorigRightHandThumb2': [0, 0, 0.8],
+      'mixamorigRightHandThumb3': [0, 0, 1],
+      'mixamorigRightHandIndex1': [0, 0, 0],
+      'mixamorigRightHandIndex2': [0, 0, 0],
+      'mixamorigRightHandMiddle1': [0, 0, 0],
+      'mixamorigRightHandMiddle2': [0, 0, 0],
+      'mixamorigRightHandRing1': [0, 0, 0],
+      'mixamorigRightHandRing2': [0, 0, 0],
+      'mixamorigRightHandPinky1': [0, 0, 0],
+      'mixamorigRightHandPinky2': [0, 0, 0]
+    },
+    'Fist (Right)': {
+      'mixamorigRightHandThumb1': [0, 0, -1],
+      'mixamorigRightHandThumb2': [1, 0, 0],
+      'mixamorigRightHandIndex1': [1.5, 0, 0],
+      'mixamorigRightHandIndex2': [2, 0, 0],
+      'mixamorigRightHandIndex3': [2, 0, 0],
+      'mixamorigRightHandMiddle1': [1.5, 0, 0],
+      'mixamorigRightHandMiddle2': [2, 0, 0],
+      'mixamorigRightHandMiddle3': [2, 0, 0],
+      'mixamorigRightHandRing1': [1.5, 0, 0],
+      'mixamorigRightHandRing2': [2, 0, 0],
+      'mixamorigRightHandRing3': [2, 0, 0],
+      'mixamorigRightHandPinky1': [1.5, 0, 0],
+      'mixamorigRightHandPinky2': [2, 0, 0],
+      'mixamorigRightHandPinky3': [2, 0, 0]
+    }
+  };
+
+  const initializeKeyframe = () => {
+    const newKeyframe = {};
+    Object.values(boneGroups).flat().forEach(bone => {
+      newKeyframe[bone] = [0, 0, 0];
+    });
+    return newKeyframe;
+  };
+
+  const addKeyframe = () => {
+    const newKeyframe = { ...boneRotations };
+    setKeyframes(prev => [...prev, newKeyframe]);
+    setCurrentKeyframe(keyframes.length);
+  };
+
+  const deleteKeyframe = (index) => {
+    if (keyframes.length > 1) {
+      setKeyframes(prev => prev.filter((_, i) => i !== index));
+      if (currentKeyframe >= keyframes.length - 1) {
+        setCurrentKeyframe(Math.max(0, keyframes.length - 2));
+      }
+    }
+  };
+
+  const updateBoneRotation = (boneName, axis, value) => {
+    const newRotation = [...(boneRotations[boneName] || [0, 0, 0])];
+    const axisIndex = ['x', 'y', 'z'].indexOf(axis);
+    newRotation[axisIndex] = parseFloat(value);
+    
+    setBoneRotations(prev => ({
+      ...prev,
+      [boneName]: newRotation
+    }));
+
+    // Update current keyframe
+    if (keyframes[currentKeyframe]) {
+      const updatedKeyframes = [...keyframes];
+      updatedKeyframes[currentKeyframe] = {
+        ...updatedKeyframes[currentKeyframe],
+        [boneName]: newRotation
+      };
+      setKeyframes(updatedKeyframes);
+    }
+  };
+
+  const applyHandPose = (poseName) => {
+    const pose = commonHandPoses[poseName];
+    if (!pose) return;
+    
+    const updatedRotations = { ...boneRotations };
+    Object.keys(pose).forEach(boneName => {
+      updatedRotations[boneName] = pose[boneName];
+    });
+    
+    setBoneRotations(updatedRotations);
+    
+    if (keyframes[currentKeyframe]) {
+      const updatedKeyframes = [...keyframes];
+      updatedKeyframes[currentKeyframe] = {
+        ...updatedKeyframes[currentKeyframe],
+        ...pose
+      };
+      setKeyframes(updatedKeyframes);
+    }
+  };
+
+  const generateJSON = () => {
+    if (!currentWord || keyframes.length === 0) {
+      alert('Please enter a word and create at least one keyframe');
+      return;
+    }
+
+    const result = {
+      [currentWord]: {}
+    };
+
+    // Generate keyframes in the format your system expects
+    Object.values(boneGroups).flat().forEach(boneName => {
+      const boneKeyframes = keyframes.map(kf => kf[boneName] || [0, 0, 0]);
+      result[currentWord][boneName] = {
+        keyframes: boneKeyframes
+      };
+    });
+
+    setAnimationData(result);
+  };
+
+  const loadKeyframe = (index) => {
+    if (keyframes[index]) {
+      setCurrentKeyframe(index);
+      setBoneRotations(keyframes[index]);
+    }
+  };
+
+  const playAnimation = () => {
+    if (keyframes.length < 2) return;
+    
+    setIsPlaying(true);
+    setPlaybackProgress(0);
+    
+    const duration = 3000; // 3 seconds
+    const startTime = Date.now();
+    
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      setPlaybackProgress(progress);
+      
+      // Interpolate between keyframes
+      const totalFrames = keyframes.length - 1;
+      const frameProgress = progress * totalFrames;
+      const frameIndex = Math.floor(frameProgress);
+      const frameFraction = frameProgress - frameIndex;
+      
+      if (frameIndex < keyframes.length - 1) {
+        const currentFrame = keyframes[frameIndex];
+        const nextFrame = keyframes[frameIndex + 1];
+        
+        const interpolatedRotations = {};
+        Object.keys(currentFrame).forEach(boneName => {
+          const current = currentFrame[boneName] || [0, 0, 0];
+          const next = nextFrame[boneName] || [0, 0, 0];
+          
+          interpolatedRotations[boneName] = [
+            current[0] + (next[0] - current[0]) * frameFraction,
+            current[1] + (next[1] - current[1]) * frameFraction,
+            current[2] + (next[2] - current[2]) * frameFraction
+          ];
+        });
+        
+        setBoneRotations(interpolatedRotations);
+      }
+      
+      if (progress < 1) {
+        animationRef.current = requestAnimationFrame(animate);
+      } else {
+        setIsPlaying(false);
+        setPlaybackProgress(0);
+      }
+    };
+    
+    animationRef.current = requestAnimationFrame(animate);
+  };
+
+  const stopAnimation = () => {
+    setIsPlaying(false);
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
+    setPlaybackProgress(0);
+    if (keyframes[currentKeyframe]) {
+      setBoneRotations(keyframes[currentKeyframe]);
+    }
+  };
+
+  useEffect(() => {
+    if (keyframes.length === 0) {
+      const initialKeyframe = initializeKeyframe();
+      setKeyframes([initialKeyframe]);
+      setBoneRotations(initialKeyframe);
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, []);
+
+  return (
+    <div className="w-full h-screen bg-gray-100 flex">
+      {/* Left Panel - Controls */}
+      <div className="w-1/3 bg-white shadow-lg overflow-y-auto p-4">
+        {/* Word Setup */}
+        <div className="mb-6">
+          <h2 className="text-xl font-bold mb-3 text-blue-600">ASL Sign Creator</h2>
+          <input
+            type="text"
+            placeholder="Enter ASL sign name (e.g., 'hello', 'thank_you')"
+            value={currentWord}
+            onChange={(e) => setCurrentWord(e.target.value)}
+            className="w-full p-2 border rounded mb-3 focus:border-blue-500 outline-none"
+          />
+          <p className="text-sm text-gray-600">
+            Available bones: {availableBones.length}
+          </p>
+        </div>
+
+        {/* Animation Controls */}
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-3">Animation</h3>
+          <div className="flex gap-2 mb-3">
+            <button
+              onClick={playAnimation}
+              disabled={isPlaying || keyframes.length < 2}
+              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-300"
+            >
+              Play
+            </button>
+            <button
+              onClick={stopAnimation}
+              disabled={!isPlaying}
+              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:bg-gray-300"
+            >
+              Stop
+            </button>
+          </div>
+          {isPlaying && (
+            <div className="w-full bg-gray-200 rounded-full h-2.5 mb-3">
+              <div 
+                className="bg-blue-600 h-2.5 rounded-full transition-all duration-100" 
+                style={{ width: `${playbackProgress * 100}%` }}
+              ></div>
+            </div>
+          )}
+        </div>
+
+        {/* Keyframe Management */}
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-3">Keyframes ({keyframes.length})</h3>
+          <div className="flex flex-wrap gap-2 mb-3">
+            {keyframes.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => loadKeyframe(index)}
+                className={`px-3 py-1 rounded text-sm ${
+                  currentKeyframe === index 
+                    ? 'bg-blue-500 text-white' 
+                    : 'bg-gray-200 hover:bg-gray-300'
+                }`}
+              >
+                {index + 1}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-2 mb-3">
+            <button
+              onClick={addKeyframe}
+              className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+            >
+              Add Keyframe
+            </button>
+            <button
+              onClick={() => deleteKeyframe(currentKeyframe)}
+              disabled={keyframes.length <= 1}
+              className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600 disabled:bg-gray-300"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+
+        {/* Hand Pose Presets */}
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-3">Hand Poses</h3>
+          <div className="grid grid-cols-1 gap-2">
+            {Object.keys(commonHandPoses).map(poseName => (
+              <button
+                key={poseName}
+                onClick={() => applyHandPose(poseName)}
+                className="px-3 py-2 bg-indigo-500 text-white rounded text-sm hover:bg-indigo-600"
+              >
+                {poseName}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Bone Controls */}
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-3">Bone Rotations</h3>
+          <select
+            value={selectedBone}
+            onChange={(e) => setSelectedBone(e.target.value)}
+            className="w-full p-2 border rounded mb-3 focus:border-blue-500 outline-none"
+          >
+            {Object.entries(boneGroups).map(([groupName, bones]) => (
+              <optgroup key={groupName} label={groupName}>
+                {bones.map(boneName => (
+                  <option key={boneName} value={boneName}>
+                    {boneName.replace('mixamorig', '').replace(/([A-Z])/g, ' $1')}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+
+          {/* Rotation Controls for Selected Bone */}
+          <div className="space-y-3">
+            {['x', 'y', 'z'].map(axis => (
+              <div key={axis}>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {axis.toUpperCase()}: {(boneRotations[selectedBone]?.[['x', 'y', 'z'].indexOf(axis)] || 0).toFixed(2)}
+                </label>
+                <input
+                  type="range"
+                  min="-3.14"
+                  max="3.14"
+                  step="0.05"
+                  value={boneRotations[selectedBone]?.[['x', 'y', 'z'].indexOf(axis)] || 0}
+                  onChange={(e) => updateBoneRotation(selectedBone, axis, e.target.value)}
+                  className="w-full"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Generate JSON */}
+        <div className="mt-6">
+          <button
+            onClick={generateJSON}
+            className="w-full px-4 py-3 bg-blue-600 text-white rounded font-semibold hover:bg-blue-700"
+          >
+            Generate JSON for {currentWord || 'Sign'}
+          </button>
+        </div>
+      </div>
+
+      {/* Right Panel - 3D View and JSON Output */}
+      <div className="w-2/3 flex flex-col">
+        {/* 3D Canvas */}
+        <div className="flex-1 bg-gradient-to-b from-blue-50 to-blue-100 min-h-96">
+          <Canvas camera={{ position: [0, 1, 2], fov: 75 }}>
+            {/* eslint-disable react/no-unknown-property */}
+            <ambientLight intensity={5} />
+            <pointLight position={[10, 10, 10]} intensity={1} />
+            <pointLight position={[-10, -10, -10]} intensity={0.3} />
+            {/* eslint-enable react/no-unknown-property */}
+            <AngieEditor 
+              boneRotations={boneRotations}
+              onBoneUpdate={setAvailableBones}
+            />
+            <OrbitControls enablePan={true} enableZoom={true} enableRotate={true} />
+          </Canvas>
+        </div>
+
+        {/* JSON Output */}
+        {Object.keys(animationData).length > 0 && (
+          <div className="h-64 bg-gray-900 text-green-400 p-4 overflow-auto">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-lg font-semibold">Generated JSON</h3>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(JSON.stringify(animationData, null, 2));
+                  alert('JSON copied to clipboard!');
+                }}
+                className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700"
+              >
+                Copy JSON
+              </button>
+            </div>
+            <pre className="text-sm overflow-auto">
+              {JSON.stringify(animationData, null, 2)}
+            </pre>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

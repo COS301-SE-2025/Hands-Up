@@ -34,6 +34,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<Landing/>} />
                 <Route path="/landing" element={<Landing/>} />
+                <Route path="/home" element={<Home/>} />
                 <Route path="/login" element={
                   <ErrorBoundary fallback={<ErrorFallback errorName="Login" />}>
                     <Login />
@@ -142,18 +143,6 @@ function App() {
                     </ErrorBoundary>
                     </ProtectedRoute>
                   }
-                />
-                <Route
-                  path="/home"
-                  element={
-                    <ProtectedRoute>
-                      <ErrorBoundary fallback={<ErrorFallback errorName="Home" />}>
-                      <Layout>
-                        <Home />
-                      </Layout>
-                    </ErrorBoundary>
-                  </ProtectedRoute>
-                }
               />
               <Route
                 path="/signup"
@@ -195,18 +184,6 @@ function App() {
                       <ErrorBoundary fallback={<ErrorFallback errorName="Learn" />}>
                       <Layout>
                         <Learn />
-                      </Layout>
-                    </ErrorBoundary>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/home"
-                  element={
-                    <ProtectedRoute>
-                      <ErrorBoundary fallback={<ErrorFallback errorName="Home" />}>
-                      <Layout>
-                        <Home />
                       </Layout>
                     </ErrorBoundary>
                     </ProtectedRoute>
