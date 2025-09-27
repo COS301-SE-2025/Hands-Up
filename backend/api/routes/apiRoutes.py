@@ -2,150 +2,182 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 import json
 import numpy as np
 import cv2
-from controllers.lettersController import detect_from_image_bytes as detect_letters
-from controllers.wordsController import detect_from_image_bytes as detect_words
+from controllers.lettersController import detectFromImageBytes as detectLetters
+from controllers.wordsController import detectFromImageBytes as detectWords
 
 router = APIRouter()
 
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: list[WebSocket] = []
+        self.activeConnections: list[WebSocket] = []
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
-        self.active_connections.append(websocket)
+        self.activeConnections.append(websocket)
 
     def disconnect(self, websocket: WebSocket):
-        if websocket in self.active_connections:
-            self.active_connections.remove(websocket)
+        if websocket in self.activeConnections:
+            self.activeConnections.remove(websocket)
 
-    async def send_json(self, message: dict, websocket: WebSocket):
+    async def sendJson(self, message: dict, websocket: WebSocket):
         await websocket.send_json(message)
 
 manager = ConnectionManager()
 
 @router.websocket("/ws_translate")
-async def websocket_endpoint(websocket: WebSocket):
+async def websocketEndpoint(websocket: WebSocket):
     await manager.connect(websocket)
-    current_frames = []
+    currentFrames = []
     model = None
-    sequence_num = None
-    is_processing = False
-    is_dynamic = False
-    ignore_count = 0
+    sequenceNum = None
+    isProcessing = False
+    isDynamic = False
+    ignoreCount = 0
     try:
         while True:
             data = await websocket.receive()
             if 'text' in data:
                 msg = json.loads(data['text'])
                 if msg['type'] == 'start':
-                    if is_processing:
-                        await manager.send_json({'error': 'Processing in progress'}, websocket)
+                    if isProcessing:
+                        await manager.sendJson({'error': 'Processing in progress'}, websocket)
                         continue
-                    current_frames = []
+                    currentFrames = []
                     model = msg['model']
-                    sequence_num = msg['sequenceNum']
-                    is_dynamic = False
-                    ignore_count = 0
+                    sequenceNum = msg['sequenceNum']
+                    isDynamic = False
+                    ignoreCount = 0
+                    print(f"Started: model={model}, sequenceNum={sequenceNum}")
                 elif msg['type'] == 'process':
-                    if is_processing:
-                        await manager.send_json({'error': 'Processing in progress'}, websocket)
+                    if isProcessing:
+                        await manager.sendJson({'error': 'Processing in progress'}, websocket)
                         continue
-                    if model in ['alpha', 'num'] and len(current_frames) not in [1, 2, 10]:
-                        await manager.send_json({'error': f'Invalid frame count: {len(current_frames)}'}, websocket)
-                        current_frames = []
+                    if model in ['alpha', 'num'] and len(currentFrames) not in [1, 2, 10]:
+                        await manager.sendJson({'error': f'Invalid frame count: {len(currentFrames)}'}, websocket)
+                        currentFrames = []
                         continue
-                    if model == 'glosses' and len(current_frames) < sequence_num:
-                        await manager.send_json({'error': f'Incomplete sequence: expected {sequence_num}, got {len(current_frames)}'}, websocket)
-                        current_frames = []
+                    if model == 'glosses' and len(currentFrames) < sequenceNum:
+                        await manager.sendJson({'error': f'Incomplete sequence: expected {sequenceNum}, got {len(currentFrames)}'}, websocket)
+                        currentFrames = []
                         continue
-                    is_processing = True
-                    print(f"Processing {len(current_frames)} frames, model: {model}, is_dynamic: {is_dynamic}")
-                    await manager.send_json({'status': 'processing'}, websocket)
+                    isProcessing = True
+                    print(f"Processing {len(currentFrames)} frames, model: {model}, isDynamic: {isDynamic}")
+                    await manager.sendJson({'status': 'processing'}, websocket)
                     if model in ['alpha', 'num']:
-                        result = await detect_letters(current_frames, websocket, is_dynamic)
-                        if result.get('status') == 'wait_more_dynamic':
-                            is_dynamic = True
-                        if result.get('status') not in ['wait_more', 'wait_more_dynamic']:
-                            await manager.send_json(result, websocket)
-                            current_frames = []
-                            is_dynamic = False
+                        result = await detectLetters(currentFrames, websocket, isDynamic)
+                        if result.get('status') == 'waitMoreDynamic':
+                            isDynamic = True
+                        if result.get('status') not in ['waitMore', 'waitMoreDynamic']:
+                            await manager.sendJson(result, websocket)
+                            currentFrames = []
+                            isDynamic = False
                             if result.get('letter') in ['J', 'Z']:
-                                ignore_count = 5  # ~1s pause at 200ms intervals
+                                ignoreCount = 10  # ~1s at 100ms
                             else:
-                                ignore_count = 3  # ~0.6s pause
+                                ignoreCount = 6   # ~0.6s at 100ms
+                        await manager.sendJson({'status': 'ready'}, websocket)  # Signal ready for next batch
                     elif model == 'glosses':
-                        result = detect_words(current_frames)
-                        await manager.send_json(result, websocket)
-                        current_frames = []
-                        ignore_count = 5  # ~1s pause for glosses
+                        result = detectWords(currentFrames)
+                        await manager.sendJson(result, websocket)
+                        currentFrames = []
+                        ignoreCount = 10  # ~1s at 100ms
+                        await manager.sendJson({'status': 'ready'}, websocket)
                     else:
                         result = {'error': 'Invalid model'}
-                        await manager.send_json(result, websocket)
-                    is_processing = False
+                        await manager.sendJson(result, websocket)
+                    isProcessing = False
                 elif msg['type'] == 'stop':
-                    if is_processing:
-                        await manager.send_json({'error': 'Processing in progress'}, websocket)
+                    if isProcessing:
+                        await manager.sendJson({'error': 'Processing in progress'}, websocket)
                         continue
-                    if current_frames:
-                        is_processing = True
-                        print(f"Processing {len(current_frames)} frames on stop, model: {model}, is_dynamic: {is_dynamic}")
-                        await manager.send_json({'status': 'processing'}, websocket)
+                    if currentFrames:
+                        isProcessing = True
+                        print(f"Processing {len(currentFrames)} frames on stop, model: {model}, isDynamic: {isDynamic}")
+                        await manager.sendJson({'status': 'processing'}, websocket)
                         if model in ['alpha', 'num']:
-                            result = await detect_letters(current_frames, websocket, is_dynamic)
-                            if result.get('status') not in ['wait_more', 'wait_more_dynamic']:
-                                await manager.send_json(result, websocket)
+                            result = await detectLetters(currentFrames, websocket, isDynamic)
+                            if result.get('status') not in ['waitMore', 'waitMoreDynamic']:
+                                await manager.sendJson(result, websocket)
                         elif model == 'glosses':
-                            result = detect_words(current_frames)
-                            await manager.send_json(result, websocket)
-                        current_frames = []
-                        is_dynamic = False
-                        ignore_count = 0
-                        is_processing = False
+                            result = detectWords(currentFrames)
+                            await manager.sendJson(result, websocket)
+                        currentFrames = []
+                        isDynamic = False
+                        ignoreCount = 0
+                        isProcessing = False
                     break  # Exit the loop to close WebSocket
-            elif 'bytes' in data and not is_processing:
-                if ignore_count > 0:
-                    ignore_count -= 1
+            elif 'bytes' in data and not isProcessing:
+                if ignoreCount > 0:
+                    ignoreCount -= 1
                     continue
-                image_bytes = data['bytes']
-                current_frames.append(image_bytes)
+                imageBytes = data['bytes']
+                currentFrames.append(imageBytes)
                 if model in ['alpha', 'num']:
-                    if len(current_frames) == 1 or (len(current_frames) == 2 and not is_dynamic) or (len(current_frames) == 10 and is_dynamic):
-                        is_processing = True
-                        print(f"Processing {len(current_frames)} frames, model: {model}, is_dynamic: {is_dynamic}")
-                        await manager.send_json({'status': 'processing'}, websocket)
-                        result = await detect_letters(current_frames, websocket, is_dynamic)
-                        if result.get('status') == 'wait_more_dynamic':
-                            is_dynamic = True
-                        if result.get('status') not in ['wait_more', 'wait_more_dynamic']:
-                            await manager.send_json(result, websocket)
-                            current_frames = []
-                            is_dynamic = False
+                    if len(currentFrames) == 1 or (len(currentFrames) == 2 and not isDynamic) or (len(currentFrames) == 10 and isDynamic):
+                        isProcessing = True
+                        print(f"Processing {len(currentFrames)} frames, model: {model}, isDynamic: {isDynamic}")
+                        await manager.sendJson({'status': 'processing'}, websocket)
+                        result = await detectLetters(currentFrames, websocket, isDynamic)
+                        if result.get('status') == 'waitMoreDynamic':
+                            isDynamic = True
+                        if result.get('status') not in ['waitMore', 'waitMoreDynamic']:
+                            await manager.sendJson(result, websocket)
+                            currentFrames = []
+                            isDynamic = False
                             if result.get('letter') in ['J', 'Z']:
-                                ignore_count = 5
+                                ignoreCount = 10
                             else:
-                                ignore_count = 3
-                        is_processing = False
-                elif model == 'glosses' and len(current_frames) == sequence_num:
-                    is_processing = True
-                    print(f"Processing {len(current_frames)} frames, model: {model}, is_dynamic: {is_dynamic}")
-                    await manager.send_json({'status': 'processing'}, websocket)
-                    result = detect_words(current_frames)
-                    await manager.send_json(result, websocket)
-                    current_frames = []
-                    ignore_count = 5
-                    is_processing = False
-                if len(current_frames) > sequence_num:
-                    current_frames = current_frames[-sequence_num:]
+                                ignoreCount = 6
+                        isProcessing = False
+                        await manager.sendJson({'status': 'ready'}, websocket)
+                elif model == 'glosses' and len(currentFrames) == sequenceNum:
+                    isProcessing = True
+                    print(f"Processing {len(currentFrames)} frames, model: {model}, isDynamic: {isDynamic}")
+                    await manager.sendJson({'status': 'processing'}, websocket)
+                    result = detectWords(currentFrames)
+                    await manager.sendJson(result, websocket)
+                    currentFrames = []
+                    ignoreCount = 10
+                    isProcessing = False
+                    await manager.sendJson({'status': 'ready'}, websocket)
+                if model is not None and sequenceNum is not None and len(currentFrames) > sequenceNum:
+                    currentFrames = currentFrames[-sequenceNum:]
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        current_frames = []
-        is_processing = False
-        is_dynamic = False
-        ignore_count = 0
+        currentFrames = []
+        isProcessing = False
+        isDynamic = False
+        ignoreCount = 0
 
-@router.post("/produceSentence")
-async def produce_sentence(request: dict):
-    gloss = request.get('gloss')
-    # Implement your gloss-to-sentence logic here
-    return {'translation': 'some translation'}  # Placeholder
+@router.websocket("/ws_sentence")
+async def websocket_sentence_endpoint(websocket: WebSocket):
+    """
+    Handles one-off sentence translation (gloss to natural language) using a WebSocket.
+    Client sends JSON: {"gloss": "THE GLOSS SENTENCE"}.
+    Server sends JSON: {"translation": "The translated sentence"}.
+    """
+    await manager.connect(websocket)
+    try:
+        # Sentence translation is a single request/response cycle
+        data = await websocket.receive_text()
+        msg = json.loads(data)
+
+        gloss_input = msg.get("gloss")
+
+        if not gloss_input:
+            await manager.sendJson({"error": "No gloss provided"}, websocket)
+            return
+
+        print(f"Translating gloss: {gloss_input}")
+
+        translation = translateGloss(gloss_input)
+
+        await manager.sendJson({"translation": translation}, websocket)
+
+    except WebSocketDisconnect:
+        print("WebSocket for sentence translation disconnected.")
+    except Exception as e:
+        print(f"An error occurred in ws_sentence_endpoint: {e}")
+        await manager.sendJson({"error": f"Internal server error: {e}"}, websocket)
+    finally:
+        manager.disconnect(websocket)

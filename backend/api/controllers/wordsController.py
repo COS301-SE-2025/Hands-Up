@@ -4,145 +4,146 @@ import pandas as pd
 from tensorflow.keras.models import load_model
 import mediapipe as mp
 
-MODEL_PATH = '../../ai_model/words/saved_models/best_sign_classifier_model_125_words_seq90.keras'
-CSV_PATH = '../../ai_model/words/wlasl_125_words_personal_final_processed_data_augmented_seq90.csv'
-SEQUENCE_LENGTH = 90
-EXPECTED_COORDS_PER_FRAME = 1662
-CONFIDENCE_THRESHOLD = 0.1
+modelPath = '../../ai_model/words/saved_models/best_sign_classifier_model_40_words_seq90.keras'
+csvPath = '../../ai_model/words/wlasl_40_words_personal_final_processed_data_augmented_seq90.csv'
+sequenceLength = 30
+expectedCoordsPerFrame = 1662
+confidenceThreshold = 0.1
 
-model = load_model(MODEL_PATH)
-df = pd.read_csv(CSV_PATH)
-unique_glosses = df['gloss'].unique()
-id_to_gloss = {i: g for i, g in enumerate(unique_glosses)}
+model = load_model(modelPath)
+df = pd.read_csv(csvPath)
+uniqueGlosses = df['gloss'].unique()
+idToGloss = {i: g for i, g in enumerate(uniqueGlosses)}
 
-mp_holistic = mp.solutions.holistic.Holistic(
+mpHolistic = mp.solutions.holistic.Holistic(
     static_image_mode=True,
     model_complexity=1,
     min_detection_confidence=0.2,
     min_tracking_confidence=0.5
 )
 
-NUM_POSE_COORDS_SINGLE = 33*4
-NUM_HAND_COORDS_SINGLE = 21*3
-NUM_FACE_COORDS_SINGLE = 468*3
+numPoseCoordsSingle = 33*4
+numHandCoordsSingle = 21*3
+numFaceCoordsSingle = 468*3
 
-def normalize_landmarks(landmarks_sequence):
-    if landmarks_sequence.ndim == 1:
-        landmarks_sequence = np.expand_dims(landmarks_sequence, axis=0)
+def normalizeLandmarks(landmarksSequence):
+    if landmarksSequence.ndim == 1:
+        landmarksSequence = np.expand_dims(landmarksSequence, axis=0)
 
-    normalized_sequences = []
-    for frame_landmarks in landmarks_sequence:
-        if np.all(frame_landmarks == 0):
-            normalized_sequences.append(np.zeros(EXPECTED_COORDS_PER_FRAME, dtype=np.float32))
+    normalizedSequences = []
+    for frameLandmarks in landmarksSequence:
+        if np.all(frameLandmarks == 0):
+            normalizedSequences.append(np.zeros(expectedCoordsPerFrame, dtype=np.float32))
             continue
 
-        pose_coords_flat = frame_landmarks[0 : NUM_POSE_COORDS_SINGLE]
-        left_hand_coords_flat = frame_landmarks[NUM_POSE_COORDS_SINGLE : NUM_POSE_COORDS_SINGLE + NUM_HAND_COORDS_SINGLE]
-        right_hand_coords_flat = frame_landmarks[NUM_POSE_COORDS_SINGLE + NUM_HAND_COORDS_SINGLE : NUM_POSE_COORDS_SINGLE + NUM_HAND_COORDS_SINGLE*2]
-        face_coords_flat = frame_landmarks[NUM_POSE_COORDS_SINGLE + NUM_HAND_COORDS_SINGLE*2 : ]
+        poseCoordsFlat = frameLandmarks[0 : numPoseCoordsSingle]
+        leftHandCoordsFlat = frameLandmarks[numPoseCoordsSingle : numPoseCoordsSingle + numHandCoordsSingle]
+        rightHandCoordsFlat = frameLandmarks[numPoseCoordsSingle + numHandCoordsSingle : numPoseCoordsSingle + numHandCoordsSingle*2]
+        faceCoordsFlat = frameLandmarks[numPoseCoordsSingle + numHandCoordsSingle*2 : ]
 
-        all_parts_data = [
-            (pose_coords_flat, 4, [0.0]*NUM_POSE_COORDS_SINGLE),
-            (left_hand_coords_flat, 3, [0.0]*NUM_HAND_COORDS_SINGLE),
-            (right_hand_coords_flat, 3, [0.0]*NUM_HAND_COORDS_SINGLE),
-            (face_coords_flat, 3, [0.0]*NUM_FACE_COORDS_SINGLE)
+        allPartsData = [
+            (poseCoordsFlat, 4, [0.0]*numPoseCoordsSingle),
+            (leftHandCoordsFlat, 3, [0.0]*numHandCoordsSingle),
+            (rightHandCoordsFlat, 3, [0.0]*numHandCoordsSingle),
+            (faceCoordsFlat, 3, [0.0]*numFaceCoordsSingle)
         ]
 
-        normalized_frame_parts = []
-        for flat_lms, coords_per_lm, template in all_parts_data:
-            if np.all(flat_lms == 0):
-                normalized_frame_parts.append(np.array(template, dtype=np.float32))
+        normalizedFrameParts = []
+        for flatLms, coordsPerLm, template in allPartsData:
+            if np.all(flatLms == 0):
+                normalizedFrameParts.append(np.array(template, dtype=np.float32))
                 continue
 
-            lms_array = flat_lms.reshape(-1, coords_per_lm)
-            coords_for_mean = lms_array[:, :3] if coords_per_lm == 4 else lms_array
-            mean_coords = np.mean(coords_for_mean, axis=0)
-            translated_lms = lms_array.copy()
-            translated_lms[:, :3] -= mean_coords
-            scale_factor = np.max(np.linalg.norm(translated_lms[:, :3], axis=1))
-            if scale_factor > 1e-6:
-                translated_lms[:, :3] /= scale_factor
-            normalized_frame_parts.append(translated_lms.flatten())
+            lmsArray = flatLms.reshape(-1, coordsPerLm)
+            coordsForMean = lmsArray[:, :3] if coordsPerLm == 4 else lmsArray
+            meanCoords = np.mean(coordsForMean, axis=0)
+            translatedLms = lmsArray.copy()
+            translatedLms[:, :3] -= meanCoords
+            scaleFactor = np.max(np.linalg.norm(translatedLms[:, :3], axis=1))
+            if scaleFactor > 1e-6:
+                translatedLms[:, :3] /= scaleFactor
+            normalizedFrameParts.append(translatedLms.flatten())
 
-        combined_frame = np.concatenate(normalized_frame_parts).astype(np.float32)
-        if len(combined_frame) < EXPECTED_COORDS_PER_FRAME:
-            combined_frame = np.pad(combined_frame, (0, EXPECTED_COORDS_PER_FRAME - len(combined_frame)), 'constant')
-        elif len(combined_frame) > EXPECTED_COORDS_PER_FRAME:
-            combined_frame = combined_frame[:EXPECTED_COORDS_PER_FRAME]
+        combinedFrame = np.concatenate(normalizedFrameParts).astype(np.float32)
+        if len(combinedFrame) < expectedCoordsPerFrame:
+            combinedFrame = np.pad(combinedFrame, (0, expectedCoordsPerFrame - len(combinedFrame)), 'constant')
+        elif len(combinedFrame) > expectedCoordsPerFrame:
+            combinedFrame = combinedFrame[:expectedCoordsPerFrame]
 
-        normalized_sequences.append(combined_frame)
+        normalizedSequences.append(combinedFrame)
 
-    return np.array(normalized_sequences, dtype=np.float32)
+    return np.array(normalizedSequences, dtype=np.float32)
 
-def pad_or_truncate_sequence(sequence, target_length, feature_dimension):
-    if sequence.shape[0] < target_length:
-        padding = np.zeros((target_length - sequence.shape[0], feature_dimension), dtype=np.float32)
+def padOrTruncateSequence(sequence, targetLength, featureDimension):
+    if sequence.shape[0] < targetLength:
+        padding = np.zeros((targetLength - sequence.shape[0], featureDimension), dtype=np.float32)
         return np.vstack((sequence, padding))
-    return sequence[:target_length, :]
+    return sequence[:targetLength, :]
 
-def detect_from_image_bytes(sequence_bytes_list, dexterity='right'):
+def detectFromImageBytes(sequenceBytesList):
     sequence = []
 
-    for idx, image_bytes in enumerate(sequence_bytes_list):
-        nparr = np.frombuffer(image_bytes, np.uint8)
+    for idx, imageBytes in enumerate(sequenceBytesList):
+        nparr = np.frombuffer(imageBytes, np.uint8)
         img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         if img is None:
             print(f"Warning: Could not decode image bytes at index {idx}")
-            sequence.append(np.zeros(EXPECTED_COORDS_PER_FRAME, dtype=np.float32))
+            sequence.append(np.zeros(expectedCoordsPerFrame, dtype=np.float32))
             continue
 
-        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        mp_results = mp_holistic.process(img_rgb)
+        imgRgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        mpResults = mpHolistic.process(imgRgb)
 
-        frame_lms = np.zeros(EXPECTED_COORDS_PER_FRAME, dtype=np.float32)
-        current_idx = 0
+        frameLms = np.zeros(expectedCoordsPerFrame, dtype=np.float32)
+        currentIdx = 0
 
-        if mp_results.pose_landmarks:
-            pose_flat = [coord for lm in mp_results.pose_landmarks.landmark for coord in [lm.x, lm.y, lm.z, lm.visibility]]
-            frame_lms[current_idx:current_idx + len(pose_flat)] = pose_flat
+        # 1. Pose Landmarks
+        if mpResults.pose_landmarks:
+            poseFlat = [coord for lm in mpResults.pose_landmarks.landmark for coord in [lm.x, lm.y, lm.z, lm.visibility]]
+            frameLms[currentIdx:currentIdx + len(poseFlat)] = poseFlat
         else:
             print(f"Warning: No pose landmarks detected in frame {idx}")
-        current_idx += NUM_POSE_COORDS_SINGLE
+        currentIdx += numPoseCoordsSingle
 
-        dominant_hand = 'right_hand_landmarks' if dexterity == 'right' else 'left_hand_landmarks'
-        non_dominant_hand = 'left_hand_landmarks' if dexterity == 'right' else 'right_hand_landmarks'
-
-        if getattr(mp_results, dominant_hand):
-            hand_flat = [coord for lm in getattr(mp_results, dominant_hand).landmark for coord in [lm.x, lm.y, lm.z]]
-            frame_lms[current_idx:current_idx + len(hand_flat)] = hand_flat
+        # 2. Left Hand Landmarks (First Hand)
+        if mpResults.left_hand_landmarks:
+            lhFlat = [coord for lm in mpResults.left_hand_landmarks.landmark for coord in [lm.x, lm.y, lm.z]]
+            frameLms[currentIdx:currentIdx + len(lhFlat)] = lhFlat
         else:
-            print(f"Warning: No dominant hand ({dexterity}) landmarks detected in frame {idx}")
-        current_idx += NUM_HAND_COORDS_SINGLE
+            print(f"Warning: No left hand landmarks detected in frame {idx}")
+        currentIdx += numHandCoordsSingle
 
-        if getattr(mp_results, non_dominant_hand):
-            hand_flat = [coord for lm in getattr(mp_results, non_dominant_hand).landmark for coord in [lm.x, lm.y, lm.z]]
-            frame_lms[current_idx:current_idx + len(hand_flat)] = hand_flat
+        # 3. Right Hand Landmarks (Second Hand)
+        if mpResults.right_hand_landmarks:
+            rhFlat = [coord for lm in mpResults.right_hand_landmarks.landmark for coord in [lm.x, lm.y, lm.z]]
+            frameLms[currentIdx:currentIdx + len(rhFlat)] = rhFlat
         else:
-            print(f"Warning: No non-dominant hand landmarks detected in frame {idx}")
-        current_idx += NUM_HAND_COORDS_SINGLE
+            print(f"Warning: No right hand landmarks detected in frame {idx}")
+        currentIdx += numHandCoordsSingle
 
-        if mp_results.face_landmarks:
-            face_flat = [coord for lm in mp_results.face_landmarks.landmark for coord in [lm.x, lm.y, lm.z]]
-            frame_lms[current_idx:current_idx + len(face_flat)] = face_flat
+        # 4. Face Landmarks
+        if mpResults.face_landmarks:
+            faceFlat = [coord for lm in mpResults.face_landmarks.landmark for coord in [lm.x, lm.y, lm.z]]
+            frameLms[currentIdx:currentIdx + len(faceFlat)] = faceFlat
         else:
             print(f"Warning: No face landmarks detected in frame {idx}")
 
-        sequence.append(frame_lms)
+        sequence.append(frameLms)
 
     if not sequence:
         return {"word": "", "confidence": 0.0}
 
-    sequence = normalize_landmarks(np.array(sequence, dtype=np.float32))
-    sequence = pad_or_truncate_sequence(sequence, SEQUENCE_LENGTH, EXPECTED_COORDS_PER_FRAME)
+    sequence = normalizeLandmarks(np.array(sequence, dtype=np.float32))
+    sequence = padOrTruncateSequence(sequence, sequenceLength, expectedCoordsPerFrame)
     sequence = np.expand_dims(sequence, axis=0)
 
     preds = model.predict(sequence, verbose=0)
-    predicted_id = int(np.argmax(preds))
+    predictedId = int(np.argmax(preds))
     confidence = float(np.max(preds))
-    predicted_word = id_to_gloss.get(predicted_id, "Unknown")
+    predictedWord = idToGloss.get(predictedId, "Unknown")
 
-    result = {"word": predicted_word if confidence >= CONFIDENCE_THRESHOLD else "",
+    result = {"word": predictedWord if confidence >= confidenceThreshold else "",
               "confidence": confidence}
-    
+
     print(f"Prediction result: {result}")
     return result
