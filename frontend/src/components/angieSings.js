@@ -6,14 +6,13 @@ import * as THREE from 'three';
 import PropTypes from 'prop-types';
 import { getLandmarks } from '../utils/apiCalls';
 
-export function AngieSings({ filename }) {
+export function AngieSings({ filename, isPlaying, replayKey }) {
     const { scene } = useGLTF('/models/angieWaving.glb');
     const bones = useRef({});
     const [modelReady, setModelReady] = useState(false);
     const animationProgress = useRef(0);
     const clock = useRef(new THREE.Clock());
     const [animationDuration, setAnimationDuration] = useState(2.5);
-    const startDelay = 500;
     const delay = 3000; 
 
     const [landmarks, setLandmarks] = useState(null);
@@ -98,20 +97,41 @@ export function AngieSings({ filename }) {
         // initial pose adjustments
         const upperArmL = bones.current['mixamorigLeftArm'];
         const upperArmR = bones.current['mixamorigRightArm'];
+        const foreArmL = bones.current['mixamorigLeftForeArm'];
+        const foreArmR = bones.current['mixamorigRightForeArm'];
+        const handL = bones.current['mixamorigLeftHand'];
+        const handR = bones.current['mixamorigRightHand'];
+        if (upperArmL) upperArmL.rotation.set(1, 0, 0);
+        if (upperArmR) upperArmR.rotation.set(1, 0, 0);
+        if (foreArmL) foreArmL.rotation.set(0, 0, 0);
+        if (foreArmR) foreArmR.rotation.set(0.0, 0, 0);
+        if (handL) handL.rotation.set(0, 0, 0);
+        if (handR) handR.rotation.set(0, 0, 0);
 
-        if (upperArmL) upperArmL.rotation.x = 1.1;
-        if (upperArmR) upperArmR.rotation.x = 1.1;
-
-        const timer = setTimeout(() => {
         setModelReady(true);
-        clock.current.start();
-        }, startDelay);
+    }, [scene]);
 
-        return () => clearTimeout(timer);
-    }, [scene, startDelay]);
+    useEffect(() => {
+        if (isPlaying) {
+            animationProgress.current = 0;
+            clock.current.elapsedTime = 0;
+            clock.current.start();
+        } 
+        else {
+            clock.current.stop();
+        }
+    }, [isPlaying]);
+
+    useEffect(() => {
+        // reset
+        setCurrentIndex(0);
+        animationProgress.current = 0;
+        clock.current.elapsedTime = 0;
+        if (isPlaying) clock.current.start();
+    }, [replayKey, isPlaying]);
 
     useFrame(() => {
-        if (!modelReady || !currentLandmarks) return;
+        if (!modelReady || !currentLandmarks || !isPlaying) return;
 
         const delta = clock.current.getDelta();
         animationProgress.current = Math.min(
@@ -148,4 +168,5 @@ export function AngieSings({ filename }) {
 
 AngieSings.propTypes = {
     filename: PropTypes.string.isRequired,
+    isPlaying: PropTypes.bool.isRequired,
 };
