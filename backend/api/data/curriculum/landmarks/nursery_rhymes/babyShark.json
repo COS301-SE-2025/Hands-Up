@@ -12,7 +12,16 @@
     "the_end", "jazz_do", "the_end", "jazz_do", "the_end", "jazz_do", "the_end"
   ],
   "delay": [
-    27, 5, 5,  5
+    28.1, 
+    1, 0.4, 1, 0.8, 0.4, 1, 0.8, 0.4, 1, 0.9, 0.55,
+    1, 0.4, 1, 0.8, 0.4, 1, 0.8, 0.4, 1, 0.9, 0.6,
+    1, 0.4, 1, 0.8, 0.4, 1, 0.8, 0.4, 1, 0.9, 0.6,
+    1, 0.4, 1, 0.8, 0.4, 1, 0.8, 0.4, 1, 0.9, 0.6,
+    1, 0.4, 1, 0.8, 0.4, 1, 0.8, 0.4, 1, 0.9, 0.6,
+    1, 0.4, 1, 0.8, 0.4, 1, 0.8, 0.4, 1, 0.9, 0.6,
+    1.4, 1.2, 1.2, 1.2, 1.2, 1.2, 1.4,
+    1.4, 1.2, 1.4, 1.2, 1.4, 1.2, 1.4, 
+    1.4, 1.2, 1.4, 1.2, 1.4, 1.2, 1.4
   ],
   "delay_move": {
     "mixamorigSpine": {
@@ -245,9 +254,14 @@
     }
   },
   "baby": {
+    "mixamorigSpine": {
+      "keyframes": [
+        [0, 0, 0],
+        [0, 0, 0]
+      ]
+    },
     "mixamorigRightArm": {
       "keyframes": [
-        [0.2, 0, -0.5],
         [0.2, 0, -0.5],
         [0.6, 0, -0.5],
         [-0.2, 0, -0.5]
@@ -256,7 +270,6 @@
     "mixamorigRightForeArm": {
       "keyframes": [
         [0, -1, -2.4],
-        [0, -1, -2.4],
         [-0.2, -1, -2.4],
         [0, -1, -2.4]
       ]
@@ -264,15 +277,11 @@
     "mixamorigRightHand": {
       "keyframes": [
         [0, 2, 0],
-        [0, 2, 0],
-        [0, 2, 0],
         [0, 2, 0]     
       ]
     },
     "mixamorigRightHandThumb1": {
       "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0],
         [0, 0, 0],
         [0, 0, 0]
       ]
@@ -280,22 +289,17 @@
     "mixamorigRightHandThumb2": {
       "keyframes": [
         [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
         [0, 0, 0]
       ]
     },
     "mixamorigRightHandThumb3": {
       "keyframes": [
         [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
         [0, 0, 0]
       ]
     },
     "mixamorigRightHandIndex1": {
       "keyframes": [
-        [0, 0, 0],
         [0, 0, 0],
         [0.4, 0, 0],
         [0.4, 0, 0]
@@ -304,22 +308,17 @@
     "mixamorigRightHandIndex2": {
       "keyframes": [
         [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
         [0, 0, 0]
       ]
     },
     "mixamorigRightHandIndex3": {
       "keyframes": [
         [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
         [0, 0, 0]
       ]
     },
       "mixamorigRightHandMiddle1": {
       "keyframes": [
-        [0, 0, 0],
         [0, 0, 0],
         [0.4, 0, 0],
         [0.4, 0, 0]
@@ -328,22 +327,17 @@
     "mixamorigRightHandMiddle2": {
       "keyframes": [
         [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
         [0, 0, 0]
       ]
     },
     "mixamorigRightHandMiddle3": {
       "keyframes": [
         [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
         [0, 0, 0]
       ]
     },
     "mixamorigRightHandRing1": {
       "keyframes": [
-        [0, 0, 0],
         [0, 0, 0],
         [0.4, 0, 0],
         [0.4, 0, 0]
@@ -352,22 +346,17 @@
     "mixamorigRightHandRing2": {
       "keyframes": [
         [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
         [0, 0, 0]
       ]
     },
     "mixamorigRightHandRing3": {
       "keyframes": [
         [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
         [0, 0, 0]
       ]
     },
     "mixamorigRightHandPinky1": {
       "keyframes": [
-        [0, 0, 0],
         [0, 0, 0],
         [0.4, 0, 0],
         [0.4, 0, 0]
@@ -376,15 +365,11 @@
     "mixamorigRightHandPinky2": {
       "keyframes": [
         [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
         [0, 0, 0]
       ]
     },
     "mixamorigRightHandPinky3": {
       "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0],
         [0, 0, 0],
         [0, 0, 0]
       ]
@@ -392,7 +377,6 @@
 
     "mixamorigLeftArm": {
       "keyframes": [
-        [0.2, 0, 0.5],
         [0.2, 0, 0.5],
         [-0.2, 0, 0.5],
         [0.6, 0, 0.5]
@@ -402,13 +386,11 @@
       "keyframes": [
         [0, 1, 2.4],
         [0, 1, 2.4],
-        [0, 1, 2.4],
         [-0.2, 1, 2.4]
       ]
     },
     "mixamorigLeftHand": {
       "keyframes": [
-        [0, -2, 0],
         [0, -2, 0],
         [0, -2, 0],
         [0, -2, 0]
@@ -417,15 +399,11 @@
     "mixamorigLeftHandThumb1": {
       "keyframes": [
         [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
         [0, 0, 0]
       ]
     },
     "mixamorigLeftHandThumb2": {
       "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0],
         [0, 0, 0],
         [0, 0, 0]
       ]
@@ -433,14 +411,11 @@
     "mixamorigLeftHandThumb3": {
       "keyframes": [
         [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
         [0, 0, 0]
       ]
     },
     "mixamorigLeftHandIndex1": {
       "keyframes": [
-        [0, 0, 0],
         [0, 0, 0],
         [0.4, 0, 0],
         [0.4, 0, 0]
@@ -449,22 +424,17 @@
     "mixamorigLeftHandIndex2": {
       "keyframes": [
         [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
         [0, 0, 0]
       ]
     },
     "mixamorigLeftHandIndex3": {
       "keyframes": [
         [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
         [0, 0, 0]
       ]
     },
     "mixamorigLeftHandMiddle1": {
       "keyframes": [
-        [0, 0, 0],
         [0, 0, 0],
         [0.4, 0, 0],
         [0.4, 0, 0]
@@ -473,22 +443,17 @@
     "mixamorigLeftHandMiddle2": {
       "keyframes": [
         [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
         [0, 0, 0]
       ]
     },
     "mixamorigLeftHandMiddle3": {
       "keyframes": [
         [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
         [0, 0, 0]
       ]
     },
     "mixamorigLeftHandRing1": {
       "keyframes": [
-        [0, 0, 0],
         [0, 0, 0],
         [0.4, 0, 0],
         [0.4, 0, 0]
@@ -497,22 +462,17 @@
     "mixamorigLeftHandRing2": {
       "keyframes": [
         [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
         [0, 0, 0]
       ]
     },
     "mixamorigLeftHandRing3": {
       "keyframes": [
         [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
         [0, 0, 0]
       ]
     },
     "mixamorigLeftHandPinky1": {
       "keyframes": [
-        [0, 0, 0],
         [0, 0, 0],
         [0.4, 0, 0],
         [0.4, 0, 0]
@@ -521,15 +481,11 @@
     "mixamorigLeftHandPinky2": {
       "keyframes": [
         [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
         [0, 0, 0]
       ]
     },
       "mixamorigLeftHandPinky3": {
       "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0],
         [0, 0, 0],
         [0, 0, 0]
       ]
@@ -2997,6 +2953,12 @@
     }
   },
   "lets_go": {
+    "mixamorigSpine": {
+      "keyframes": [
+        [0, 0, 0],
+        [0, 0, 0]
+      ]
+    },
     "mixamorigRightArm": {
       "keyframes": [
         [1, 0, 0],

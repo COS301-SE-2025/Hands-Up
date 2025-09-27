@@ -97,12 +97,14 @@ export function AngieSings({ filename, isPlaying, replayKey }) {
         });
 
         // initial pose adjustments
+        const spine = bones.current['mixamorigSpine'];
         const upperArmL = bones.current['mixamorigLeftArm'];
         const upperArmR = bones.current['mixamorigRightArm'];
         const foreArmL = bones.current['mixamorigLeftForeArm'];
         const foreArmR = bones.current['mixamorigRightForeArm'];
         const handL = bones.current['mixamorigLeftHand'];
         const handR = bones.current['mixamorigRightHand'];
+        if (spine) spine.rotation.set(0, 0, 0);
         if (upperArmL) upperArmL.rotation.set(1, 0, 0);
         if (upperArmR) upperArmR.rotation.set(1, 0, 0);
         if (foreArmL) foreArmL.rotation.set(0, 0, 0);
@@ -136,8 +138,13 @@ export function AngieSings({ filename, isPlaying, replayKey }) {
         if (!modelReady || !currentLandmarks || !isPlaying) return;
 
         const delta = clock.current.getDelta();
-        animationProgress.current += delta / animationDuration;
-        animationProgress.current %= 1;
+        if (currentIndex === 0 || currentIndex === sequence.length - 1) {
+            animationProgress.current += delta / animationDuration * 1.5;
+            animationProgress.current %= 1; 
+        } 
+        else {
+            animationProgress.current = Math.min(animationProgress.current + delta / animationDuration * 1.75, 1);
+        }
         
         for (const boneName in currentLandmarks) {
             const bone = bones.current[boneName];
