@@ -18,6 +18,7 @@ export function AngieSings({ filename, isPlaying, replayKey }) {
     const [landmarks, setLandmarks] = useState(null);
     const [sequence, setSequence] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [delays, setDelays] = useState([]);
 
     useEffect(() => {
         if (!filename) return; 
@@ -27,13 +28,13 @@ export function AngieSings({ filename, isPlaying, replayKey }) {
                 const landmarkData = await getLandmarks(filename);
                 setLandmarks(landmarkData || {});
                 setSequence(landmarkData.sequence || []);
+                setDelays(landmarkData.delay || []);
                 setCurrentIndex(0);
-                console.log('Loaded landmarks:', landmarkData);
-                console.log('Loaded sequence:', landmarkData.sequence);
             } 
             catch (err) {
                 console.error('Failed to load landmarks for', filename, err);
                 setLandmarks({});
+                setDelays([]);
             }
         }
 
@@ -42,8 +43,9 @@ export function AngieSings({ filename, isPlaying, replayKey }) {
 
     useEffect(() => {
         if (!sequence || sequence.length === 0) return;
-
         if (currentIndex >= sequence.length) return; 
+
+        const currentDelay = (delays[currentIndex] ?? delay / 1000) * 1000;
 
         const timer = setTimeout(() => {
             if (currentIndex + 1 < sequence.length) {
@@ -52,10 +54,10 @@ export function AngieSings({ filename, isPlaying, replayKey }) {
                 clock.current.elapsedTime = 0;
                 clock.current.start();
             }
-        }, delay);
+        }, currentDelay);
 
         return () => clearTimeout(timer);
-    }, [currentIndex, sequence]);
+    }, [currentIndex, sequence, delays]);
 
     const currentWord = sequence[currentIndex] || sequence[sequence.length - 1];
     const currentLandmarks = landmarks ? landmarks[currentWord] : null;
@@ -134,11 +136,9 @@ export function AngieSings({ filename, isPlaying, replayKey }) {
         if (!modelReady || !currentLandmarks || !isPlaying) return;
 
         const delta = clock.current.getDelta();
-        animationProgress.current = Math.min(
-            animationProgress.current + delta / animationDuration,
-            1
-        );
-
+        animationProgress.current += delta / animationDuration;
+        animationProgress.current %= 1;
+        
         for (const boneName in currentLandmarks) {
             const bone = bones.current[boneName];
             if (!bone) continue;

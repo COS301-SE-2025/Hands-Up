@@ -1,5 +1,6 @@
 { 
   "sequence": [
+    "delay_move", 
     "baby", "left_shark", "baby_do", "baby", "left_shark", "baby_do", "baby", "left_shark", "baby_do", "baby", "left_shark",
     "mummy",  "left_shark", "mummy_do", "mummy",  "left_shark", "mummy_do", "mummy",  "left_shark", "mummy_do", "mummy",  "left_shark",
     "daddy", "left_shark", "daddy_do", "daddy", "left_shark", "daddy_do", "daddy", "left_shark", "daddy_do", "daddy", "left_shark",
@@ -10,6 +11,20 @@
     "safe", "jazz_do", "safe", "jazz_do", "safe", "jazz_do", "safe", 
     "the_end", "jazz_do", "the_end", "jazz_do", "the_end", "jazz_do", "the_end"
   ],
+  "delay": [
+    27, 5, 5,  5
+  ],
+  "delay_move": {
+    "mixamorigSpine": {
+      "keyframes": [
+        [0, 0, 0],
+        [0, 0, -0.1],
+        [0, 0, 0],
+        [0, 0, 0.1],
+        [0, 0, 0]
+      ]
+    }
+  },
   "left_shark": {
     "mixamorigRightArm": {
       "keyframes": [
