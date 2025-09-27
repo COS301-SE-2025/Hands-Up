@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { HandLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 import { produceSentence } from '../utils/apiCalls';
 import { useModelSwitch } from '../contexts/modelContext';
 import { useDexterity } from '../contexts/dexterityContext';
@@ -8,6 +7,7 @@ export function useTranslator() {
     const videoRef = useRef(null);
     const canvasRef1 = useRef(null);
     const canvasRef2 = useRef(null);
+    const wsRef = useRef(null);
     const processingRef = useRef(false);
     const [result, setResult] = useState("");
     const [confidence, setConfidence] = useState("Awaiting capture to detect confidence level...");
@@ -19,128 +19,9 @@ export function useTranslator() {
     const [sequenceNum, setSequenceNum] = useState(90);
     const [translating, setTranslating] = useState(false);
     const { dexterity } = useDexterity();
-    const handLandmarkerRef = useRef(null);
-    const wsRef = useRef(null);
-    const reconnectAttempts = useRef(0);
-    const maxReconnectAttempts = 5;
-    const reconnectInterval = useRef(1000);
-
-    // Initialize MediaPipe HandLandmarker
-    useEffect(() => {
-        async function initializeHandLandmarker() {
-            try {
-                const vision = await FilesetResolver.forVisionTasks(
-                    'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm'
-                );
-                const handLandmarker = await HandLandmarker.createFromOptions(vision, {
-                    baseOptions: {
-                        modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
-                    },
-                    numHands: 1,
-                    runningMode: 'IMAGE',
-                });
-                handLandmarkerRef.current = handLandmarker;
-            } catch (err) {
-                console.error('Failed to initialize HandLandmarker:', err);
-            }
-        }
-        initializeHandLandmarker();
-
-        return () => {
-            if (handLandmarkerRef.current) {
-                handLandmarkerRef.current.close();
-            }
-        };
-    }, []);
-
-    // WebSocket connection function
-    const connectWebSocket = useCallback(() => {
-        if (reconnectAttempts.current >= maxReconnectAttempts) {
-            console.error('Max WebSocket reconnect attempts reached');
-            return;
-        }
-
-        wsRef.current = new WebSocket('ws://127.0.0.1:5000/ws');
-
-        wsRef.current.onopen = () => {
-            console.log('WebSocket connected');
-            reconnectAttempts.current = 0;
-            reconnectInterval.current = 1000;
-            wsRef.current.send(JSON.stringify({
-                type: 'config',
-                model: modelState.model,
-                sequenceNum: sequenceNum,
-            }));
-        };
-
-        wsRef.current.onmessage = (event) => {
-            try {
-                const msg = JSON.parse(event.data);
-                if (msg.type === 'result') {
-                    setResult((prev) => {
-                        let newResult = prev || "";
-                        const currentModel = activeModelRef.current;
-
-                        if (currentModel === 'alpha') {
-                            const letter = msg.letter ?? '';
-                            if (letter === 'SPACE') newResult += ' ';
-                            else if (letter === 'DEL') newResult = newResult.slice(0, -1);
-                            else newResult += letter;
-                            setConfidence(`${((msg.confidenceLetter ?? 0) * 100).toFixed(2)}%`);
-                        } else if (currentModel === 'num') {
-                            newResult += (msg.number ?? '') + ' ';
-                            setConfidence(`${((msg.confidenceNumber ?? 0) * 100).toFixed(2)}%`);
-                        } else if (currentModel === 'glosses') {
-                            newResult += (msg.word ?? '') + ' ';
-                            setConfidence(`${((msg.confidence ?? 0) * 100).toFixed(2)}%`);
-                        }
-
-                        newResult = newResult.replace(/undefined/g, '');
-                        return newResult;
-                    });
-                    setIsProcessing(false);
-                    processingRef.current = false;
-                }
-            } catch (err) {
-                console.error('WebSocket message parsing error:', err);
-            }
-        };
-
-        wsRef.current.onclose = (event) => {
-            console.log(`WebSocket closed: code=${event.code}, reason=${event.reason}`);
-            if (event.code !== 1000 && recording) {
-                reconnectAttempts.current += 1;
-                setTimeout(() => {
-                    connectWebSocket();
-                    reconnectInterval.current = Math.min(reconnectInterval.current * 2, 30000);
-                }, reconnectInterval.current);
-            }
-        };
-
-        wsRef.current.onerror = (err) => {
-            console.error('WebSocket error:', err);
-            if (wsRef.current) {
-                wsRef.current.close(1000, 'Client error');
-            }
-        };
-    }, [modelState.model, sequenceNum, recording]);
-
-    // Update WebSocket config on model change
-    useEffect(() => {
-        activeModelRef.current = modelState.model;
-        setSequenceNum(modelState.model === 'glosses' ? 90 : 20);
-
-        if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-            wsRef.current.send(JSON.stringify({
-                type: 'config',
-                model: modelState.model,
-                sequenceNum: modelState.model === 'glosses' ? 90 : 20,
-            }));
-        }
-    }, [modelState.model]);
+    const sentFramesRef = useRef(0);
 
     const convertGloss = async () => {
-        await stopRecording(); // Stop recording before translation
         if (result.trim()) {
             const hasAlphabets = /[a-zA-Z]/.test(result);
             const wordCount = result.trim().split(/\s+/).length;
@@ -150,6 +31,7 @@ export function useTranslator() {
 
             if (!hasAlphabets || wordCount < 2) {
                 const ctx = canvas.getContext('2d');
+
                 canvas.width = video.videoWidth * 0.2;
                 canvas.height = video.videoHeight * 0.2;
                 ctx.shadowColor = 'rgba(255, 0, 0, 0.7)';
@@ -163,6 +45,7 @@ export function useTranslator() {
             try {
                 setTranslating(true);
                 const translation = await produceSentence(result);
+
                 if (translation.translation && translation.translation !== "?") {
                     setResult(translation.translation);
                 } else {
@@ -183,41 +66,102 @@ export function useTranslator() {
     const stopRecording = useCallback(async () => {
         setRecording(false);
         setAutoCaptureEnabled(false);
+        sentFramesRef.current = 0;
         if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-            try {
-                wsRef.current.send(JSON.stringify({ type: 'reset' }));
-                await new Promise(resolve => setTimeout(resolve, 100));
-                wsRef.current.close(1000, 'Recording stopped');
-                console.log('WebSocket closed: code=1000, reason=Recording stopped');
-            } catch (err) {
-                console.error('Error closing WebSocket:', err);
-            }
+            wsRef.current.send(JSON.stringify({ type: 'stop' }));
+            wsRef.current.close();
             wsRef.current = null;
         }
     }, []);
 
     const startRecording = useCallback(async () => {
         if (recording) {
-            await stopRecording();
-        }
-        setAutoCaptureEnabled(true);
-        setRecording(true);
-        connectWebSocket();
-    }, [recording, stopRecording, connectWebSocket]);
+            stopRecording();
+        } else {
+            setAutoCaptureEnabled(true);
+            setRecording(true);
+            sentFramesRef.current = 0;
 
-    const captureImageFromVideo = useCallback(async () => {
+            const ws = new WebSocket(`ws://127.0.0.1:5000/ws_translate`);
+            wsRef.current = ws;
+
+            ws.onopen = () => {
+                console.log('WebSocket connected');
+                ws.send(JSON.stringify({
+                    type: 'start',
+                    model: activeModelRef.current,
+                    sequenceNum: activeModelRef.current === 'glosses' ? 90 : 10,
+                    dexterity: dexterity
+                }));
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                console.log("WS Data:", data);
+                if (data.error) {
+                    console.error('Error from backend:', data.error);
+                    setResult("Error translating sign.");
+                    setConfidence("0%");
+                } else if (data.status === 'processing') {
+                    setIsProcessing(true);
+                    processingRef.current = true;
+                } else if (data.status === 'wait_more' || data.status === 'wait_more_dynamic') {
+                    setIsProcessing(false);
+                    processingRef.current = false;
+                } else {
+                    // Use functional updates to ensure we're always working with the latest state
+                    if (activeModelRef.current === 'alpha') {
+                        const letter = data?.letter ?? '';
+                        setResult((prevResult) => {
+                            let updated = prevResult;
+                            if (letter === 'SPACE') updated += ' ';
+                            else if (letter === 'DEL') updated = updated.slice(0, -1);
+                            else updated += letter;
+
+                            return updated.replace(/undefined/g, '');
+                        });
+
+                        setConfidence(`${((data?.confidenceLetter ?? 0) * 100).toFixed(2)}%`);
+                    }
+                    else if (activeModelRef.current === 'num') {
+                        setResult((prev) => (prev + (data?.number ?? '') + ' ').replace(/undefined/g, ''));
+                        setConfidence(`${((data?.confidenceNumber ?? 0) * 100).toFixed(2)}%`);
+                    }
+                    else if (activeModelRef.current === 'glosses') {
+                        setResult((prev) => (prev + (data?.word ?? '') + ' ').replace(/undefined/g, ''));
+                        setConfidence(`${((data?.confidence ?? 0) * 100).toFixed(2)}%`);
+                    }
+
+                    setIsProcessing(false);
+                    processingRef.current = false;
+                }
+            };
+
+            ws.onclose = () => {
+                console.log('WebSocket closed');
+                wsRef.current = null;
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+                setResult("WebSocket error occurred.");
+                setConfidence("0%");
+                stopRecording();
+            };
+        }
+    }, [recording, stopRecording, dexterity]); // Removed 'result' from dependency array
+
+    const captureImageFromVideo = useCallback(() => {
+        if (!videoRef.current || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN || isProcessing) {
+            return;
+        }
+
         const video = videoRef.current;
-        if (!video || !handLandmarkerRef.current || !autoCaptureEnabled) {
-            return;
-        }
-
         const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = video.videoWidth;
-        tempCanvas.height = video.videoHeight;
+        tempCanvas.width = video.videoWidth / 2;
+        tempCanvas.height = video.videoHeight / 2;
         const tempCtx = tempCanvas.getContext('2d');
-        if (!tempCtx) {
-            return;
-        }
+        if (!tempCtx) return;
 
         if (dexterity === 'left') {
             tempCtx.save();
@@ -229,30 +173,12 @@ export function useTranslator() {
 
         if (dexterity === 'left') tempCtx.restore();
 
-        const results = await handLandmarkerRef.current.detect(tempCanvas);
-
-        let landmarks = null;
-        if (results.landmarks && results.landmarks.length > 0) {
-            const handLandmarks = results.landmarks[0];
-            const xList = handLandmarks.map((lm) => lm.x);
-            const yList = handLandmarks.map((lm) => lm.y);
-            const minX = Math.min(...xList);
-            const minY = Math.min(...yList);
-            landmarks = [];
-            handLandmarks.forEach((lm) => {
-                landmarks.push(lm.x - minX);
-                landmarks.push(lm.y - minY);
-                landmarks.push(0);
-            });
-        }
-
-        if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-            wsRef.current.send(JSON.stringify({
-                type: 'frame',
-                landmarks: landmarks,
-            }));
-        }
-    }, [dexterity, autoCaptureEnabled]);
+        tempCanvas.toBlob((blob) => {
+            if (!blob || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
+            wsRef.current.send(blob);
+            sentFramesRef.current += 1;
+        }, 'image/jpeg', 0.6);
+    }, [dexterity, isProcessing]);
 
     useEffect(() => {
         const canvas = canvasRef1.current;
@@ -288,20 +214,22 @@ export function useTranslator() {
     }, [isProcessing, recording]);
 
     useEffect(() => {
+        activeModelRef.current = modelState.model;
+        setSequenceNum(modelState.model === 'glosses' ? 90 : 10);
+    }, [modelState.model]);
+
+    useEffect(() => {
         let intervalId;
 
-        const requiredFrames = modelState.model === 'glosses' ? 90 : 20;
-        const intervalDuration = 1000 / requiredFrames; // Slower frame rate
+        const intervalDuration = modelState.model === 'glosses' ? 30 : 1000;
 
-        if (autoCaptureEnabled && videoRef.current && handLandmarkerRef.current) {
+        if (autoCaptureEnabled && videoRef.current) {
             intervalId = setInterval(() => {
                 captureImageFromVideo();
             }, intervalDuration);
         }
 
-        return () => {
-            if (intervalId) clearInterval(intervalId);
-        };
+        return () => clearInterval(intervalId);
     }, [autoCaptureEnabled, captureImageFromVideo, modelState.model]);
 
     useEffect(() => {
@@ -311,11 +239,11 @@ export function useTranslator() {
                     video: {
                         width: { ideal: 1920 },
                         height: { ideal: 1080 },
-                    },
+                    }
                 });
                 videoRef.current.srcObject = stream;
             } catch (err) {
-                console.error('Camera access denied:', err);
+                console.error(err);
                 setResult('Camera access denied.');
             }
         };
@@ -325,10 +253,14 @@ export function useTranslator() {
         enableCamera();
         return () => {
             if (videoRefStore?.srcObject) {
-                videoRefStore.srcObject.getTracks().forEach((track) => track.stop());
+                videoRefStore.srcObject.getTracks().forEach(track => track.stop());
+            }
+            if (wsRef.current) {
+                wsRef.current.close();
+                wsRef.current = null;
             }
         };
-    }, [setResult]);
+    }, []);
 
     return {
         videoRef,
