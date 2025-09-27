@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Play, Pause, RotateCcw, Volume2, VolumeX, Star, ArrowLeft, Video } from 'lucide-react';
+import { Play, Pause, RotateCcw, Star, ArrowLeft, Video } from 'lucide-react';
 import { AngieSings } from '../components/angieSings';
 import PropTypes from 'prop-types';
 
@@ -90,21 +90,9 @@ FloatingDecoration.propTypes = {
 export function NurseryRhymesPage() {
   const [selectedRhyme, setSelectedRhyme] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
   const [replayKey, setReplayKey] = useState(0);
   const [videoPlayer, setVideoPlayer] = useState(null);
   const intervalRef = useRef(null);
-
-  const toggleMute = () => {
-    setIsMuted(prev => !prev);
-    if (videoPlayer) {
-      if (isMuted) {
-        videoPlayer.unMute();
-      } else {
-        videoPlayer.mute();
-      }
-    }
-  };
 
   const startPlayback = useCallback(async () => {
     if (!selectedRhyme || isPlaying) return;
@@ -188,9 +176,7 @@ export function NurseryRhymesPage() {
             events: {
               onReady: () => {
                 setVideoPlayer(player);
-                if (isMuted) {
-                  player.mute();
-                }
+                
               },
               onStateChange: (event) => {
                 if (event.data === window.YT.PlayerState.ENDED) {
@@ -216,7 +202,7 @@ export function NurseryRhymesPage() {
       }
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedRhyme, isMuted]);
+  }, [selectedRhyme]);
 
   const RhymeCard = ({ rhyme }) => (
     <div 
@@ -344,13 +330,7 @@ export function NurseryRhymesPage() {
                   Restart
                 </button>
                 
-                <button
-                  onClick={toggleMute}
-                  className={`control-btn ${isMuted ? 'muted' : 'unmuted'}`}
-                >
-                  {isMuted ? <VolumeX /> : <Volume2 />}
-                  {isMuted ? 'Unmute' : 'Mute'}
-                </button>
+                
               </div>
             </div>
           </div>
@@ -418,7 +398,7 @@ export function NurseryRhymesPage() {
             align-items: center;
             gap: 10px;
             padding: 15px 25px;
-            background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+            background: linear-gradient(135deg, #2da335, #7ED957);
             border: none;
             border-radius: 50px;
             font-size: 18px;
@@ -621,15 +601,6 @@ export function NurseryRhymesPage() {
             color: white;
           }
 
-          .control-btn.unmuted {
-            background: linear-gradient(135deg, #9370DB, #4B0082);
-            color: white;
-          }
-
-          .control-btn.muted {
-            background: linear-gradient(135deg, #808080, #696969);
-            color: white;
-          }
 
           .control-btn:hover:not(:disabled) {
             transform: translateY(-3px) scale(1.05);
