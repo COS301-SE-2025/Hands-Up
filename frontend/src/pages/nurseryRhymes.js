@@ -94,8 +94,6 @@ export function NurseryRhymesPage() {
   const [videoPlayer, setVideoPlayer] = useState(null);
   const intervalRef = useRef(null);
 
-
-
   const startPlayback = useCallback(async () => {
     if (!selectedRhyme || isPlaying) return;
     
@@ -303,8 +301,9 @@ export function NurseryRhymesPage() {
                           <ambientLight intensity={8} />
                           <group position={[0, -1.2, 0]}>
                             <AngieSings 
-                              key={replayKey}
                               filename={selectedRhyme.landmarkWord}
+                              isPlaying={isPlaying}
+                              key={replayKey}
                             />
                           </group>
                         </Canvas>
