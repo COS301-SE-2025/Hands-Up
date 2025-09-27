@@ -688,8 +688,19 @@ export function UserProfile() {
                         <h1 className="name">{currentUser.name} {currentUser.surname}</h1>
                         <p className="username">@{currentUser.username}</p>
                         <p className="email">{currentUser.email}</p>
-                        <p className="member-since">Member since: {currentUser?.createdAt ? new Date(currentUser.createdAt).toLocaleDateString() : new Date().toLocaleDateString()}.</p>
-                        <DexterityToggle />
+                        <p className="member-since"><b>Member since</b>: {currentUser?.createdAt? new Date(currentUser.createdAt).toLocaleDateString('en-ZA', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                            })
+                            : new Date().toLocaleDateString('en-ZA', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                            })
+                        }
+                        </p>
+                    <DexterityToggle />
                     </div>
                 </div>
 
