@@ -50,12 +50,12 @@ def normalize_landmarks(landmarks_sequence):
 
         normalized_frame_parts = []
         for flat_lms, coords_per_lm, template in all_parts_data:
-            if np.all(flat_lms==0):
+            if np.all(flat_lms == 0):
                 normalized_frame_parts.append(np.array(template, dtype=np.float32))
                 continue
 
             lms_array = flat_lms.reshape(-1, coords_per_lm)
-            coords_for_mean = lms_array[:, :3] if coords_per_lm==4 else lms_array
+            coords_for_mean = lms_array[:, :3] if coords_per_lm == 4 else lms_array
             mean_coords = np.mean(coords_for_mean, axis=0)
             translated_lms = lms_array.copy()
             translated_lms[:, :3] -= mean_coords
@@ -80,14 +80,15 @@ def pad_or_truncate_sequence(sequence, target_length, feature_dimension):
         return np.vstack((sequence, padding))
     return sequence[:target_length, :]
 
-def detectWords(image_paths):
-    results_dict = {}
+def detect_from_image_bytes(sequence_bytes_list, dexterity='right'):
     sequence = []
 
-    for idx, path in enumerate(image_paths):
-        img = cv2.imread(path)
+    for idx, image_bytes in enumerate(sequence_bytes_list):
+        nparr = np.frombuffer(image_bytes, np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         if img is None:
-            print(f"Warning: Could not read image {path}")
+            print(f"Warning: Could not decode image bytes at index {idx}")
+            sequence.append(np.zeros(EXPECTED_COORDS_PER_FRAME, dtype=np.float32))
             continue
 
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -98,36 +99,42 @@ def detectWords(image_paths):
 
         if mp_results.pose_landmarks:
             pose_flat = [coord for lm in mp_results.pose_landmarks.landmark for coord in [lm.x, lm.y, lm.z, lm.visibility]]
-            frame_lms[current_idx:current_idx+len(pose_flat)] = pose_flat
-        else: 
+            frame_lms[current_idx:current_idx + len(pose_flat)] = pose_flat
+        else:
             print(f"Warning: No pose landmarks detected in frame {idx}")
         current_idx += NUM_POSE_COORDS_SINGLE
 
-        if mp_results.left_hand_landmarks:
-            lh_flat = [coord for lm in mp_results.left_hand_landmarks.landmark for coord in [lm.x, lm.y, lm.z]]
-            frame_lms[current_idx:current_idx+len(lh_flat)] = lh_flat
-        else: 
-            print(f"Warning: No left hand landmarks detected in frame {idx}")
+        dominant_hand = 'right_hand_landmarks' if dexterity == 'right' else 'left_hand_landmarks'
+        non_dominant_hand = 'left_hand_landmarks' if dexterity == 'right' else 'right_hand_landmarks'
+
+        if getattr(mp_results, dominant_hand):
+            hand_flat = [coord for lm in getattr(mp_results, dominant_hand).landmark for coord in [lm.x, lm.y, lm.z]]
+            frame_lms[current_idx:current_idx + len(hand_flat)] = hand_flat
+        else:
+            print(f"Warning: No dominant hand ({dexterity}) landmarks detected in frame {idx}")
         current_idx += NUM_HAND_COORDS_SINGLE
 
-        if mp_results.right_hand_landmarks:
-            rh_flat = [coord for lm in mp_results.right_hand_landmarks.landmark for coord in [lm.x, lm.y, lm.z]]
-            frame_lms[current_idx:current_idx+len(rh_flat)] = rh_flat
-        else: 
-            print(f"Warning: No right hand landmarks detected in frame {idx}")
+        if getattr(mp_results, non_dominant_hand):
+            hand_flat = [coord for lm in getattr(mp_results, non_dominant_hand).landmark for coord in [lm.x, lm.y, lm.z]]
+            frame_lms[current_idx:current_idx + len(hand_flat)] = hand_flat
+        else:
+            print(f"Warning: No non-dominant hand landmarks detected in frame {idx}")
         current_idx += NUM_HAND_COORDS_SINGLE
 
         if mp_results.face_landmarks:
             face_flat = [coord for lm in mp_results.face_landmarks.landmark for coord in [lm.x, lm.y, lm.z]]
-            frame_lms[current_idx:current_idx+len(face_flat)] = face_flat
-        else: 
-            print(f"Warning: No pose landmarks detected in frame {idx}")
+            frame_lms[current_idx:current_idx + len(face_flat)] = face_flat
+        else:
+            print(f"Warning: No face landmarks detected in frame {idx}")
 
         sequence.append(frame_lms)
 
+    if not sequence:
+        return {"word": "", "confidence": 0.0}
+
     sequence = normalize_landmarks(np.array(sequence, dtype=np.float32))
     sequence = pad_or_truncate_sequence(sequence, SEQUENCE_LENGTH, EXPECTED_COORDS_PER_FRAME)
-    sequence = np.expand_dims(sequence, axis=0) 
+    sequence = np.expand_dims(sequence, axis=0)
 
     preds = model.predict(sequence, verbose=0)
     predicted_id = int(np.argmax(preds))
