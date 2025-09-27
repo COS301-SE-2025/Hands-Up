@@ -73,10 +73,20 @@ export function Translator(){
             <h2 className="recognizer-title">
               <i className="fas fa-camera-retro recognizer-title-icon"></i> Sign Language Recognizer
             </h2>
-
-            <div className="recognizer-banner">
-              <i className="fas fa-lightbulb recognizer-banner-icon"></i>
-              <p>Swipe your hand in the camera to switch models</p>
+            <br/><br/>
+            <div className="recognizer-controls">
+              <div>
+            </div>
+              <button onClick={() => setResult("")} className="recognizer-control-button recognizer-capture-button">
+                <i></i> Clear Results
+              </button>
+              <button 
+                onClick={startRecording} 
+                className={`recognizer-control-button ${recording ? 'recognizer-stop-button' : 'recognizer-record-button'}`}
+              >
+                <i className={`fas ${recording ? 'fa-stop' : 'fa-video'}`}></i> 
+                {recording ? 'Stop Signing' : 'Start Signing'}
+              </button>
             </div>
 
             <div className="recognizer-camera-container relative">
@@ -123,28 +133,6 @@ export function Translator(){
                   <i className="fas fa-circle recognizer-pulse-icon"></i> Recording...
                 </div>
               )}
-            </div>
-
-            <div className="recognizer-controls">
-              <div>
-            </div>
-              <button onClick={() => setResult("")} className="recognizer-control-button recognizer-capture-button">
-                <i></i> Clear Results
-              </button>
-              <button 
-                onClick={startRecording} 
-                className={`recognizer-control-button ${recording ? 'recognizer-stop-button' : 'recognizer-record-button'}`}
-              >
-                <i className={`fas ${recording ? 'fa-stop' : 'fa-video'}`}></i> 
-                {recording ? 'Stop Signing' : 'Start Signing'}
-              </button>
-            </div>
-
-            <div className="recognizer-history">
-              <h3 className="recognizer-history-title">
-                <i className="fas fa-history recognizer-history-icon"></i> Recent Captures
-              </h3>
-              
             </div>
           </div>
 
