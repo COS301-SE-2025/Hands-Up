@@ -176,4 +176,5 @@ export function AngieSings({ filename, isPlaying, replayKey }) {
 AngieSings.propTypes = {
     filename: PropTypes.string.isRequired,
     isPlaying: PropTypes.bool.isRequired,
+    replayKey: PropTypes.number.isRequired,
 };
