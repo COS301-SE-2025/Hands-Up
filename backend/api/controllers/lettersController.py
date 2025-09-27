@@ -19,13 +19,13 @@ with open('../../ai_model/models/numLabelEncoder.pickle', 'rb') as f:
 
 hands = mp.solutions.hands.Hands(static_image_mode=True)
 
-async def detect_from_image_bytes(sequence_bytes_list, dexterity='right', websocket: WebSocket = None, is_dynamic=False):
-    num_frames = len(sequence_bytes_list)
-    if num_frames == 0:
+async def detectFromImageBytes(sequenceBytesList, websocket: WebSocket = None, isDynamic=False):
+    numFrames = len(sequenceBytesList)
+    if numFrames == 0:
         return {'letter': '', 'confidenceLetter': 0.0, 'number': '', 'confidenceNumber': 0.0}
 
-    def process_single_frame(image_bytes):
-        nparr = np.frombuffer(image_bytes, np.uint8)
+    def processSingleFrame(imageBytes):
+        nparr = np.frombuffer(imageBytes, np.uint8)
         image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         if image is None:
             return None, None, None, None
@@ -64,10 +64,10 @@ async def detect_from_image_bytes(sequence_bytes_list, dexterity='right', websoc
 
         return label1, confidence1, label3, confidence3
 
-    def process_sequence(frames):
+    def processSequence(frames):
         processedSequence = []
-        for image_bytes in frames:
-            nparr = np.frombuffer(image_bytes, np.uint8)
+        for imageBytes in frames:
+            nparr = np.frombuffer(imageBytes, np.uint8)
             image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
             if image is None:
                 processedSequence.append(None)
@@ -129,32 +129,32 @@ async def detect_from_image_bytes(sequence_bytes_list, dexterity='right', websoc
 
         return label2, confidence2
 
-    if num_frames == 1:
-        label1, confidence1, label3, confidence3 = process_single_frame(sequence_bytes_list[0])
+    if numFrames == 1:
+        label1, confidence1, label3, confidence3 = processSingleFrame(sequenceBytesList[0])
         if label1 is None:
             return {'letter': '', 'confidenceLetter': 0.0, 'number': '', 'confidenceNumber': 0.0}
         if label1 in ['J', 'Z']:
-            return {'status': 'wait_more_dynamic'}
-        return {'status': 'wait_more'}
+            return {'status': 'waitMoreDynamic'}
+        return {'status': 'waitMore'}
 
-    elif num_frames == 2:
-        label1_first, _, _, _ = process_single_frame(sequence_bytes_list[0])
-        label1_second, confidence1, label3, confidence3 = process_single_frame(sequence_bytes_list[1])
-        if label1_first is None or label1_second is None:
+    elif numFrames == 2:
+        label1First, _, _, _ = processSingleFrame(sequenceBytesList[0])
+        label1Second, confidence1, label3, confidence3 = processSingleFrame(sequenceBytesList[1])
+        if label1First is None or label1Second is None:
             return {'letter': '', 'confidenceLetter': 0.0, 'number': '', 'confidenceNumber': 0.0}
-        if label1_first == label1_second and label1_first not in ['J', 'Z']:
-            return {'letter': label1_second, 'confidenceLetter': confidence1,
+        if label1First == label1Second and label1First not in ['J', 'Z']:
+            return {'letter': label1Second, 'confidenceLetter': confidence1,
                     'number': label3, 'confidenceNumber': confidence3}
-        elif label1_first in ['J', 'Z'] or label1_second in ['J', 'Z']:
-            return {'status': 'wait_more_dynamic'}
+        elif label1First in ['J', 'Z'] or label1Second in ['J', 'Z']:
+            return {'status': 'waitMoreDynamic'}
         else:
             return {'letter': '', 'confidenceLetter': 0.0, 'number': '', 'confidenceNumber': 0.0}
 
-    elif num_frames >= 10 and is_dynamic:
-        label2, confidence2 = process_sequence(sequence_bytes_list[:10])
+    elif numFrames >= 10 and isDynamic:
+        label2, confidence2 = processSequence(sequenceBytesList[:10])
         if label2 is None:
             return {'letter': '', 'confidenceLetter': 0.0, 'number': '', 'confidenceNumber': 0.0}
-        _, _, label3, confidence3 = process_single_frame(sequence_bytes_list[-1])
+        _, _, label3, confidence3 = processSingleFrame(sequenceBytesList[-1])
         return {'letter': label2, 'confidenceLetter': confidence2,
                 'number': label3, 'confidenceNumber': confidence3}
 

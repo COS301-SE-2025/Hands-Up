@@ -16,65 +16,57 @@ export function useTranslator() {
     const { modelState } = useModelSwitch();
     const activeModelRef = useRef(modelState.model);
     const [isProcessing, setIsProcessing] = useState(false);
-    const [sequenceNum, setSequenceNum] = useState(90);
+    const [sequenceNum, setSequenceNum] = useState(30);
     const [translating, setTranslating] = useState(false);
     const { dexterity } = useDexterity();
     const sentFramesRef = useRef(0);
 
-    const convertGloss = async () => {
-        if (result.trim()) {
-            const hasAlphabets = /[a-zA-Z]/.test(result);
-            const wordCount = result.trim().split(/\s+/).length;
+    const convertGloss = useCallback(() => {
+    if (!result.trim()) return;
 
-            const video = videoRef.current;
-            const canvas = canvasRef1.current;
+    const ws = new WebSocket("ws://127.0.0.1:5000/ws_sentence");
 
-            if (!hasAlphabets || wordCount < 2) {
-                const ctx = canvas.getContext('2d');
+    ws.onopen = () => {
+        ws.send(JSON.stringify({ type: "translate", gloss: result }));
+        setTranslating(true);
+        setResult("");  // Clear previous result
+    };
 
-                canvas.width = video.videoWidth * 0.2;
-                canvas.height = video.videoHeight * 0.2;
-                ctx.shadowColor = 'rgba(255, 0, 0, 0.7)';
-                ctx.shadowBlur = 10;
-                ctx.font = 'bold 24px Sans-serif';
-                ctx.fillStyle = 'red';
-                ctx.textAlign = 'center';
-                ctx.fillText('English Translation Not Available...', canvas.width / 2, canvas.height / 2);
-            }
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
 
-            try {
-                setTranslating(true);
-                const translation = await produceSentence(result);
-
-                if (translation.translation && translation.translation !== "?") {
-                    setResult(translation.translation);
-                } else {
-                    const currentResult = result;
-                    setResult("English Translation Not Available");
-                    setTimeout(() => {
-                        setResult(currentResult);
-                    }, 2000);
-                }
-            } catch (err) {
-                console.error("Error producing sentence:", err);
-            } finally {
-                setTranslating(false);
-            }
+        if (data.error) {
+            setResult("Error translating sentence");
+            setConfidence("0%");
+        } else if (data.word) {
+            setResult(prev => prev + data.word + " ");
+        } else if (data.status === "done") {
+            setTranslating(false);
+            ws.close();
         }
     };
+
+    ws.onerror = () => {
+        setResult("WebSocket error");
+        setConfidence("0%");
+        setTranslating(false);
+        ws.close();
+    };
+}, [result]);
 
     const stopRecording = useCallback(async () => {
         setRecording(false);
         setAutoCaptureEnabled(false);
         sentFramesRef.current = 0;
         if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+            wsRef.current.send(JSON.stringify({ type: 'process' }));
             wsRef.current.send(JSON.stringify({ type: 'stop' }));
             wsRef.current.close();
             wsRef.current = null;
         }
     }, []);
 
-    const startRecording = useCallback(async () => {
+    const startRecording = useCallback(() => {
         if (recording) {
             stopRecording();
         } else {
@@ -82,7 +74,7 @@ export function useTranslator() {
             setRecording(true);
             sentFramesRef.current = 0;
 
-            const ws = new WebSocket(`ws://127.0.0.1:5000/ws_translate`);
+            const ws = new WebSocket('ws://127.0.0.1:5000/ws_translate');
             wsRef.current = ws;
 
             ws.onopen = () => {
@@ -90,8 +82,7 @@ export function useTranslator() {
                 ws.send(JSON.stringify({
                     type: 'start',
                     model: activeModelRef.current,
-                    sequenceNum: activeModelRef.current === 'glosses' ? 90 : 10,
-                    dexterity: dexterity
+                    sequenceNum: activeModelRef.current === 'glosses' ? 30 : 10
                 }));
             };
 
@@ -100,16 +91,15 @@ export function useTranslator() {
                 console.log("WS Data:", data);
                 if (data.error) {
                     console.error('Error from backend:', data.error);
-                    setResult("Error translating sign.");
+                    setResult(prev => prev + " [Error]");
                     setConfidence("0%");
                 } else if (data.status === 'processing') {
                     setIsProcessing(true);
                     processingRef.current = true;
-                } else if (data.status === 'wait_more' || data.status === 'wait_more_dynamic') {
+                } else if (data.status === 'ready' || data.status === 'wait_more' || data.status === 'wait_more_dynamic') {
                     setIsProcessing(false);
                     processingRef.current = false;
                 } else {
-                    // Use functional updates to ensure we're always working with the latest state
                     if (activeModelRef.current === 'alpha') {
                         const letter = data?.letter ?? '';
                         setResult((prevResult) => {
@@ -117,21 +107,16 @@ export function useTranslator() {
                             if (letter === 'SPACE') updated += ' ';
                             else if (letter === 'DEL') updated = updated.slice(0, -1);
                             else updated += letter;
-
                             return updated.replace(/undefined/g, '');
                         });
-
                         setConfidence(`${((data?.confidenceLetter ?? 0) * 100).toFixed(2)}%`);
-                    }
-                    else if (activeModelRef.current === 'num') {
+                    } else if (activeModelRef.current === 'num') {
                         setResult((prev) => (prev + (data?.number ?? '') + ' ').replace(/undefined/g, ''));
                         setConfidence(`${((data?.confidenceNumber ?? 0) * 100).toFixed(2)}%`);
-                    }
-                    else if (activeModelRef.current === 'glosses') {
+                    } else if (activeModelRef.current === 'glosses') {
                         setResult((prev) => (prev + (data?.word ?? '') + ' ').replace(/undefined/g, ''));
                         setConfidence(`${((data?.confidence ?? 0) * 100).toFixed(2)}%`);
                     }
-
                     setIsProcessing(false);
                     processingRef.current = false;
                 }
@@ -144,12 +129,12 @@ export function useTranslator() {
 
             ws.onerror = (error) => {
                 console.error('WebSocket error:', error);
-                setResult("WebSocket error occurred.");
+                setResult(prev => prev + " [WebSocket Error]");
                 setConfidence("0%");
                 stopRecording();
             };
         }
-    }, [recording, stopRecording, dexterity]); // Removed 'result' from dependency array
+    }, [recording, stopRecording]);
 
     const captureImageFromVideo = useCallback(() => {
         if (!videoRef.current || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN || isProcessing) {
@@ -177,7 +162,7 @@ export function useTranslator() {
             if (!blob || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
             wsRef.current.send(blob);
             sentFramesRef.current += 1;
-        }, 'image/jpeg', 0.6);
+        }, 'image/jpeg', 0.8);
     }, [dexterity, isProcessing]);
 
     useEffect(() => {
@@ -215,13 +200,13 @@ export function useTranslator() {
 
     useEffect(() => {
         activeModelRef.current = modelState.model;
-        setSequenceNum(modelState.model === 'glosses' ? 90 : 10);
+        setSequenceNum(modelState.model === 'glosses' ? 30 : 10);
     }, [modelState.model]);
 
     useEffect(() => {
         let intervalId;
 
-        const intervalDuration = modelState.model === 'glosses' ? 30 : 1000;
+        const intervalDuration = modelState.model === 'glosses' ? 33 : 200;  // ~30fps for glosses, 5fps for alpha/num
 
         if (autoCaptureEnabled && videoRef.current) {
             intervalId = setInterval(() => {
