@@ -9,7 +9,7 @@ export function useTranslationSocket(dexterity = 'right') {
     const [wsStatus, setWsStatus] = useState('result'); 
     const [isProcessing, setIsProcessing] = useState(false);
     const [result, setResult] = useState('');
-    const [confidence, setConfidence] = useState('0%');
+    const [confidence, setConfidence] = useState('Awaiting capture to detect confidence...');
     const [translating, setTranslating] = useState(false);
     const socketBaseURL = "ws://127.0.0.1:5000/handsUPApi"
 
@@ -97,7 +97,7 @@ export function useTranslationSocket(dexterity = 'right') {
             setWsStatus('collecting');
             stopRecording();
         };
-    }, []);
+    }, [stopRecording]);
 
     const stopRecording = useCallback(() => {
         if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {

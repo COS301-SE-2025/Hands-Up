@@ -146,7 +146,8 @@ export function TestSetup({ isOpen, onClose }) {
     return indexExtended && middleExtended && !ringExtended && !pinkyExtended;
   };
 
-  if(brightness){}
+  if(brightness){//doSomething
+    }
 
   useEffect(() => {
     if (!isOpen || stage === 'start' || stage === 'done') {
@@ -161,7 +162,6 @@ export function TestSetup({ isOpen, onClose }) {
     const detectFrame = async () => {
       const now = performance.now();
       if (now - lastFrameTimeRef.current < 100) {
-        // Throttle to ~10 FPS
         animationFrameRef.current = requestAnimationFrame(detectFrame);
         return;
       }
