@@ -20,49 +20,59 @@ export function useTranslator() {
     const [translating, setTranslating] = useState(false);
     const { dexterity } = useDexterity();
     const sentFramesRef = useRef(0);
+    const [wsStatus, setWsStatus] = useState('result');
 
     const convertGloss = useCallback(() => {
-    if (!result.trim()) return;
+        if (!result.trim()) return;
 
-    const ws = new WebSocket("ws://127.0.0.1:5000/ws_sentence");
+        const originalGloss = result; // keep a copy
+        const ws = new WebSocket("ws://127.0.0.1:5000/ws_sentence");
 
-    ws.onopen = () => {
-        ws.send(JSON.stringify({ type: "translate", gloss: result }));
-        setTranslating(true);
-        setResult("");  // Clear previous result
-    };
+        ws.onopen = () => {
+            ws.send(JSON.stringify({ type: "translate", gloss: result }));
+            setTranslating(true);
+            setWsStatus('translating');
+            // ⚠️ don't clear result here, keep showing gloss until translation arrives
+        };
 
-    ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
 
-        if (data.error) {
-            setResult("Error translating sentence");
+            if (data.error) {
+                setResult("Error translating sentence");
+                setConfidence("0%");
+                setWsStatus('result');
+            } 
+            else if (data.englishTranslation !== undefined) {
+                if (data.englishTranslation && data.englishTranslation.trim() !== "") {
+                    setResult(data.englishTranslation);
+                } else {
+                    setResult(originalGloss + " [English translation not available]");
+                }
+                setTranslating(false);
+                setWsStatus('result');
+                ws.close();
+            }
+        };
+
+        ws.onerror = () => {
+            setResult(originalGloss + " [WebSocket error]");
             setConfidence("0%");
-        } else if (data.word) {
-            setResult(prev => prev + data.word + " ");
-        } else if (data.status === "done") {
             setTranslating(false);
+            setWsStatus('result');
             ws.close();
-        }
-    };
-
-    ws.onerror = () => {
-        setResult("WebSocket error");
-        setConfidence("0%");
-        setTranslating(false);
-        ws.close();
-    };
-}, [result]);
+        };
+    }, [result]);
 
     const stopRecording = useCallback(async () => {
         setRecording(false);
         setAutoCaptureEnabled(false);
         sentFramesRef.current = 0;
         if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-            wsRef.current.send(JSON.stringify({ type: 'process' }));
             wsRef.current.send(JSON.stringify({ type: 'stop' }));
             wsRef.current.close();
             wsRef.current = null;
+            setWsStatus('result');
         }
     }, []);
 
@@ -84,53 +94,97 @@ export function useTranslator() {
                     model: activeModelRef.current,
                     sequenceNum: activeModelRef.current === 'glosses' ? 30 : 10
                 }));
+                setWsStatus('collecting');
             };
 
             ws.onmessage = (event) => {
                 const data = JSON.parse(event.data);
                 console.log("WS Data:", data);
+
                 if (data.error) {
-                    console.error('Error from backend:', data.error);
                     setResult(prev => prev + " [Error]");
                     setConfidence("0%");
-                } else if (data.status === 'processing') {
-                    setIsProcessing(true);
-                    processingRef.current = true;
-                } else if (data.status === 'ready' || data.status === 'wait_more' || data.status === 'wait_more_dynamic') {
-                    setIsProcessing(false);
-                    processingRef.current = false;
-                } else {
-                    if (activeModelRef.current === 'alpha') {
-                        const letter = data?.letter ?? '';
-                        setResult((prevResult) => {
-                            let updated = prevResult;
-                            if (letter === 'SPACE') updated += ' ';
-                            else if (letter === 'DEL') updated = updated.slice(0, -1);
-                            else updated += letter;
-                            return updated.replace(/undefined/g, '');
-                        });
-                        setConfidence(`${((data?.confidenceLetter ?? 0) * 100).toFixed(2)}%`);
-                    } else if (activeModelRef.current === 'num') {
-                        setResult((prev) => (prev + (data?.number ?? '') + ' ').replace(/undefined/g, ''));
-                        setConfidence(`${((data?.confidenceNumber ?? 0) * 100).toFixed(2)}%`);
-                    } else if (activeModelRef.current === 'glosses') {
-                        setResult((prev) => (prev + (data?.word ?? '') + ' ').replace(/undefined/g, ''));
-                        setConfidence(`${((data?.confidence ?? 0) * 100).toFixed(2)}%`);
+                    setWsStatus(recording ? 'collecting' : 'result');
+                    return;
+                }
+
+                if (data.status) {
+                    if (data.status === 'collecting') {
+                        setIsProcessing(false);
+                        processingRef.current = false;
+                        setWsStatus('collecting');
+                    } else if (data.status === 'processing') {
+                        setIsProcessing(true);
+                        processingRef.current = true;
+                        setWsStatus('processing');
+                    } else if (data.status === 'ready' && recording) {
+                        setIsProcessing(false);
+                        processingRef.current = false;
+                        setWsStatus('collecting');
+                        sentFramesRef.current = 0;
                     }
-                    setIsProcessing(false);
-                    processingRef.current = false;
+                    return;
+                }
+
+                if (activeModelRef.current === 'alpha') {
+                    const letter = data?.letter ?? '';
+                    setResult((prev) => {
+                        if (!letter) return prev;
+                        if (letter === 'SPACE') return prev + ' ';
+                        if (letter === 'DEL') return prev.slice(0, -1);
+                        return prev + letter; 
+                    });
+                    setConfidence(`${((data?.confidenceLetter ?? 0) * 100).toFixed(2)}%`);
+                }
+
+                else if (activeModelRef.current === 'num') {
+                    const letter = data?.letter ?? '';
+                    const number = data?.number ?? '';
+                    console.log("number: ", number);
+
+                    if (letter === 'F') {
+                        setResult(prev => prev + "9 "); 
+                        setConfidence(`${((data?.confidenceLetter ?? 0) * 100).toFixed(2)}%`);
+                    } 
+                    else if (number) {
+                        setResult(prev => (prev + number + ' ').replace(/undefined/g, ''));
+                        setConfidence(`${((data?.confidenceNumber ?? 0) * 100).toFixed(2)}%`);
+                    } 
+                    else {
+                        console.log("No valid number or letter");
+                        setResult(prev => prev + "");
+                        setConfidence("0%");
+                    }
+                }
+
+                else if (activeModelRef.current === 'glosses') {
+                    const word = data?.word ?? '';
+                    setResult((prev) => {
+                        if (!word) return prev;
+                        return (prev + word + ' ').replace(/undefined/g, '');
+                    });
+                    setConfidence(`${((data?.confidence ?? 0) * 100).toFixed(2)}%`);
+                }
+
+                setIsProcessing(false);
+                processingRef.current = false;
+                if (recording) {
+                    setWsStatus('collecting');
                 }
             };
+
 
             ws.onclose = () => {
                 console.log('WebSocket closed');
                 wsRef.current = null;
+                setWsStatus('result');
             };
 
             ws.onerror = (error) => {
                 console.error('WebSocket error:', error);
                 setResult(prev => prev + " [WebSocket Error]");
                 setConfidence("0%");
+                setWsStatus(recording ? 'collecting' : 'result');
                 stopRecording();
             };
         }
@@ -166,39 +220,6 @@ export function useTranslator() {
     }, [dexterity, isProcessing]);
 
     useEffect(() => {
-        const canvas = canvasRef1.current;
-        const video = videoRef.current;
-        if (!canvas || !video) return;
-
-        const ctx = canvas.getContext('2d');
-        let animationFrameId;
-
-        const draw = () => {
-            if (video.readyState >= 2) {
-                canvas.width = video.videoWidth * 0.2;
-                canvas.height = video.videoHeight * 0.2;
-
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.shadowColor = 'rgba(255, 0, 0, 0.7)';
-                ctx.shadowBlur = 10;
-                ctx.font = 'bold 20px Sans-serif';
-                ctx.fillStyle = 'red';
-                ctx.textAlign = 'center';
-
-                if (isProcessing) {
-                    ctx.fillText('Processing', canvas.width / 2, canvas.height / 2);
-                } else if (recording) {
-                    ctx.fillText('Capturing', canvas.width / 2, canvas.height / 2);
-                }
-            }
-            animationFrameId = requestAnimationFrame(draw);
-        };
-
-        draw();
-        return () => cancelAnimationFrame(animationFrameId);
-    }, [isProcessing, recording]);
-
-    useEffect(() => {
         activeModelRef.current = modelState.model;
         setSequenceNum(modelState.model === 'glosses' ? 30 : 10);
     }, [modelState.model]);
@@ -206,7 +227,7 @@ export function useTranslator() {
     useEffect(() => {
         let intervalId;
 
-        const intervalDuration = modelState.model === 'glosses' ? 33 : 200;  // ~30fps for glosses, 5fps for alpha/num
+        const intervalDuration = 200;
 
         if (autoCaptureEnabled && videoRef.current) {
             intervalId = setInterval(() => {
@@ -227,9 +248,11 @@ export function useTranslator() {
                     }
                 });
                 videoRef.current.srcObject = stream;
+                setWsStatus('result');
             } catch (err) {
                 console.error(err);
                 setResult('Camera access denied.');
+                setWsStatus('result');
             }
         };
 
@@ -243,6 +266,7 @@ export function useTranslator() {
             if (wsRef.current) {
                 wsRef.current.close();
                 wsRef.current = null;
+                setWsStatus('result');
             }
         };
     }, []);
@@ -261,5 +285,6 @@ export function useTranslator() {
         setAutoCaptureEnabled,
         convertGloss,
         translating,
+        wsStatus,
     };
 }
