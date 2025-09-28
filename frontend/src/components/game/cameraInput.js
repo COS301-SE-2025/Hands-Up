@@ -99,7 +99,7 @@ export function CameraInput({ progress = 0, show = true, onSkip, onLetterDetecte
         />
         <canvas 
           ref={canvasRef2} 
-          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} 
+          hidden
         />
         <svg
           viewBox="0 0 100 100"
@@ -129,6 +129,17 @@ export function CameraInput({ progress = 0, show = true, onSkip, onLetterDetecte
           />
         </svg>
       </div>
+      {processing && ( 
+        <div style={{
+          color: 'red',
+          fontSize: '1.2rem',
+          fontWeight: 'bold',
+          textAlign: 'center',
+          minHeight: '1.5rem'
+        }}>
+          PROCESSING...
+        </div>
+      )}
 
       <button 
         onClick={onSkip}
