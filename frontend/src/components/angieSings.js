@@ -6,19 +6,19 @@ import * as THREE from 'three';
 import PropTypes from 'prop-types';
 import { getLandmarks } from '../utils/apiCalls';
 
-export function AngieSings({ filename }) {
+export function AngieSings({ filename, isPlaying, replayKey }) {
     const { scene } = useGLTF('/models/angieWaving.glb');
     const bones = useRef({});
     const [modelReady, setModelReady] = useState(false);
     const animationProgress = useRef(0);
     const clock = useRef(new THREE.Clock());
     const [animationDuration, setAnimationDuration] = useState(2.5);
-    const startDelay = 500;
     const delay = 3000; 
 
     const [landmarks, setLandmarks] = useState(null);
     const [sequence, setSequence] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [delays, setDelays] = useState([]);
 
     useEffect(() => {
         if (!filename) return; 
@@ -28,13 +28,13 @@ export function AngieSings({ filename }) {
                 const landmarkData = await getLandmarks(filename);
                 setLandmarks(landmarkData || {});
                 setSequence(landmarkData.sequence || []);
+                setDelays(landmarkData.delay || []);
                 setCurrentIndex(0);
-                console.log('Loaded landmarks:', landmarkData);
-                console.log('Loaded sequence:', landmarkData.sequence);
             } 
             catch (err) {
                 console.error('Failed to load landmarks for', filename, err);
                 setLandmarks({});
+                setDelays([]);
             }
         }
 
@@ -43,8 +43,9 @@ export function AngieSings({ filename }) {
 
     useEffect(() => {
         if (!sequence || sequence.length === 0) return;
-
         if (currentIndex >= sequence.length) return; 
+
+        const currentDelay = (delays[currentIndex] ?? delay / 1000) * 1000;
 
         const timer = setTimeout(() => {
             if (currentIndex + 1 < sequence.length) {
@@ -53,10 +54,10 @@ export function AngieSings({ filename }) {
                 clock.current.elapsedTime = 0;
                 clock.current.start();
             }
-        }, delay);
+        }, currentDelay);
 
         return () => clearTimeout(timer);
-    }, [currentIndex, sequence]);
+    }, [currentIndex, sequence, delays]);
 
     const currentWord = sequence[currentIndex] || sequence[sequence.length - 1];
     const currentLandmarks = landmarks ? landmarks[currentWord] : null;
@@ -96,29 +97,55 @@ export function AngieSings({ filename }) {
         });
 
         // initial pose adjustments
+        const spine = bones.current['mixamorigSpine'];
         const upperArmL = bones.current['mixamorigLeftArm'];
         const upperArmR = bones.current['mixamorigRightArm'];
+        const foreArmL = bones.current['mixamorigLeftForeArm'];
+        const foreArmR = bones.current['mixamorigRightForeArm'];
+        const handL = bones.current['mixamorigLeftHand'];
+        const handR = bones.current['mixamorigRightHand'];
+        if (spine) spine.rotation.set(0, 0, 0);
+        if (upperArmL) upperArmL.rotation.set(1, 0, 0);
+        if (upperArmR) upperArmR.rotation.set(1, 0, 0);
+        if (foreArmL) foreArmL.rotation.set(0, 0, 0);
+        if (foreArmR) foreArmR.rotation.set(0.0, 0, 0);
+        if (handL) handL.rotation.set(0, 0, 0);
+        if (handR) handR.rotation.set(0, 0, 0);
 
-        if (upperArmL) upperArmL.rotation.x = 1.1;
-        if (upperArmR) upperArmR.rotation.x = 1.1;
-
-        const timer = setTimeout(() => {
         setModelReady(true);
-        clock.current.start();
-        }, startDelay);
+    }, [scene]);
 
-        return () => clearTimeout(timer);
-    }, [scene, startDelay]);
+    useEffect(() => {
+        if (isPlaying) {
+            animationProgress.current = 0;
+            clock.current.elapsedTime = 0;
+            clock.current.start();
+        } 
+        else {
+            clock.current.stop();
+        }
+    }, [isPlaying]);
+
+    useEffect(() => {
+        // reset
+        setCurrentIndex(0);
+        animationProgress.current = 0;
+        clock.current.elapsedTime = 0;
+        if (isPlaying) clock.current.start();
+    }, [replayKey, isPlaying]);
 
     useFrame(() => {
-        if (!modelReady || !currentLandmarks) return;
+        if (!modelReady || !currentLandmarks || !isPlaying) return;
 
         const delta = clock.current.getDelta();
-        animationProgress.current = Math.min(
-            animationProgress.current + delta / animationDuration,
-            1
-        );
-
+        if (currentIndex === 0 || currentIndex === sequence.length - 1) {
+            animationProgress.current += delta / animationDuration * 1.5;
+            animationProgress.current %= 1; 
+        } 
+        else {
+            animationProgress.current = Math.min(animationProgress.current + delta / animationDuration * 1.75, 1);
+        }
+        
         for (const boneName in currentLandmarks) {
             const bone = bones.current[boneName];
             if (!bone) continue;
@@ -148,4 +175,6 @@ export function AngieSings({ filename }) {
 
 AngieSings.propTypes = {
     filename: PropTypes.string.isRequired,
+    isPlaying: PropTypes.bool.isRequired,
+    replayKey: PropTypes.number.isRequired,
 };
