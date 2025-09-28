@@ -14,6 +14,7 @@ const transporter = nodemailer.createTransport({
 
 // Define the function that sends the email
 export const sendRegistrationEmail = async (userEmail, username) => {
+    console.log("sending welcome email");
     // Set up email data with unicode symbols
     const mailOptions = {
         from: `Hands UP! <${process.env.EMAIL_USER}>`, // Sender address
@@ -39,7 +40,7 @@ export const sendRegistrationEmail = async (userEmail, username) => {
             </p>
 
             <p>Happy learning!</p>
-            <p>The Hands UP! Team</p>
+            <p>The Hands UP Team</p>
         `,
     };
 

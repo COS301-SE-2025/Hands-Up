@@ -271,6 +271,8 @@ export const learningProgress = async (req, res) => {
 
 export const signUpUser = async (req, res) => {
     try {
+        console.log("checkpoint1");
+
         const { name, surname, username, email, password } = req.body;
 
         if (!name || !surname || !username || !email || !password) {
@@ -284,7 +286,7 @@ export const signUpUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
         await pool.query('BEGIN');
-
+        console.log("checkpoint2");
         const userResult = await pool.query(
             `INSERT INTO users (username, name, surname, email, password)
              VALUES ($1, $2, $3, $4, $5)
@@ -313,17 +315,17 @@ export const signUpUser = async (req, res) => {
                 0
             ]
         );
-
+        console.log("checkpoint3");
         await pool.query('COMMIT');
 
-        try {
-            await sendRegistrationEmail(email, username);
-            console.log(`Registration email sent to ${email}`);
-        } catch (emailErr) {
-            console.error('Failed to send registration email:', emailErr);
-            // Don't return an error here; the user is already registered
-        }
-
+        // try {
+        //     await sendRegistrationEmail(email, username);
+        //     console.log(`Registration email sent to ${email}`);
+        // } catch (emailErr) {
+        //     console.error('Failed to send registration email:', emailErr);
+        //     // Don't return an error here; the user is already registered
+        // }
+        console.log("checkpoint4");
         res.status(200).json({
             success: true,
             user: {
@@ -333,7 +335,7 @@ export const signUpUser = async (req, res) => {
             },
             message: 'User registered successfully'
         });
-
+        console.log("checkpoint5");
     } catch (err) {
         console.error('Signup error:', err);
         await pool.query('ROLLBACK');
