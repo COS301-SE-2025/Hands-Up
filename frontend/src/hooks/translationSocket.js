@@ -13,6 +13,17 @@ export function useTranslationSocket(dexterity = 'right') {
     const [translating, setTranslating] = useState(false);
     const socketBaseURL = "ws://127.0.0.1:5000/handsUPApi"
 
+    const stopRecording = useCallback(() => {
+        if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+            wsRef.current.send(JSON.stringify({ type: 'stop' }));
+            wsRef.current.close();
+        }
+        wsRef.current = null;
+        sentFramesRef.current = 0;
+        processingRef.current = false;
+        setWsStatus('result');
+    }, []);
+
     const startRecording = useCallback((model, sequenceNum = 10) => {
         if (wsRef.current) return;
 
@@ -67,10 +78,10 @@ export function useTranslationSocket(dexterity = 'right') {
                 const letter = data?.letter ?? '';
                 const number = data?.number ?? '';
                 if (letter === 'F') {
-                    setResult(prev => prev + '9 ');
+                    setResult(prev => prev + '9');
                     setConfidence(`${((data?.confidenceLetter ?? 0) * 100).toFixed(2)}%`);
                 } else if (number) {
-                    setResult(prev => (prev + number + ' ').replace(/undefined/g, ''));
+                    setResult(prev => (prev + number ).replace(/undefined/g, ''));
                     setConfidence(`${((data?.confidenceNumber ?? 0) * 100).toFixed(2)}%`);
                 }
             } else if (model === 'glosses') {
@@ -98,17 +109,6 @@ export function useTranslationSocket(dexterity = 'right') {
             stopRecording();
         };
     }, [stopRecording]);
-
-    const stopRecording = useCallback(() => {
-        if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-            wsRef.current.send(JSON.stringify({ type: 'stop' }));
-            wsRef.current.close();
-        }
-        wsRef.current = null;
-        sentFramesRef.current = 0;
-        processingRef.current = false;
-        setWsStatus('result');
-    }, []);
 
     const sendFrame = useCallback((video) => {
         if (!video || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN || processingRef.current) return;
