@@ -52,15 +52,15 @@ async def detectFromImageBytes(sequenceBytesList, websocket: WebSocket = None, i
         prediction1 = lettersModel.predict(inputData, verbose=0)
         index1 = np.argmax(prediction1, axis=1)[0]
         confidence1 = float(np.max(prediction1))
-        label1 = labelEncoder.inverse_transform([index1])[0]
+        label1 = labelEncoder.inverse_transform([index1])[0] if confidence1 >= 0.6 else ''
 
         prediction3 = numbersModel.predict(inputData, verbose=0)
         index3 = np.argmax(prediction3, axis=1)[0]
         confidence3 = float(np.max(prediction3))
-        label3 = numLabelEncoder.inverse_transform([index3])[0]
+        label3 = numLabelEncoder.inverse_transform([index3])[0] if confidence3 >= 0.6 else ''
 
-        print(f'Letters Model 1: {label1} at {confidence1}')
-        print(f'Numbers Model: {label3} at {confidence3}')
+        print(f'Letters Model 1: {label1 or "None"} at {confidence1}')
+        print(f'Numbers Model: {label3 or "None"} at {confidence3}')
 
         return label1, confidence1, label3, confidence3
 
@@ -124,8 +124,8 @@ async def detectFromImageBytes(sequenceBytesList, websocket: WebSocket = None, i
         prediction2 = lettersModel2.predict(inputData2, verbose=0)
         index2 = np.argmax(prediction2, axis=1)[0]
         confidence2 = float(np.max(prediction2))
-        label2 = labelEncoder2.inverse_transform([index2])[0]
-        print(f'Letters Model 2: {label2} at {confidence2}')
+        label2 = labelEncoder2.inverse_transform([index2])[0] if confidence2 >= 0.6 else ''
+        print(f'Letters Model 2: {label2 or "None"} at {confidence2}')
 
         return label2, confidence2
 
@@ -142,7 +142,7 @@ async def detectFromImageBytes(sequenceBytesList, websocket: WebSocket = None, i
         label1Second, confidence1, label3, confidence3 = processSingleFrame(sequenceBytesList[1])
         if label1First is None or label1Second is None:
             return {'letter': '', 'confidenceLetter': 0.0, 'number': '', 'confidenceNumber': 0.0}
-        if label1First == label1Second and label1First not in ['J', 'Z']:
+        if label1First == label1Second and label1First not in ['J', 'Z'] and confidence1 >= 0.6:
             return {'letter': label1Second, 'confidenceLetter': confidence1,
                     'number': label3, 'confidenceNumber': confidence3}
         elif label1First in ['J', 'Z'] or label1Second in ['J', 'Z']:
@@ -155,8 +155,10 @@ async def detectFromImageBytes(sequenceBytesList, websocket: WebSocket = None, i
         if label2 is None:
             return {'letter': '', 'confidenceLetter': 0.0, 'number': '', 'confidenceNumber': 0.0}
         _, _, label3, confidence3 = processSingleFrame(sequenceBytesList[-1])
-        return {'letter': label2, 'confidenceLetter': confidence2,
-                'number': label3, 'confidenceNumber': confidence3}
+        if confidence2 >= 0.6:
+            return {'letter': label2, 'confidenceLetter': confidence2,
+                    'number': label3, 'confidenceNumber': confidence3}
+        return {'letter': '', 'confidenceLetter': 0.0, 'number': label3, 'confidenceNumber': confidence3}
 
     else:
         return {'letter': '', 'confidenceLetter': 0.0, 'number': '', 'confidenceNumber': 0.0}

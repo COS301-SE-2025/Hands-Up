@@ -8,7 +8,7 @@ modelPath = '../../ai_model/words/saved_models/best_sign_classifier_model_40_wor
 csvPath = '../../ai_model/words/wlasl_40_words_personal_final_processed_data_augmented_seq90.csv'
 sequenceLength = 30
 expectedCoordsPerFrame = 1662
-confidenceThreshold = 0.1
+confidenceThreshold = 0.7
 
 model = load_model(modelPath)
 df = pd.read_csv(csvPath)
@@ -97,7 +97,6 @@ def detectFromImageBytes(sequenceBytesList):
         frameLms = np.zeros(expectedCoordsPerFrame, dtype=np.float32)
         currentIdx = 0
 
-        # 1. Pose Landmarks
         if mpResults.pose_landmarks:
             poseFlat = [coord for lm in mpResults.pose_landmarks.landmark for coord in [lm.x, lm.y, lm.z, lm.visibility]]
             frameLms[currentIdx:currentIdx + len(poseFlat)] = poseFlat
@@ -105,7 +104,7 @@ def detectFromImageBytes(sequenceBytesList):
             print(f"Warning: No pose landmarks detected in frame {idx}")
         currentIdx += numPoseCoordsSingle
 
-        # 2. Left Hand Landmarks (First Hand)
+
         if mpResults.left_hand_landmarks:
             lhFlat = [coord for lm in mpResults.left_hand_landmarks.landmark for coord in [lm.x, lm.y, lm.z]]
             frameLms[currentIdx:currentIdx + len(lhFlat)] = lhFlat
@@ -113,7 +112,6 @@ def detectFromImageBytes(sequenceBytesList):
             print(f"Warning: No left hand landmarks detected in frame {idx}")
         currentIdx += numHandCoordsSingle
 
-        # 3. Right Hand Landmarks (Second Hand)
         if mpResults.right_hand_landmarks:
             rhFlat = [coord for lm in mpResults.right_hand_landmarks.landmark for coord in [lm.x, lm.y, lm.z]]
             frameLms[currentIdx:currentIdx + len(rhFlat)] = rhFlat
@@ -121,7 +119,6 @@ def detectFromImageBytes(sequenceBytesList):
             print(f"Warning: No right hand landmarks detected in frame {idx}")
         currentIdx += numHandCoordsSingle
 
-        # 4. Face Landmarks
         if mpResults.face_landmarks:
             faceFlat = [coord for lm in mpResults.face_landmarks.landmark for coord in [lm.x, lm.y, lm.z]]
             frameLms[currentIdx:currentIdx + len(faceFlat)] = faceFlat
