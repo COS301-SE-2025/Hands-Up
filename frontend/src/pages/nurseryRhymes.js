@@ -52,7 +52,7 @@ const NURSERY_RHYMES = [
       'Head, shoulders knees and toes knees and toes'
     ],
     decorations: ['🧠', '🧍', '🦵', '🦶'],
-    videoId: 'QA48wTGbU7A',
+    videoId: 'ZanHgPprl-0',
     videoDuration: 181.2,
     landmarkWord: 'nursery_rhymes/HeadsShouldersKneesAndToes'
   }
