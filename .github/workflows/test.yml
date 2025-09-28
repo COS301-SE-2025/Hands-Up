@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main, dev]
   push:
-    branches: [main, dev, tests/unit]
+    branches: [main, dev, tests/summary]
 
 
 permissions:
@@ -231,3 +231,25 @@ jobs:
           name: unit-test-coverage-report
           path: tests/coverage
           retention-days: 7
+  upload-coverage:
+    name: Upload Coverage to Codecov
+    runs-on: ubuntu-latest
+    needs: run-unit-tests # Wait for unit tests to complete and upload the artifact
+    if: success() || failure() # Run regardless of unit test success
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download unit test coverage report
+        uses: actions/download-artifact@v4
+        with:
+          name: unit-test-coverage-report # Must match the upload name
+          path: ./tests/coverage           # Directory where coverage file(s) will be downloaded
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          # The Codecov action will automatically find coverage files 
+          # (like lcov.info) in the downloaded directory.
