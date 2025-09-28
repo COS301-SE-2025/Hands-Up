@@ -20,7 +20,7 @@ const PlacementTest = ({ onComplete, onSkip, onClose }) => {
             level: 'basic',
             question: 'What letter does this sign represent?',
             sign: 'A',
-            options: ['A', 'B', 'C', 'D'],
+            options: ['A', 'B', 'C'],
             correct: 'A',
             category: 'alphabets'
         },
@@ -29,7 +29,7 @@ const PlacementTest = ({ onComplete, onSkip, onClose }) => {
             level: 'basic',
             question: 'What letter does this sign represent?',
             sign: 'B',
-            options: ['A', 'B', 'C', 'D'],
+            options: ['A', 'B', 'C'],
             correct: 'B',
             category: 'alphabets'
         },
@@ -38,7 +38,7 @@ const PlacementTest = ({ onComplete, onSkip, onClose }) => {
             level: 'basic',
             question: 'What number does this sign represent?',
             sign: '1',
-            options: ['1', '2', '3', '4'],
+            options: ['1', '2', '3'],
             correct: '1',
             category: 'numbers'
         },
@@ -47,7 +47,7 @@ const PlacementTest = ({ onComplete, onSkip, onClose }) => {
             level: 'basic',
             question: 'What number does this sign represent?',
             sign: '5',
-            options: ['3', '4', '5', '6'],
+            options: ['3', '4', '5'],
             correct: '5',
             category: 'numbers'
         },
@@ -56,7 +56,7 @@ const PlacementTest = ({ onComplete, onSkip, onClose }) => {
             level: 'intermediate',
             question: 'What does this sign mean?',
             sign: 'hello',
-            options: ['Hello', 'Goodbye', 'Please', 'Thank you'],
+            options: ['Hello', 'Goodbye', 'Please'],
             correct: 'Hello',
             category: 'introduce'
         },
@@ -65,7 +65,7 @@ const PlacementTest = ({ onComplete, onSkip, onClose }) => {
             level: 'intermediate',
             question: 'What does this sign mean?',
             sign: 'mother',
-            options: ['Father', 'Mother', 'Sister', 'Brother'],
+            options: ['Father', 'Mother', 'Sister'],
             correct: 'Mother',
             category: 'family'
         },
@@ -74,7 +74,7 @@ const PlacementTest = ({ onComplete, onSkip, onClose }) => {
             level: 'intermediate',
             question: 'What color does this sign represent?',
             sign: 'red',
-            options: ['Red', 'Blue', 'Green', 'Yellow'],
+            options: ['Red', 'Blue', 'Green'],
             correct: 'Red',
             category: 'colours'
         },
@@ -83,7 +83,7 @@ const PlacementTest = ({ onComplete, onSkip, onClose }) => {
             level: 'advanced',
             question: 'What action does this sign represent?',
             sign: 'eat',
-            options: ['Drink', 'Eat', 'Sleep', 'Walk'],
+            options: ['Drink', 'Eat', 'Sleep'],
             correct: 'Eat',
             category: 'actions'
         },
@@ -92,7 +92,7 @@ const PlacementTest = ({ onComplete, onSkip, onClose }) => {
             level: 'advanced',
             question: 'What emotion does this sign represent?',
             sign: 'happy',
-            options: ['Sad', 'Happy', 'Angry', 'Surprised'],
+            options: ['Sad', 'Happy', 'Angry'],
             correct: 'Happy',
             category: 'feelings'
         },
@@ -101,7 +101,7 @@ const PlacementTest = ({ onComplete, onSkip, onClose }) => {
             level: 'advanced',
             question: 'What does this sign mean?',
             sign: 'weather',
-            options: ['Weather', 'Season', 'Time', 'Day'],
+            options: ['Weather', 'Season', 'Time'],
             correct: 'Weather',
             category: 'seasons'
         }

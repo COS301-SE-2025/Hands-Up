@@ -403,7 +403,6 @@ export function NurseryRhymesPage() {
             font-size: 18px;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
             transition: all 0.3s ease;
             z-index: 100;
             color: white;
