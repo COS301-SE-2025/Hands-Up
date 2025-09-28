@@ -297,11 +297,11 @@ export function NurseryRhymesPage() {
                   <div id="youtube-player" className="youtube-player"></div>
                   <div className="angie-overlay">
                      <Suspense fallback={<ModelLoadingFallback />}>
-                        <Canvas camera={{ position: [0, 0, 2], fov: 50  }}>
+                        <Canvas camera={{ position: [0, 0, 8], fov: 50  }}>
                           {/* eslint-disable react/no-unknown-property */}
                           <ambientLight intensity={8} />
                           {/* eslint-disable react/no-unknown-property */}
-                          <group position={[0, -1, -1.7]}>
+                          <group position={[0, -1, -0.1]}>
                             <AngieSings 
                               key={replayKey}
                               filename={selectedRhyme.landmarkWord}
