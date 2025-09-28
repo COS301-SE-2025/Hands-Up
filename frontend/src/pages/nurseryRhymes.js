@@ -18,9 +18,9 @@ const NURSERY_RHYMES = [
       'Life is but a dream'
     ],
     decorations: ['🚣‍♂️', '🌊', '🎵', '💭'],
-    videoId: 'PZJS2_pWMpE',
+    videoId: '6LM3KsjyYv4',
     videoDuration: 180,
-    landmarkWord: 'myBrotherAndSister'
+    landmarkWord: 'nursery_rhymes/rowYourBoat'
   },
   {
     id: 'baby-shark',
