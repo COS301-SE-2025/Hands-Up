@@ -10,11 +10,12 @@ export function useTranslationSocket(dexterity = 'right') {
     const [result, setResult] = useState('');
     const [confidence, setConfidence] = useState('0%');
     const [translating, setTranslating] = useState(false);
+    const socketBaseURL = "ws://127.0.0.1:5000"
 
     const startRecording = useCallback((model, sequenceNum = 10) => {
         if (wsRef.current) return;
 
-        const ws = new WebSocket('ws://127.0.0.1:5000/ws_translate');
+        const ws = new WebSocket(`${socketBaseURL}/ws_translate`);
         wsRef.current = ws;
         sentFramesRef.current = 0;
 
@@ -137,7 +138,7 @@ export function useTranslationSocket(dexterity = 'right') {
     const convertGloss = useCallback((gloss) => {
         // if (!gloss.trim()) return;
 
-        const ws = new WebSocket("ws://127.0.0.1:5000/ws_sentence");
+        const ws = new WebSocket(`${socketBaseURL}/ws_sentence`);
 
         ws.onopen = () => {
             ws.send(JSON.stringify({ type: "translate", gloss }));
