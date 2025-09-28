@@ -1,0 +1,15 @@
+fastapi==0.117.1
+httpx==0.28.1
+mediapipe==0.10.21
+opencv_contrib_python==4.11.0.86
+opencv_python==4.11.0.86
+opencv_python_headless==4.11.0.86
+pandas==2.3.2
+python-multipart
+tensorflow==2.19.0
+torch==2.8.0
+transformers==4.56.2
+uvicorn==0.36.0
+numpy
+gunicorn
+python-dotenv
