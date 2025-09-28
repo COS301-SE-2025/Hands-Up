@@ -2,22 +2,18 @@ import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 dotenv.config();
 
-// If port 587 is still slow/failing, try port 2525.
+// Create a transporter object using a generic email service like Gmail, SendGrid, etc.
+// In a real application, you would store these credentials securely as environment variables.
 const transporter = nodemailer.createTransport({
-    // service: 'Gmail', // REMOVED the simplified service
-    host: 'smtp.gmail.com',
-    port: 587, // Standard STARTTLS port
-    secure: false, // Use false for port 587/2525, use true for 465 (not recommended)
+    service: 'Gmail', // or another service like 'SendGrid', 'Mailgun', etc.
     auth: {
         user: process.env.EMAIL_USER, // Your email address
-        pass: process.env.EMAIL_PASS, // Your App Password for Gmail
+        pass: process.env.EMAIL_PASS, // Your email password or app-specific password
     }
 });
 
 // Define the function that sends the email
 export const sendRegistrationEmail = async (userEmail, username) => {
-    console.log("sending welcome email");
-    
     // Set up email data with unicode symbols
     const mailOptions = {
         from: `Hands UP! <${process.env.EMAIL_USER}>`, // Sender address
@@ -31,13 +27,13 @@ export const sendRegistrationEmail = async (userEmail, username) => {
             <p style="text-align: center;">
                 <a href="https://handsup.onrender.com/login" 
                    style="background-color: #4CAF50; /* A nice green color */
-                         color: white; 
-                         padding: 15px 25px; 
-                         text-align: center; 
-                         text-decoration: none; 
-                         display: inline-block;
-                         border-radius: 5px;
-                         font-weight: bold;">
+                          color: white; 
+                          padding: 15px 25px; 
+                          text-align: center; 
+                          text-decoration: none; 
+                          display: inline-block;
+                          border-radius: 5px;
+                          font-weight: bold;">
                     Log In Now
                 </a>
             </p>
@@ -52,7 +48,6 @@ export const sendRegistrationEmail = async (userEmail, username) => {
         await transporter.sendMail(mailOptions);
     } catch (error) {
         console.error('Error sending email:', error);
-        // Throw the error so the controller can log the failure
         throw new Error('Failed to send email.');
     }
 };
