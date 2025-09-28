@@ -1,9 +1,14 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, UploadFile, File, HTTPException
 import json
-from controllers.lettersController import detectFromImageBytes as detectLetters
-from controllers.wordsController import detectFromImageBytes as detectWords
+from fastapi.responses import JSONResponse
+from controllers.lettersControllerS import detectFromImageBytes as detectLetters
+from controllers.wordsControllerS import detectFromImageBytes as detectWords
+from typing import List
+from dotenv import load_dotenv
+import httpx
+import os
 
-router = APIRouter()
+router = APIRouter(prefix="/handsUPApi")
 
 class ConnectionManager:
     def __init__(self):
@@ -178,28 +183,56 @@ async def websocketEndpoint(websocket: WebSocket):
         ignoreCount = 0
         stopped = True
 
+async def sendToHF(url: str, frames: List[UploadFile]):
+    files_to_send = [
+        ('frames', (frame.filename, await frame.read(), frame.content_type))
+        for frame in frames
+    ]
 
-@router.websocket("/ws_sentence")
-async def websocketSentence(websocket: WebSocket):
-    await manager.connect(websocket)
-    try:
-        while True:
-            data = await websocket.receive_text()
-            msg = json.loads(data)
+    async with httpx.AsyncClient(timeout=300) as client:
+        try:
+            response = await client.post(url, files=files_to_send)
+            response.raise_for_status()
+            return response.json()
+        except httpx.RequestError as e:
+            print(f"Request error: {e}")
+            raise HTTPException(status_code=500, detail=str(e))
+        except httpx.HTTPStatusError as e:
+            print(f"HTTP error: {e.response.text}")
+            raise HTTPException(status_code=e.response.status_code, detail=e.response.text)
 
-            if msg['type'] == 'translate':
-                gloss_input = msg.get('gloss')
-                if not gloss_input:
-                    await manager.sendJson({"error": "No gloss provided"}, websocket)
-                    continue
 
-                from controllers.glossController import translateGloss
-                translation = translateGloss(gloss_input)
+@router.post("/processLetters")
+async def process_letters(frames: List[UploadFile] = File(...)):
+    sequence_num = 20
+    if len(frames) != sequence_num:
+        raise HTTPException(status_code=400, detail=f"Exactly {sequence_num} frames required")
 
-                for word in translation.split():
-                    await manager.sendJson({"word": word}, websocket)
+    url = f"{HUGGINGFACE_BASE_URL}/detect-letters"
 
-                await manager.sendJson({"status": "done"}, websocket)
+    result = await sendToHF(url, frames)
+    print(f"Received result: {result}")
+    return JSONResponse(content=result)
 
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)
+
+@router.post("/processWords")
+async def process_words(frames: List[UploadFile] = File(...)):
+    sequence_num = 90
+    if len(frames) != sequence_num:
+        raise HTTPException(status_code=400, detail=f"Exactly {sequence_num} frames required")
+
+    url = f"{HUGGINGFACE_BASE_URL}/detect-words"
+
+    result = await sendToHF(url, frames)
+    return JSONResponse(content=result)
+
+
+@router.post("/sentence")
+async def sign_sentence(data: dict):
+    gloss_input = data.get("gloss")
+    if not gloss_input:
+        raise HTTPException(status_code=400, detail="No gloss provided")
+
+    from controllers.glossController import translateGloss
+    translation = translateGloss(gloss_input)
+    return {"translation": translation}

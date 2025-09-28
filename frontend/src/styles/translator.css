@@ -54,7 +54,7 @@ video {
 }
 
 .recognizer-title-icon {
-  color: #F97316;
+  color: var(--light-yellow);
   margin-right: 0.5rem;
 }
 
@@ -149,7 +149,7 @@ video {
   font-weight: 500;
   color: #2D4D3A;
   margin-bottom: 0.75rem;
-  text-align: center;
+  text-align: left;
 }
 
 .recognizer-status-key-list {
@@ -298,12 +298,12 @@ video {
 }
 
 .recognizer-upload-button {
-  background-color: #F97316;
+  background-color: var(--light-year);
   color: #2D4D3A;
 }
 
 .recognizer-upload-button:hover {
-  background-color: #e76a15;
+  background-color:var(--light-year);
 }
 
 .recognizer-file-input {
@@ -375,7 +375,7 @@ video {
 }
 
 .recognizer-results-icon {
-  color: #F97316;
+  color:var(--light-yellow);
   margin-right: 0.5rem;
 }
 
@@ -472,7 +472,7 @@ video {
 }
 
 .recognizer-tips {
-  background-color: rgba(249, 115, 22, 0.1);
+  background-color: rgba(254, 241, 58, 0.1);
   border-radius: 0.75rem;
   padding: 1.5rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -489,7 +489,7 @@ video {
 }
 
 .recognizer-tips-icon {
-  color: #F97316;
+  color: var(--light-year);
   margin-right: 0.5rem;
 }
 
@@ -517,7 +517,7 @@ video {
 }
 
 .recognizer-tip-icon {
-  color: #F97316;
+  color: var(--light-year);
   margin-top: 0.25rem;
 }
 
