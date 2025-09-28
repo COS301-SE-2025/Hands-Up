@@ -39,7 +39,7 @@ export const LearningStatsProvider = ({ children }) => {
     const hasLoadedInitialRef = useRef(false);
     const mountedRef = useRef(false);
 
-    const API_BASE_URL = 'http://localhost:2000/handsUPApi';
+    const API_BASE_URL = 'https://hands-up.onrender.com/handsUPApi';
 
     const defaultStats = useMemo(() => ({
         lessonsCompleted: 0,

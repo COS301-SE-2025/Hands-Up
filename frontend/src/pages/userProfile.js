@@ -12,7 +12,7 @@ import {
 } from '../utils/apiCalls.js';
 import LoadingSpinner from '../components/loadingSpinner';
 
-const BACKEND_BASE_URL = "http://localhost:2000"; 
+const BACKEND_BASE_URL = "https://hands-up.onrender.com"; 
 
 export function UserProfile() {
     const { currentUser, isLoggedIn, loading: authLoading, logout, updateUser } = useAuth();

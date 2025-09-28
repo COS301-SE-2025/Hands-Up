@@ -44,7 +44,7 @@ export function useUserProfile() {
 
   const fetchUserData = async (userID) => {
     try {
-      const response = await fetch(`http://localhost:2000/handsUPApi/user/${userID}`);
+      const response = await fetch(`https://hands-up.onrender.com/handsUPApi/user/${userID}`);
       if (!response.ok) throw new Error('Failed to fetch user data');
 
       const data = await response.json();

@@ -193,10 +193,10 @@ class SignLanguageAPI {
   }
 }
 
-const API_BASE_URL_AUTH = 'http://localhost:2000/handsUPApi/auth';
-const API_BASE_URL_USER = 'http://localhost:2000/handsUPApi/user';
-const API_BASE_URL_LEARNING = 'http://localhost:2000/handsUPApi/learning';
-const API_BASE_URL = "http://localhost:2000/handsUPApi";
+const API_BASE_URL_AUTH = 'https://hands-up.onrender.com/handsUPApi/auth';
+const API_BASE_URL_USER = 'https://hands-up.onrender.com/handsUPApi/user';
+const API_BASE_URL_LEARNING = 'https://hands-up.onrender.com/handsUPApi/learning';
+const API_BASE_URL = 'https://hands-up.onrender.com/handsUPApi';
 const TRANSLATE_API_ROUTE = 'https://tmkdt-newhandsupmodel.hf.space/handsUPApi';
 
 export const handleApiResponse = async (response) => {

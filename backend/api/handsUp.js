@@ -6,22 +6,16 @@ import session from 'express-session';
 import apiRoutes from './routes/apiRoutes.js';
 import curriculumRoutes from './routes/curriculumRoutes.js'
 import dotenv from 'dotenv';
-import http from 'http';
-import path from 'path'; 
+import path from 'path';
+import { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path'; 
 
 dotenv.config();
 
 const app = express();
-const HTTP_PORT = 2000;
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
 app.use(cors({
-    origin: ['http://localhost:3000'],
-    credentials: true,
+    origin: ['https://handsup.onrender.com'],
+    credentials: true,           
 }));
 
 app.use(bodyParser.json({ limit: '100mb' }));
@@ -29,19 +23,10 @@ app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'a_strong_secret_key_for_sessions',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: false, 
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000,
-        sameSite: 'lax',
-    },
-}));
 
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use((req, res, next) => {
@@ -71,11 +56,8 @@ app.get('/health', (req, res) => {
 app.use('/handsUPApi', apiRoutes);
 app.use('/handsUPApi/curriculum', curriculumRoutes); 
 
-const httpServer = http.createServer(app);
+const PORT = process.env.PORT || 10000;
 
-httpServer.listen(HTTP_PORT, () => {
-    console.log(`
-        HTTP Server running on http://localhost:${HTTP_PORT}`);
-    console.log(`API available at http://localhost:${HTTP_PORT}/handsUPApi`);
-    console.log(`Type "shutdown" to stop the server.`);
+app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
 });
