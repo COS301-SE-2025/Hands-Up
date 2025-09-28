@@ -297,7 +297,7 @@ export function NurseryRhymesPage() {
                      <Suspense fallback={<ModelLoadingFallback />}>
                         <Canvas camera={{ position: [0, 0, 8], fov: 50  }}>
                           {/* eslint-disable react/no-unknown-property */}
-                          <ambientLight intensity={8} />
+                          <ambientLight intensity={10} />
                           {/* eslint-disable react/no-unknown-property */}
                           <group position={[0, -1, 6]}>
                             <AngieSings 
