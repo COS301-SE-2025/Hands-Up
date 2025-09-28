@@ -39,7 +39,7 @@ export const sendRegistrationEmail = async (userEmail, username) => {
             </p>
 
             <p>Happy learning!</p>
-            <p>The Hands UP! Team</p>
+            <p>The Hands UP Team</p>
         `,
     };
 
