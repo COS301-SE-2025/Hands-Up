@@ -1,8 +1,7 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback} from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLearningStats } from '../contexts/learningStatsContext';
-import { useTranslator } from '../hooks/translateResults';
-import { useLandmarksDetection } from '../hooks/landmarksDetection';
+import { useQuizTranslator } from '../hooks/useQuizTranslator';
 import { AngieSigns } from '../components/angieSigns';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
@@ -34,6 +33,17 @@ export function SignQuiz() {
     const [countdown, setCountdown] = useState(0);
     const [cameraInitializing, setCameraInitializing] = useState(false);
     
+    const getDetectionScope = (category) => {
+        switch(category) {
+            case 'alphabets':
+                return 'alpha';
+            case 'numbers':
+                return 'num';
+            default:
+                return 'glosses';
+        }
+    };
+
     const {
         videoRef,
         canvasRef1,
@@ -43,23 +53,15 @@ export function SignQuiz() {
         recording,
         startRecording,
         setResult,
-    } = useTranslator({
-        detectionScope: category
+    } = useQuizTranslator({
+        detectionScope: getDetectionScope(category),
+        forceModel: getDetectionScope(category)
     });
 
-    const shouldUseLandmarksDetection = cameraReady && 
-                                       quizStarted && 
-                                       quizQuestions[currentQuestionIndex]?.type === 'camera';
-    
-    const dummyVideoRef = useRef(null);
-    
-    useLandmarksDetection(
-        shouldUseLandmarksDetection ? videoRef : dummyVideoRef, 
-        canvasRef2
-    );
-    
     const currentCategoryData = CATEGORIES[category] || CATEGORIES['alphabets'];
     const isPhrasesQuiz = category === 'phrases';
+
+  
 
     const generateQuizQuestions = useCallback(() => {
         let animationQuestions, cameraQuestions;
@@ -114,7 +116,7 @@ export function SignQuiz() {
             setCameraInitializing(true);
             console.log('Setting up camera...');
             
-             const stream = await navigator.mediaDevices.getUserMedia({
+            const stream = await navigator.mediaDevices.getUserMedia({
                 video: { 
                     width: { ideal: 640 },
                     height: { ideal: 480 },
@@ -154,7 +156,7 @@ export function SignQuiz() {
             setCameraReady(false);
             setCameraInitializing(false);
             
-            let errorMessage = 'Camera access failed. ';
+            let errorMessage = '';
             if (error.name === 'NotAllowedError') {
                 errorMessage += 'Please allow camera access and try again.';
             } else if (error.name === 'NotFoundError') {
@@ -203,46 +205,41 @@ export function SignQuiz() {
     }, []);
 
     const handleStartRecording = useCallback(async () => {
-       if (!cameraReady) {
+        if (!cameraReady) {
             const success = await setupCamera();
             if (!success) return;
         }
         
-       if (recordingTimeout) {
+        if (recordingTimeout) {
             clearTimeout(recordingTimeout);
         }
 
-        if (recording) {
-           startRecording();
+        const modelType = getDetectionScope(category);
+        console.log(`Starting recording for ${category} category using ${modelType} model`);
+        startRecording();
+        setCountdown(5);
+        
+        const countdownInterval = setInterval(() => {
+            setCountdown(prev => {
+                if (prev <= 1) {
+                    clearInterval(countdownInterval);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        const timeout = setTimeout(() => {
+            console.log('Auto-stopping recording after 5 seconds');
+            if (recording) {
+                startRecording(); 
+            }
+            clearInterval(countdownInterval);
             setRecordingTimeout(null);
             setCountdown(0);
-        } else {
-            console.log(`Starting recording for ${category} category`);
-            startRecording();
-            setCountdown(5);
-            
-            const countdownInterval = setInterval(() => {
-                setCountdown(prev => {
-                    if (prev <= 1) {
-                        clearInterval(countdownInterval);
-                        return 0;
-                    }
-                    return prev - 1;
-                });
-            }, 1000);
+        }, 5000);
 
-            const timeout = setTimeout(() => {
-                console.log('Auto-stopping recording after 5 seconds');
-                if (recording) {
-                    startRecording(); 
-                }
-                clearInterval(countdownInterval);
-                setRecordingTimeout(null);
-                setCountdown(0);
-            }, 5000);
-
-            setRecordingTimeout(timeout);
-        }
+        setRecordingTimeout(timeout);
     }, [recording, startRecording, recordingTimeout, category, cameraReady, setupCamera]);
 
     const handleTryAgain = useCallback(() => {
@@ -292,24 +289,24 @@ export function SignQuiz() {
             if (!hasTrackedQuizStats) {
                 console.log(`Quiz completed for ${category}. Score: ${finalScore}/${quizQuestions.length} (${percentage}%)`);
                 
-                 if (percentage >= 60) { 
+                if (percentage >= 60) { 
                     completeQuiz(category);
                     
                     const event = new CustomEvent('quizCompleted', {
                         detail: { category, score: finalScore, passed: true }
                     });
                     window.dispatchEvent(event);
-                }else {
-    const event = new CustomEvent('quizCompleted', {
-        detail: { 
-            category, 
-            score: finalScore, 
-            passed: false,
-            percentage 
-        }
-    });
-    window.dispatchEvent(event);
-}
+                } else {
+                    const event = new CustomEvent('quizCompleted', {
+                        detail: { 
+                            category, 
+                            score: finalScore, 
+                            passed: false,
+                            percentage 
+                        }
+                    });
+                    window.dispatchEvent(event);
+                }
                 
                 updateStats(prevStats => ({
                     ...prevStats,
@@ -323,35 +320,6 @@ export function SignQuiz() {
             }
         }
     };
-
-    useEffect(() => {
-        const questions = generateQuizQuestions();
-        setQuizQuestions(questions);
-        setLoading(false);
-    }, [generateQuizQuestions]);
-
-    useEffect(() => {
-        if (quizStarted && quizQuestions.length > 0 && currentQuestionIndex < quizQuestions.length) {
-            const currentQuestion = quizQuestions[currentQuestionIndex];
-            
-            if (currentQuestion.type === 'animation') {
-                stopCamera();
-                loadAnimationLandmarks(currentQuestion);
-            } else if (currentQuestion.type === 'camera') {
-                console.log('Camera question loaded');
-            }
-        }
-    }, [quizStarted, currentQuestionIndex, quizQuestions, loadAnimationLandmarks, stopCamera, setResult]);
-
-    useEffect(() => {
-        return () => {
-            console.log('Cleaning up SignQuiz component...');
-            stopCamera();
-            if (recordingTimeout) {
-                clearTimeout(recordingTimeout);
-            }
-        };
-    }, [stopCamera, recordingTimeout]);
 
     const startQuiz = () => {
         setQuizStarted(true);
@@ -371,7 +339,7 @@ export function SignQuiz() {
 
         let isCorrect;
         if (category === 'alphabets') {
-           isCorrect = answerToCheck.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase();
+            isCorrect = answerToCheck.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase();
         } else if (isPhrasesQuiz) {
             const userWords = answerToCheck.toLowerCase().trim().split(/\s+/);
             const correctWords = currentQuestion.correctAnswer.toLowerCase().trim().split(/\s+/);
@@ -419,7 +387,7 @@ export function SignQuiz() {
                     window.dispatchEvent(event);
                 }
                 
-                 updateStats(prevStats => ({
+                updateStats(prevStats => ({
                     ...prevStats,
                     quizzesCompleted: (prevStats?.quizzesCompleted || 0) + 1,
                     totalQuizQuestions: (prevStats?.totalQuizQuestions || 0) + quizQuestions.length,
@@ -439,7 +407,8 @@ export function SignQuiz() {
             .replace('API Result: ', '')
             .trim();
             
-        console.log(`Camera result for ${category}:`, cleanResult);
+        const modelType = getDetectionScope(category);
+        console.log(`Camera result for ${category} (${modelType} model):`, cleanResult);
         
         if (cleanResult && cleanResult !== "" && cleanResult !== "") {
             handleAnswerSubmit(cleanResult);
@@ -469,6 +438,48 @@ export function SignQuiz() {
         stopCamera();
         navigate('/learn');
     };
+
+    useEffect(() => {
+        const questions = generateQuizQuestions();
+        setQuizQuestions(questions);
+        setLoading(false);
+    }, [generateQuizQuestions]);
+
+    useEffect(() => {
+        if (quizStarted && quizQuestions.length > 0 && currentQuestionIndex < quizQuestions.length) {
+            const currentQuestion = quizQuestions[currentQuestionIndex];
+            
+            if (currentQuestion.type === 'animation') {
+                stopCamera();
+                loadAnimationLandmarks(currentQuestion);
+            } else if (currentQuestion.type === 'camera') {
+                console.log(`Camera question loaded - using ${getDetectionScope(category)} model`);
+                if (!cameraReady && !cameraError) {
+                    setupCamera();
+                }
+                if (canvasRef2.current && videoRef.current) {
+                    setTimeout(() => {
+                        const canvas = canvasRef2.current;
+                        const video = videoRef.current;
+                        if (video && video.readyState >= 2) {
+                            canvas.width = video.videoWidth * 0.5;
+                            canvas.height = video.videoHeight * 0.5;
+                        }
+                    }, 1000);
+                }
+            }
+        }
+    }, [quizStarted, currentQuestionIndex, quizQuestions, loadAnimationLandmarks, stopCamera, setResult, cameraReady, cameraError, setupCamera, category, currentCategoryData.name, videoRef, canvasRef2]);
+
+    useEffect(() => {
+        return () => {
+            console.log('Cleaning up SignQuiz component...');
+            stopCamera();
+            if (recordingTimeout) {
+                clearTimeout(recordingTimeout);
+            }
+        };
+    }, [stopCamera, recordingTimeout]);
 
     if (loading) {
         return (
@@ -502,6 +513,7 @@ export function SignQuiz() {
                                 `Test your knowledge of ${currentCategoryData.name.toLowerCase()} signs!`
                             }
                         </small>
+                        <br />
                     </p>
 
                     <button onClick={startQuiz} className="start-button">
@@ -696,68 +708,70 @@ export function SignQuiz() {
                     </h2>
 
                     <div className="camera-container">
-                        <video 
-                            ref={videoRef}
-                            autoPlay 
-                            playsInline 
-                            muted
-                            className="video-feed"
-                            style={{ display: cameraReady ? 'block' : 'none' }}
-                        />
-                        
-                        {cameraInitializing && (
-                            <div className="camera-status-overlay">
-                                <div className="camera-status-text">
-                                    Initializing camera for {category} detection...
+                        <div className="recognizer-camera-container relative">
+                            <video 
+                                ref={videoRef} 
+                                autoPlay 
+                                playsInline 
+                                className="recognizer-video"
+                                style={{ display: cameraReady ? 'block' : 'none' }}
+                            ></video>
+                            
+                            {cameraInitializing && (
+                                <div className="camera-status-overlay">
+                                    <div className="camera-status-text">
+                                        Initializing camera for {getDetectionScope(category)} detection...
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                        
-                        {cameraError && (
-                            <div className="camera-status-overlay error">
-                                <div className="camera-status-text">
-                                Camera Error: {cameraError}
-                                <br />
-                                <button 
-                                    onClick={setupCamera}
-                                    className="button secondary"
-                                    style={{ marginTop: '10px' }}
-                                >
-                                    Try Again
-                                </button>
+                            )}
+                            
+                            {cameraError && (
+                                <div className="camera-status-overlay error">
+                                    <div className="camera-status-text">
+                                        Camera Error: {cameraError}
+                                        <br />
+                                        <button 
+                                            onClick={setupCamera}
+                                            className="button secondary"
+                                            style={{ marginTop: '10px' }}
+                                        >
+                                            Try Again
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                        
-                        <canvas 
-                            ref={canvasRef2} 
-                            className="landmarks-overlay"
-                            style={{ display: cameraReady ? 'block' : 'none' }}
-                        />
-                        <canvas 
-                            ref={canvasRef1} 
-                            style={{ display: 'none' }}
-                        />
-                        
-                        {recording && cameraReady && (
-                            <div className="recording-indicator">
-                                <div className="recording-dot"></div>
-                                Recording... {countdown > 0 && `(${countdown}s)`}
-                            </div>
-                        )}
+                            )}
+                            
+                            <canvas 
+                                ref={canvasRef2} 
+                                style={{ position: 'absolute', top: 0, left: '5%', zIndex: 1, display: cameraReady ? 'block' : 'none' }}
+                            ></canvas>
+                            <canvas 
+                                ref={canvasRef1} 
+                                style={{ position: 'absolute', bottom: 0, left: '30%', zIndex: 1, display: 'none' }}
+                            ></canvas>
+                            
+                            {recording && cameraReady && (
+                                <div className="recognizer-recording-indicator">
+                                    <i className="fas fa-circle recognizer-pulse-icon"></i> 
+                                    Recording... {countdown > 0 && `(${countdown}s)`}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <div className="camera-controls">
-                        {cameraReady ? (
-                            <>
-                                {!hasValidCameraResult && (
-                            <button
-                                onClick={handleStartRecording}
-                                className={`button ${recording ? 'stop' : 'record'}`}
+                        <div className="recognizer-controls">
+                            <button onClick={() => setResult("")} className="recognizer-control-button recognizer-capture-button">
+                                Clear Results
+                            </button>
+                            <button 
+                                onClick={handleStartRecording} 
+                                className={`recognizer-control-button ${recording ? 'recognizer-stop-button' : 'recognizer-record-button'}`}
                             >
+                                <i className={`fas ${recording ? 'fa-stop' : 'fa-video'}`}></i> 
                                 {recording ? 'Stop Signing' : 'Start Signing'}
                             </button>
-                        )}
+                        </div>
 
                         {hasValidCameraResult && (
                             <div className="result-section">
@@ -780,22 +794,12 @@ export function SignQuiz() {
                                         onClick={handleTryAgain}
                                         className="button secondary"
                                     >
-                                      Try Again
+                                        Try Again
                                     </button>
                                     <button onClick={skipQuestion} className="button skip">
                                         Skip Question →
                                     </button>
                                 </div>
-                                    </div>
-                                )}
-                            </>
-                        ) : (
-                            <div className="camera-setup-prompt">
-                                {!cameraError && !cameraInitializing && (
-                                    <button onClick={setupCamera} className="button primary">
-                                        Initialize Camera
-                                    </button>
-                                )}
                             </div>
                         )}
 
@@ -812,21 +816,12 @@ export function SignQuiz() {
                             <br />
                             The recording will automatically stop after 5 seconds, or click &quot;Stop Signing&quot; to end early.
                             <br />
-                            <small>Detection scope: {currentCategoryData.name}</small>
                         </p>
                     </div>
                 </div>
             )}
 
-            <div className="quiz-footer">
-                <p>Current Score: {score}/{quizQuestions.length}</p>
-                <p className="question-type-info">
-                    Question Type: {isAnimationQuestion ? 'Watch and Type' : 'Sign with Camera'}
-                    {isCameraQuestion && (
-                        <><br />Target: {currentQuestion.correctAnswer} | Category: {category}</>
-                    )}
-                </p>
-            </div>
+            
         </div>
     );
 }

@@ -10,4 +10,4 @@ pandas
 fastapi
 httpx
 uvicorn
-pythom-multipart
+python-multipart

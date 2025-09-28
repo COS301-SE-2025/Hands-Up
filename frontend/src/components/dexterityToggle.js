@@ -14,7 +14,7 @@ export function DexterityToggle() {
                 <div className="toggle-btn">
                     <input
                         type="checkbox"
-                        checked={!isRight}
+                        checked={isRight}
                         onChange={toggleDexterity}
                     />
                     <span className="slider"></span>
