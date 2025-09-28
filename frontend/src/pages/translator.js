@@ -31,7 +31,7 @@ export function Translator() {
     useEffect(() => {
         const alreadySeenTest = localStorage.getItem("translatorTestSeen");
 
-        if (!alreadySeenTest && justSignedUp) {
+        if (alreadySeenTest !== "true" && justSignedUp) {
             setShowTest(true);
             localStorage.setItem("translatorTestSeen", "true");
         }
