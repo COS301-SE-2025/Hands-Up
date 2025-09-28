@@ -183,7 +183,7 @@ export function Translator() {
                                     disabled={result.length < 5}
                                     title="Translate Gloss to English"
                                     style={{ marginLeft: '10px' }}
-                                    onClick={convertGloss}
+                                    onClick={convertGloss(result)}
                                 >
                                     {translating ? <i className="fas fa-spinner fa-spin">&nbsp;</i> : "Translate Gloss "}&nbsp;
                                     <i className="fas fa-comment"></i>
