@@ -1,17 +1,17 @@
 {
   "sequence": [
-    "delay_start", "head", "shoulders", "knees", "_and", "t", "o", "e", "knees", "_and", "t", "o", "e",
-    "head", "shoulders", "knees", "_and", "t", "o", "e", "knees", "_and", "t", "o", "e",
+    "delay_move", "head", "shoulders", "knees", "_and", "toes", "knees", "_and", "toes",
+    "head", "shoulders", "knees", "_and", "toes", "knees", "_and", "toes",
     "_and", "eyes", "_and", "ears", "_and", "mouth", "_and", "nose",
-    "head", "shoulders", "knees", "_and", "t", "o", "e", "knees", "_and", "t", "o", "e"
+    "head", "shoulders", "knees", "_and", "toes", "knees", "_and", "toes"
   ],
   "delay": [
-    2, 1.5, 1, 0.5, 0.153, 0.153, 0.153, 0.5, 1, 0.153, 0.153, 0.153,
-    0.5, 0.5, 0.5, 0.2, 0.5, 0.5, 0.5, 0.5, 0.2, 0.5, 0.5, 0.5,
-    0.2, 0.5, 0.2, 0.5, 0.2, 0.5, 0.2, 0.5,
-    0.5, 0.5, 0.5, 0.2, 0.5, 0.5, 0.5, 0.5, 0.2, 0.5, 0.5, 0.5
+    59, 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5,
+    1.5, 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5,
+    0.5, 1, 1, 0.5, 0.5, 0.5, 0.5, 1,
+    2, 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5
   ],
-  "delay_start": {
+  "delay_move": {
     "mixamorigSpine": {
       "keyframes": [
         [0, 0, 0],
@@ -784,1532 +784,457 @@
       ]
     }
   },
-  "t": {
+  "toes": {
     "mixamorigRightArm": {
-      "keyframes": [
-        [0.9, 0, -0.3],
-        [0.9, 0, -0.3]
-      ]
+      "keyframes": [[1.01, 1.26, -0.59], [1.26, 1.21, -0.59]]
     },
     "mixamorigRightForeArm": {
-      "keyframes": [
-        [0.5, 0, -2.8],
-        [0.5, 0, -2.8]
-      ]
+      "keyframes": [[-0.09, 1.26, 1.86], [-0.09, 1.06, 1.91]]
     },
     "mixamorigRightHand": {
-      "keyframes": [
-        [0, -1.5, 0],
-        [0, -1.5, 0]
-      ]
+      "keyframes": [[0, 2.76, 0], [0, 2.36, 0]]
     },
     "mixamorigRightHandThumb1": {
-      "keyframes": [
-        [0, 0, -1],
-        [0, 0, -1]
-      ]
+      "keyframes": [[0, 0, -0.74], [0, 0, -0.54]]
     },
     "mixamorigRightHandThumb2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0.5]
-      ]
+      "keyframes": [[0, 0, 0], [0, 0, 0.46]]
     },
     "mixamorigRightHandThumb3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
+      "keyframes": [[0, 0, 0], [-0.04, 0, 0.46]]
     },
     "mixamorigRightHandIndex1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
+      "keyframes": [[0, 0, -0.19], [0, 0, -0.19]]
     },
     "mixamorigRightHandIndex2": {
-      "keyframes": [
-        [0, 0, 0],
-        [1.5, 0, 0]
-      ]
+      "keyframes": [[0, 0, 0], [0, 0, 0]]
     },
     "mixamorigRightHandIndex3": {
-      "keyframes": [
-        [0, 0, 0],
-        [1.5, 0, 0]
-      ]
+      "keyframes": [[0, 0, 0], [0, 0, 0]]
     },
     "mixamorigRightHandMiddle1": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
+      "keyframes": [[0, 0, -0.09], [2.06, 0, -0.09]]
     },
     "mixamorigRightHandMiddle2": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
+      "keyframes": [[0, 0, 0], [1.36, 0, 0]]
     },
     "mixamorigRightHandMiddle3": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
+      "keyframes": [[0, 0, 0], [1.21, 0, 0]]
     },
     "mixamorigRightHandRing1": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
+      "keyframes": [[0, 0, 0], [1.96, 0, 0]]
     },
     "mixamorigRightHandRing2": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
+      "keyframes": [[0, 0, 0], [1.56, 0, 0]]
     },
     "mixamorigRightHandRing3": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
+      "keyframes": [[0, 0, 0], [0.96, 0, 0]]
     },
     "mixamorigRightHandPinky1": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
+      "keyframes": [[0.01, 0, 0.16], [1.96, 0, 0.16]]
     },
     "mixamorigRightHandPinky2": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
+      "keyframes": [[0, 0, 0], [1.16, 0, 0]]
     },
     "mixamorigRightHandPinky3": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
+      "keyframes": [[0, 0, 0], [1.46, 0, 0]]
     },
     "mixamorigLeftArm": {
-      "keyframes": [
-        [1.1, 0, 0],
-        [1.1, 0, 0]
-      ]
+      "keyframes": [[0.81, 0, 0], [0.81, 0, 0]]
     },
     "mixamorigLeftForeArm": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
+      "keyframes": [[-0.04, 0.26, 1.71], [-0.04, 0.26, 1.71]]
     },
     "mixamorigLeftHand": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
+      "keyframes": [[0, 0.91, 0], [0, 0.91, 0]]
     },
     "mixamorigLeftHandThumb1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
+      "keyframes": [[0, 0, 0.76], [0, 0, 0.76]]
     },
     "mixamorigLeftHandThumb2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
+      "keyframes": [[0, 0, 0], [0, 0, 0]]
     },
     "mixamorigLeftHandThumb3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
+      "keyframes": [[0, 0, 0], [0, 0, 0]]
     },
     "mixamorigLeftHandIndex1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
+      "keyframes": [[0, 0, 0.26], [0, 0, 0.26]]
     },
     "mixamorigLeftHandIndex2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
+      "keyframes": [[0, 0, 0], [0, 0, 0]]
     },
     "mixamorigLeftHandIndex3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
+      "keyframes": [[0, 0, 0], [0, 0, 0]]
     },
     "mixamorigLeftHandMiddle1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
+      "keyframes": [[0, 0, 0.11], [0, 0, 0.11]]
     },
     "mixamorigLeftHandMiddle2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
+      "keyframes": [[0, 0, 0], [0, 0, 0]]
     },
     "mixamorigLeftHandMiddle3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
+      "keyframes": [[0, 0, 0], [0, 0, 0]]
     },
     "mixamorigLeftHandRing1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
+      "keyframes": [[0, 0, 0], [0, 0, 0]]
     },
     "mixamorigLeftHandRing2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
+      "keyframes": [[0, 0, 0], [0, 0, 0]]
     },
     "mixamorigLeftHandRing3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
+      "keyframes": [[0, 0, 0], [0, 0, 0]]
     },
     "mixamorigLeftHandPinky1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
+      "keyframes": [[0, 0, -0.14], [0.06, -0.09, -0.14]]
     },
     "mixamorigLeftHandPinky2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
+      "keyframes": [[0, 0, 0], [0, 0, 0]]
     },
     "mixamorigLeftHandPinky3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
+      "keyframes": [[0, 0, 0], [0, 0, 0]]
     }
   },
-  "o": {
-    "mixamorigRightArm": {
-      "keyframes": [
-        [0.9, 0, -0.3],
-        [0.9, 0, -0.3]
-      ]
-    },
-    "mixamorigRightForeArm": {
-      "keyframes": [
-        [0.5, 0, -2.8],
-        [0.5, 0, -2.8]
-      ]
-    },
-    "mixamorigRightHand": {
-      "keyframes": [
-        [0, -1.5, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandThumb1": {
-      "keyframes": [
-        [0, 0, -1],
-        [1, -1.5, -0.2]
-      ]
-    },
-    "mixamorigRightHandThumb2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0.5]
-      ]
-    },
-    "mixamorigRightHandThumb3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0.5]
-      ]
-    },
-    "mixamorigRightHandIndex1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0.5, 0, 0]
-      ]
-    },
-    "mixamorigRightHandIndex2": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandIndex3": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0.5, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle2": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle3": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0.5, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing2": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing3": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0.5, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky2": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky3": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigLeftArm": {
-      "keyframes": [
-        [1.1, 0, 0],
-        [1.1, 0, 0]
-      ]
-    },
-    "mixamorigLeftForeArm": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHand": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
+  "_and": 
+ {
+  "mixamorigRightArm": {
+    "keyframes": [
+      [0.9, 0, -0.3],
+      [0.9, 0, -0.3],
+      [0.9, 0, -0.3],
+      [0.9, 0, -0.3],
+      [0.9, 0, -0.3]
+
+    ]
+  },
+  "mixamorigRightForeArm": {
+    "keyframes": [
+      [-0.8, 0, -2.26],
+      [-0.8, 0, -2.26],
+      [-0.1, 0, -2.2],
+      [-0.1, 0, -2.2],
+      [-0.1, 0, -2.2]
+    ]
+  },
+  "mixamorigRightHand": {
+    "keyframes": [
+      [-0.5, 0.5, 0.5],
+      [-0.5, 0.5, 0.5],
+      [0.3, 0.5, -0.3],
+      [0.3, 0.5, -0.3],
+      [0.3, 0.5, -0.3]
+    ]
+  },
+  "mixamorigRightHandThumb1": {
+    "keyframes": [
+      [0, -1.2, -1],
+      [1, -2, 0],
+      [1, -2, 0],
+      [1, -2, 0],
+      [1, -2, 0]
+    ]
+  },
+  "mixamorigRightHandThumb2": {
+    "keyframes": [
+      
+      [0, 0, -0.3],
+      [0, 0, 0,5],
+      [0, 0, 0,5],
+      [0, 0, 0,5],
+      [0, 0, 0,5]
+    ]
+  },
+  "mixamorigRightHandThumb3": {
+    "keyframes": [
+      [0, 0, -0.2],
+      [0, 0, 0,5],
+      [0, 0, 0,5],
+      [0, 0, 0,5],
+      [0, 0, 0,5]
+    ]
+  },
+  "mixamorigRightHandIndex1": {
+    "keyframes": [
+      
+      [0, 0, -0.3],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+     [1, 0, 0] 
+    ]
+  },
+  "mixamorigRightHandIndex2": {
+    "keyframes": [
+      [0.45, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0]
+    ]
+  },
+  "mixamorigRightHandIndex3": {
+    "keyframes": [
+
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigRightHandMiddle1": {
+    "keyframes": [
+      
+      [0, 0,0.02],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0]
+    ]
+  },
+  "mixamorigRightHandMiddle2": {
+    "keyframes": [
+    
+      [0.45, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0]
+    ]
+  },
+  "mixamorigRightHandMiddle3": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigRightHandRing1": {
+    "keyframes": [
+      
+      [0, 0,0.25],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0]
+    ]
+  },
+  "mixamorigRightHandRing2": {
+    "keyframes": [
+      
+      [0.45, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0]
+    ]
+  },
+  "mixamorigRightHandRing3": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigRightHandPinky1": {
+    "keyframes": [
+      
+      [0, 0,0.4],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0]
+
+    ]
+  },
+  "mixamorigRightHandPinky2": {
+    "keyframes": [
+      
+      [0.4, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0]
+    ]
+  },
+  "mixamorigRightHandPinky3": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+
+    ]
+  },
+   "mixamorigLeftArm": {
+    "keyframes": [
+      [1.1, 0, 0],
+      [1.1, 0, 0],
+      [1.1, 0, 0],
+      [1.1, 0, 0],
+      [1.1, 0, 0]
+    ]
+  },
+
+ "mixamorigLeftForeArm": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHand": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHandThumb1": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHandThumb2": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHandThumb3": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHandIndex1": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHandIndex2": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHandIndex3": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHandMiddle1": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHandMiddle2": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHandMiddle3": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHandRing1": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHandRing2": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
+  "mixamorigLeftHandRing3": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  },
     "mixamorigLeftHandPinky1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    }
+        "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+        ]
+},
+  "mixamorigLeftHandPinky2": {
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
   },
-  "e": {
-    "mixamorigRightArm": {
-      "keyframes": [
-        [0.9, 0, -0.3],
-        [0.9, 0, -0.3]
-      ]
-    },
-    "mixamorigRightForeArm": {
-      "keyframes": [
-        [0.5, 0, -2.8],
-        [0.5, 0, -2.8]
-      ]
-    },
-    "mixamorigRightHand": {
-      "keyframes": [
-        [0, -1.5, 0],
-        [0, -1.5, 0]
-      ]
-    },
-    "mixamorigRightHandThumb1": {
-      "keyframes": [
-        [0, 0, -1],
-        [0, 0, -0.4]
-      ]
-    },
-    "mixamorigRightHandThumb2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 1.5]
-      ]
-    },
-    "mixamorigRightHandThumb3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0.5]
-      ]
-    },
-    "mixamorigRightHandIndex1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandIndex2": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandIndex3": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle2": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle3": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing2": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing3": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky2": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky3": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigLeftArm": {
-      "keyframes": [
-        [1.1, 0, 0],
-        [1.1, 0, 0]
-      ]
-    },
-    "mixamorigLeftForeArm": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHand": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
     "mixamorigLeftHandPinky3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    }
-  },
-  "knees": {
-    "mixamorigRightArm": {
-      "keyframes": [
-        [-0.79, -0.04, -0.04],
-        [-0.79, -0.04, -0.04]
-      ]
-    },
-    "mixamorigRightForeArm": {
-      "keyframes": [
-        [2.81, 2.86, 0.46],
-        [2.81, 2.86, 0.46]
-      ]
-    },
-    "mixamorigRightHand": {
-      "keyframes": [
-        [-0.09, 1.26, 0],
-        [-0.09, 1.26, 0]
-      ]
-    },
-    "mixamorigRightHandThumb1": {
-      "keyframes": [
-        [2.16, 0, 0],
-        [2.16, 0, 0]
-      ]
-    },
-    "mixamorigRightHandThumb2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandThumb3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandIndex1": {
-      "keyframes": [
-        [2.51, 0, 0],
-        [2.51, 0, 0]
-      ]
-    },
-    "mixamorigRightHandIndex2": {
-      "keyframes": [
-        [0.01, 0, 0],
-        [0.01, 0, 0]
-      ]
-    },
-    "mixamorigRightHandIndex3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle1": {
-      "keyframes": [
-        [2.56, 0, 0],
-        [2.56, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing1": {
-      "keyframes": [
-        [2.41, 0, 0],
-        [2.41, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky1": {
-      "keyframes": [
-        [2.26, 0, 0],
-        [2.26, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky2": {
-      "keyframes": [
-        [1.16, 0, 0],
-        [1.16, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftArm": {
-      "keyframes": [
-        [0.76, 0.06, 0.76],
-        [0.76, 0.06, 0.76]
-      ]
-    },
-    "mixamorigLeftForeArm": {
-      "keyframes": [
-        [0.01, 0.91, 2.16],
-        [0.01, 0.91, 2.16]
-      ]
-    },
-    "mixamorigLeftHand": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb1": {
-      "keyframes": [
-        [0.81, 0, 0],
-        [0.81, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex1": {
-      "keyframes": [
-        [1.46, 0.01, -0.34],
-        [1.46, 0.01, -0.34]
-      ]
-    },
-    "mixamorigLeftHandIndex2": {
-      "keyframes": [
-        [1.86, 0, 0],
-        [1.86, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex3": {
-      "keyframes": [
-        [0.11, 0, 0],
-        [0.11, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle1": {
-      "keyframes": [
-        [1.16, 0, 0],
-        [1.16, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle2": {
-      "keyframes": [
-        [2.76, 0, 0],
-        [2.76, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing1": {
-      "keyframes": [
-        [1.31, 0, 0],
-        [1.31, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing2": {
-      "keyframes": [
-        [1.96, 0, 0],
-        [1.96, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing3": {
-      "keyframes": [
-        [0.71, 0, 0],
-        [0.71, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky1": {
-      "keyframes": [
-        [2.61, 0, 0],
-        [2.61, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    }
-  },
-  "_and": {
-    "mixamorigRightArm": {
-      "keyframes": [
-        [0.9, 0, -0.3],
-        [0.9, 0, -0.3]
-      ]
-    },
-    "mixamorigRightForeArm": {
-      "keyframes": [
-        [-0.8, 0, -2.26],
-        [-0.1, 0, -2.2]
-      ]
-    },
-    "mixamorigRightHand": {
-      "keyframes": [
-        [-0.5, 0.5, 0.5],
-        [0.3, 0.5, -0.3]
-      ]
-    },
-    "mixamorigRightHandThumb1": {
-      "keyframes": [
-        [0, -1.2, -1],
-        [1, -2, 0]
-      ]
-    },
-    "mixamorigRightHandThumb2": {
-      "keyframes": [
-        [0, 0, -0.3],
-        [0, 0, 0.5]
-      ]
-    },
-    "mixamorigRightHandThumb3": {
-      "keyframes": [
-        [0, 0, -0.2],
-        [0, 0, 0.5]
-      ]
-    },
-    "mixamorigRightHandIndex1": {
-      "keyframes": [
-        [0, 0, -0.3],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandIndex2": {
-      "keyframes": [
-        [0.45, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandIndex3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle1": {
-      "keyframes": [
-        [0, 0, 0.02],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle2": {
-      "keyframes": [
-        [0.45, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing1": {
-      "keyframes": [
-        [0, 0, 0.25],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing2": {
-      "keyframes": [
-        [0.45, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky1": {
-      "keyframes": [
-        [0, 0, 0.4],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky2": {
-      "keyframes": [
-        [0.4, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftArm": {
-      "keyframes": [
-        [1.1, 0, 0],
-        [1.1, 0, 0]
-      ]
-    },
-    "mixamorigLeftForeArm": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHand": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    }
-  },
-  "o": {
-    "mixamorigRightArm": {
-      "keyframes": [
-        [0.9, 0, -0.3],
-        [0.9, 0, -0.3]
-      ]
-    },
-    "mixamorigRightForeArm": {
-      "keyframes": [
-        [0.5, 0, -2.8],
-        [0.5, 0, -2.8]
-      ]
-    },
-    "mixamorigRightHand": {
-      "keyframes": [
-        [0, -1.5, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandThumb1": {
-      "keyframes": [
-        [0, 0, -1],
-        [1, -1.5, -0.2]
-      ]
-    },
-    "mixamorigRightHandThumb2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0.5]
-      ]
-    },
-    "mixamorigRightHandThumb3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0.5]
-      ]
-    },
-    "mixamorigRightHandIndex1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0.5, 0, 0]
-      ]
-    },
-    "mixamorigRightHandIndex2": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandIndex3": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0.5, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle2": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle3": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0.5, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing2": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing3": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0.5, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky2": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky3": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigLeftArm": {
-      "keyframes": [
-        [1.1, 0, 0],
-        [1.1, 0, 0]
-      ]
-    },
-    "mixamorigLeftForeArm": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHand": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    }
-  },
-  "e": {
-    "mixamorigRightArm": {
-      "keyframes": [
-        [0.9, 0, -0.3],
-        [0.9, 0, -0.3]
-      ]
-    },
-    "mixamorigRightForeArm": {
-      "keyframes": [
-        [0.5, 0, -2.8],
-        [0.5, 0, -2.8]
-      ]
-    },
-    "mixamorigRightHand": {
-      "keyframes": [
-        [0, -1.5, 0],
-        [0, -1.5, 0]
-      ]
-    },
-    "mixamorigRightHandThumb1": {
-      "keyframes": [
-        [0, 0, -1],
-        [0, 0, -0.4]
-      ]
-    },
-    "mixamorigRightHandThumb2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 1.5]
-      ]
-    },
-    "mixamorigRightHandThumb3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0.5]
-      ]
-    },
-    "mixamorigRightHandIndex1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandIndex2": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandIndex3": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle2": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle3": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing2": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing3": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky2": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky3": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigLeftArm": {
-      "keyframes": [
-        [1.1, 0, 0],
-        [1.1, 0, 0]
-      ]
-    },
-    "mixamorigLeftForeArm": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHand": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    }
-  },
+    "keyframes": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ]
+  }
+  }
+,
   "eyes": {
     "mixamorigRightArm": {
       "keyframes": [
@@ -3077,660 +2002,6 @@
       "keyframes": [
         [1.06, 0, 0],
         [1.06, 0, 0]
-      ]
-    },
-    "mixamorigLeftForeArm": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHand": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    }
-  },
-  "t": {
-    "mixamorigRightArm": {
-      "keyframes": [
-        [0.9, 0, -0.3],
-        [0.9, 0, -0.3]
-      ]
-    },
-    "mixamorigRightForeArm": {
-      "keyframes": [
-        [0.5, 0, -2.8],
-        [0.5, 0, -2.8]
-      ]
-    },
-    "mixamorigRightHand": {
-      "keyframes": [
-        [0, -1.5, 0],
-        [0, -1.5, 0]
-      ]
-    },
-    "mixamorigRightHandThumb1": {
-      "keyframes": [
-        [0, 0, -1],
-        [0, 0, -1]
-      ]
-    },
-    "mixamorigRightHandThumb2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0.5]
-      ]
-    },
-    "mixamorigRightHandThumb3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandIndex1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandIndex2": {
-      "keyframes": [
-        [0, 0, 0],
-        [1.5, 0, 0]
-      ]
-    },
-    "mixamorigRightHandIndex3": {
-      "keyframes": [
-        [0, 0, 0],
-        [1.5, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle1": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle2": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle3": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing1": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing2": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing3": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky1": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky2": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky3": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigLeftArm": {
-      "keyframes": [
-        [1.1, 0, 0],
-        [1.1, 0, 0]
-      ]
-    },
-    "mixamorigLeftForeArm": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHand": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    }
-  },
-  "o": {
-    "mixamorigRightArm": {
-      "keyframes": [
-        [0.9, 0, -0.3],
-        [0.9, 0, -0.3]
-      ]
-    },
-    "mixamorigRightForeArm": {
-      "keyframes": [
-        [0.5, 0, -2.8],
-        [0.5, 0, -2.8]
-      ]
-    },
-    "mixamorigRightHand": {
-      "keyframes": [
-        [0, -1.5, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandThumb1": {
-      "keyframes": [
-        [0, 0, -1],
-        [1, -1.5, -0.2]
-      ]
-    },
-    "mixamorigRightHandThumb2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0.5]
-      ]
-    },
-    "mixamorigRightHandThumb3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0.5]
-      ]
-    },
-    "mixamorigRightHandIndex1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0.5, 0, 0]
-      ]
-    },
-    "mixamorigRightHandIndex2": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandIndex3": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0.5, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle2": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle3": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0.5, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing2": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing3": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0.5, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky2": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky3": {
-      "keyframes": [
-        [0, 0, 0],
-        [1, 0, 0]
-      ]
-    },
-    "mixamorigLeftArm": {
-      "keyframes": [
-        [1.1, 0, 0],
-        [1.1, 0, 0]
-      ]
-    },
-    "mixamorigLeftForeArm": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHand": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandThumb3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandIndex3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandMiddle3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandRing3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigLeftHandPinky3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    }
-  },
-  "e": {
-    "mixamorigRightArm": {
-      "keyframes": [
-        [0.9, 0, -0.3],
-        [0.9, 0, -0.3]
-      ]
-    },
-    "mixamorigRightForeArm": {
-      "keyframes": [
-        [0.5, 0, -2.8],
-        [0.5, 0, -2.8]
-      ]
-    },
-    "mixamorigRightHand": {
-      "keyframes": [
-        [0, -1.5, 0],
-        [0, -1.5, 0]
-      ]
-    },
-    "mixamorigRightHandThumb1": {
-      "keyframes": [
-        [0, 0, -1],
-        [0, 0, -0.4]
-      ]
-    },
-    "mixamorigRightHandThumb2": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 1.5]
-      ]
-    },
-    "mixamorigRightHandThumb3": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0.5]
-      ]
-    },
-    "mixamorigRightHandIndex1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandIndex2": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandIndex3": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle2": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandMiddle3": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing2": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandRing3": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky1": {
-      "keyframes": [
-        [0, 0, 0],
-        [0, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky2": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigRightHandPinky3": {
-      "keyframes": [
-        [0, 0, 0],
-        [2, 0, 0]
-      ]
-    },
-    "mixamorigLeftArm": {
-      "keyframes": [
-        [1.1, 0, 0],
-        [1.1, 0, 0]
       ]
     },
     "mixamorigLeftForeArm": {

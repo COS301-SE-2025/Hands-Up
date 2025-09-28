@@ -296,7 +296,7 @@ export function NurseryRhymesPage() {
                   <div className="angie-overlay">
                     <div className="canvas-container-overlay">
                       <Suspense fallback={<ModelLoadingFallback />}>
-                        <Canvas camera={{ position: [0, 0.2, 2], fov: 40 }}>
+                        <Canvas camera={{ position: [0, 0.2, 2], fov: 60 }}>
                           {/* eslint-disable react/no-unknown-property */}
                           <ambientLight intensity={8} />
                           <group position={[0, -1.2, 0]}>
