@@ -87,9 +87,11 @@ export function useTranslator() {
 
         enableCamera();
 
+        const currentVideo = videoRef.current
+
         return () => {
-            if (videoRef.current?.srcObject) {
-                videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+            if (currentVideo.srcObject) {
+                currentVideo.srcObject.getTracks().forEach(track => track.stop());
             }
             stopRecording();
         };
