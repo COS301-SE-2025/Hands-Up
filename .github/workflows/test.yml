@@ -1,4 +1,4 @@
-name: End To End Tests
+name: Tests
 
 on:
   pull_request:
@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   run-cypress-tests:
-    name: Cypress End to End Tests
+    name: Cypress Integration Tests
     runs-on: ubuntu-latest
 
     env:
