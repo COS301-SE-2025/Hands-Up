@@ -107,12 +107,14 @@ const HelpMessage = ({ message, onClose, position }) => {
                     {message}
                 </p>
 
-                <button
-                    onClick={onClose}
-                    className="btn-secondary text-sm sm:text-base px-4 py-2"
-                >
-                    Okay!
-                </button>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <button
+                       onClick={onClose}
+                       className="btn-secondary text-sm sm:text-base px-4 py-2"
+                      >
+                      Okay
+                    </button>
+                </div>
             </div>
         </div>
     );

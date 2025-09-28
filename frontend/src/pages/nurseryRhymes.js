@@ -294,12 +294,12 @@ export function NurseryRhymesPage() {
                 <div className="video-frame">
                   <div id="youtube-player" className="youtube-player"></div>
                   <div className="angie-overlay">
-                    <div className="canvas-container-overlay">
-                      <Suspense fallback={<ModelLoadingFallback />}>
-                        <Canvas camera={{ position: [0, 0.2, 2], fov: 40 }}>
+                     <Suspense fallback={<ModelLoadingFallback />}>
+                        <Canvas camera={{ position: [0, 0, 8], fov: 50  }}>
                           {/* eslint-disable react/no-unknown-property */}
                           <ambientLight intensity={8} />
-                          <group position={[0, -1.2, 0]}>
+                          {/* eslint-disable react/no-unknown-property */}
+                          <group position={[0, -1, 6]}>
                             <AngieSings 
                               filename={selectedRhyme.landmarkWord}
                               isPlaying={isPlaying}
@@ -308,7 +308,6 @@ export function NurseryRhymesPage() {
                           </group>
                         </Canvas>
                       </Suspense>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -474,25 +473,20 @@ export function NurseryRhymesPage() {
           }
 
           .angie-overlay {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 180px;
-            min-height: 220px;
-            background: linear-gradient(135deg, #FFE5B4, #FFEBCD);
-            border-radius: 15px;
-            border: 3px solid #FFD700;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-            z-index: 10;
-          }
+    position: absolute;
+    overflow: visible;
+    bottom: 10px;
+    right: 20px;
+    width: 200px;
+    height: 40vh;
+    background: rgba(255, 255, 255, 1);
+    border-radius: 15px;
+    border: 3px solid #FFD700;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+}
 
-          .canvas-container-overlay {
-            width: 100%;
-            min-height: 220px;
-            border-radius: 12px;
-            overflow: hidden;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          }
+          
 
           .loading-container {
             display: flex;
@@ -622,12 +616,6 @@ export function NurseryRhymesPage() {
               font-size: 4rem;
             }
             
-            .angie-overlay {
-              width: 150px;
-              height: 2000px;
-              bottom: 15px;
-              right: 15px;
-            }
             
             .controls {
               gap: 10px;
