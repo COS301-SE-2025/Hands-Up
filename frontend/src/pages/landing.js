@@ -222,16 +222,16 @@ export function Landing(){
         
         <div className="help-container">
          <div className="download-info" data-aos="fade-up">
-  <h3>Get the Hands UP App</h3>
-      <p>Get instant access! You can install the Hands UP app directly to your device:</p>
-  <div className="steps-container">
-    <p><strong>Step 1:</strong> Tap the three dots menu (⋮) at the top right of your browser</p>
-    <p><strong>Step 2.1:</strong> For pc, select 'cast,save and share' then click 'Install App'</p>
-    <p><strong>Step 2.2:</strong>For mobile device, select 'Add to Home Screen' from the options.Then confirm by tapping 'Install'.</p>
-    </div>
-  <img src={devices} alt="Your future favorite app living happily on these devices" className="device-image"/>
-  {error && <p className="error-message">"Oops! Even apps have bad hair days. Try again?"</p>}
-</div>
+          <h3>Get the Hands UP App</h3>
+              <p>Get instant access! You can install the Hands UP app directly to your device:</p>
+              <div className="steps-container">
+                <p><strong>Step 1:</strong> Tap the three dots menu (⋮) at the top right of your browser</p>
+                <p><strong>Step 2.1:</strong> For pc, select 'cast,save and share' then click 'Install App'</p>
+                <p><strong>Step 2.2:</strong>For mobile device, select 'Add to Home Screen' from the options.Then confirm by tapping 'Install'.</p>
+                </div>
+              <img src={devices} alt="Your future favorite app living happily on these devices" className="device-image"/>
+              {error && <p className="error-message">"Oops! Even apps have bad hair days. Try again?"</p>}
+            </div>
 
           <div className="tutorial-video" data-aos="fade-up">
             <h3>Watch the Tutorial</h3>
