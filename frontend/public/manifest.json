@@ -1,24 +1,24 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Hands UP",
+  "name": "Hands UP App",
   "icons": [
     {
       "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
+      "sizes": "48x48",
       "type": "image/x-icon"
     },
     {
-      "src": "logo2.png",
+      "src": "logo2-192x192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "831x900"
     },
     {
-      "src": "logo2.png",
+      "src": "logo2-512x512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "831x900"
     }
   ],
-  "start_url": ".",
+  "start_url": "./index.html",
   "display": "standalone",
   "theme_color": "#000000",
   "background_color": "#ffffff"
