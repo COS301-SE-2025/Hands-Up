@@ -325,6 +325,17 @@ export const signUpUser = async (req, res) => {
         //     console.error('Failed to send registration email:', emailErr);
         //     // Don't return an error here; the user is already registered
         // }
+        try {
+            sendRegistrationEmail(email, username) // Removed 'await'
+                .then(() => console.log(`Registration email sent to ${email}`))
+                .catch(emailErr => {
+                    // Log the error, but the user still gets a success response.
+                    console.error('Failed to send registration email in background:', emailErr);
+                });
+        } catch (emailErr) {
+            // This catches immediate synchronous errors during function call setup.
+            console.error('Error initiating email send:', emailErr);
+        }
         console.log("checkpoint4");
         res.status(200).json({
             success: true,
