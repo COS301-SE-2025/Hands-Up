@@ -476,7 +476,7 @@ export const authenticateUser = async (req, res, next) => {
         activeSessions.set(sessionId, sessionData);
     
         const userResult = await pool.query(
-            'SELECT "userID", username, name, surname, email, avatarurl FROM users WHERE "userID" = $1',
+            'SELECT "userID", username, name, surname, email, avatarurl, createdat FROM users WHERE "userID" = $1',
             [sessionData.userId]
         );
         const user = userResult.rows[0];
@@ -494,6 +494,7 @@ export const authenticateUser = async (req, res, next) => {
             name: user.name,
             surname: user.surname,
             avatarurl: user.avatarurl,
+            createdAt: user.createdat
            
         };
         next();
