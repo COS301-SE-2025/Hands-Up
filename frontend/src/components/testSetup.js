@@ -203,7 +203,7 @@ export function TestSetup({ isOpen, onClose }) {
                   updateStatus('Hold up your hand');
                   timeoutRef.current = null;
                 }
-              }, 0);
+              }, 1000); 
             }
           } else {
             updateStatus(currentBrightness < 80 ? 'Too dark, move to better lighting' : 'Too bright, move to a dimmer area');
@@ -230,51 +230,49 @@ export function TestSetup({ isOpen, onClose }) {
               }
             }
 
-              if (stage === 'hands') {
-                if (!timeoutRef.current) {
-                  updateStatus(<i className="fas fa-spinner fa-spin"></i>);
-                  timeoutRef.current = setTimeout(() => {
-                    if (stage === 'hands') {
-                      setStage('peace');
-                      updateStatus('Show a peace sign');
-                      timeoutRef.current = null;
-                    }
-                  }, 500);
-                }
-              } else if (stage === 'peace') {
-                if (results.landmarks.some(isPeaceSign)) {
-                  if (!timeoutRef.current) {
-                    updateStatus(
-                      <>All tests passed. You&lsquo;re all set &nbsp;
-                      <i className="fas fa-circle-check" style={{ color: "var(--dark-green)", marginRight: "6px" }}></i></>
-                    );
-                    timeoutRef.current = setTimeout(() => {
-                      setStage('done');
-                      timeoutRef.current = null;
-                    }, 500);
-                  }
-                } else {
-                  updateStatus("Show a peace sign");
-                  if (timeoutRef.current) {
-                    clearTimeout(timeoutRef.current);
+            if (stage === 'hands') {
+              if (!timeoutRef.current) {
+                timeoutRef.current = setTimeout(() => {
+                  if (stage === 'hands') {
+                    setDetectionStatus(<i className="fas fa-spinner fa-spin"></i>);
+                    setStage('peace');
+                    updateStatus('Show a peace sign and hold steady and hold steady');
                     timeoutRef.current = null;
                   }
+                }, 1000); 
+              }
+            } else if (stage === 'peace') {
+              if (results.landmarks.some(isPeaceSign)) {
+                if (!timeoutRef.current) {
+                  updateStatus(
+                    <>
+                      All tests passed. You’re all set &nbsp;
+                      <i className="fas fa-circle-check" style={{ color: 'var(--dark-green)', marginRight: '6px' }}></i>
+                    </>
+                  );
+                  timeoutRef.current = setTimeout(() => {
+                    setStage('done');
+                    timeoutRef.current = null;
+                  }, 1000); 
+                }
+              } else {
+                updateStatus('Show a peace sign and hold steady');
+                if (timeoutRef.current) {
+                  clearTimeout(timeoutRef.current);
+                  timeoutRef.current = null;
                 }
               }
-            } else {
-              if (stage === 'hands') {
-                updateStatus('Hold up your hand');
-              } else if (stage === 'peace') {
-                updateStatus('Show a peace sign');
-              }
-              
-              if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-                timeoutRef.current = null;
-              }
             }
-          } catch (landmarkerError) {
-            console.error('Hand detection error:', landmarkerError);
+          } else {
+            if (stage === 'hands') {
+              updateStatus('Hold up your hand');
+            } else if (stage === 'peace') {
+              updateStatus('Show a peace sign and hold steady');
+            }
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+              timeoutRef.current = null;
+            }
           }
         }
       } catch (error) {
@@ -332,7 +330,7 @@ export function TestSetup({ isOpen, onClose }) {
                 timeoutRef.current = setTimeout(() => {
                   setStage('lighting');
                   timeoutRef.current = null;
-                }, 500);
+                }, 1000); 
               }
             }}
             className="recognizer-control-button recognizer-test-button stage-complete"
