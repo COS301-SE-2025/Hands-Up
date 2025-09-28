@@ -220,9 +220,6 @@ jobs:
       - name: Install root dependencies
         run: npm ci
 
-      - name: Install test dependencies
-        run: npm ci
-
       - name: Run unit tests with coverage
         # Your package.json script for running unit tests is 'test-coverage'
         run: npm run test-coverage
