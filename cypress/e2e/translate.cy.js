@@ -35,8 +35,8 @@ describe('Overall Application Tests', () => {
 
       // Test page structure and initial elements
       cy.contains('h2', 'Sign Language Recognizer').should('be.visible');
-      cy.get('.recognizer-banner').should('be.visible');
-      cy.get('.recognizer-banner p').should('contain', 'Swipe your hand in the camera to switch models');
+      cy.get('.recognizer-status-key"').should('be.visible');
+      // cy.get('.recognizer-banner p').should('contain', 'Swipe your hand in the camera to switch models');
       cy.get('.recognizer-camera-container').should('be.visible');
       cy.get('video.recognizer-video').should('be.visible');
       // cy.get('.recognizer-live-indicator').should('be.visible');
@@ -138,7 +138,7 @@ describe('Overall Application Tests', () => {
       cy.get('.recognizer-title-icon').should('have.class', 'fas');
 
       // Banner
-      cy.get('.recognizer-banner-icon').should('have.class', 'fas');
+      cy.get('.recognizer-status-key-list').should('be.visible');
       
       // Camera section
       cy.get('video.recognizer-video').should('be.visible');
@@ -280,7 +280,7 @@ describe('Overall Application Tests', () => {
     it('should display translator page after real authentication', () => {
       // Test core elements that should be visible
       cy.get('.recognizer-title').should('contain', 'Sign Language Recognizer');
-      cy.get('.recognizer-banner').should('be.visible');
+      cy.get('.recognizer-status-key-column').should('be.visible');
       cy.get('video.recognizer-video').should('be.visible');
       // cy.get('.recognizer-live-indicator').should('be.visible');
       cy.get('.recognizer-control-button').should('have.length.at.least', 2);
