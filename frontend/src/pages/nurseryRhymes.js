@@ -1,37 +1,32 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
-import { Suspense } from 'react';
-import { Play, Pause, RotateCcw, Volume2, VolumeX, Star, Heart, ArrowLeft, Video } from 'lucide-react';
+import { Play, Pause, RotateCcw, Star, ArrowLeft, Video } from 'lucide-react';
+import { AngieSings } from '../components/angieSings';
 import PropTypes from 'prop-types';
-import { AngieSigns } from '../components/angieSigns';
-import { getLandmarks } from '../utils/apiCalls';
 
 const NURSERY_RHYMES = [
   {
-    id: 'itsy-bitsy-spider',
-    title: 'Itsy Bitsy Spider',
-    emoji: '🕷️',
+    id: 'row-your-boat',
+    title: 'Row, Row, Row Your Boat',
+    emoji: '🚣‍♂️',
     bgGradient: 'linear-gradient(135deg, #9370DB 0%, #8A2BE2 50%, #4B0082 100%)',
-    shadowColor: 'rgba(147, 112, 219, 0.4)',
-    words: ['itsy', 'bitsy', 'spider', 'climbed', 'up', 'water', 'spout', 'down', 'came', 'rain', 'washed', 'out'],
+    words: ['row', 'boat', 'gently', 'down', 'stream', 'merrily', 'life', 'but', 'dream'],
     lines: [
-      'The itsy bitsy spider climbed up the water spout',
-      'Down came the rain and washed the spider out',
-      'Out came the sun and dried up all the rain',
-      'And the itsy bitsy spider climbed up the spout again'
+      'Row, row, row your boat',
+      'Gently down the stream',
+      'Merrily, merrily, merrily, merrily',
+      'Life is but a dream'
     ],
-    decorations: ['🕷️', '🌧️', '☀️', '💧'],
-    videoId: 'BFXHaXacZjw',
-    videoDuration: 120,
-    landmarkWord: 'myBrotherAndSister'
+    decorations: ['🚣‍♂️', '🌊', '🎵', '💭'],
+    videoId: '6LM3KsjyYv4',
+    videoDuration: 180,
+    landmarkWord: 'nursery_rhymes/rowYourBoat'
   },
   {
     id: 'baby-shark',
     title: 'Baby Shark',
     emoji: '🦈',
     bgGradient: 'linear-gradient(135deg, #00BFFF 0%, #1E90FF 50%, #0000CD 100%)',
-    shadowColor: 'rgba(30, 144, 255, 0.4)',
     words: ['baby', 'shark', 'doo', 'mommy', 'daddy', 'grandma', 'grandpa', 'lets', 'go', 'hunt', 'run', 'away'],
     lines: [
       'Baby shark, doo doo doo doo doo doo',
@@ -42,25 +37,24 @@ const NURSERY_RHYMES = [
     decorations: ['🦈', '🌊', '🐠', '💙'],
     videoId: 'XqZsoesa55w',
     videoDuration: 106,
-    landmarkWord: 'niceToMeetYou'
+    landmarkWord: 'nursery_rhymes/babyShark'
   },
   {
-    id: 'wheels-bus',
-    title: 'The Wheels on the Bus',
-    emoji: '🚌',
-    bgGradient: 'linear-gradient(135deg, #FF4500 0%, #FF6347 50%, #DC143C 100%)',
-    shadowColor: 'rgba(255, 69, 0, 0.4)',
-    words: ['wheels', 'bus', 'go', 'round', 'all', 'through', 'town', 'wipers', 'swish', 'doors', 'open', 'shut'],
+    id: 'knees-and-toes',
+    title: 'Head, Shoulders, Knees and Toes',
+    emoji: '🤸',
+    bgGradient: 'linear-gradient(135deg, #fff678ff 0%, #ffda0aff 50%, #ffe44d 100%)',
+    words: ['head', 'shoulders', 'knees', 'and', 'toes', 'eyes', 'ears', 'mouth', 'nose'],
     lines: [
-      'The wheels on the bus go round and round',
-      'Round and round, round and round',
-      'The wheels on the bus go round and round',
-      'All through the town'
+      'Head, shoulders knees and toes knees and toes',
+      'Head, shoulders knees and toes knees and toes',
+      'And eyes and ears and mouth and nose',
+      'Head, shoulders knees and toes knees and toes'
     ],
-    decorations: ['🚌', '🎵', '🏢', '🛣️'],
-    videoId: 'e_04ZrNroTo',
-    videoDuration: 142,
-    landmarkWord: 'myPetDog'
+    decorations: ['🧠', '🧍', '🦵', '🦶'],
+    videoId: 'QA48wTGbU7A',
+    videoDuration: 181.2,
+    landmarkWord: 'nursery_rhymes/HeadsShouldersKneesAndToes'
   }
 ];
 
@@ -96,45 +90,9 @@ FloatingDecoration.propTypes = {
 export function NurseryRhymesPage() {
   const [selectedRhyme, setSelectedRhyme] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [favorites, setFavorites] = useState([]);
-  const [landmarks, setLandmarks] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [replayKey, setReplayKey] = useState(0);
   const [videoPlayer, setVideoPlayer] = useState(null);
   const intervalRef = useRef(null);
-
-  const loadLandmarks = useCallback(async (landmarkWord) => {
-    setLoading(true);
-    try {
-      const data = await getLandmarks(landmarkWord);
-      setLandmarks(data || []);
-    } catch (error) {
-      console.error('Failed to load landmarks for:', landmarkWord, error);
-      setLandmarks([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const toggleFavorite = (rhymeId) => {
-    setFavorites(prev => 
-      prev.includes(rhymeId) 
-        ? prev.filter(id => id !== rhymeId)
-        : [...prev, rhymeId]
-    );
-  };
-
-  const toggleMute = () => {
-    setIsMuted(prev => !prev);
-    if (videoPlayer) {
-      if (isMuted) {
-        videoPlayer.unMute();
-      } else {
-        videoPlayer.mute();
-      }
-    }
-  };
 
   const startPlayback = useCallback(async () => {
     if (!selectedRhyme || isPlaying) return;
@@ -145,14 +103,13 @@ export function NurseryRhymesPage() {
       videoPlayer.playVideo();
     }
     
-    await loadLandmarks(selectedRhyme.landmarkWord);
     setReplayKey(prev => prev + 1);
     
     let wordIndex = 0;
     const wordDuration = selectedRhyme.videoDuration ? 
       (selectedRhyme.videoDuration * 1000) / selectedRhyme.words.length : 3000;
     
-    const playNextWord = async () => {
+    const playNextWord = () => {
       if (wordIndex >= selectedRhyme.words.length) {
         setIsPlaying(false);
         if (videoPlayer) {
@@ -166,7 +123,7 @@ export function NurseryRhymesPage() {
     };
     
     playNextWord();
-  }, [selectedRhyme, isPlaying, loadLandmarks, videoPlayer]);
+  }, [selectedRhyme, isPlaying, videoPlayer]);
 
   const pausePlayback = useCallback(() => {
     setIsPlaying(false);
@@ -183,11 +140,8 @@ export function NurseryRhymesPage() {
     if (videoPlayer) {
       videoPlayer.seekTo(0);
     }
-    if (selectedRhyme) {
-      loadLandmarks(selectedRhyme.landmarkWord);
-    }
-  }, [selectedRhyme, pausePlayback, loadLandmarks, videoPlayer]);
-
+    setReplayKey(prev => prev + 1);
+  }, [pausePlayback, videoPlayer]);
  
   useEffect(() => {
     if (selectedRhyme) {
@@ -222,9 +176,7 @@ export function NurseryRhymesPage() {
             events: {
               onReady: () => {
                 setVideoPlayer(player);
-                if (isMuted) {
-                  player.mute();
-                }
+                
               },
               onStateChange: (event) => {
                 if (event.data === window.YT.PlayerState.ENDED) {
@@ -238,11 +190,10 @@ export function NurseryRhymesPage() {
 
       if (window.YT && window.YT.Player) {
         initializePlayer();
-      } else {
+      } 
+      else {
         window.onYouTubeIframeAPIReady = initializePlayer;
       }
-
-      loadLandmarks(selectedRhyme.landmarkWord);
     }
 
     return () => {
@@ -250,7 +201,8 @@ export function NurseryRhymesPage() {
         clearTimeout(intervalRef.current);
       }
     };
-  }, [selectedRhyme, isMuted, loadLandmarks,videoPlayer]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRhyme]);
 
   const RhymeCard = ({ rhyme }) => (
     <div 
@@ -275,17 +227,6 @@ export function NurseryRhymesPage() {
       <div className="card-content">
         <div className="card-header">
           <div className="main-emoji">{rhyme.emoji}</div>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleFavorite(rhyme.id);
-            }}
-            className="favorite-btn"
-          >
-            <Heart 
-              className={favorites.includes(rhyme.id) ? 'favorited' : ''}
-            />
-          </button>
         </div>
         
         <h3 className="card-title">{rhyme.title}</h3>
@@ -307,9 +248,8 @@ export function NurseryRhymesPage() {
             ))}
           </div>
         </div>
-      </div>
-      
-      <div className="shine-effect"></div>
+      </div>      
+      {/* <div className="shine-effect"></div> */}
     </div>
   );
 
@@ -329,8 +269,6 @@ export function NurseryRhymesPage() {
   if (selectedRhyme) {
     return (
       <div className="nursery-detail-page">
-        
-
         <div className="detail-container">
           <div className="detail-header">
             <button 
@@ -345,7 +283,7 @@ export function NurseryRhymesPage() {
               <div className="rhyme-emoji">{selectedRhyme.emoji}</div>
               <div>
                 <h1>{selectedRhyme.title}</h1>
-                <p>Watch the video and learn signs with Angie!</p>
+                <p>Watch and sign along with Angie!</p>
               </div>
             </div>
           </div>
@@ -356,32 +294,20 @@ export function NurseryRhymesPage() {
                 <div className="video-frame">
                   <div id="youtube-player" className="youtube-player"></div>
                   <div className="angie-overlay">
-                    <div className="canvas-container-overlay">
-                      {loading ? (
-                        <ModelLoadingFallback />
-                      ) : (
-                        <Suspense fallback={<ModelLoadingFallback />}>
-                          <Canvas camera={{ position: [0, 0.2, 2], fov: 40 }}>
-                            {/* eslint-disable react/no-unknown-property */}
-                            <ambientLight intensity={5} />
-                            {/* eslint-disable react/no-unknown-property */}
-                            <group position={[0, -0.9, 0]}>
-                              <AngieSigns 
-                                landmarks={landmarks} 
-                                replay={replayKey}
-                                duration={2.5}
-                              />
-                            </group>
-                            <OrbitControls 
-                              enablePan={false} 
-                              maxPolarAngle={Math.PI / 2} 
-                              minDistance={2.5} 
-                              maxDistance={3.5} 
+                     <Suspense fallback={<ModelLoadingFallback />}>
+                        <Canvas camera={{ position: [0, 0, 8], fov: 50  }}>
+                          {/* eslint-disable react/no-unknown-property */}
+                          <ambientLight intensity={10} />
+                          {/* eslint-disable react/no-unknown-property */}
+                          <group position={[0, -1, 6]}>
+                            <AngieSings 
+                              filename={selectedRhyme.landmarkWord}
+                              isPlaying={isPlaying}
+                              key={replayKey}
                             />
-                          </Canvas>
-                        </Suspense>
-                      )}
-                    </div>
+                          </group>
+                        </Canvas>
+                      </Suspense>
                   </div>
                 </div>
               </div>
@@ -390,7 +316,6 @@ export function NurseryRhymesPage() {
                 <button
                   onClick={isPlaying ? pausePlayback : startPlayback}
                   className={`control-btn ${isPlaying ? 'pause' : 'play'}`}
-                  disabled={loading}
                 >
                   {isPlaying ? <Pause /> : <Play />}
                   {isPlaying ? 'Pause' : 'Play Video'}
@@ -399,19 +324,12 @@ export function NurseryRhymesPage() {
                 <button
                   onClick={resetPlayback}
                   className="control-btn reset"
-                  disabled={loading}
                 >
                   <RotateCcw />
                   Restart
                 </button>
                 
-                <button
-                  onClick={toggleMute}
-                  className={`control-btn ${isMuted ? 'muted' : 'unmuted'}`}
-                >
-                  {isMuted ? <VolumeX /> : <Volume2 />}
-                  {isMuted ? 'Unmute' : 'Mute'}
-                </button>
+                
               </div>
             </div>
           </div>
@@ -420,7 +338,6 @@ export function NurseryRhymesPage() {
         <style jsx>{`
           .nursery-detail-page {
             min-height: 100vh;
-            background: linear-gradient(135deg, #FFE5F1 0%, #E5F3FF 30%, #F0FFFF 60%, #FFF0F5 100%);
             position: relative;
             min-width:1330px;
             overflow-x: auto;
@@ -480,7 +397,7 @@ export function NurseryRhymesPage() {
             align-items: center;
             gap: 10px;
             padding: 15px 25px;
-            background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+            background: linear-gradient(135deg, #2da335, #7ED957);
             border: none;
             border-radius: 50px;
             font-size: 18px;
@@ -556,25 +473,20 @@ export function NurseryRhymesPage() {
           }
 
           .angie-overlay {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 180px;
-            min-height: 220px;
-            background: linear-gradient(135deg, #FFE5B4, #FFEBCD);
-            border-radius: 15px;
-            border: 3px solid #FFD700;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-            z-index: 10;
-          }
+    position: absolute;
+    overflow: visible;
+    bottom: 10px;
+    right: 20px;
+    width: 200px;
+    height: 40vh;
+    background: rgba(255, 255, 255, 1);
+    border-radius: 15px;
+    border: 3px solid #FFD700;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+}
 
-          .canvas-container-overlay {
-            width: 100%;
-            min-height: 220px;
-            border-radius: 12px;
-            overflow: hidden;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          }
+          
 
           .loading-container {
             display: flex;
@@ -683,15 +595,6 @@ export function NurseryRhymesPage() {
             color: white;
           }
 
-          .control-btn.unmuted {
-            background: linear-gradient(135deg, #9370DB, #4B0082);
-            color: white;
-          }
-
-          .control-btn.muted {
-            background: linear-gradient(135deg, #808080, #696969);
-            color: white;
-          }
 
           .control-btn:hover:not(:disabled) {
             transform: translateY(-3px) scale(1.05);
@@ -713,12 +616,6 @@ export function NurseryRhymesPage() {
               font-size: 4rem;
             }
             
-            .angie-overlay {
-              width: 150px;
-              height: 2000px;
-              bottom: 15px;
-              right: 15px;
-            }
             
             .controls {
               gap: 10px;
@@ -756,21 +653,6 @@ export function NurseryRhymesPage() {
                 <p className="subtitle">Watch videos and learn sign language together!</p>
               </div>
             </div>
-            
-            <div className="feature-badges">
-              <div className="badge video">
-                <span className="badge-emoji"></span>
-                YouTube Videos
-              </div>
-              <div className="badge interactive">
-                <span className="badge-emoji"></span>
-                Sign Learning
-              </div>
-              <div className="badge kids">
-                <span className="badge-emoji"></span>
-                Kid Friendly
-              </div>
-            </div>
           </div>
         </div>
 
@@ -784,7 +666,6 @@ export function NurseryRhymesPage() {
       <style jsx>{`
         .nursery-main-page {
           min-height: 100vh;
-          background: linear-gradient(135deg, #FFE5F1 0%, #E5F3FF 25%, #F0FFFF 50%, #FFF0F5 75%, #E8F5E8 100%);
           position: relative;
           width: 100%;
           overflow-x: hidden;
@@ -817,7 +698,8 @@ export function NurseryRhymesPage() {
 
         .header-content {
           background: rgba(255, 255, 255, 0.9);
-          border-radius: 30px;
+          border-bottom-left-radius: 30px;
+          border-bottom-right-radius: 30px;
           padding: 40px;
           box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
           backdrop-filter: blur(10px);
@@ -854,7 +736,7 @@ export function NurseryRhymesPage() {
         .main-title {
           font-size: 3.5rem;
           font-weight: 900;
-          background: linear-gradient(135deg, #FF6B6B, #4ECDC4, #45B7D1, #96CEB4);
+          background: #7ED957;          
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;

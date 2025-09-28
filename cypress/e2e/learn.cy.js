@@ -29,7 +29,7 @@ describe('Learn Page Tests', () => {
       
       cy.get('body').then($body => {
         if ($body.find('.help-message-overlay').length > 0) {
-          cy.get('.help-message-overlay button').contains('Okay!').click();
+          cy.get('.help-message-overlay button').contains('Okay').click();
         }
       });
 
@@ -103,7 +103,7 @@ describe('Learn Page Tests', () => {
   //     cy.wait(1000);
   //   cy.get('body').then($body => {
   //       if ($body.find('.help-message-overlay').length > 0) {
-  //         cy.get('.help-message-overlay button').contains('Okay!').click();
+  //         cy.get('.help-message-overlay button').contains('Okay').click();
   //         cy.wait(500);
   //       }
   //     });
@@ -141,7 +141,7 @@ describe('Learn Page Tests', () => {
       
   //     cy.get('body').then($body => {
   //       if ($body.find('.help-message-overlay').length > 0) {
-  //         cy.get('.help-message-overlay button').contains('Okay!').click();
+  //         cy.get('.help-message-overlay button').contains('Okay').click();
   //         cy.wait(500);
   //       }
   //     });
@@ -166,7 +166,7 @@ describe('Learn Page Tests', () => {
       
       cy.get('body').then($body => {
         if ($body.find('.help-message-overlay').length > 0) {
-          cy.get('.help-message-overlay button').contains('Okay!').click();
+          cy.get('.help-message-overlay button').contains('Okay').click();
           cy.wait(500);
         }
       });
@@ -207,7 +207,7 @@ describe('Learn Page Tests', () => {
       cy.get('body').then($body => {
         if ($body.find('.help-message-overlay').length > 0) {
           cy.get('.help-message-overlay').should('be.visible');
-          cy.get('.help-message-overlay button').contains('Okay!').click();
+          cy.get('.help-message-overlay button').contains('Okay').click();
           cy.get('.help-message-overlay').should('not.exist');
         }
       });

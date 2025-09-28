@@ -152,6 +152,7 @@ body {
     border: 2px solid white;
     color: white;
     padding: 0.8rem 1.8rem;
+    margin-top: 10px;
     border-radius: 0.5rem;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
@@ -163,6 +164,8 @@ body {
     font-size: 1rem;
     letter-spacing: 0.5px;
 }
+
+
 
 .btn-secondary:hover {
     background-color: white;
@@ -478,23 +481,18 @@ body {
 }
 
 .sign-media {
-    /* This is the key change */
     width: 100%;
-    max-width: 500px; /* Optional: Sets a maximum width for larger screens */
-    height: 400px;   /* This gives the container a fixed height */
+    max-width: 500px; 
+    height: 400px;  
     margin: 20px 0;
-    
-    /* Make sure the canvas fills the parent */
-    position: relative;
+     position: relative;
 }
 
 .sign-media canvas {
-    /* Ensure the canvas fills the container */
-    width: 100% !important;
+     width: 100% !important;
     height: 100% !important;
 }
 
-/* You might need to adjust the position of the description text if it's too close */
 .sign-description {
     margin-top: 20px;
 }
@@ -585,6 +583,7 @@ body {
 .feature-carousel {
     display: flex;
     align-items: center;
+    height: 360px;
     gap: 1.5rem; 
     width: fit-content;
     will-change: transform;
@@ -595,7 +594,8 @@ body {
 
 .feature-card {
     flex-shrink: 0;
-    width: 250px; 
+    width: 270px; 
+    height: 355px;
     box-sizing: border-box;
     padding: 1.5rem;
     border-radius: 1rem;
@@ -610,19 +610,19 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: space-between;
     text-align: center;
     min-height: 220px; 
+    border: 3px solid transparent;
 }
 
 .feature-card.active-feature {
     background-color: #ffffff;
-    transform: scale(1.15);
+    transform: scale(1.1);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3); 
     opacity: 1;
     border: 3px solid #7ED957; 
     z-index: 10;
-    width: 280px;
 }
 
 .feature-icon {
@@ -630,11 +630,12 @@ body {
     color: #ffe44d;
     margin-bottom: 1rem;
     transition: color 0.3s ease, transform 0.3s ease;
+    flex-shrink: 0;
 }
 
 .feature-card.active-feature .feature-icon {
     color: #7ED957;
-    transform: scale(1.15) rotateY(10deg); 
+    transform: scale(1.1);
 }
 
 .feature-card h3 {
