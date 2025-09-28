@@ -221,13 +221,16 @@ export function Landing(){
         <h2 className="help-heading" data-aos="zoom-in">Need a Hand?</h2> 
         
         <div className="help-container">
-          <div className="download-info" data-aos="fade-up">
-            <h3>Get the Hands UP App</h3>
-            <p>Get instant access! You can install the Hands UP app directly to your device:</p>
-            <p>Just tap the three dots menu (⋮) at the top right, and choose 'Install App' or 'Add to Home Screen' from the options.</p>
-            <img src={devices} alt="Devices" className="device-image"/>
-            {error && <p className="error-message">{error}</p>}
-          </div>
+         <div className="download-info" data-aos="fade-up">
+  <h3>Get the Hands UP App</h3>
+      <p>Get instant access! You can install the Hands UP app directly to your device:</p>
+  <div className="steps-container">
+    <p><strong>Step 1:</strong> Tap the three dots menu (⋮) at the top right</p>
+    <p><strong>Step 2:</strong> Choose 'Install App' or 'Add to Home Screen' from the options.</p>
+    </div>
+  <img src={devices} alt="Your future favorite app living happily on these devices" className="device-image"/>
+  {error && <p className="error-message">"Oops! Even apps have bad hair days. Try again?"</p>}
+</div>
 
           <div className="tutorial-video" data-aos="fade-up">
             <h3>Watch the Tutorial</h3>
