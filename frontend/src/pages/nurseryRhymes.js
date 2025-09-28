@@ -294,9 +294,8 @@ export function NurseryRhymesPage() {
                 <div className="video-frame">
                   <div id="youtube-player" className="youtube-player"></div>
                   <div className="angie-overlay">
-                    <div className="canvas-container-overlay">
-                      <Suspense fallback={<ModelLoadingFallback />}>
-                        <Canvas camera={{ position: [0, 0.2, 2], fov: 60 }}>
+                     <Suspense fallback={<ModelLoadingFallback />}>
+                        <Canvas camera={{ position: [0, 0, 8], fov: 50  }}>
                           {/* eslint-disable react/no-unknown-property */}
                           <ambientLight intensity={10} />
                           {/* eslint-disable react/no-unknown-property */}
