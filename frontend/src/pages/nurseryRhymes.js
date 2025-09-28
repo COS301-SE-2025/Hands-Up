@@ -303,7 +303,7 @@ export function NurseryRhymesPage() {
                             <AngieSings 
                               filename={selectedRhyme.landmarkWord}
                               isPlaying={isPlaying}
-                              replayKey={replayKey}
+                              key={replayKey}
                             />
                           </group>
                         </Canvas>
