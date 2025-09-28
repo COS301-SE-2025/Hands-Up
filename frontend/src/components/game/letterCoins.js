@@ -30,7 +30,7 @@ export function CoinSpawner({ onWrongLetter, currentWord, letterIndex, setLetter
     }
 
     function getRandomTexture() {
-        let letter = Math.random() < 0.5 
+        let letter = Math.random() < 0.55 
             ? getTargetLetter() 
             : coinImages[Math.floor(Math.random() * coinImages.length)][0];
 
