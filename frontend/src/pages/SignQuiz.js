@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback} from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLearningStats } from '../contexts/learningStatsContext';
 import { useQuizTranslator } from '../hooks/useQuizTranslator';
@@ -61,21 +61,7 @@ export function SignQuiz() {
     const currentCategoryData = CATEGORIES[category] || CATEGORIES['alphabets'];
     const isPhrasesQuiz = category === 'phrases';
 
-    const drawQuizOverlay = useCallback((canvas, categoryName) => {
-        if (!canvas) return;
-        
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
-    ctx.save();
-        ctx.fillStyle = 'rgba(0, 0, 0, 0)';
-        ctx.fillRect(10, 10, 200, 40);
-        
-        ctx.fillStyle = 'white';
-        ctx.font = 'bold 16px Arial';
-        ctx.textAlign = 'left';
-        ctx.restore();
-    }, []);
+  
 
     const generateQuizQuestions = useCallback(() => {
         let animationQuestions, cameraQuestions;
@@ -478,13 +464,12 @@ export function SignQuiz() {
                         if (video && video.readyState >= 2) {
                             canvas.width = video.videoWidth * 0.5;
                             canvas.height = video.videoHeight * 0.5;
-                            drawQuizOverlay(canvas, currentCategoryData.name);
                         }
                     }, 1000);
                 }
             }
         }
-    }, [quizStarted, currentQuestionIndex, quizQuestions, loadAnimationLandmarks, stopCamera, setResult, cameraReady, cameraError, setupCamera, category, drawQuizOverlay, currentCategoryData.name]);
+    }, [quizStarted, currentQuestionIndex, quizQuestions, loadAnimationLandmarks, stopCamera, setResult, cameraReady, cameraError, setupCamera, category, currentCategoryData.name, videoRef, canvasRef2]);
 
     useEffect(() => {
         return () => {
@@ -670,7 +655,9 @@ export function SignQuiz() {
 
                     <div className="canvas-container">
                         <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
+                            {/* eslint-disable react/no-unknown-property */}
                             <ambientLight intensity={5} />
+                            {/* eslint-disable react/no-unknown-property */}
                             <group position={[0, -1.1, 0]}>             
                                 {landmarks && Object.keys(landmarks).length > 0 && (
                                     <AngieSigns key={replayKey} landmarks={landmarks} />
