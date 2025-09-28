@@ -12,7 +12,12 @@ export function TestSetup({ isOpen, onClose }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const landmarkerRef = useRef(null);
-  const modalInit = <>Ensure that your face is visible against the background with no harsh lighting. <br /><br/> <p className="modal-instruction">Press start to begin</p> </>
+  const modalInit = (
+    <>
+      Ensure that your face is centered and visible against the background with no harsh lighting around you. <br /><br />
+      <p className="modal-instruction">Click Start to begin</p>
+    </>
+  );
 
   const [brightness, setBrightness] = useState(0);
   const [detectionStatus, setDetectionStatus] = useState(modalInit);
@@ -21,6 +26,7 @@ export function TestSetup({ isOpen, onClose }) {
   const animationFrameRef = useRef(null);
   const modelLoadPromiseRef = useRef(null);
   const isProcessingRef = useRef(false);
+  const lastFrameTimeRef = useRef(0);
 
   const updateStatus = (newStatus) => {
     setDetectionStatus(newStatus);
@@ -40,20 +46,20 @@ export function TestSetup({ isOpen, onClose }) {
 
   const handleClose = () => {
     clearAllTimers();
-    
+
     if (landmarkerRef.current) {
       landmarkerRef.current.close();
       landmarkerRef.current = null;
     }
-    
+
     const stream = videoRef.current?.srcObject;
     if (stream) {
-      stream.getTracks().forEach(track => track.stop());
+      stream.getTracks().forEach((track) => track.stop());
     }
-    
+
     setStage('start');
     updateStatus(modalInit);
-    
+
     onClose();
   };
 
@@ -63,29 +69,31 @@ export function TestSetup({ isOpen, onClose }) {
     }
   };
 
-    useEffect(() => {
+  useEffect(() => {
     if (!isOpen) return;
 
     const enableCamera = async () => {
-          try {
-              const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-              if (videoRef.current) videoRef.current.srcObject = stream;
-          } catch (err) {
-              console.error('Camera access denied', err);
-              updateStatus('Camera access denied. Please enable your camera.');
-          }
-      };
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 640 }, height: { ideal: 480 } }, // Lower resolution
+        });
+        if (videoRef.current) videoRef.current.srcObject = stream;
+      } catch (err) {
+        console.error('Camera access denied', err);
+        updateStatus('Camera access denied. Please enable your camera.');
+      }
+    };
 
-      enableCamera();
+    enableCamera();
 
-      const videoStream = videoRef.current?.srcObject;
+    const videoStream = videoRef.current?.srcObject;
 
-      return () => {
-        if (videoStream) {
-            videoStream.getTracks().forEach(track => track.stop());
-        }
-      };
-  }, [isOpen]); 
+    return () => {
+      if (videoStream) {
+        videoStream.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen || stage === 'start') {
@@ -106,16 +114,15 @@ export function TestSetup({ isOpen, onClose }) {
             baseOptions: {
               modelAssetPath:
                 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
-              delegate: 'GPU',
+              delegate: 'GPU', // Try GPU first
             },
             runningMode: 'VIDEO',
             numHands: 2,
-            minHandDetectionConfidence: 0.8,
-            minHandPresenceConfidence: 0.8,
-            minTrackingConfidence: 0.8,
+            minHandDetectionConfidence: 0.7, // Slightly relaxed confidence
+            minHandPresenceConfidence: 0.7,
+            minTrackingConfidence: 0.7,
           });
           landmarkerRef.current = handLandmarker;
-          // console.log('Hand Landmarker model loaded successfully.');
         } catch (err) {
           console.error('Failed to load hand landmarker model:', err);
           updateStatus('Failed to load hand detection model. Please refresh.');
@@ -139,6 +146,8 @@ export function TestSetup({ isOpen, onClose }) {
     return indexExtended && middleExtended && !ringExtended && !pinkyExtended;
   };
 
+  if(brightness){}
+
   useEffect(() => {
     if (!isOpen || stage === 'start' || stage === 'done') {
       clearAllTimers();
@@ -150,6 +159,14 @@ export function TestSetup({ isOpen, onClose }) {
     if (!video || !canvas) return;
 
     const detectFrame = async () => {
+      const now = performance.now();
+      if (now - lastFrameTimeRef.current < 100) {
+        // Throttle to ~10 FPS
+        animationFrameRef.current = requestAnimationFrame(detectFrame);
+        return;
+      }
+      lastFrameTimeRef.current = now;
+
       if (isProcessingRef.current) return;
       isProcessingRef.current = true;
 
@@ -160,9 +177,9 @@ export function TestSetup({ isOpen, onClose }) {
 
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
         if (stage === 'lighting') {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
           const region = ctx.getImageData(0, 0, canvas.width, canvas.height);
           let total = 0;
           for (let i = 0; i < region.data.length; i += 4) {
@@ -171,16 +188,16 @@ export function TestSetup({ isOpen, onClose }) {
           const currentBrightness = total / (region.data.length / 4);
           setBrightness(currentBrightness);
 
-          if(brightness);
-
           if (currentBrightness >= 80 && currentBrightness <= 200) {
             if (!timeoutRef.current) {
               updateStatus(
-                <>Lighting is good &nbsp;
-                  <i className="fas fa-circle-check" style={{ color: "var(--dark-green)", marginRight: "6px" }}></i>
+                <>
+                  Lighting is good &nbsp;
+                  <i className="fas fa-circle-check" style={{ color: 'var(--dark-green)', marginRight: '6px' }}></i>
                 </>
               );
               timeoutRef.current = setTimeout(() => {
+                setDetectionStatus(<i className="fas fa-spinner fa-spin"></i>);
                 if (stage === 'lighting') {
                   setStage('hands');
                   updateStatus('Hold up your hand');
@@ -198,21 +215,20 @@ export function TestSetup({ isOpen, onClose }) {
         }
 
         if ((stage === 'hands' || stage === 'peace') && landmarker) {
-          try {
-            const results = await landmarker.detectForVideo(video, timeNow);
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const results = await landmarker.detectForVideo(video, timeNow);
 
-            if (results.landmarks?.length > 0) {
-              for (const hand of results.landmarks) {
-                ctx.fillStyle = 'green';
-                for (const lm of hand) {
-                  ctx.beginPath();
-                  ctx.arc(lm.x * canvas.width, lm.y * canvas.height, 5, 0, 2 * Math.PI);
-                  ctx.fill();
-                }
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          if (results.landmarks?.length > 0) {
+            for (const hand of results.landmarks) {
+              ctx.fillStyle = 'green';
+              for (const lm of hand) {
+                ctx.beginPath();
+                ctx.arc(lm.x * canvas.width, lm.y * canvas.height, 5, 0, 2 * Math.PI);
+                ctx.fill();
               }
+            }
 
               if (stage === 'hands') {
                 if (!timeoutRef.current) {
@@ -223,7 +239,7 @@ export function TestSetup({ isOpen, onClose }) {
                       updateStatus('Show a peace sign');
                       timeoutRef.current = null;
                     }
-                  }, 0);
+                  }, 500);
                 }
               } else if (stage === 'peace') {
                 if (results.landmarks.some(isPeaceSign)) {
@@ -235,7 +251,7 @@ export function TestSetup({ isOpen, onClose }) {
                     timeoutRef.current = setTimeout(() => {
                       setStage('done');
                       timeoutRef.current = null;
-                    }, 0);
+                    }, 500);
                   }
                 } else {
                   updateStatus("Show a peace sign");
@@ -265,7 +281,7 @@ export function TestSetup({ isOpen, onClose }) {
         console.error('Detection frame error:', error);
       } finally {
         isProcessingRef.current = false;
-        
+
         if (stage !== 'start' && stage !== 'done' && isOpen) {
           animationFrameRef.current = requestAnimationFrame(detectFrame);
         }
@@ -285,7 +301,7 @@ export function TestSetup({ isOpen, onClose }) {
     return () => {
       clearAllTimers();
     };
-  }, [isOpen, stage, brightness]);
+  }, [isOpen, stage]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -298,6 +314,9 @@ export function TestSetup({ isOpen, onClose }) {
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <button className="close-button" style={{ marginLeft: '-92%', marginTop: '-2%' }} onClick={onClose}>
+          &times;
+        </button>
         <h3 className="modal-title">Test Your Setup</h3>
         <p className="modal-description">Follow the steps below</p>
         <div className="video-container">
@@ -311,9 +330,9 @@ export function TestSetup({ isOpen, onClose }) {
               setDetectionStatus(<i className="fas fa-spinner fa-spin"></i>);
               if (!timeoutRef.current) {
                 timeoutRef.current = setTimeout(() => {
-                  setStage("lighting");
+                  setStage('lighting');
                   timeoutRef.current = null;
-                }, 0);
+                }, 500);
               }
             }}
             className="recognizer-control-button recognizer-test-button stage-complete"
@@ -327,7 +346,7 @@ export function TestSetup({ isOpen, onClose }) {
             onClick={() => {
               handleClose();
             }}
-            className="recognizer-control-button recognizer-test-button sta.ge-complete"
+            className="recognizer-control-button recognizer-test-button stage-complete"
           >
             Continue To Translate
           </button>
@@ -338,6 +357,7 @@ export function TestSetup({ isOpen, onClose }) {
                 handleClose();
               }}
               className="recognizer-control-button recognizer-test-button"
+              disabled={stage !== 'done'}
             >
               Close
             </button>
