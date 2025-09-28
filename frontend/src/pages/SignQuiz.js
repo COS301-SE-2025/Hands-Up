@@ -1,8 +1,7 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback} from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLearningStats } from '../contexts/learningStatsContext';
-import { useTranslator } from '../hooks/translateResults';
-import { useLandmarksDetection } from '../hooks/landmarksDetection';
+import { useQuizTranslator } from '../hooks/useQuizTranslator';
 import { AngieSigns } from '../components/angieSigns';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
@@ -34,6 +33,17 @@ export function SignQuiz() {
     const [countdown, setCountdown] = useState(0);
     const [cameraInitializing, setCameraInitializing] = useState(false);
     
+    const getDetectionScope = (category) => {
+        switch(category) {
+            case 'alphabets':
+                return 'alpha';
+            case 'numbers':
+                return 'num';
+            default:
+                return 'glosses';
+        }
+    };
+
     const {
         videoRef,
         canvasRef1,
@@ -43,23 +53,15 @@ export function SignQuiz() {
         recording,
         startRecording,
         setResult,
-    } = useTranslator({
-        detectionScope: category
+    } = useQuizTranslator({
+        detectionScope: getDetectionScope(category),
+        forceModel: getDetectionScope(category)
     });
 
-    const shouldUseLandmarksDetection = cameraReady && 
-                                       quizStarted && 
-                                       quizQuestions[currentQuestionIndex]?.type === 'camera';
-    
-    const dummyVideoRef = useRef(null);
-    
-    useLandmarksDetection(
-        shouldUseLandmarksDetection ? videoRef : dummyVideoRef, 
-        canvasRef2
-    );
-    
     const currentCategoryData = CATEGORIES[category] || CATEGORIES['alphabets'];
     const isPhrasesQuiz = category === 'phrases';
+
+  
 
     const generateQuizQuestions = useCallback(() => {
         let animationQuestions, cameraQuestions;
@@ -154,7 +156,7 @@ export function SignQuiz() {
             setCameraReady(false);
             setCameraInitializing(false);
             
-            let errorMessage = 'Camera access failed. ';
+            let errorMessage = '';
             if (error.name === 'NotAllowedError') {
                 errorMessage += 'Please allow camera access and try again.';
             } else if (error.name === 'NotFoundError') {
@@ -212,7 +214,8 @@ export function SignQuiz() {
             clearTimeout(recordingTimeout);
         }
 
-        console.log(`Starting recording for ${category} category`);
+        const modelType = getDetectionScope(category);
+        console.log(`Starting recording for ${category} category using ${modelType} model`);
         startRecording();
         setCountdown(5);
         
@@ -318,39 +321,6 @@ export function SignQuiz() {
         }
     };
 
-    useEffect(() => {
-        const questions = generateQuizQuestions();
-        setQuizQuestions(questions);
-        setLoading(false);
-    }, [generateQuizQuestions]);
-
-    useEffect(() => {
-        if (quizStarted && quizQuestions.length > 0 && currentQuestionIndex < quizQuestions.length) {
-            const currentQuestion = quizQuestions[currentQuestionIndex];
-            
-            if (currentQuestion.type === 'animation') {
-                stopCamera();
-                loadAnimationLandmarks(currentQuestion);
-            } else if (currentQuestion.type === 'camera') {
-                console.log('Camera question loaded');
-                // Auto-setup camera when camera question loads
-                if (!cameraReady && !cameraError) {
-                    setupCamera();
-                }
-            }
-        }
-    }, [quizStarted, currentQuestionIndex, quizQuestions, loadAnimationLandmarks, stopCamera, setResult, cameraReady, cameraError, setupCamera]);
-
-    useEffect(() => {
-        return () => {
-            console.log('Cleaning up SignQuiz component...');
-            stopCamera();
-            if (recordingTimeout) {
-                clearTimeout(recordingTimeout);
-            }
-        };
-    }, [stopCamera, recordingTimeout]);
-
     const startQuiz = () => {
         setQuizStarted(true);
         setCurrentQuestionIndex(0);
@@ -437,7 +407,8 @@ export function SignQuiz() {
             .replace('API Result: ', '')
             .trim();
             
-        console.log(`Camera result for ${category}:`, cleanResult);
+        const modelType = getDetectionScope(category);
+        console.log(`Camera result for ${category} (${modelType} model):`, cleanResult);
         
         if (cleanResult && cleanResult !== "" && cleanResult !== "") {
             handleAnswerSubmit(cleanResult);
@@ -467,6 +438,48 @@ export function SignQuiz() {
         stopCamera();
         navigate('/learn');
     };
+
+    useEffect(() => {
+        const questions = generateQuizQuestions();
+        setQuizQuestions(questions);
+        setLoading(false);
+    }, [generateQuizQuestions]);
+
+    useEffect(() => {
+        if (quizStarted && quizQuestions.length > 0 && currentQuestionIndex < quizQuestions.length) {
+            const currentQuestion = quizQuestions[currentQuestionIndex];
+            
+            if (currentQuestion.type === 'animation') {
+                stopCamera();
+                loadAnimationLandmarks(currentQuestion);
+            } else if (currentQuestion.type === 'camera') {
+                console.log(`Camera question loaded - using ${getDetectionScope(category)} model`);
+                if (!cameraReady && !cameraError) {
+                    setupCamera();
+                }
+                if (canvasRef2.current && videoRef.current) {
+                    setTimeout(() => {
+                        const canvas = canvasRef2.current;
+                        const video = videoRef.current;
+                        if (video && video.readyState >= 2) {
+                            canvas.width = video.videoWidth * 0.5;
+                            canvas.height = video.videoHeight * 0.5;
+                        }
+                    }, 1000);
+                }
+            }
+        }
+    }, [quizStarted, currentQuestionIndex, quizQuestions, loadAnimationLandmarks, stopCamera, setResult, cameraReady, cameraError, setupCamera, category, currentCategoryData.name, videoRef, canvasRef2]);
+
+    useEffect(() => {
+        return () => {
+            console.log('Cleaning up SignQuiz component...');
+            stopCamera();
+            if (recordingTimeout) {
+                clearTimeout(recordingTimeout);
+            }
+        };
+    }, [stopCamera, recordingTimeout]);
 
     if (loading) {
         return (
@@ -500,6 +513,7 @@ export function SignQuiz() {
                                 `Test your knowledge of ${currentCategoryData.name.toLowerCase()} signs!`
                             }
                         </small>
+                        <br />
                     </p>
 
                     <button onClick={startQuiz} className="start-button">
@@ -706,7 +720,7 @@ export function SignQuiz() {
                             {cameraInitializing && (
                                 <div className="camera-status-overlay">
                                     <div className="camera-status-text">
-                                        Initializing camera for {category} detection...
+                                        Initializing camera for {getDetectionScope(category)} detection...
                                     </div>
                                 </div>
                             )}
@@ -802,21 +816,12 @@ export function SignQuiz() {
                             <br />
                             The recording will automatically stop after 5 seconds, or click &quot;Stop Signing&quot; to end early.
                             <br />
-                            <small>Detection scope: {currentCategoryData.name}</small>
                         </p>
                     </div>
                 </div>
             )}
 
-            <div className="quiz-footer">
-                <p>Current Score: {score}/{quizQuestions.length}</p>
-                <p className="question-type-info">
-                    Question Type: {isAnimationQuestion ? 'Watch and Type' : 'Sign with Camera'}
-                    {isCameraQuestion && (
-                        <><br />Target: {currentQuestion.correctAnswer} | Category: {category}</>
-                    )}
-                </p>
-            </div>
+            
         </div>
     );
 }
