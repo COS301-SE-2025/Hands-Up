@@ -65,9 +65,9 @@ export function Translator() {
     };
 
     const statusKey = [
-        { status: 'collecting', color: '#FBBF24', description: 'Collecting frames. Continue signing steadily.' },
-        { status: 'processing', color: '#FF0000', description: 'Processing sign. Wait for the result.' },
-        { status: 'result', color: '#2da335', description: 'Result ready. Continue or start a new sign.' },
+        { status: 'collecting', color: '#FBBF24', description: 'Continue signing steadily.' },
+        { status: 'processing', color: '#FF0000', description: 'Processing sign. Prepare for next sign.' },
+        { status: 'result', color: '#2da335', description: 'Ready. Click Start Signing.' },
         { status: 'translating', color: '#F97316', description: 'Translating gloss to English. Please wait.' },
     ];
 
@@ -132,7 +132,7 @@ export function Translator() {
                             )}
                         </div>
                         <div className="recognizer-status-key">
-                            <h3 className="recognizer-status-key-title" >Status Key</h3>
+                            <h3 className="recognizer-status-key-title" ><b>Status Key</b>: Familiarise yourself with this key for best results</h3>
                             <div className="recognizer-status-key-list">
                                 <div className="recognizer-status-key-column">
                                     {statusKey.slice(0, 2).map(({ status, color, description }) => (
@@ -183,7 +183,7 @@ export function Translator() {
                                     disabled={result.length < 5}
                                     title="Translate Gloss to English"
                                     style={{ marginLeft: '10px' }}
-                                    onClick={convertGloss(result)}
+                                    onClick={() => convertGloss(result)} 
                                 >
                                     {translating ? <i className="fas fa-spinner fa-spin">&nbsp;</i> : "Translate Gloss "}&nbsp;
                                     <i className="fas fa-comment"></i>

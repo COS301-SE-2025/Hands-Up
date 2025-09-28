@@ -1,4 +1,5 @@
 import { useRef, useState, useCallback } from 'react';
+import {produceSentence} from '../utils/apiCalls'
 
 export function useTranslationSocket(dexterity = 'right') {
     const wsRef = useRef(null);
@@ -10,7 +11,7 @@ export function useTranslationSocket(dexterity = 'right') {
     const [result, setResult] = useState('');
     const [confidence, setConfidence] = useState('0%');
     const [translating, setTranslating] = useState(false);
-    const socketBaseURL = "ws://127.0.0.1:5000"
+    const socketBaseURL = "ws://127.0.0.1:5000/handsUPApi"
 
     const startRecording = useCallback((model, sequenceNum = 10) => {
         if (wsRef.current) return;
@@ -135,44 +136,44 @@ export function useTranslationSocket(dexterity = 'right') {
         }, 'image/jpeg', 0.8);
     }, [dexterity]);
 
-    const convertGloss = useCallback((gloss) => {
-        // if (!gloss.trim()) return;
+    const convertGloss = async (gloss) => {
 
-        const ws = new WebSocket(`${socketBaseURL}/ws_sentence`);
+        if (gloss.trim()) {
+            const hasAlphabets = /[a-zA-Z]/.test(gloss);
+            const wordCount = gloss.trim().split(/\s+/).length;
 
-        ws.onopen = () => {
-            ws.send(JSON.stringify({ type: "translate", gloss }));
-            setTranslating(true);
-            setWsStatus('translating');
-        };
+            if (!hasAlphabets || wordCount < 2) {
+                const currentResult = gloss;
 
-        ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
+                setResult("English Translation Not Available");
 
-            if (data.error) {
-                setResult("Error translating sentence");
-                setConfidence("0%");
-                setWsStatus('result');
-            } else if (data.englishTranslation !== undefined) {
-                if (data.englishTranslation && data.englishTranslation.trim() !== "") {
-                    setResult(data.englishTranslation);
-                } else {
-                    setResult(gloss + " [English translation not available]");
-                }
-                setTranslating(false);
-                setWsStatus('result');
-                ws.close();
+                setTimeout(() => {
+                    setResult(currentResult);
+                }, 2000); 
             }
-        };
 
-        ws.onerror = () => {
-            setResult(gloss + " [WebSocket error]");
-            setConfidence("0%");
-            setTranslating(false);
-            setWsStatus('result');
-            ws.close();
-        };
-    }, []);
+            try {
+                setTranslating(true);
+                const translation = await produceSentence(gloss);
+
+                if (translation.translation && translation.translation !== "?") {
+                    setResult(translation.translation);
+                } else {
+                    const currentResult = gloss;
+
+                    setResult("English Translation Not Available");
+
+                    setTimeout(() => {
+                        setResult(currentResult);
+                    }, 2000); 
+                }
+            } catch (err) {
+                console.error("Error producing sentence:", err);
+            } finally {
+                setTranslating(false);
+            }
+        }
+    }
 
     return {
         wsRef,
