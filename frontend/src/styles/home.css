@@ -152,6 +152,7 @@ body {
     border: 2px solid white;
     color: white;
     padding: 0.8rem 1.8rem;
+    margin-top: 10px;
     border-radius: 0.5rem;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
@@ -163,6 +164,8 @@ body {
     font-size: 1rem;
     letter-spacing: 0.5px;
 }
+
+
 
 .btn-secondary:hover {
     background-color: white;
