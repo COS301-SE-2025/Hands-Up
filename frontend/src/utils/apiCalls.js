@@ -1,3 +1,198 @@
+class SignLanguageAPI {
+  constructor(baseURL = 'http://localhost:2000/handsUPApi') {
+    this.baseURL = baseURL;
+  }
+
+  /**
+   * Process a video for sign language recognition
+   * @param {Blob} videoBlob - The video blob to process
+   * @returns {Promise<Object>} - API response with phrase detection results
+   */
+  async processVideo(videoBlob) {
+    console.log('--- Entering SignLanguageAPI.processVideo ---');
+    console.log('Video blob received:', {
+      size: videoBlob?.size,
+      type: videoBlob?.type,
+      constructor: videoBlob?.constructor?.name
+    });
+
+    try {
+      if (!videoBlob || !(videoBlob instanceof Blob)) {
+        throw new Error('Invalid video blob provided');
+      }
+
+      const formData = new FormData();
+       const filename = `sign_${Date.now()}.webm`;
+      formData.append('video', videoBlob, filename);
+
+      console.log('FormData created, sending request to:', `${this.baseURL}/process-video`);
+
+      const response = await fetch(`${this.baseURL}/process-video`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      console.log('Response received:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error response body:', errorText);
+        
+        let errorData;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch {
+          errorData = { error: errorText };
+        }
+        
+        throw new Error(errorData.details || errorData.error || `HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Success response data:', data);
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      return {
+        success: true,
+        phrase: data.phrase,
+        confidence: data.confidence || 0,
+        rawData: data
+      };
+    } catch (error) {
+      console.error('Error processing video:', error);
+      return {
+        success: false,
+        error: error.message || 'Error processing video. Please check your connection.',
+        phrase: null,
+        confidence: 0
+      };
+    }
+  }
+
+
+  /**
+   * Process an image for sign language recognition
+   * @param {Blob} imageBlob - The image blob to process
+   * @returns {Promise<Object>} - API response
+   */
+  async processImage(imageBlob) {
+    console.log('--- Entering SignLanguageAPI.processImage ---');
+    console.log('Image blob received:', {
+      size: imageBlob?.size,
+      type: imageBlob?.type,
+      constructor: imageBlob?.constructor?.name
+    });
+
+    try {
+      if (!imageBlob || !(imageBlob instanceof Blob)) {
+        throw new Error('Invalid image blob provided');
+      }
+
+      const formData = new FormData();
+      const filename = `sign_${Date.now()}.jpg`;
+      formData.append('image', imageBlob, filename);
+
+      const response = await fetch(`${this.baseURL}/process-sign`, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorData;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch {
+          errorData = { error: errorText };
+        }
+        throw new Error(errorData.details || errorData.error || `HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      return {
+        success: true,
+        prediction: data.prediction,
+        confidence: data.confidence || 0,
+        rawData: data
+      };
+    } catch (error) {
+      console.error('Error processing image:', error);
+      return {
+        success: false,
+        error: error.message || 'Error processing image. Please check your connection.',
+        prediction: null,
+        confidence: 0
+      };
+    }
+  }
+
+  /**
+   * Generic method to process media (auto-detects type)
+   * @param {Blob} mediaBlob - The media blob to process
+   * @param {string} type - 'image' or 'video'
+   * @returns {Promise<Object>} - API response
+   */
+  async processMedia(mediaBlob, type) {
+    if (type === 'video') {
+      return await this.processVideo(mediaBlob);
+    } else if (type === 'image') {
+      return await this.processImage(mediaBlob);
+    } else {
+      throw new Error(`Unsupported media type: ${type}`);
+    }
+  }
+
+  /**
+   * Set a new base URL for the API
+   * @param {string} newBaseURL - New base URL
+   */
+  setBaseURL(newBaseURL) {
+    this.baseURL = newBaseURL;
+  }
+
+  /**
+   * Get current base URL
+   * @returns {string} - Current base URL
+   */
+  getBaseURL() {
+    return this.baseURL;
+  }
+
+  /**
+   * Health check for the API
+   * @returns {Promise<boolean>}
+   */
+  async healthCheck() {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
+      const response = await fetch(`${this.baseURL}/health`, {
+        method: 'GET',
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      return response.ok;
+    } catch (error) {
+      console.error('API health check failed:', error);
+      return false;
+    }
+  }
+}
+
 const API_BASE_URL_AUTH = 'https://hands-up.onrender.com/handsUPApi/auth';
 const API_BASE_URL_USER = 'https://hands-up.onrender.com/handsUPApi/user';
 const API_BASE_URL_LEARNING = 'https://hands-up.onrender.com/handsUPApi/learning';
