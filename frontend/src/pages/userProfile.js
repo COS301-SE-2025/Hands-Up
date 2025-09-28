@@ -155,7 +155,7 @@ export function UserProfile() {
            
             if (result.status) {
                 setAvatarUrl(`${BACKEND_BASE_URL}/${currentUser.avatarurl?.replace(/^\/+/, '') ?? ''}`);
-                console.log("success");// You can add additional success handling here if needed
+                //console.log("success");// You can add additional success handling here if needed
             } else {
                 console.log("failed");// Handle upload failure
             }

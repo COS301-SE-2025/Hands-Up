@@ -34,7 +34,7 @@ export function useTranslationSocket(dexterity = 'right') {
         ws.onopen = () => {
             ws.send(JSON.stringify({ type: 'start', model, sequenceNum }));
             setWsStatus('collecting');
-            console.log('WebSocket connected');
+            //console.log('WebSocket connected');
         };
 
         ws.onmessage = (event) => {
@@ -96,7 +96,7 @@ export function useTranslationSocket(dexterity = 'right') {
         };
 
         ws.onclose = () => {
-            console.log('WebSocket closed');
+            //console.log('WebSocket closed');
             wsRef.current = null;
             setWsStatus('result');
         };

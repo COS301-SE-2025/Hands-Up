@@ -114,7 +114,7 @@ export function SignQuiz() {
         try {
             setCameraError(null);
             setCameraInitializing(true);
-            console.log('Setting up camera...');
+            //console.log('Setting up camera...');
             
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: { 
@@ -129,20 +129,20 @@ export function SignQuiz() {
                 
                 return new Promise((resolve) => {
                     videoRef.current.onloadedmetadata = () => {
-                        console.log('Video metadata loaded');
+                        //console.log('Video metadata loaded');
                         setCameraReady(true);
                         setCameraInitializing(false);
                         resolve(true);
                     };
                     
                     videoRef.current.oncanplay = () => {
-                        console.log('Video can play');
+                        //console.log('Video can play');
                         videoRef.current.play().catch(console.error);
                     };
                     
                     setTimeout(() => {
                         if (!cameraReady) {
-                            console.log('Camera initialization timeout');
+                            //console.log('Camera initialization timeout');
                             setCameraInitializing(false);
                             resolve(false);
                         }
@@ -171,7 +171,7 @@ export function SignQuiz() {
     }, [videoRef, cameraReady]);
 
     const stopCamera = useCallback(() => {
-        console.log('Stopping camera...');
+        //console.log('Stopping camera...');
         if (videoRef.current && videoRef.current.srcObject) {
             const stream = videoRef.current.srcObject;
             const tracks = stream.getTracks();
@@ -188,7 +188,7 @@ export function SignQuiz() {
 
     const loadAnimationLandmarks = useCallback(async (question) => {
         try {
-            console.log('Loading animation for item:', question.item);
+            //console.log('Loading animation for item:', question.item);
             const data = await getLandmarks(question.item);
             
             if (!data || data.length === 0) {
@@ -215,7 +215,7 @@ export function SignQuiz() {
         }
 
         const modelType = getDetectionScope(category);
-        console.log(`Starting recording for ${category} category using ${modelType} model`);
+        //console.log(`Starting recording for ${category} category using ${modelType} model`);
         startRecording();
         setCountdown(5);
         
@@ -230,7 +230,7 @@ export function SignQuiz() {
         }, 1000);
 
         const timeout = setTimeout(() => {
-            console.log('Auto-stopping recording after 5 seconds');
+            //console.log('Auto-stopping recording after 5 seconds');
             if (recording) {
                 startRecording(); 
             }
@@ -287,7 +287,7 @@ export function SignQuiz() {
             const percentage = Math.round((finalScore / quizQuestions.length) * 100);
 
             if (!hasTrackedQuizStats) {
-                console.log(`Quiz completed for ${category}. Score: ${finalScore}/${quizQuestions.length} (${percentage}%)`);
+                //console.log(`Quiz completed for ${category}. Score: ${finalScore}/${quizQuestions.length} (${percentage}%)`);
                 
                 if (percentage >= 60) { 
                     completeQuiz(category);
@@ -376,7 +376,7 @@ export function SignQuiz() {
             const percentage = Math.round((finalScore / quizQuestions.length) * 100);
 
             if (!hasTrackedQuizStats) {
-                console.log(`Quiz completed for ${category}. Score: ${finalScore}/${quizQuestions.length} (${percentage}%)`);
+                //console.log(`Quiz completed for ${category}. Score: ${finalScore}/${quizQuestions.length} (${percentage}%)`);
                 
                 if (percentage >= 60) { 
                     completeQuiz(category);
@@ -408,7 +408,7 @@ export function SignQuiz() {
             .trim();
             
         const modelType = getDetectionScope(category);
-        console.log(`Camera result for ${category} (${modelType} model):`, cleanResult);
+        //console.log(`Camera result for ${category} (${modelType} model):`, cleanResult);
         
         if (cleanResult && cleanResult !== "" && cleanResult !== "") {
             handleAnswerSubmit(cleanResult);
@@ -453,7 +453,7 @@ export function SignQuiz() {
                 stopCamera();
                 loadAnimationLandmarks(currentQuestion);
             } else if (currentQuestion.type === 'camera') {
-                console.log(`Camera question loaded - using ${getDetectionScope(category)} model`);
+                //console.log(`Camera question loaded - using ${getDetectionScope(category)} model`);
                 if (!cameraReady && !cameraError) {
                     setupCamera();
                 }
@@ -473,7 +473,7 @@ export function SignQuiz() {
 
     useEffect(() => {
         return () => {
-            console.log('Cleaning up SignQuiz component...');
+            //console.log('Cleaning up SignQuiz component...');
             stopCamera();
             if (recordingTimeout) {
                 clearTimeout(recordingTimeout);

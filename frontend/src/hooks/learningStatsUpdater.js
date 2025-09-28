@@ -119,7 +119,7 @@ export const LearningStatsProvider = ({ children }) => {
 
       newStats.currentLevel = calculatedLevel;
             
-            console.log('Stats updated:', newStats);
+           // console.log('Stats updated:', newStats);
             return newStats;
         });
     };

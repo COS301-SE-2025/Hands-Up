@@ -70,7 +70,7 @@ export function useQuizTranslator({ detectionScope = 'alpha', forceModel = null,
     }
 
     const stopRecording = useCallback(async () => {
-        console.log(`Stopping recording for ${activeModel} model`);
+        //console.log(`Stopping recording for ${activeModel} model`);
         setRecording(false);
         setAutoCaptureEnabled(false);
         setLandmarkFrames([]);
@@ -78,10 +78,10 @@ export function useQuizTranslator({ detectionScope = 'alpha', forceModel = null,
 
     const startRecording = useCallback(async () => {
         if (recording) {
-            console.log(`Stopping current recording for ${activeModel} model`);
+            //console.log(`Stopping current recording for ${activeModel} model`);
             stopRecording();
         } else {
-            console.log(`Starting recording for ${activeModel} model (category: ${category})`);
+            //console.log(`Starting recording for ${activeModel} model (category: ${category})`);
             setAutoCaptureEnabled(true);
             setRecording(true);
         }
@@ -91,7 +91,7 @@ export function useQuizTranslator({ detectionScope = 'alpha', forceModel = null,
         const currentModel = activeModelRef.current;
         const requiredFrames = sequenceNum;
 
-        console.log(`Sending sequence to backend - Model: ${currentModel}, Frames: ${blobs.length}/${requiredFrames}`);
+        //console.log(`Sending sequence to backend - Model: ${currentModel}, Frames: ${blobs.length}/${requiredFrames}`);
 
         if (!Array.isArray(blobs) || blobs.length !== requiredFrames || processingRef.current) return;
 
@@ -106,17 +106,17 @@ export function useQuizTranslator({ detectionScope = 'alpha', forceModel = null,
 
             let response;
             
-            console.log(`Processing with model: ${currentModel}`);
+           // console.log(`Processing with model: ${currentModel}`);
             
             if (currentModel === 'glosses') {
                 response = await processWords(formData);
-                console.log(`Words API response:`, response);
+                //console.log(`Words API response:`, response);
             } else if (currentModel === 'num') {
                 response = await processLetters(formData); 
-                console.log(`Numbers API response:`, response);
+                //console.log(`Numbers API response:`, response);
             } else { 
                 response = await processLetters(formData);
-                console.log(`Letters API response:`, response);
+                //console.log(`Letters API response:`, response);
             }
             
             if (!response) {
@@ -129,7 +129,7 @@ export function useQuizTranslator({ detectionScope = 'alpha', forceModel = null,
 
                 if (currentModel === 'alpha') {
                     const letter = response?.letter ?? '';
-                    console.log(`Alpha model detected letter: ${letter}`);
+                    //console.log(`Alpha model detected letter: ${letter}`);
                     if (letter === 'SPACE') newResult += ' ';
                     else if (letter === 'DEL') newResult = newResult.slice(0, -1);
                     else newResult += letter;
@@ -137,18 +137,18 @@ export function useQuizTranslator({ detectionScope = 'alpha', forceModel = null,
                     setConfidence(`${((response?.confidenceLetter ?? 0) * 100).toFixed(2)}%`);
                 } else if (currentModel === 'num') {
                     const number = response?.number ?? '';
-                    console.log(`Number model detected: ${number}`);
+                    //console.log(`Number model detected: ${number}`);
                     newResult += number + ' ';
                     setConfidence(`${((response?.confidenceNumber ?? 0) * 100).toFixed(2)}%`);
                 } else if (currentModel === 'glosses') {
                     const word = response?.word ?? '';
-                    console.log(`Glosses model detected word: ${word}`);
+                    //console.log(`Glosses model detected word: ${word}`);
                     newResult += word + ' ';
                     setConfidence(`${((response?.confidence ?? 0) * 100).toFixed(2)}%`);
                 }
 
                 newResult = newResult.replace(/undefined/g, '');
-                console.log(`Updated result for ${currentModel}:`, newResult);
+                //console.log(`Updated result for ${currentModel}:`, newResult);
 
                 return newResult;
             });
@@ -238,7 +238,7 @@ export function useQuizTranslator({ detectionScope = 'alpha', forceModel = null,
         const newModel = forceModel || detectionScope;
         activeModelRef.current = newModel;
         setSequenceNum(newModel === 'glosses' ? 90 : 20);
-        console.log(`Model updated to: ${newModel}, Sequence frames: ${newModel === 'glosses' ? 90 : 20}`);
+        //console.log(`Model updated to: ${newModel}, Sequence frames: ${newModel === 'glosses' ? 90 : 20}`);
     }, [forceModel, detectionScope]);
 
     useEffect(() => {
@@ -260,7 +260,7 @@ export function useQuizTranslator({ detectionScope = 'alpha', forceModel = null,
     useEffect(() => {
         const enableCamera = async () => {
             try {
-                console.log(`Enabling camera for ${activeModel} model detection`);
+                //console.log(`Enabling camera for ${activeModel} model detection`);
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: {
                         width: { ideal: 1920 }, 

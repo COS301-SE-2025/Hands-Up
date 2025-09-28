@@ -53,7 +53,7 @@ export function Home(){
         import(`../landmarks/${randomWord}.json`)
             .then(module => {
                 const landmarkData = module.default; 
-                console.log("Loaded landmark data:", landmarkData);
+                //console.log("Loaded landmark data:", landmarkData);
                 // 3. Update the state with the word and the data
                 setSignOfTheDay({
                     word: randomWord.charAt(0).toUpperCase() + randomWord.slice(1),

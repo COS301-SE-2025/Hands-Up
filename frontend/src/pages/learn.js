@@ -238,16 +238,16 @@ export function Learn() {
             return;
         }
 
-        console.log('=== LEARN COMPONENT INITIALIZATION ===');
-        console.log('Normalized stats unlockedCategories:', normalizedStats.unlockedCategories);
-        console.log('isNewUser:', isNewUser);
-        console.log('placementTestCompleted:', normalizedStats.placementTestCompleted);
-        console.log('hasSeenWelcome:', normalizedStats.hasSeenWelcome);
+        // console.log('=== LEARN COMPONENT INITIALIZATION ===');
+        // console.log('Normalized stats unlockedCategories:', normalizedStats.unlockedCategories);
+        // console.log('isNewUser:', isNewUser);
+        // console.log('placementTestCompleted:', normalizedStats.placementTestCompleted);
+        // console.log('hasSeenWelcome:', normalizedStats.hasSeenWelcome);
 
         initializationCompleteRef.current = true;
 
         if (isNewUser && !normalizedStats.hasSeenWelcome && !hasShownWelcomeThisSessionRef.current && !normalizedStats.placementTestCompleted) {
-            console.log('Showing welcome message for truly new user');
+            //console.log('Showing welcome message for truly new user');
             hasShownWelcomeThisSessionRef.current = true;
             setTimeout(() => {
                 setShowHelpMessage({ 
@@ -258,18 +258,18 @@ export function Learn() {
             }, 500);
         }
         else if (isNewUser && normalizedStats.hasSeenWelcome && !normalizedStats.placementTestCompleted && !hasShownWelcomeThisSessionRef.current) {
-            console.log('User has seen welcome, showing placement test directly');
+            //console.log('User has seen welcome, showing placement test directly');
             hasShownWelcomeThisSessionRef.current = true;
             setTimeout(() => {
                 setShowPlacementTest(true);
             }, 500);
         }
 
-        console.log('=== INITIALIZATION COMPLETE ===');
+        //console.log('=== INITIALIZATION COMPLETE ===');
     }, [normalizedStats, isLoading, hasLoadedFromBackend, isNewUser]);
 
     const handleClosePlacementTest = () => {
-        console.log('=== PLACEMENT TEST CLOSED (X BUTTON) ===');
+        //console.log('=== PLACEMENT TEST CLOSED (X BUTTON) ===');
         setShowPlacementTest(false);
         
         if (isNewUser && !normalizedStats?.placementTestCompleted) {
@@ -278,8 +278,8 @@ export function Learn() {
     };
 
 const handlePlacementComplete = async (results) => {
-    console.log('=== PLACEMENT TEST COMPLETED ===');
-    console.log('Results:', results);
+    //console.log('=== PLACEMENT TEST COMPLETED ===');
+    //console.log('Results:', results);
     
     completePlacementTest(results, true); 
     
@@ -295,8 +295,8 @@ const handlePlacementComplete = async (results) => {
 };
 
 const handlePlacementSkip = async (results) => {
-    console.log('=== PLACEMENT TEST SKIPPED ===');
-    console.log('Results:', results);
+    // console.log('=== PLACEMENT TEST SKIPPED ===');
+    // console.log('Results:', results);
     
    completePlacementTest({
         ...results,
@@ -318,11 +318,11 @@ const handlePlacementSkip = async (results) => {
  
 
     const unlockedCategories = useMemo(() => {
-        console.log('=== Computing unlocked categories ===');
-        console.log('Backend unlockedCategories:', normalizedStats?.unlockedCategories);
+        // console.log('=== Computing unlocked categories ===');
+        // console.log('Backend unlockedCategories:', normalizedStats?.unlockedCategories);
         
         if (!normalizedStats) {
-            console.log('No stats available, defaulting to alphabets only');
+           // console.log('No stats available, defaulting to alphabets only');
             return ['alphabets'];
         }
         
@@ -331,7 +331,7 @@ const handlePlacementSkip = async (results) => {
         
         if (backendUnlocked && Array.isArray(backendUnlocked) && backendUnlocked.length > 0) {
             finalUnlocked = [...new Set([...finalUnlocked, ...backendUnlocked])];
-            console.log('Merged unlocked categories with backend:', finalUnlocked);
+            //console.log('Merged unlocked categories with backend:', finalUnlocked);
         }
         
         for (let i = 0; i < CATEGORY_PROGRESSION.length - 1; i++) {
@@ -342,17 +342,17 @@ const handlePlacementSkip = async (results) => {
             if (finalUnlocked.includes(currentCategory) && normalizedStats[quizKey]) {
                 if (!finalUnlocked.includes(nextCategory)) {
                     finalUnlocked.push(nextCategory);
-                    console.log('Progressive unlock:', nextCategory);
+                    //console.log('Progressive unlock:', nextCategory);
                 }
             }
         }
         
-        console.log('=== Final unlocked categories:', finalUnlocked, '===');
+        //console.log('=== Final unlocked categories:', finalUnlocked, '===');
         return finalUnlocked;
     }, [normalizedStats]);
 
 const unlockNextCategory = useCallback(async (completedCategory) => {
-    console.log(`Attempting to unlock next category after completing: ${completedCategory}`);
+    //console.log(`Attempting to unlock next category after completing: ${completedCategory}`);
     
     const currentIndex = CATEGORY_PROGRESSION.indexOf(completedCategory);
     
@@ -371,7 +371,7 @@ const unlockNextCategory = useCallback(async (completedCategory) => {
             
             if (!currentUnlocked.includes(nextCategory)) {
                 const updatedUnlocked = [...currentUnlocked, nextCategory];
-                console.log(`Unlocking category: ${nextCategory}`, updatedUnlocked);
+                //console.log(`Unlocking category: ${nextCategory}`, updatedUnlocked);
                 
                 updatedStats = {
                     ...updatedStats,
@@ -392,7 +392,7 @@ const unlockNextCategory = useCallback(async (completedCategory) => {
 useEffect(() => {
     const handleQuizCompletion = (event) => {
         const { category, score, passed } = event.detail;
-        console.log(`Quiz completion detected for category: ${category}, Passed: ${passed}, Score: ${score}`);
+        //console.log(`Quiz completion detected for category: ${category}, Passed: ${passed}, Score: ${score}`);
         
         if (passed) {
             unlockNextCategory(category);
