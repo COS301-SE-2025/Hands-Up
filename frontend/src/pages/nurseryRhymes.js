@@ -18,9 +18,9 @@ const NURSERY_RHYMES = [
       'Life is but a dream'
     ],
     decorations: ['🚣‍♂️', '🌊', '🎵', '💭'],
-    videoId: 'PZJS2_pWMpE',
+    videoId: '6LM3KsjyYv4',
     videoDuration: 180,
-    landmarkWord: 'myBrotherAndSister'
+    landmarkWord: 'nursery_rhymes/rowYourBoat'
   },
   {
     id: 'baby-shark',
@@ -40,21 +40,21 @@ const NURSERY_RHYMES = [
     landmarkWord: 'nursery_rhymes/babyShark'
   },
   {
-    id: 'wheels-bus',
-    title: 'The Wheels on the Bus',
-    emoji: '🚌',
+    id: 'knees-and-toes',
+    title: 'Head, Shoulders, Knees and Toes',
+    emoji: '🤸',
     bgGradient: 'linear-gradient(135deg, #fff678ff 0%, #ffda0aff 50%, #ffe44d 100%)',
-    words: ['wheels', 'bus', 'go', 'round', 'all', 'through', 'town', 'wipers', 'swish', 'doors', 'open', 'shut'],
+    words: ['head', 'shoulders', 'knees', 'and', 'toes', 'eyes', 'ears', 'mouth', 'nose'],
     lines: [
-      'The wheels on the bus go round and round',
-      'Round and round, round and round',
-      'The wheels on the bus go round and round',
-      'All through the town'
+      'Head, shoulders knees and toes knees and toes',
+      'Head, shoulders knees and toes knees and toes',
+      'And eyes and ears and mouth and nose',
+      'Head, shoulders knees and toes knees and toes'
     ],
-    decorations: ['🚌', '🎵', '🏢', '🛣️'],
-    videoId: 'e_04ZrNroTo',
-    videoDuration: 142,
-    landmarkWord: 'myPetDog'
+    decorations: ['🧠', '🧍', '🦵', '🦶'],
+    videoId: 'QA48wTGbU7A',
+    videoDuration: 181.2,
+    landmarkWord: 'nursery_rhymes/HeadsShouldersKneesAndToes'
   }
 ];
 

@@ -14,7 +14,7 @@ video {
 .recognizer-content {
   background-color: white;
   border-radius: 1rem;
-  box-shadow: 0 0 20px rgba(173, 216, 230, 0.7);
+  box-shadow: 0 0 20px rgba(222, 238, 244, 0.7);
   width: 100%;
   overflow: hidden;
   padding: 2rem;
@@ -140,7 +140,8 @@ video {
   background-color: #f3f4f6;
   border-radius: 0.75rem;
   padding: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: -0.5rem;
+  margin-top: 30px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -475,6 +476,7 @@ video {
   background-color: rgba(254, 241, 58, 0.1);
   border-radius: 0.75rem;
   padding: 1.5rem;
+  margin-top: 2px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   border: 1px solid rgba(249, 115, 22, 0.3);
 }
@@ -548,6 +550,7 @@ video {
   background-color: rgba(45, 77, 58, 0.1);
   border-radius: 0.75rem;
   padding: 1rem;
+  margin-bottom: 10px;
   text-align: center;
 }
 
