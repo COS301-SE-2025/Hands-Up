@@ -1,22 +1,36 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Playpen+Sans&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
 
 .layout-container {
   display: flex;
   flex-direction: column;
-  height:1%;
+  height: 1%;
   min-height: 100vh;
   background: white;
   color: #4e7a51;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 .header {
- position:absolute;
+  position: absolute;
   z-index: 100;
   width: 100%;
+  max-width: 100vw;
   height: 70px;
   top: 0;
+  left: 0;
   background: linear-gradient(to bottom, white 0%, white 90%, rgba(255, 255, 255, 0) 100%);
   color: rgb(80, 80, 80);
   display: flex;
@@ -25,6 +39,7 @@
   padding: 1rem 2rem;
   flex-shrink: 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
 }
 
 .header-left {
@@ -33,6 +48,8 @@
   gap: 0.5rem;
   font-family: 'Playpen Sans', cursive;
   color: black;
+  flex-shrink: 1; 
+  min-width: 0; 
 }
 
 .logo {
@@ -62,6 +79,8 @@
   margin: 0;
   padding: 0;
   align-items: center;
+  flex-shrink: 1;
+  min-width: 0; 
 }
 
 .nav-link {
@@ -104,6 +123,7 @@
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
 }
 
 .footer {
@@ -199,7 +219,7 @@
   transform: scale(1.15);
   box-shadow: 0 0 0 5px #ffe44d;
   border-color: #ffe44d;
-  background-color:   #ffe44d ;
+  background-color: #ffe44d;
   color: white;
 }
 
@@ -213,7 +233,7 @@
   align-items: center;
   justify-content: center;
   font-weight: bold;
-   overflow: hidden;
+  overflow: hidden;
   font-size: 0.8rem;
   border: 2px solid #000000;
   transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; 
@@ -227,45 +247,147 @@
   border-radius: 50%; 
 }
 
-.profile-avatar-active{
-     border: 2px solid #ffe44d;
+.profile-avatar-active {
+  border: 2px solid #ffe44d;
   color: white;
 }
 
-.profile-avatar:hover{
-    background-color:  #7ED957; 
-     border: 2px solid  #7ED957; 
+.profile-avatar:hover {
+  background-color: #7ED957; 
+  border: 2px solid #7ED957; 
   color: rgb(0, 0, 0);
- transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; 
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; 
   flex-shrink: 0;
-
 }
+
+.help-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #7ED957;
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.help-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+
 @media (max-width: 540px) {
+  .header {
+    padding: 0.5rem 1rem;
+    height: auto;
+    min-height: 60px;
+    overflow: hidden;
+  }
+  
   .logo {
-    width: 40px;
+    width: 35px;
   }
 
   .site-title {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
+    display: none; 
+  }
+
+  .nav-list {
+    gap: 0.3rem;
+    flex-wrap: nowrap;
   }
 
   .nav-link {
-    font-size: 0.8rem;
-    padding: 0.3rem 0.6rem;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+    white-space: nowrap;
   }
 
   .logout-button {
-    font-size: 0.8rem;
-    padding: 0.4rem 0.8rem;
-  }
-
-  .header {
-    padding: 1rem;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
   }
 
   .profile-avatar {
-    width: 28px;
-    height: 28px;
-    font-size: 0.7rem;
+    width: 24px;
+    height: 24px;
+    font-size: 0.6rem;
+  }
+  
+  .profile-link {
+    width: 35px;
+    padding: 0.1rem 0.4rem;
+  }
+  
+  .main-content {
+    padding: 0.8rem;
+    margin-top: 65px;
+  }
+  
+  .help-button {
+    bottom: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .header {
+    padding: 0.3rem 0.8rem;
+  }
+  
+  .header-left {
+    gap: 0.2rem;
+  }
+  
+  .logo {
+    width: 30px;
+  }
+  
+  .site-title {
+    display: none;
+  }
+  
+  .nav-list {
+    gap: 0.2rem;
+  }
+  
+  .nav-link {
+    font-size: 0.6rem;
+    padding: 0.15rem 0.3rem;
+  }
+  
+  .logout-button {
+    font-size: 0.6rem;
+    padding: 0.15rem 0.4rem;
+  }
+  
+  .profile-avatar {
+    width: 20px;
+    height: 20px;
+    font-size: 0.5rem;
+  }
+  
+  .profile-link {
+    width: 30px;
+    padding: 0.1rem 0.2rem;
+  }
+  
+  .main-content {
+    padding: 0.5rem;
+    margin-top: 55px;
   }
 }

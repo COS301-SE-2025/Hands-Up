@@ -60,6 +60,7 @@
     "webpack": "^5.99.9"
   },
   "dependencies": {
+    "@mediapipe/hands": "^0.4.1675469240",
     "@react-three/drei": "^10.4.2",
     "@react-three/fiber": "^9.3.0",
     "aos": "^2.3.4",

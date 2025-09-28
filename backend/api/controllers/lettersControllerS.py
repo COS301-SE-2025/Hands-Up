@@ -1,0 +1,164 @@
+import cv2
+import numpy as np
+import pickle
+import tensorflow as tf
+import mediapipe as mp
+from fastapi import WebSocket
+
+lettersModel = tf.keras.models.load_model('../../ai_model/models/detectLettersModel.keras')
+with open('../../ai_model/models/labelEncoder.pickle', 'rb') as f:
+    labelEncoder = pickle.load(f)
+
+lettersModel2 = tf.keras.models.load_model('../../ai_model/jz_model/JZModel.keras')
+with open('../../ai_model/jz_model/labelEncoder.pickle', 'rb') as f:
+    labelEncoder2 = pickle.load(f)
+
+numbersModel = tf.keras.models.load_model('../../ai_model/models/detectNumbersModel.keras')
+with open('../../ai_model/models/numLabelEncoder.pickle', 'rb') as f:
+    numLabelEncoder = pickle.load(f)
+
+hands = mp.solutions.hands.Hands(static_image_mode=True)
+
+async def detectFromImageBytes(sequenceBytesList, websocket: WebSocket = None, isDynamic=False):
+    numFrames = len(sequenceBytesList)
+    if numFrames == 0:
+        return {'letter': '', 'confidenceLetter': 0.0, 'number': '', 'confidenceNumber': 0.0}
+
+    def processSingleFrame(imageBytes):
+        nparr = np.frombuffer(imageBytes, np.uint8)
+        image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        if image is None:
+            return None, None, None, None
+
+        imgRGB = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        results = hands.process(imgRGB)
+        if not results.multi_hand_landmarks:
+            return None, None, None, None
+
+        handLandmarks = results.multi_hand_landmarks[0]
+        xList, yList = [], []
+        dataAux = []
+
+        for lm in handLandmarks.landmark:
+            xList.append(lm.x)
+            yList.append(lm.y)
+
+        for lm in handLandmarks.landmark:
+            dataAux.append(lm.x - min(xList))
+            dataAux.append(lm.y - min(yList))
+
+        inputData = np.array(dataAux, dtype=np.float32).reshape(1, 42, 1)
+
+        prediction1 = lettersModel.predict(inputData, verbose=0)
+        index1 = np.argmax(prediction1, axis=1)[0]
+        confidence1 = float(np.max(prediction1))
+        label1 = labelEncoder.inverse_transform([index1])[0] if confidence1 >= 0.6 else ''
+
+        prediction3 = numbersModel.predict(inputData, verbose=0)
+        index3 = np.argmax(prediction3, axis=1)[0]
+        confidence3 = float(np.max(prediction3))
+        label3 = numLabelEncoder.inverse_transform([index3])[0] if confidence3 >= 0.6 else ''
+
+        print(f'Letters Model 1: {label1 or "None"} at {confidence1}')
+        print(f'Numbers Model: {label3 or "None"} at {confidence3}')
+
+        return label1, confidence1, label3, confidence3
+
+    def processSequence(frames):
+        processedSequence = []
+        for imageBytes in frames:
+            nparr = np.frombuffer(imageBytes, np.uint8)
+            image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            if image is None:
+                processedSequence.append(None)
+                continue
+
+            imgRGB = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            results = hands.process(imgRGB)
+            if not results.multi_hand_landmarks:
+                processedSequence.append(None)
+                continue
+
+            handLandmarks = results.multi_hand_landmarks[0]
+            xList, yList = [], []
+            dataAux2 = []
+
+            for lm in handLandmarks.landmark:
+                xList.append(lm.x)
+                yList.append(lm.y)
+
+            for lm in handLandmarks.landmark:
+                dataAux2.append(lm.x - min(xList))
+                dataAux2.append(lm.y - min(yList))
+                dataAux2.append(0)
+
+            processedSequence.append(dataAux2)
+
+        for i in range(len(processedSequence)):
+            if processedSequence[i] is None:
+                prevIdx, nextIdx = -1, -1
+                for j in range(i - 1, -1, -1):
+                    if processedSequence[j] is not None:
+                        prevIdx = j
+                        break
+                for j in range(i + 1, len(processedSequence)):
+                    if processedSequence[j] is not None:
+                        nextIdx = j
+                        break
+                if prevIdx != -1 and nextIdx != -1:
+                    prevData = np.array(processedSequence[prevIdx])
+                    nextData = np.array(processedSequence[nextIdx])
+                    t = (i - prevIdx) / (nextIdx - prevIdx)
+                    interpolatedData = prevData + (nextData - prevData) * t
+                    processedSequence[i] = interpolatedData.tolist()
+                elif prevIdx != -1:
+                    processedSequence[i] = processedSequence[prevIdx]
+                elif nextIdx != -1:
+                    processedSequence[i] = processedSequence[nextIdx]
+
+        if None in processedSequence:
+            print("Incomplete sequence after interpolation")
+            return None, None
+
+        inputData2 = np.array(processedSequence, dtype=np.float32).reshape(1, len(frames), 63)
+        prediction2 = lettersModel2.predict(inputData2, verbose=0)
+        index2 = np.argmax(prediction2, axis=1)[0]
+        confidence2 = float(np.max(prediction2))
+        label2 = labelEncoder2.inverse_transform([index2])[0] if confidence2 >= 0.6 else ''
+        print(f'Letters Model 2: {label2 or "None"} at {confidence2}')
+
+        return label2, confidence2
+
+    if numFrames == 1:
+        label1, confidence1, label3, confidence3 = processSingleFrame(sequenceBytesList[0])
+        if label1 is None:
+            return {'letter': '', 'confidenceLetter': 0.0, 'number': '', 'confidenceNumber': 0.0}
+        if label1 in ['J', 'Z']:
+            return {'status': 'waitMoreDynamic'}
+        return {'status': 'waitMore'}
+
+    elif numFrames == 2:
+        label1First, _, _, _ = processSingleFrame(sequenceBytesList[0])
+        label1Second, confidence1, label3, confidence3 = processSingleFrame(sequenceBytesList[1])
+        if label1First is None or label1Second is None:
+            return {'letter': '', 'confidenceLetter': 0.0, 'number': '', 'confidenceNumber': 0.0}
+        if label1First == label1Second and label1First not in ['J', 'Z'] and confidence1 >= 0.6:
+            return {'letter': label1Second, 'confidenceLetter': confidence1,
+                    'number': label3, 'confidenceNumber': confidence3}
+        elif label1First in ['J', 'Z'] or label1Second in ['J', 'Z']:
+            return {'status': 'waitMoreDynamic'}
+        else:
+            return {'letter': '', 'confidenceLetter': 0.0, 'number': '', 'confidenceNumber': 0.0}
+
+    elif numFrames >= 10 and isDynamic:
+        label2, confidence2 = processSequence(sequenceBytesList[:10])
+        if label2 is None:
+            return {'letter': '', 'confidenceLetter': 0.0, 'number': '', 'confidenceNumber': 0.0}
+        _, _, label3, confidence3 = processSingleFrame(sequenceBytesList[-1])
+        if confidence2 >= 0.6:
+            return {'letter': label2, 'confidenceLetter': confidence2,
+                    'number': label3, 'confidenceNumber': confidence3}
+        return {'letter': '', 'confidenceLetter': 0.0, 'number': label3, 'confidenceNumber': confidence3}
+
+    else:
+        return {'letter': '', 'confidenceLetter': 0.0, 'number': '', 'confidenceNumber': 0.0}

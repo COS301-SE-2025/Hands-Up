@@ -242,7 +242,7 @@ export function Game() {
             <CameraInput 
               progress={progress} 
               show={showCamera} 
-              onSkip={() => {setShowCamera(false); handleCollision(); }} 
+              onSkip={() => {setShowCamera(false);}} 
               onLetterDetected={(letter) => {
                 const targetLetter = currentWord[letterIndex].toUpperCase();
 

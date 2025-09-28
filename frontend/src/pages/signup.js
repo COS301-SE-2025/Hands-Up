@@ -112,6 +112,8 @@ export function Signup() {
             await login({ email, password });
             
             setSuccessMessage(`Signup successful! Welcome ${data.user.username}`);
+            localStorage.setItem("translatorTestSeen", "false");
+            localStorage.setItem("dexterity", "right");
 
             setFormData({
                 name: '',
