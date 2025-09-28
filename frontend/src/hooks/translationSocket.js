@@ -11,7 +11,7 @@ export function useTranslationSocket(dexterity = 'right') {
     const [result, setResult] = useState('');
     const [confidence, setConfidence] = useState('0%');
     const [translating, setTranslating] = useState(false);
-    const socketBaseURL = "ws://127.0.0.1:5000/handsUPApi"
+    const socketBaseURL = "https://tmkdt-newhandsupmodel.hf.space/handsUPApi"
 
     const startRecording = useCallback((model, sequenceNum = 10) => {
         if (wsRef.current) return;
