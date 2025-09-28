@@ -301,7 +301,7 @@ export function NurseryRhymesPage() {
                           {/* eslint-disable react/no-unknown-property */}
                           <ambientLight intensity={8} />
                           {/* eslint-disable react/no-unknown-property */}
-                          <group position={[0, -1, -0.1]}>
+                          <group position={[0, -1, 6]}>
                             <AngieSings 
                               key={replayKey}
                               filename={selectedRhyme.landmarkWord}
