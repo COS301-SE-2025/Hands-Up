@@ -631,7 +631,10 @@ export function SignQuiz() {
                 ← Back to {currentCategoryData.name}
             </button>
 
-            <div className="quiz-header">
+
+            {isAnimationQuestion && (
+                <div className="animation-section">
+
                 <h1 className="quiz-title-active">
                     {currentCategoryData.name} Quiz
                 </h1>
@@ -645,10 +648,8 @@ export function SignQuiz() {
                         style={{ width: `${((currentQuestionIndex + 1) / quizQuestions.length) * 100}%` }}
                     ></div>
                 </div>
-            </div>
 
-            {isAnimationQuestion && (
-                <div className="animation-section">
+
                     <h2 className="question-title">
                         {isPhrasesQuiz ? 'What phrase is being signed?' : 'What is this sign?'}
                     </h2>
@@ -656,7 +657,7 @@ export function SignQuiz() {
                     <div className="canvas-container">
                         <Canvas camera={{ position: [0, 0.2, 3], fov: 30 }}>
                             {/* eslint-disable react/no-unknown-property */}
-                            <ambientLight intensity={5} />
+                            <ambientLight intensity={10} />
                             {/* eslint-disable react/no-unknown-property */}
                             <group position={[0, -1.1, 0]}>             
                                 {landmarks && Object.keys(landmarks).length > 0 && (
@@ -703,17 +704,31 @@ export function SignQuiz() {
 
             {isCameraQuestion && (
                 <div className="camera-section">
+                     <h1 className="quiz-title-active">
+                    {currentCategoryData.name} Quiz
+                </h1>
+                <p className="question-info">
+                    Question {currentQuestionIndex + 1} of {quizQuestions.length} 
+                    ({isAnimationQuestion ? 'Watch & Type' : 'Sign with Camera'})
+                </p>
+                <div className="progress-bar">
+                    <div 
+                        className="progress-fill"
+                        style={{ width: `${((currentQuestionIndex + 1) / quizQuestions.length) * 100}%` }}
+                    ></div>
+                </div>
+
                     <h2 className="question-title">
                         Sign: &quot;{currentQuestion.correctAnswer}&quot;
                     </h2>
 
                     <div className="camera-container">
-                        <div className="recognizer-camera-container relative">
+                        <div className="rrecognizer-camera-container relative">
                             <video 
                                 ref={videoRef} 
                                 autoPlay 
                                 playsInline 
-                                className="recognizer-video"
+                                className="rrecognizer-video"
                                 style={{ display: cameraReady ? 'block' : 'none' }}
                             ></video>
                             
@@ -751,7 +766,7 @@ export function SignQuiz() {
                             ></canvas>
                             
                             {recording && cameraReady && (
-                                <div className="recognizer-recording-indicator">
+                                <div className="rrecognizer-recording-indicator">
                                     <i className="fas fa-circle recognizer-pulse-icon"></i> 
                                     Recording... {countdown > 0 && `(${countdown}s)`}
                                 </div>
@@ -760,13 +775,13 @@ export function SignQuiz() {
                     </div>
 
                     <div className="camera-controls">
-                        <div className="recognizer-controls">
-                            <button onClick={() => setResult("")} className="recognizer-control-button recognizer-capture-button">
+                        <div className="rrecognizer-controls">
+                            <button onClick={() => setResult("")} className="rrecognizer-control-button rrecognizer-capture-button">
                                 Clear Results
                             </button>
                             <button 
                                 onClick={handleStartRecording} 
-                                className={`recognizer-control-button ${recording ? 'recognizer-stop-button' : 'recognizer-record-button'}`}
+                                className={`rrecognizer-control-button ${recording ? 'rrecognizer-stop-button' : 'rrecognizer-record-button'}`}
                             >
                                 <i className={`fas ${recording ? 'fa-stop' : 'fa-video'}`}></i> 
                                 {recording ? 'Stop Signing' : 'Start Signing'}
@@ -813,9 +828,7 @@ export function SignQuiz() {
                     <div className="instructions">
                         <p>
                             <strong>Instructions:</strong> Position your hands clearly in the camera frame and sign &quot;{currentQuestion.correctAnswer}&quot;.
-                            <br />
-                            The recording will automatically stop after 5 seconds, or click &quot;Stop Signing&quot; to end early.
-                            <br />
+                            
                         </p>
                     </div>
                 </div>
