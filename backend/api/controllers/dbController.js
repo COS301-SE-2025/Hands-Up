@@ -271,6 +271,8 @@ export const learningProgress = async (req, res) => {
 
 export const signUpUser = async (req, res) => {
     try {
+        console.log("checkpoint1");
+
         const { name, surname, username, email, password } = req.body;
 
         if (!name || !surname || !username || !email || !password) {
@@ -284,7 +286,7 @@ export const signUpUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
         await pool.query('BEGIN');
-
+        console.log("checkpoint2");
         const userResult = await pool.query(
             `INSERT INTO users (username, name, surname, email, password)
              VALUES ($1, $2, $3, $4, $5)
@@ -313,17 +315,28 @@ export const signUpUser = async (req, res) => {
                 0
             ]
         );
-
+        console.log("checkpoint3");
         await pool.query('COMMIT');
 
+        // try {
+        //     await sendRegistrationEmail(email, username);
+        //     console.log(`Registration email sent to ${email}`);
+        // } catch (emailErr) {
+        //     console.error('Failed to send registration email:', emailErr);
+        //     // Don't return an error here; the user is already registered
+        // }
         try {
-            await sendRegistrationEmail(email, username);
-            console.log(`Registration email sent to ${email}`);
+            sendRegistrationEmail(email, username) // Removed 'await'
+                .then(() => console.log(`Registration email sent to ${email}`))
+                .catch(emailErr => {
+                    // Log the error, but the user still gets a success response.
+                    console.error('Failed to send registration email in background:', emailErr);
+                });
         } catch (emailErr) {
-            console.error('Failed to send registration email:', emailErr);
-            // Don't return an error here; the user is already registered
+            // This catches immediate synchronous errors during function call setup.
+            console.error('Error initiating email send:', emailErr);
         }
-
+        console.log("checkpoint4");
         res.status(200).json({
             success: true,
             user: {
@@ -333,7 +346,7 @@ export const signUpUser = async (req, res) => {
             },
             message: 'User registered successfully'
         });
-
+        console.log("checkpoint5");
     } catch (err) {
         console.error('Signup error:', err);
         await pool.query('ROLLBACK');
@@ -412,11 +425,11 @@ export const loginUser = async (req, res) => {
         });
         console.log("sessionId", sessionId);
         res.cookie('sessionId', sessionId, {
-        httpOnly: true,
-        secure: true, 
-        sameSite: 'none',
-        maxAge: 1000 * 60 * 60 * 24,
-        path: '/',
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', 
+            sameSite: 'none', 
+            maxAge: 1000 * 60 * 60 * 24, // 24 hours
+            path: '/',
         });
         console.log("executed query");
         res.status(200).json({
@@ -443,12 +456,12 @@ export const logoutUser = async (req, res) => {
         console.log(`[BACKEND - LOGOUT] Session ID ${sessionId} removed from activeSessions.`);
     }
 
-  res.clearCookie('sessionId', {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-    path: '/',
-  });
+    res.clearCookie('sessionId', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'none',
+        path: '/',
+    });
 
     console.log('[BACKEND - LOGOUT] User logged out successfully.');
     res.status(200).json({ message: 'Logged out successfully' });
@@ -460,19 +473,19 @@ export const authenticateUser = async (req, res, next) => {
     const sessionId = req.cookies.sessionId;
     console.log("sessionID in authUser", sessionId);
 
-  try {
-    const sessionData = activeSessions.get(sessionId);
-  
-    if (!sessionData) {
-   res.clearCookie('sessionId', { httpOnly: true, secure: true, sameSite: 'none', path: '/' });
-      return res.status(401).json({ message: 'Unauthorized: Session invalid or expired.' });
-    }
-    console.log("checkpoint 1");
-    if (Date.now() > sessionData.expires) {
-    activeSessions.delete(sessionId);
-      res.clearCookie('sessionId', { httpOnly: true, secure: true, sameSite: 'none', path: '/' });
-      return res.status(401).json({ message: 'Unauthorized: Session invalid or expired.' });
-    }
+    try {
+        const sessionData = activeSessions.get(sessionId);
+    
+        if (!sessionData) {
+            res.clearCookie('sessionId', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'none', path: '/' });
+            return res.status(401).json({ error: 'Unauthorized: Session invalid or expired.' });
+        }
+
+        if (Date.now() > sessionData.expires) {
+            activeSessions.delete(sessionId);
+            res.clearCookie('sessionId', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'none', path: '/' });
+            return res.status(401).json({ error: 'Unauthorized: Session invalid or expired.' });
+        }
 
         sessionData.expires = Date.now() + (1000 * 60 * 60 * 24); 
         activeSessions.set(sessionId, sessionData);
@@ -482,12 +495,12 @@ export const authenticateUser = async (req, res, next) => {
             [sessionData.userId]
         );
         const user = userResult.rows[0];
-     console.log("checkpoint 2");
-    if (!user) {
-     activeSessions.delete(sessionId);
-      res.clearCookie('sessionId', { httpOnly: true, secure: true, sameSite: 'none', path: '/' });
-      return res.status(401).json({ message: 'Unauthorized: User not found.' });
-    }
+
+        if (!user) {
+            activeSessions.delete(sessionId);
+            res.clearCookie('sessionId', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'none', path: '/' });
+            return res.status(401).json({ error: 'Unauthorized: User not found.' });
+        }
 
         req.user = {
             id: user.userID,
@@ -652,15 +665,14 @@ export const deleteUserAccount = async (req, res) => {
                         activeSessions.delete(sessionId);
                         console.log(`[BACKEND - DELETE_USER] Session ID ${sessionId} removed for deleted user.`);
 
-              if (req.cookies.sessionId === sessionId) {
-                  res.clearCookie('sessionId',
-                  {
-                    httpOnly: true,
-                    secure: true,
-                    sameSite: 'none',
-                    path: '/',});
-                    // sessionDeleted = true;
-                    }}}
+                        if (req.cookies.sessionId === sessionId) {
+                            res.clearCookie('sessionId',
+                            {
+                                httpOnly: true,
+                                secure: process.env.NODE_ENV === 'production',
+                                sameSite: 'none',
+                                path: '/',});
+                        }}}
 
     console.log(`[BACKEND - DELETE_USER] User account '${deleteUserResult.rows[0].username}' (ID: ${userIDToDelete}) and associated data deleted successfully.`);
 

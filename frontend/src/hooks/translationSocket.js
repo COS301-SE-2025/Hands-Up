@@ -11,7 +11,7 @@ export function useTranslationSocket(dexterity = 'right') {
     const [result, setResult] = useState('');
     const [confidence, setConfidence] = useState('Awaiting capture to detect confidence...');
     const [translating, setTranslating] = useState(false);
-    const socketBaseURL = "ws://127.0.0.1:5000/handsUPApi"
+    const socketBaseURL = "https://tmkdt-newhandsupmodel.hf.space/handsUPApi"
 
     const stopRecording = useCallback(() => {
         if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
@@ -34,7 +34,7 @@ export function useTranslationSocket(dexterity = 'right') {
         ws.onopen = () => {
             ws.send(JSON.stringify({ type: 'start', model, sequenceNum }));
             setWsStatus('collecting');
-            console.log('WebSocket connected');
+            //console.log('WebSocket connected');
         };
 
         ws.onmessage = (event) => {
@@ -96,7 +96,7 @@ export function useTranslationSocket(dexterity = 'right') {
         };
 
         ws.onclose = () => {
-            console.log('WebSocket closed');
+            //console.log('WebSocket closed');
             wsRef.current = null;
             setWsStatus('result');
         };

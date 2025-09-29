@@ -39,7 +39,7 @@ export const LearningStatsProvider = ({ children }) => {
     const hasLoadedInitialRef = useRef(false);
     const mountedRef = useRef(false);
 
-    const API_BASE_URL = 'http://localhost:2000/handsUPApi';
+    const API_BASE_URL = 'https://hands-up.onrender.com/handsUPApi';
 
     const defaultStats = useMemo(() => ({
         lessonsCompleted: 0,
@@ -111,7 +111,7 @@ export const LearningStatsProvider = ({ children }) => {
             const currentUser = await getCurrentUser();
             
             if (!currentUser) {
-                console.log('No authenticated user found, using defaults');
+                //console.log('No authenticated user found, using defaults');
                 setStats(defaultStats);
                 setIsLoading(false);
                 setHasLoadedFromBackend(true);
@@ -119,7 +119,7 @@ export const LearningStatsProvider = ({ children }) => {
                 return;
             }
 
-            console.log(`Loading stats for user: ${currentUser}`);
+            //console.log(`Loading stats for user: ${currentUser}`);
 
             const response = await fetch(`${API_BASE_URL}/learning/progress/${currentUser}`, {
                 method: 'GET',
@@ -169,15 +169,15 @@ export const LearningStatsProvider = ({ children }) => {
 
                     mergedStats.signsLearned = mergedStats.learnedSigns.length;
 
-                    console.log('Stats loaded from backend for user:', currentUser, mergedStats);
+                    //console.log('Stats loaded from backend for user:', currentUser, mergedStats);
                     setStats(mergedStats);
                     
                 } else {
-                    console.log('No stats found in backend, using defaults for user:', currentUser);
+                    //console.log('No stats found in backend, using defaults for user:', currentUser);
                     setStats(defaultStats);
                 }
             } else {
-                console.warn('Failed to load from backend, using defaults');
+                //console.warn('Failed to load from backend, using defaults');
                 setStats(defaultStats);
             }
             
@@ -199,13 +199,13 @@ export const LearningStatsProvider = ({ children }) => {
         try {
             const currentUser = await getCurrentUser();
             if (!currentUser) {
-                console.log('No user authenticated, skipping save');
+                //console.log('No user authenticated, skipping save');
                 return;
             }
 
             const dataToSave = statsToSave || stats;
             if (!dataToSave) {
-                console.log('No stats to save');
+                //console.log('No stats to save');
                 return;
             }
 
@@ -214,7 +214,7 @@ export const LearningStatsProvider = ({ children }) => {
                 unlockedCategories: Array.isArray(dataToSave.unlockedCategories) ? dataToSave.unlockedCategories : ['alphabets']
             };
 
-            console.log('Saving stats to backend for user:', currentUser, dataToSend);
+            //console.log('Saving stats to backend for user:', currentUser, dataToSend);
 
             const response = await fetch(`${API_BASE_URL}/learning/progress/${currentUser}`, {
                 method: 'PUT',
@@ -242,11 +242,11 @@ export const LearningStatsProvider = ({ children }) => {
         }
         
         mountedRef.current = true;
-        console.log('LearningStatsProvider mounted, loading stats...');
+        //console.log('LearningStatsProvider mounted, loading stats...');
         loadStatsFromBackend();
         
         return () => {
-            console.log('LearningStatsProvider unmounting');
+            //console.log('LearningStatsProvider unmounting');
             if (saveTimeoutRef.current) {
                 clearTimeout(saveTimeoutRef.current);
             }
@@ -276,7 +276,7 @@ export const LearningStatsProvider = ({ children }) => {
 const updateStats = useCallback((updater) => {
     setStats(prevStats => {
         if (!prevStats) {
-            console.warn('Attempted to update stats before they were loaded');
+            //console.warn('Attempted to update stats before they were loaded');
             return prevStats;
         }
         
@@ -326,14 +326,14 @@ const updateStats = useCallback((updater) => {
 
         mergedStats.currentLevel = calculatedLevel;
         
-        console.log('Stats updated. Unlocked categories:', mergedStats.unlockedCategories);
-        console.log('Placement test preserved:', mergedStats.placementTestCompleted);
+        //console.log('Stats updated. Unlocked categories:', mergedStats.unlockedCategories);
+        //console.log('Placement test preserved:', mergedStats.placementTestCompleted);
         return mergedStats;
     });
 }, []);
 
     const completePlacementTest = useCallback((results) => {
-        console.log('Completing placement test with results:', results);
+        //console.log('Completing placement test with results:', results);
         
         updateStats(prevStats => ({
             ...prevStats,
@@ -351,7 +351,7 @@ const updateStats = useCallback((updater) => {
                 const newLearnedSigns = [...prevStats.learnedSigns, normalizedSign];
                 return { ...prevStats, learnedSigns: newLearnedSigns };
             }
-            console.log(`Sign "${sign}" already learned`);
+           // console.log(`Sign "${sign}" already learned`);
             return prevStats;
         });
     }, [updateStats]);
@@ -369,7 +369,7 @@ const updateStats = useCallback((updater) => {
         updateStats(prevStats => {
             if (!prevStats.unlockedCategories.includes(categoryId)) {
                 const newUnlocked = [...prevStats.unlockedCategories, categoryId];
-                console.log('Unlocking category:', categoryId, 'New unlocked:', newUnlocked);
+                //console.log('Unlocking category:', categoryId, 'New unlocked:', newUnlocked);
                 return { ...prevStats, unlockedCategories: newUnlocked };
             }
             return prevStats;
@@ -396,7 +396,7 @@ const updateStats = useCallback((updater) => {
 
             if (nextCategory && !prevStats.unlockedCategories.includes(nextCategory)) {
                 updates.unlockedCategories = [...prevStats.unlockedCategories, nextCategory];
-                console.log('Unlocked next category after quiz:', nextCategory);
+                //console.log('Unlocked next category after quiz:', nextCategory);
             }
 
             return updates;
@@ -415,7 +415,7 @@ const updateStats = useCallback((updater) => {
     }, [updateStats]);
 
     const clearStats = useCallback(() => {
-        console.log('Clearing stats due to logout');
+        //console.log('Clearing stats due to logout');
         setStats(null);
         setHasLoadedFromBackend(false);
         setIsLoading(true);
@@ -427,7 +427,7 @@ const updateStats = useCallback((updater) => {
     }, []);
 
     const reloadStats = useCallback(() => {
-        console.log('Manual stats reload requested');
+        //console.log('Manual stats reload requested');
         loadStatsFromBackend(true);
     }, [loadStatsFromBackend]);
 

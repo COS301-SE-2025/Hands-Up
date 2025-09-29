@@ -39,7 +39,7 @@ export function useLandmarksDetection(videoRef, canvasRef) {
   useEffect(() => {
       const canvas = canvasRef.current;
       if (canvas && modelState.model) {
-      console.log("Redrawing button for model:", modelState.model);
+      //console.log("Redrawing button for model:", modelState.model);
       let text = modelState.model==='alpha'?'Alphabet':modelState.model==='num'?'Numbers': 'Glosses';
       drawDisplay(canvas, text);
       }
@@ -87,7 +87,7 @@ export function useLandmarksDetection(videoRef, canvasRef) {
               const deltaX = handXHistory[SWIPE_HISTORY_LIMIT - 1] - handXHistory[0];
               if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
                 direction = deltaX > 0 ? 'right' : 'left';
-                console.log(`Swipe detected: ${direction}`);
+                //console.log(`Swipe detected: ${direction}`);
                 direction === "right" ? switchModel() : console.log("No model switch");
                 handXHistory = []; 
               }

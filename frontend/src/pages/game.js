@@ -112,11 +112,11 @@ export function Game() {
           idx = Math.floor(Math.random() * newWord.length);
         } while (newWord[idx] === ' ');
         setInputIndex(idx);
-        console.log("New word:", newWord, " Camera?", shouldShowCamera, " At index:", idx);    
+        //console.log("New word:", newWord, " Camera?", shouldShowCamera, " At index:", idx);    
       } 
       else {
         setInputIndex(-1); 
-        console.log("New word:", newWord, " Camera?", shouldShowCamera);    
+        //console.log("New word:", newWord, " Camera?", shouldShowCamera);    
       }
 
       setTimeout(() => pickedNewWord.current = false, 1000);

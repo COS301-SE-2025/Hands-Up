@@ -4,7 +4,7 @@ export function useStatUpdater() {
     const { stats, updateStats, addLearnedSign, addLearnedPhrase, completeQuiz } = useLearningStats();
 
     const handleUpdate = (type, identifier = null) => {
-        console.log(`handleUpdate called with type: ${type}, identifier: ${identifier}`);
+        //console.log(`handleUpdate called with type: ${type}, identifier: ${identifier}`);
         
         if (type === "lesson") {
             updateStats(prevStats => ({
