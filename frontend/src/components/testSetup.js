@@ -1,0 +1,367 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { FilesetResolver, HandLandmarker } from '@mediapipe/tasks-vision';
+import PropTypes from 'prop-types';
+import '../styles/testSetup.css';
+
+TestSetup.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+};
+
+export function TestSetup({ isOpen, onClose }) {
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const landmarkerRef = useRef(null);
+  const modalInit = (
+    <>
+      Ensure that your face is centered and visible against the background with no harsh lighting around you. <br /><br />
+      <p className="modal-instruction">Click Start to begin</p>
+    </>
+  );
+
+  const [brightness, setBrightness] = useState(0);
+  const [detectionStatus, setDetectionStatus] = useState(modalInit);
+  const [stage, setStage] = useState('start');
+  const timeoutRef = useRef(null);
+  const animationFrameRef = useRef(null);
+  const modelLoadPromiseRef = useRef(null);
+  const isProcessingRef = useRef(false);
+  const lastFrameTimeRef = useRef(0);
+
+  const updateStatus = (newStatus) => {
+    setDetectionStatus(newStatus);
+  };
+
+  const clearAllTimers = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+    isProcessingRef.current = false;
+  };
+
+  const handleClose = () => {
+    clearAllTimers();
+
+    if (landmarkerRef.current) {
+      landmarkerRef.current.close();
+      landmarkerRef.current = null;
+    }
+
+    const stream = videoRef.current?.srcObject;
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+    }
+
+    setStage('start');
+    updateStatus(modalInit);
+
+    onClose();
+  };
+
+  const handleOverlayClick = (e) => {
+    if (e.target.classList.contains('modal-overlay')) {
+      handleClose();
+    }
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const enableCamera = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 640 }, height: { ideal: 480 } }, // Lower resolution
+        });
+        if (videoRef.current) videoRef.current.srcObject = stream;
+      } catch (err) {
+        console.error('Camera access denied', err);
+        updateStatus('Camera access denied. Please enable your camera.');
+      }
+    };
+
+    enableCamera();
+
+    const videoStream = videoRef.current?.srcObject;
+
+    return () => {
+      if (videoStream) {
+        videoStream.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || stage === 'start') {
+      if (landmarkerRef.current) {
+        landmarkerRef.current.close();
+        landmarkerRef.current = null;
+      }
+      return;
+    }
+
+    if (!modelLoadPromiseRef.current && (stage === 'hands' || stage === 'peace')) {
+      modelLoadPromiseRef.current = (async () => {
+        try {
+          const vision = await FilesetResolver.forVisionTasks(
+            'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
+          );
+          const handLandmarker = await HandLandmarker.createFromOptions(vision, {
+            baseOptions: {
+              modelAssetPath:
+                'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
+              delegate: 'GPU', // Try GPU first
+            },
+            runningMode: 'VIDEO',
+            numHands: 2,
+            minHandDetectionConfidence: 0.7, // Slightly relaxed confidence
+            minHandPresenceConfidence: 0.7,
+            minTrackingConfidence: 0.7,
+          });
+          landmarkerRef.current = handLandmarker;
+        } catch (err) {
+          console.error('Failed to load hand landmarker model:', err);
+          updateStatus('Failed to load hand detection model. Please refresh.');
+        } finally {
+          modelLoadPromiseRef.current = null;
+        }
+      })();
+    }
+  }, [isOpen, stage]);
+
+  const isPeaceSign = (hand) => {
+    if (!hand) return false;
+    const [indexTip, indexMcp] = [hand[8], hand[5]];
+    const [middleTip, middleMcp] = [hand[12], hand[9]];
+    const [ringTip, ringMcp] = [hand[16], hand[13]];
+    const [pinkyTip, pinkyMcp] = [hand[20], hand[17]];
+    const indexExtended = indexTip.y < indexMcp.y;
+    const middleExtended = middleTip.y < middleMcp.y;
+    const ringExtended = ringTip.y < ringMcp.y;
+    const pinkyExtended = pinkyTip.y < pinkyMcp.y;
+    return indexExtended && middleExtended && !ringExtended && !pinkyExtended;
+  };
+
+  if(brightness){//doSomething
+    }
+
+  useEffect(() => {
+    if (!isOpen || stage === 'start' || stage === 'done') {
+      clearAllTimers();
+      return;
+    }
+
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas) return;
+
+    const detectFrame = async () => {
+      const now = performance.now();
+      if (now - lastFrameTimeRef.current < 100) {
+        animationFrameRef.current = requestAnimationFrame(detectFrame);
+        return;
+      }
+      lastFrameTimeRef.current = now;
+
+      if (isProcessingRef.current) return;
+      isProcessingRef.current = true;
+
+      try {
+        const landmarker = landmarkerRef.current;
+        const ctx = canvas.getContext('2d');
+        const timeNow = performance.now();
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        if (stage === 'lighting') {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const region = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          let total = 0;
+          for (let i = 0; i < region.data.length; i += 4) {
+            total += (region.data[i] + region.data[i + 1] + region.data[i + 2]) / 3;
+          }
+          const currentBrightness = total / (region.data.length / 4);
+          setBrightness(currentBrightness);
+
+          if (currentBrightness >= 80 && currentBrightness <= 200) {
+            if (!timeoutRef.current) {
+              updateStatus(
+                <>
+                  Lighting is good &nbsp;
+                  <i className="fas fa-circle-check" style={{ color: 'var(--dark-green)', marginRight: '6px' }}></i>
+                </>
+              );
+              timeoutRef.current = setTimeout(() => {
+                setDetectionStatus(<i className="fas fa-spinner fa-spin"></i>);
+                if (stage === 'lighting') {
+                  setStage('hands');
+                  updateStatus('Hold up your hand');
+                  timeoutRef.current = null;
+                }
+              }, 1000); 
+            }
+          } else {
+            updateStatus(currentBrightness < 80 ? 'Too dark, move to better lighting' : 'Too bright, move to a dimmer area');
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+              timeoutRef.current = null;
+            }
+          }
+        }
+
+        if ((stage === 'hands' || stage === 'peace') && landmarker) {
+          const results = await landmarker.detectForVideo(video, timeNow);
+
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          if (results.landmarks?.length > 0) {
+            for (const hand of results.landmarks) {
+              ctx.fillStyle = 'green';
+              for (const lm of hand) {
+                ctx.beginPath();
+                ctx.arc(lm.x * canvas.width, lm.y * canvas.height, 5, 0, 2 * Math.PI);
+                ctx.fill();
+              }
+            }
+
+            if (stage === 'hands') {
+              if (!timeoutRef.current) {
+                timeoutRef.current = setTimeout(() => {
+                  if (stage === 'hands') {
+                    setDetectionStatus(<i className="fas fa-spinner fa-spin"></i>);
+                    setStage('peace');
+                    updateStatus('Show a peace sign and hold steady and hold steady');
+                    timeoutRef.current = null;
+                  }
+                }, 1000); 
+              }
+            } else if (stage === 'peace') {
+              if (results.landmarks.some(isPeaceSign)) {
+                if (!timeoutRef.current) {
+                  updateStatus(
+                    <>
+                      All tests passed. You’re all set &nbsp;
+                      <i className="fas fa-circle-check" style={{ color: 'var(--dark-green)', marginRight: '6px' }}></i>
+                    </>
+                  );
+                  timeoutRef.current = setTimeout(() => {
+                    setStage('done');
+                    timeoutRef.current = null;
+                  }, 1000); 
+                }
+              } else {
+                updateStatus('Show a peace sign and hold steady');
+                if (timeoutRef.current) {
+                  clearTimeout(timeoutRef.current);
+                  timeoutRef.current = null;
+                }
+              }
+            }
+          } else {
+            if (stage === 'hands') {
+              updateStatus('Hold up your hand');
+            } else if (stage === 'peace') {
+              updateStatus('Show a peace sign and hold steady');
+            }
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+              timeoutRef.current = null;
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Detection frame error:', error);
+      } finally {
+        isProcessingRef.current = false;
+
+        if (stage !== 'start' && stage !== 'done' && isOpen) {
+          animationFrameRef.current = requestAnimationFrame(detectFrame);
+        }
+      }
+    };
+
+    if (video.readyState >= 2) {
+      detectFrame();
+    } else {
+      const handleLoadedData = () => {
+        detectFrame();
+        video.removeEventListener('loadeddata', handleLoadedData);
+      };
+      video.addEventListener('loadeddata', handleLoadedData);
+    }
+
+    return () => {
+      clearAllTimers();
+    };
+  }, [isOpen, stage]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      clearAllTimers();
+    }
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="modal-overlay" onClick={handleOverlayClick}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <button className="close-button" style={{ marginLeft: '-92%', marginTop: '-2%' }} onClick={onClose}>
+          &times;
+        </button>
+        <h3 className="modal-title">Test Your Setup</h3>
+        <p className="modal-description">Follow the steps below</p>
+        <div className="video-container">
+          <video ref={videoRef} autoPlay muted playsInline />
+          <canvas className="modal-canvas bordered-canvas" ref={canvasRef} />
+        </div>
+        <p className={`modal-text stage-${stage}`}>{detectionStatus}</p>
+        {stage === 'start' && (
+          <button
+            onClick={() => {
+              setDetectionStatus(<i className="fas fa-spinner fa-spin"></i>);
+              if (!timeoutRef.current) {
+                timeoutRef.current = setTimeout(() => {
+                  setStage('lighting');
+                  timeoutRef.current = null;
+                }, 1000); 
+              }
+            }}
+            className="recognizer-control-button recognizer-test-button stage-complete"
+          >
+            Start
+          </button>
+        )}
+        <br />
+        {stage === 'done' ? (
+          <button
+            onClick={() => {
+              handleClose();
+            }}
+            className="recognizer-control-button recognizer-test-button stage-complete"
+          >
+            Continue To Translate
+          </button>
+        ) : (
+          stage !== 'start' && (
+            <button
+              onClick={() => {
+                handleClose();
+              }}
+              className="recognizer-control-button recognizer-test-button"
+              disabled={stage !== 'done'}
+            >
+              Close
+            </button>
+          )
+        )}
+      </div>
+    </div>
+  );
+}

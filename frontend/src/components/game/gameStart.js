@@ -59,8 +59,28 @@ export default function StartScreen({ onStart }) {
                     justifyContent: 'center',
                     }}
                 >
-                    <span style={{ color: 'white', fontSize: '2.34vw', fontWeight: 'bold' }}>Sign Surfers</span>
+                    <span style={{ color: 'white', fontSize: '2.34vw', fontWeight: 'bold' }}>SIGN SURFERS</span>
                 </div>
+
+                <button
+                    onClick={() => navigate("/game/guide")}
+                    style={{
+                    backgroundColor: '#4e7a51',
+                    borderRadius: '12px',
+                    border: '4px solid white',
+                    padding: '12px 16px',
+                    fontSize: '1.82vw',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-end',
+                    gap: '25px',
+                    }}
+                >
+                    Game Guide <span style={{ fontSize: '1.8vw', marginTop: '1%', display: 'inline-block' }}><ImArrowRight /></span>
+                </button>
 
                 <style> {`@keyframes arrowBounce { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(5px); }}`}</style>
                 <button
@@ -115,4 +135,5 @@ export default function StartScreen({ onStart }) {
 
 StartScreen.propTypes = {
   onStart: PropTypes.func.isRequired,
+  onGuide: PropTypes.func.isRequired,
 };

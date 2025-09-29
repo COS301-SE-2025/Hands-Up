@@ -54,6 +54,7 @@ export function Signup() {
     const [mounted, setMounted] = useState(false);
     const [termsAccepted, setTermsAccepted] = useState(false);
     const [showTermsModal, setShowTermsModal] = useState(false);
+    const {setJustSignedUp } = useAuth();    
 
     const navigate = useNavigate();
     const { login } = useAuth();
@@ -79,7 +80,7 @@ export function Signup() {
 
         const { name, surname, username, email, password, confirmPassword } = formData;
         const specialCharRegex = /[^A-Za-z0-9]/;
-        console.log(password);
+       
         if (!name || !surname || !username || !email || !password || !confirmPassword) {
             setError('Please fill in all fields.');
             setIsLoading(false);
@@ -106,10 +107,13 @@ export function Signup() {
 
         try {
             const data = await signup({ name, surname, username, email, password });
-            console.log('Signup successful, backend response:', data);
+            
+            setJustSignedUp(true);
             await login({ email, password });
-
+            
             setSuccessMessage(`Signup successful! Welcome ${data.user.username}`);
+            localStorage.setItem("translatorTestSeen", "false");
+            localStorage.setItem("dexterity", "right");
 
             setFormData({
                 name: '',
@@ -257,15 +261,14 @@ export function Signup() {
                                 <div className="terms-checkbox-group">
                                     <input type="checkbox" id="termsAccepted" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} className="checkbox-input" />
                                     <label htmlFor="termsAccepted" className="checkbox-label">
-    I agree to the <button 
-        type="button"
-        onClick={() => setShowTermsModal(true)} 
-        className="terms-link"
-    >
-        Terms and Conditions
-    </button>
-</label>
-
+                                        I agree to the <button 
+                                            type="button"
+                                            onClick={() => setShowTermsModal(true)} 
+                                            className="terms-link"
+                                        >
+                                            Terms and Conditions
+                                        </button>
+                                    </label>
                                 </div>
 
                                 <button type="submit" disabled={isLoading} className="submit-button">

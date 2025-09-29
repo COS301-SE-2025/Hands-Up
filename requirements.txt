@@ -1,0 +1,13 @@
+opencv-python
+mediapipe
+numpy
+tensorflow
+flask
+flask-cors
+python-dotenv
+scikit-learn
+pandas
+fastapi
+httpx
+uvicorn
+python-multipart

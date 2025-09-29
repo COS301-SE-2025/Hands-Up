@@ -4,6 +4,7 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import apiRoutes from './routes/apiRoutes.js';
+import curriculumRoutes from './routes/curriculumRoutes.js'
 import dotenv from 'dotenv';
 import http from 'http';
 import path from 'path'; 
@@ -53,12 +54,22 @@ app.use((req, res, next) => {
     next();
 });
 
+app.get('/api/user', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    
+    if (req.user) {
+        res.json({ user: req.user });
+    } else {
+        res.status(401).json({ error: 'Not authenticated' });
+    }
+});
 
 app.get('/health', (req, res) => {
     res.status(200).send('OK');
 });
 
 app.use('/handsUPApi', apiRoutes);
+app.use('/handsUPApi/curriculum', curriculumRoutes); 
 
 const httpServer = http.createServer(app);
 

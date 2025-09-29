@@ -448,14 +448,14 @@ export function HelpMenu(){
                 <MessageCircle className="help-contact-icon" />
                 <div className="help-contact-details">
                   <span className="help-contact-label">Email Support</span>
-                  <span className="help-contact-value">support@handsup.com</span>
+                  <span className="help-contact-value">tmkdt.cos301@gmail.com</span>
                 </div>
               </div>
               <div className="help-contact-item">
                 <Phone className="help-contact-icon" />
                 <div className="help-contact-details">
                   <span className="help-contact-label">Phone Support</span>
-                  <span className="help-contact-value">+1 (555) 123-4567</span>
+                  <span className="help-contact-value">None for now</span>
                 </div>
               </div>
             </div>

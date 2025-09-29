@@ -4,19 +4,14 @@ import { useAuth } from '../contexts/authContext.js';
 import { useLearningStats } from '../contexts/learningStatsContext';
 import '../styles/home.css';
 import homeImage from '../images/picture1.png';
-import learnVideo from '../videos/chocolate.mp4';
-import chocolateVideo from '../videos/learn.mp4';
 
-const signsOfTheDayData = [
-    { id: 'sotd1', word: "Learn", gif: learnVideo,
-      description: "The sign for 'learn' typically involves moving your dominant hand, palm up and fingers spread, from an open flat hand on your non-dominant palm, closing into a grasping shape as you bring it up to your forehead, as if picking up knowledge."
-  },
-  {
-    id: 'sotd2',
-    word: "Chocolate",
-    gif: chocolateVideo, description: "To sign 'chocolate', form your dominant hand into a 'C' shape. Bring it to your non-dominant hand, which is held flat and stationary, and twist your 'C' hand on the back of your non-dominant hand."}
-];
+// Imports for the 3D animation
+import { Canvas } from '@react-three/fiber';
 
+import { AngieSigns } from '../components/angieSigns';
+import { LANDMARK_FILES } from '../landmarks/index.js';
+
+// Hardcoded data for other sections
 const features = [
     { id: 'translator', iconClass: 'fas fa-hand-paper', title: 'Translator', description: 'Instantly translate sign language into words or phrases with cutting-edge recognition.', link: '/translator' },
     { id: 'learn', iconClass: 'fas fa-book-open', title: 'Learn & Practice', description: 'Dive into interactive lessons, engaging quizzes, and practical exercises designed for all levels.', link: '/learn' },
@@ -24,12 +19,15 @@ const features = [
 ];
 
 export function Home(){
-    const { currentUser, isLoggedIn } = useAuth();
+    const { currentUser, isLoggedIn, justSignedUp} = useAuth();
     const { stats } = useLearningStats() || {};
 
+    // Updated state to hold the word and the landmark data for the sign of the day
     const [signOfTheDay, setSignOfTheDay] = useState(null);
     const [activeFeatureIndex, setActiveFeatureIndex] = useState(0);
     const carouselRef = useRef(null);
+
+    const [animationKey, setAnimationKey] = useState(0);
 
     const lessonsCompleted = stats?.lessonsCompleted || 0;
     const signsLearned = stats?.signsLearned || 0;
@@ -41,28 +39,52 @@ export function Home(){
     const TOTAL_LESSONS = TOTAL_LEVELS * LESSONS_PER_LEVEL; 
     const TOTAL_SIGNS = 26;
 
-
     const calcLessonsCompleted = Math.min(lessonsCompleted, TOTAL_LESSONS);
-     const calcSignsLearned = Math.min(signsLearned, TOTAL_SIGNS);
+    const calcSignsLearned = Math.min(signsLearned, TOTAL_SIGNS);
+    const lessonProgress = (calcLessonsCompleted + calcSignsLearned) / (TOTAL_LESSONS + TOTAL_SIGNS) * 100;
+    const completionPercentage = Math.min(100, Math.round(lessonProgress));
 
-
-    const lessonProgress = (calcLessonsCompleted +calcSignsLearned)/ (TOTAL_LESSONS+TOTAL_SIGNS) * 100;
-
+    useEffect(() => { 
+        // 1. Randomly select a word from the list of files
+        const randomIndex = Math.floor(Math.random() * LANDMARK_FILES.length);
+        const randomWord = LANDMARK_FILES[randomIndex];
     
-    const completionPercentage = Math.min(100, Math.round(
-     lessonProgress));
-
+        // 2. Dynamically import the corresponding JSON file
+        import(`../landmarks/${randomWord}.json`)
+            .then(module => {
+                const landmarkData = module.default; 
+                console.log("Loaded landmark data:", landmarkData);
+                // 3. Update the state with the word and the data
+                setSignOfTheDay({
+                    word: randomWord.charAt(0).toUpperCase() + randomWord.slice(1),
+                    landmarks: landmarkData,
+                    description: `Expand your vocabulary with today's sign! Keep practicing to master this word and many more.This is a dynamically loaded sign! The word is "${randomWord}".`,
+                });
+            })
+            .catch(error => {
+                console.error("Failed to load sign of the day data:", error);
+                // Optionally set a fallback state or message here
+            });
     
-    useEffect(() => {
-        const randomIndex = Math.floor(Math.random() * signsOfTheDayData.length);
-        setSignOfTheDay(signsOfTheDayData[randomIndex]);
-
         const featureInterval = setInterval(() => {
             setActiveFeatureIndex(prevIndex => (prevIndex + 1) % features.length);
         }, 5000);
-
+    
         return () => clearInterval(featureInterval);
     }, []);
+
+    useEffect(() => {
+        if (!signOfTheDay) return;
+        
+        // This timer will re-render the animation every 2.5 seconds
+        // You can adjust this value to match your animation duration
+        const animationTimer = setInterval(() => {
+            setAnimationKey(prevKey => prevKey + 1);
+        }, 2500); // 2500ms = 2.5 seconds, which should be the length of your animation
+
+        // Clean up the timer when the component unmounts
+        return () => clearInterval(animationTimer);
+    }, [signOfTheDay]);
 
     const userFirstName = currentUser?.name?.split(' ')[0] || "Valued Learner";
 
@@ -91,8 +113,10 @@ export function Home(){
         <div className="home-container">
             <section className="home-hero-section animated-section">
                 <div className="home-content">
-                    {isLoggedIn ? (
-                        <h1 className="personalized-greeting">Welcome back, {userFirstName}! 👋</h1>
+
+
+                    {isLoggedIn && !justSignedUp ?(
+                        <h1 className="personalized-greeting">Welcome back, {userFirstName}! </h1>
                     ) : (
                         <h1>Welcome to Hands UP!</h1>
                     )}
@@ -113,23 +137,21 @@ export function Home(){
                     <hr className="divider" />
                     <section className="learning-overview-section animated-section">
                         <h2 className="section-title">Your Learning Journey</h2>
-
                         <div className="learning-overview-grid">
                             <div className="learning-progress-card">
                                 <h3>Overall Progress</h3>
                                 <div className="progress-bar-container">
                                     <div
                                         className="progress-bar-fill"
-                                        style={{ width: `${completionPercentage}%`, background: `linear-gradient(90deg, #FFD700, #FFA500)` }} /* Added yellow gradient */
+                                        style={{ width: `${completionPercentage}%`, background: `linear-gradient(90deg, #FFD700, #FFA500)` }} 
                                     ></div>
                                 </div>
                                 <p className="progress-text">
                                     <span className="progress-highlight">{completionPercentage}%</span> Completed
                                 </p>
-                                <p className="progress-details">{calcLessonsCompleted + calcSignsLearned}  of {TOTAL_LESSONS+TOTAL_SIGNS} lessons</p>
+                                <p className="progress-details">{calcLessonsCompleted + calcSignsLearned} of {TOTAL_LESSONS+TOTAL_SIGNS} lessons</p>
                                 <Link to="/learn" className="btn-secondary small-btn">Continue Learning <i className="fas fa-arrow-right"></i></Link>
                             </div>
-
                             <div className="learning-stats-summary-card">
                                 <h3>Your Learning Stats</h3>
                                 <div className="stats-grid">
@@ -139,7 +161,7 @@ export function Home(){
                                         <span className="stat-label">Lessons Completed</span>
                                     </div>
                                     <div className="stat-item">
-                                        <i className="fas fa-sign-language stat-icon" style={{ color: '#FFD700' }}></i> {/* Yellow for signs learned */}
+                                        <i className="fas fa-sign-language stat-icon" style={{ color: '#FFD700' }}></i>
                                         <span className="stat-value">{signsLearned}</span>
                                         <span className="stat-label">Signs Learned</span>
                                     </div>
@@ -165,21 +187,24 @@ export function Home(){
                 <>
                     <hr className="divider" />
                     <section className="sign-of-the-day-section animated-section">
-                        <h2 className="section-title">Sign of the Day: &quot;{signOfTheDay.word}&quot; ✨</h2>
+
+                        <h2 className="section-title">Sign of the Day: &quot;{signOfTheDay.word}&quot; </h2>
+
                         <div className="sign-content">
-                               <div className="sign-media">
-                            <video
-                                src={signOfTheDay.gif}
-                                alt={signOfTheDay.word}
-                                controls
-                                autoPlay
-                                loop
-                                muted
-                                className="sign-video"
-                            >
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
+                            <div className="sign-media">
+                                <Canvas camera={{ position: [0, 0.2, 3], fov: 35 }}>
+                                    {/* eslint-disable-next-line react/no-unknown-property */}
+                                    <ambientLight intensity={5} />
+                                    {/* eslint-disable-next-line react/no-unknown-property */}
+                                    <group position={[0, -1.1, 0]}>
+                                        <AngieSigns
+                                            key={animationKey}
+                                            landmarks={signOfTheDay.landmarks}
+                                            
+                                        />
+                                    </group>
+                                </Canvas>
+                            </div>
                             <div className="sign-description">
                                 <p>{signOfTheDay.description}</p>
                                 <Link to="/learn" className="btn-secondary">Explore More Signs</Link>
@@ -226,7 +251,7 @@ export function Home(){
             <hr className="divider" />
 
             <section className="cta-section animated-section">
-                <h2 className="section-title">Your Progress Inspires Us All! ✨</h2>
+                <h2 className="section-title">Your Progress Inspires Us All! </h2>
                 <p>Every sign you learn, every lesson you complete, builds a stronger, more inclusive world. Keep going, the journey of communication is truly rewarding.</p>
                 <Link to="/learn" className="btn-final-cta">Keep Learning, Keep Growing</Link>
             </section>
