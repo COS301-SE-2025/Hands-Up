@@ -8,8 +8,6 @@ import curriculumRoutes from './routes/curriculumRoutes.js'
 import dotenv from 'dotenv';
 import path from 'path';
 import { dirname } from 'path';
-import path from 'path';
-import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 dotenv.config();
