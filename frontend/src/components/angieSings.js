@@ -138,7 +138,7 @@ export function AngieSings({ filename, isPlaying, replayKey }) {
         if (!modelReady || !currentLandmarks || !isPlaying) return;
 
         const delta = clock.current.getDelta();
-        if (currentIndex === 0 || currentIndex === sequence.length - 1) {
+        if (currentWord === "delay_move") {
             animationProgress.current += delta / animationDuration * 1.5;
             animationProgress.current %= 1; 
         } 
