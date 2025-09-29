@@ -723,12 +723,12 @@ export function SignQuiz() {
                     </h2>
 
                     <div className="camera-container">
-                        <div className="recognizer-camera-container relative">
+                        <div className="rrecognizer-camera-container relative">
                             <video 
                                 ref={videoRef} 
                                 autoPlay 
                                 playsInline 
-                                className="recognizer-video"
+                                className="rrecognizer-video"
                                 style={{ display: cameraReady ? 'block' : 'none' }}
                             ></video>
                             
@@ -766,7 +766,7 @@ export function SignQuiz() {
                             ></canvas>
                             
                             {recording && cameraReady && (
-                                <div className="recognizer-recording-indicator">
+                                <div className="rrecognizer-recording-indicator">
                                     <i className="fas fa-circle recognizer-pulse-icon"></i> 
                                     Recording... {countdown > 0 && `(${countdown}s)`}
                                 </div>
@@ -775,13 +775,13 @@ export function SignQuiz() {
                     </div>
 
                     <div className="camera-controls">
-                        <div className="recognizer-controls">
-                            <button onClick={() => setResult("")} className="recognizer-control-button recognizer-capture-button">
+                        <div className="rrecognizer-controls">
+                            <button onClick={() => setResult("")} className="rrecognizer-control-button rrecognizer-capture-button">
                                 Clear Results
                             </button>
                             <button 
                                 onClick={handleStartRecording} 
-                                className={`recognizer-control-button ${recording ? 'recognizer-stop-button' : 'recognizer-record-button'}`}
+                                className={`rrecognizer-control-button ${recording ? 'rrecognizer-stop-button' : 'rrecognizer-record-button'}`}
                             >
                                 <i className={`fas ${recording ? 'fa-stop' : 'fa-video'}`}></i> 
                                 {recording ? 'Stop Signing' : 'Start Signing'}
