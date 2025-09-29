@@ -28,6 +28,7 @@
           <li><a href="#additional-project-documentation-and-development-resources">Project Management Board</a></li>
           <li><a href="#additional-project-documentation-and-development-resources">Coding Standards</a></li>
           <li><a href="#additional-project-documentation-and-development-resources">Service Contracts</a></li>
+          <li><a href="#additional-project-documentation-and-development-resources">Testing Policy</a></li>
           <li><a href="#additional-project-documentation-and-development-resources">User Manual</a></li>
           <li><a href="#additional-project-documentation-and-development-resources">Technical Installation Manual</a></li>
           <li><a href="#additional-project-documentation-and-development-resources">References</a></li>
@@ -56,6 +57,7 @@ Thus, the system focuses on three core functionalities:
 
 | Demo         | Video Link                                                                 | SRS Link                                                                                     | View PDF                                                                                                      |
 |--------------|----------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
+| 3 - 20/08/25 | [Demo 4 Video](https://drive.google.com/file/d/1GlH0fi46Tru-OchkWjSYwU1vCfuLYwlx/view) | [Demo 4 SRS](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_4)              | [Demo 4 SRS](https://github.com/COS301-SE-2025/Hands-Up/blob/main/docs/Hands%20UP%20SRS%204.pdf)                 |
 | 3 - 20/08/25 | [Demo 3 Video](https://drive.google.com/file/d/1UzKJ2eb65tCrih3R_o-OOuDO28rkJWYC/view) | [Demo 3 SRS](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3)              | [Demo 3 SRS](https://github.com/COS301-SE-2025/Hands-Up/blob/main/docs/Hands%20UP%20SRS.pdf)                 |
 | 2 - 27/06/25 | [Demo 2 Video](https://drive.google.com/file/d/1JdpGGRkO_d-04IrgbtnfarugVtxaAQ4w/view) | [Demo 2 SRS](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_2)              | -                                                                                                             |
 | 1 - 28/05/25 | [Demo 1 Video](https://drive.google.com/file/d/1mFRqv6zRN1a6LuKWWXX5wu1XCvTVVWZ7/view) | [Demo 1 SRS](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_1)              | -                                                                                                             |
@@ -67,16 +69,16 @@ Thus, the system focuses on three core functionalities:
 
 | Resource                          | Description                             |
 |-----------------------------------|-----------------------------------------|
-| [SRS Document](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3) | Outlines the system's functional and non-functional requirements |
-| [User Stories](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3#user-stories) | Descriptions of system features from the user’s perspective |
-| [Functional Requirements](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3#functional-requirements) | Core functionalities the system must perform |
-| [Quality Requirements](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3#quality-requirements) | Quantifiable attributes ensuring usability, peformance, availability, security and maintainability |
-| [Use Case Diagram](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3#use-case-diagram) | Overview of system interactions with external actors |
-| [Domain Model](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3#domain-model) | Visual representation of key entities and their relationships |
-| [Architectural Specification](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3#architecture-diagram) | Architectural design objectives and constraints |
-| [Design Patterns](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3#design-patterns) | Reusable solutions applied in the system design |
-| [Technology Choices](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3#technology-choices) | Platforms, tools and languages required for implementation |
-| [Deployment Model](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_3#deployment-model) | System deployment details |
+| [SRS Document](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_4) | Outlines the system's functional and non-functional requirements |
+| [User Stories](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_4#user-stories) | Descriptions of system features from the user’s perspective |
+| [Functional Requirements](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_4#functional-requirements) | Core functionalities the system must perform |
+| [Quality Requirements](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_4#quality-requirements) | Quantifiable attributes ensuring usability, peformance, availability, security and maintainability |
+| [Use Case Diagram](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_4#use-case-diagram) | Overview of system interactions with external actors |
+| [Domain Model](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_4#domain-model) | Visual representation of key entities and their relationships |
+| [Architectural Specification](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_4#architecture-diagram) | Architectural design objectives and constraints |
+| [Design Patterns](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_4#design-patterns) | Reusable solutions applied in the system design |
+| [Technology Choices](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_4#technology-choices) | Platforms, tools and languages required for implementation |
+| [Deployment Model](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_4#deployment-model) | System deployment details |
 
 </div>
 
@@ -88,7 +90,8 @@ Thus, the system focuses on three core functionalities:
 | [Project Management](https://github.com/orgs/COS301-SE-2025/projects/264) | - | Scrum board for tracking tasks and progress |
 | [Contributions](#contributions) | - | Outlines each member's individual responsibilities |
 | [Coding Standards](https://github.com/COS301-SE-2025/Hands-Up/wiki/Coding_Standards_3) | [Coding Standards](https://github.com/COS301-SE-2025/Hands-Up/blob/main/docs/Hands%20UP%20Coding%20Standards.pdf) | Coding rules and quality guidelines |
-| [Service Contracts](https://github.com/COS301-SE-2025/Hands-Up/wiki/Service_Contracts_3) | [Service Contracts](https://github.com/COS301-SE-2025/Hands-Up/blob/main/docs/Hands%20UP%20Service%20Contracts.pdf) | Defined inputs, outputs and behaviors of services |
+| [Service Contracts](https://github.com/COS301-SE-2025/Hands-Up/wiki/Service_Contracts_4) | [Service Contracts](https://github.com/COS301-SE-2025/Hands-Up/blob/main/docs/Hands%20UP%20Service%20Contracts.pdf) | Defined inputs, outputs and behaviors of services |
+| Testing Policy | [Testing Document](https://github.com/COS301-SE-2025/Hands-Up/blob/main/docs/Hands%20UP%20Testing%20Policy.pdf) | Guide for system tests |
 | User Manual | [User Manual](https://github.com/COS301-SE-2025/Hands-Up/blob/main/docs/Hands%20UP%20User%20Manual.pdf) | Guide for using the system |
 | Technical Installation Manual | [Technical Installation Manual](https://github.com/COS301-SE-2025/Hands-Up/blob/main/docs/Hands%20UP%20Technical%20Installation%20Manual.pdf) | Steps to install dependencies and set up the system |
 | [References](https://github.com/COS301-SE-2025/Hands-Up/wiki/References) | - | Citations of resources used in the project |
@@ -181,7 +184,7 @@ Thus, the system focuses on three core functionalities:
  <tr>
     <td style="vertical-align: top; width: 70%; border: 0; padding: 15px;">
       <h2><b style="font-size: 18px;">Tambi Chirima</b></h2>
-      <h3><b style="font-size: 16px;">DevOps Engineer</b></h3><br>
+      <h3><b style="font-size: 16px;">Software Architect</b></h3><br>
       I work well in a professional team environment bringing over three years of part time experience across diverse roles. My most notable positions include working as a manager for a food vendor (currently), an administrative secretary for a small software development firm and as an IT tutor for matric students. My passion lies with backend development, network operations and cloud engineering.
       <br><br>
       <a href="https://github.com/tnjanji" style="text-decoration: none; margin-right: 10px; display: inline-block; vertical-align: middle;">
@@ -223,7 +226,7 @@ Thus, the system focuses on three core functionalities:
  <tr>
     <td style="vertical-align: top; width: 70%; border: 0; padding: 15px;">
       <h2><b style="font-size: 18px;">Mutarisi Chibaya</b></h2>
-      <h3><b style="font-size: 16px;">Software Architect</b></h3><br>
+      <h3><b style="font-size: 16px;">DevOps Engineer</b></h3><br>
       I combine strong technical skills in full-stack development with passion for building innovative solutions to real-world problems. My experience spans system design, database architecture and application development with a proven ability to adapt quickly to new technologies and frameworks. My academic projects have honed my ability to deliver solutions under constraints, making me a valuable contributor to projects requiring both technical rigor and creative thinking.
       <br><br>
       <a href="https://github.com/mutarisi" style="text-decoration: none; margin-right: 10px; display: inline-block; vertical-align: middle;">
@@ -244,11 +247,11 @@ Thus, the system focuses on three core functionalities:
 
 | Team Member         | Contributions                                                                                         |
 |--------------------|-------------------------------------------------------------------------------------------------------|
-| Karabo Serothoane  | - Set up database on Docker  <br> - Set up GitHub Actions  <br> - Set up testing environment  <br> - Implemented learning progress use case and testing <br> - Developed the Alphabet AI model with real-time translation support <br> - Created and animated the lessons on the Learn page (2D Prototype)<br> - Improved code maintainability and structure <br>- Added the ASL number AI model and refined alphabet AI model <br>- Integrated the words AI model into UI with model switching <br> |
-| Thendo Mbedzi      | - Designed and implemented all pages for UI  <br> - Created and applied the app theme  <br> - Created wireframes and mockups for documentation <br> - Redesigned the UI with an improved interface <br> - Refined existing hand animation on the Learn page (2D Prototype)<br> - Implemented the security quality requirements <br>- Categorised and organised words and phrases on the Learn page <br> - Added animation landmarks (for the 3D Model) for each word and phrase on the Learn page<br> |
-| Tambi Chirima      | - Set up GitHub organisation and management  <br> - Initialised GitHub structure (mono-repo)  <br> - Implemented visual input use case and testing <br> - Created the Help page <br> - Developed integration tests and automation scripts <br> - Implemented Continuous Integration (CI) support <br>- Developed the AI Model for ASL words translation <br>- Created the dataset used to train the words AI model <br> |
-| Driya Govender     | - Set up GitHub Wiki  <br> - Implemented update user details use case and testing <br> - Designed and implemented the Landing page <br> - Improved test coverage by adding and updating unit tests <br> - Modified and added the Angie 3D mascot model used in the app <br>- Added animation landmarks (for the 3D Model) for alphabet on the Learn page <br> - Implemented the core functionality of the wow factor (Sign Surfers game) <br> |
-| Mutarisi Chibaya   | - Designed the architecture of the system  <br> - Developed and tested backend endpoints for login and sign up <br> - Developed and fine-tuned an LSTM-based neural network for ASL word translation <br> - Worked on the ASL words dataset and AI model <br>- Deployed the system <br> | 
+| Karabo Serothoane  | - Set up database on Docker  <br> - Set up GitHub Actions  <br> - Set up testing environment  <br> - Implemented learning progress use case and testing <br> - Developed the Alphabet AI model with real-time translation support <br> - Created and animated the lessons on the Learn page (2D Prototype)<br> - Improved code maintainability and structure <br>- Added the ASL number AI model and refined alphabet AI model <br>- Integrated the words AI model into UI with model switching <br> - Added WebSockets for faster translation |
+| Thendo Mbedzi      | - Designed and implemented all pages for UI  <br> - Created and applied the app theme  <br> - Created wireframes and mockups for documentation <br> - Redesigned the UI with an improved interface <br> - Refined existing hand animation on the Learn page (2D Prototype)<br> - Implemented the security quality requirements <br>- Categorised and organised words and phrases on the Learn page <br> - Added animation landmarks (for the 3D Model) for each word and phrase on the Learn page<br> - Completed Learn page <br> - Created Nursery Rhyme page |
+| Tambi Chirima      | - Set up GitHub organisation and management  <br> - Initialised GitHub structure (mono-repo)  <br> - Implemented visual input use case and testing <br> - Created the Help page <br> - Developed integration tests and automation scripts <br> - Implemented Continuous Integration (CI) support <br>- Developed the AI Model for ASL words translation <br> - Created the dataset used to train the words AI model <br> - Completed all unit, integration, E2E, and quality testing <br> - Completed landmarks for a nursery rhyme |
+| Driya Govender     | - Set up GitHub Wiki  <br> - Implemented update user details use case and testing <br> - Designed and implemented the Landing page <br> - Improved test coverage by adding and updating unit tests <br> - Modified and added the Angie 3D mascot model used in the app <br>- Added animation landmarks (for the 3D Model) for alphabet on the Learn page <br> - Implemented the core functionality of the wow factor (Sign Surfers game) <br> - Completed the Sign Surfers <br> - Created landmarks for the nursery rhymes |
+| Mutarisi Chibaya   | - Designed the architecture of the system  <br> - Developed and tested backend endpoints for login and sign up <br> - Developed and fine-tuned an LSTM-based neural network for ASL word translation <br> - Worked on the ASL words dataset and AI model <br>- Created PWA <br> - Deployed the entire system |
 
 </div>
 <h2>All team members contributed towards documentation</h2>
