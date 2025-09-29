@@ -809,13 +809,13 @@ body::after {
 }
 
 /* Enhanced camera-specific styles */
-.recognizer-camera-container {
+.rrecognizer-camera-container {
     position: relative;
     border-radius: 24px;
     overflow: hidden;
 }
 
-.recognizer-video {
+.rrecognizer-video {
     border-radius: 24px;
 }
 
@@ -845,7 +845,7 @@ body::after {
     padding: 20px;
 }
 
-.recognizer-recording-indicator {
+.rrecognizer-recording-indicator {
     position: absolute;
     top: 20px;
     right: 20px;
@@ -876,7 +876,7 @@ body::after {
     }
 }
 
-.recognizer-pulse-icon {
+.rrecognizer-pulse-icon {
     animation: pulseDot 1s infinite;
     color: #ffe44d;
 }
@@ -892,7 +892,7 @@ body::after {
     }
 }
 
-.recognizer-controls {
+.rrecognizer-controls {
     display: flex;
     gap: 20px;
     justify-content: center;
@@ -900,7 +900,7 @@ body::after {
     flex-wrap: wrap;
 }
 
-.recognizer-control-button {
+.rrecognizer-control-button {
     padding: 16px 28px;
     border: none;
     border-radius: 16px;
@@ -918,19 +918,19 @@ body::after {
     overflow: hidden;
 }
 
-.recognizer-capture-button {
+.rrecognizer-capture-button {
     background: linear-gradient(135deg, #607D8B, #455A64);
     color: white;
     box-shadow: 0 8px 25px rgba(96, 125, 139, 0.4);
 }
 
-.recognizer-capture-button:hover {
+.rrecognizer-capture-button:hover {
     background: linear-gradient(135deg, #455A64, #37474F);
     transform: translateY(-3px) scale(1.02);
     box-shadow: 0 12px 40px rgba(96, 125, 139, 0.5);
 }
 
-.recognizer-record-button {
+.rrecognizer-record-button {
     background: linear-gradient(135deg, #9eac9f, #7ED957);
     color: white;
     box-shadow: 0 8px 25px rgba(45, 163, 53, 0.4);
@@ -939,7 +939,7 @@ body::after {
     animation: recordButtonGlow 2s ease-in-out infinite;
 }
 
-@keyframes recordButtonGlow {
+@keyframes rrecordButtonGlow {
     0%, 100% { 
         box-shadow: 0 8px 25px rgba(45, 163, 53, 0.4);
     }
@@ -948,13 +948,13 @@ body::after {
     }
 }
 
-.recognizer-record-button:hover {
+.rrecognizer-record-button:hover {
     background: linear-gradient(135deg, #7ED957, #4ade80);
     transform: translateY(-3px) scale(1.02);
     box-shadow: 0 12px 40px rgba(45, 163, 53, 0.5);
 }
 
-.recognizer-stop-button {
+.rrecognizer-stop-button {
     background: linear-gradient(135deg, #ffe44d, #ffc107);
     color: #333;
     box-shadow: 0 8px 25px rgba(255, 193, 7, 0.4);
@@ -972,7 +972,7 @@ body::after {
     }
 }
 
-.recognizer-stop-button:hover {
+.rrecognizer-stop-button:hover {
     background: linear-gradient(135deg, #ffc107, #ff9800);
     transform: translateY(-3px) scale(1.02);
     box-shadow: 0 12px 40px rgba(255, 193, 7, 0.5);
