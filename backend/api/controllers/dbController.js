@@ -431,6 +431,10 @@ export const loginUser = async (req, res) => {
             maxAge: 1000 * 60 * 60 * 24, // 24 hours
             path: '/',
         });
+
+        res.header('Access-Control-Allow-Origin', 'https://handsup.onrender.com');
+        res.header('Access-Control-Allow-Credentials', 'true');
+
         console.log("executed query");
         res.status(200).json({
             success: true,
