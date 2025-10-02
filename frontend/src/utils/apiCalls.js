@@ -199,24 +199,24 @@ const API_BASE_URL_LEARNING = 'https://hands-up.onrender.com/handsUPApi/learning
 const API_BASE_URL = 'https://hands-up.onrender.com/handsUPApi';
 const TRANSLATE_API_ROUTE = 'https://tmkdt-newhandsupmodel.hf.space/handsUPApi';
 
-export const handleApiResponse = async (response) => {
-    const data = await response.json();
-    if (!response.ok) {
-        const error = new Error(data.error || 'An unknown error occurred');
-        if (data.attemptsLeft !== undefined) {
-            error.attemptsLeft = data.attemptsLeft;
-        }
-        if (data.locked !== undefined) {
-            error.locked = data.locked;
-        }
-        if (data.timeLeft !== undefined) {
-            error.timeLeft = data.timeLeft;
-        }
+// export const handleApiResponse = async (response) => {
+//     const data = await response.json();
+//     if (!response.ok) {
+//         const error = new Error(data.error || 'An unknown error occurred');
+//         if (data.attemptsLeft !== undefined) {
+//             error.attemptsLeft = data.attemptsLeft;
+//         }
+//         if (data.locked !== undefined) {
+//             error.locked = data.locked;
+//         }
+//         if (data.timeLeft !== undefined) {
+//             error.timeLeft = data.timeLeft;
+//         }
 
-        throw error;
-    }
-    return data;
-};
+//         throw error;
+//     }
+//     return data;
+// };
 
 
 export const translateSequence = async (blobs) => {
