@@ -534,6 +534,13 @@ export const logoutUser = async (req, res) => {
 
 export const authenticateUser = async (req, res, next) => {
     // Log the incoming cookie header (will be 'undefined' if client isn't sending it)
+     // --- Detailed Debugging Log ---
+    console.log('----------------------------------------------------');
+    console.log(`[AUTH CHECK] Method: ${req.method} | URL: ${req.originalUrl}`);
+    console.log('Headers (Complete):', req.headers); // See all headers, including the raw Cookie string
+    console.log('Cookies (Parsed):', req.cookies); // See the object parsed by cookie-parser
+    console.log('----------------------------------------------------');
+    // --- End Debugging Log ---
     console.log('Raw Cookie Header:', req.headers.cookie);
     const sessionId = req.cookies.sessionId;
     console.log("sessionID in authUser", sessionId);
