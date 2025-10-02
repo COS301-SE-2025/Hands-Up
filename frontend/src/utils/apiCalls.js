@@ -387,6 +387,7 @@ function setSessionCookieFallback(sessionId) {
 export const login = async (credentials) => {
     try {
         console.log('[FRONTEND] Sending login request with credentials:', credentials);
+        console.log("checkpoint 1");
         const response = await fetch(`${API_BASE_URL_AUTH}/login`, {
             method: 'POST',
             headers: {
@@ -397,7 +398,7 @@ export const login = async (credentials) => {
         });
         
         const data = await response.json();
-        
+        console.log("checkpoint 2");
         if (!response.ok) {
             const error = new Error(data.error || 'Login failed');
             
@@ -430,7 +431,7 @@ export const login = async (credentials) => {
 
             throw error;
         }
-        
+        console.log("checkpoint 3");
         // --- HYBRID COOKIE FALLBACK LOGIC ---
         
         // 1. Check if the secure HTTP cookie was successfully stored by the server.
@@ -442,7 +443,7 @@ export const login = async (credentials) => {
         }
         
         // --- END HYBRID COOKIE FALLBACK LOGIC ---
-
+        console.log("checkpoint 4");
         console.log("data:",data);
         return data;
     } catch (error) {
