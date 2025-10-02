@@ -468,40 +468,122 @@ export const logoutUser = async (req, res) => {
 };
 
 
+// export const authenticateUser = async (req, res, next) => {
+//     console.log('Raw Cookie Header:', req.headers.cookie);
+//     const sessionId = req.cookies.sessionId;
+//     console.log("sessionID in authUser", sessionId);
+
+//     try {
+//         const sessionData = activeSessions.get(sessionId);
+    
+//         if (!sessionData) {
+//             res.clearCookie('sessionId', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'none', path: '/' });
+//             return res.status(401).json({ error: 'Unauthorized: Session invalid or expired.' });
+//         }
+
+//         if (Date.now() > sessionData.expires) {
+//             activeSessions.delete(sessionId);
+//             res.clearCookie('sessionId', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'none', path: '/' });
+//             return res.status(401).json({ error: 'Unauthorized: Session invalid or expired.' });
+//         }
+
+//         sessionData.expires = Date.now() + (1000 * 60 * 60 * 24); 
+//         activeSessions.set(sessionId, sessionData);
+    
+//         const userResult = await pool.query(
+//             'SELECT "userID", username, name, surname, email, avatarurl, createdat FROM users WHERE "userID" = $1',
+//             [sessionData.userId]
+//         );
+//         const user = userResult.rows[0];
+
+//         if (!user) {
+//             activeSessions.delete(sessionId);
+//             res.clearCookie('sessionId', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'none', path: '/' });
+//             return res.status(401).json({ error: 'Unauthorized: User not found.' });
+//         }
+
+//         req.user = {
+//             id: user.userID,
+//             username: user.username,
+//             email: user.email,
+//             name: user.name,
+//             surname: user.surname,
+//             avatarurl: user.avatarurl,
+//             createdAt: user.createdat
+           
+//         };
+//         next();
+
+//     } catch (error) {
+//         console.error('Error during authentication:', error);
+//         res.status(500).json({ message: 'Internal server error during authentication.' });
+//     }
+// };
+
+// NOTE: You MUST ensure 'pool' (your database client) and 'activeSessions' 
+// (your session Map) are correctly imported/accessible in this file.
+
+// Example Imports (adjust path/file name as necessary):
+// import { pool } from '../db/db.js'; 
+// import { activeSessions } from '../sessions.js'; 
+
 export const authenticateUser = async (req, res, next) => {
+    // Log the incoming cookie header (will be 'undefined' if client isn't sending it)
     console.log('Raw Cookie Header:', req.headers.cookie);
     const sessionId = req.cookies.sessionId;
     console.log("sessionID in authUser", sessionId);
 
+    // If the browser failed to send the cookie, we cannot authenticate
+    if (!sessionId) {
+        req.user = null;
+        console.log('[BACKEND - AUTH] Session ID missing from request.');
+        return next();
+    }
+
     try {
         const sessionData = activeSessions.get(sessionId);
     
+        // 1. Check if session exists in the server Map
         if (!sessionData) {
-            res.clearCookie('sessionId', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'none', path: '/' });
+            // Clear client's bad cookie (using Safari fixes) and proceed as unauthenticated
+            res.clearCookie('sessionId', { httpOnly: true, secure: true, sameSite: 'none', path: '/' });
+            req.user = null;
+            console.log('[AUTHenticate user] Session not found in Map. Cleared cookie.');
             return res.status(401).json({ error: 'Unauthorized: Session invalid or expired.' });
         }
 
+        // 2. Check if session has expired
         if (Date.now() > sessionData.expires) {
             activeSessions.delete(sessionId);
-            res.clearCookie('sessionId', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'none', path: '/' });
+            // Clear client's expired cookie (using Safari fixes) and proceed as unauthenticated
+            res.clearCookie('sessionId', { httpOnly: true, secure: true, sameSite: 'none', path: '/' });
+            req.user = null;
+            console.log('[AUTHenticate user] Session expired. Cleared cookie.');
             return res.status(401).json({ error: 'Unauthorized: Session invalid or expired.' });
         }
 
-        sessionData.expires = Date.now() + (1000 * 60 * 60 * 24); 
+        // 3. Refresh the session expiration time (sliding session)
+        sessionData.expires = Date.now() + (1000 * 60 * 60 * 24); // 24 hours renewal
         activeSessions.set(sessionId, sessionData);
     
+        // 4. Look up full user data from the database
         const userResult = await pool.query(
             'SELECT "userID", username, name, surname, email, avatarurl, createdat FROM users WHERE "userID" = $1',
             [sessionData.userId]
         );
         const user = userResult.rows[0];
 
+        // 5. Check if user exists (in case the user was deleted)
         if (!user) {
             activeSessions.delete(sessionId);
-            res.clearCookie('sessionId', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'none', path: '/' });
+            // Clear client's cookie for a non-existent user
+            res.clearCookie('sessionId', { httpOnly: true, secure: true, sameSite: 'none', path: '/' });
+            req.user = null;
+            console.log('[AUTHenticate user] User associated with session not found. Cleared cookie.');
             return res.status(401).json({ error: 'Unauthorized: User not found.' });
         }
 
+        // 6. Authentication SUCCESS: Attach user object to the request
         req.user = {
             id: user.userID,
             username: user.username,
@@ -510,15 +592,20 @@ export const authenticateUser = async (req, res, next) => {
             surname: user.surname,
             avatarurl: user.avatarurl,
             createdAt: user.createdat
-           
         };
+        console.log(`[AUTHenticate user] Successfully authenticated user: ${user.username}`);
+
+        // 7. Proceed to the requested route
         next();
 
     } catch (error) {
+        // Handle any database or general server errors during the authentication process
         console.error('Error during authentication:', error);
+        req.user = null; // Ensure req.user is clean on error
         res.status(500).json({ message: 'Internal server error during authentication.' });
     }
 };
+
 
 
 export const getUserData = async (req, res) => {
