@@ -9,11 +9,9 @@ import path from 'path';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 
-// --- FIXED IMPORT ---
-// 1. Import the session map helper (from sessions.js)
-import { activeSessions } from './sessions.js'; 
-// 2. Import the AUTHENTICATION MIDDLEWARE from your controller file
-import { authenticateUser } from './controllers/authController.js'; // <-- Adjust this path!
+// --- FIXED IMPORT PATH ---
+// Assuming authenticateUser is defined and exported from your apiRoutes file
+import { authenticateUser } from './routes/apiRoutes.js'; 
 
 dotenv.config();
 
@@ -32,8 +30,7 @@ app.use(cookieParser());
 
 
 // --- 3. APPLY AUTHENTICATION MIDDLEWARE ---
-// We don't define the function here; we just use the exported one.
-// This function runs on every request to populate req.user based on the cookie.
+// This middleware runs on every request BEFORE it hits any route.
 app.use(authenticateUser); 
 
 
