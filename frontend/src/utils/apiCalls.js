@@ -369,6 +369,7 @@ function isSessionCookieSet() {
 }
 
 function setSessionCookieFallback(sessionId) {
+    console.log("setting th cookie")
     // 1. Calculate expiration date (24 hours from now)
     const expirationDate = new Date(Date.now() + (1000 * 60 * 60 * 24)).toUTCString();
     
@@ -434,6 +435,7 @@ export const login = async (credentials) => {
         
         // 1. Check if the secure HTTP cookie was successfully stored by the server.
         // 2. If it was blocked (likely Safari) AND the server returned the sessionId in the JSON.
+        console.log("boolean for the q ",!isSessionCookieSet() && data.sessionId);
         if (!isSessionCookieSet() && data.sessionId) {
             console.warn("[FRONTEND] HTTP cookie was blocked/missing. Using JSON fallback to set cookie.");
             setSessionCookieFallback(data.sessionId);
