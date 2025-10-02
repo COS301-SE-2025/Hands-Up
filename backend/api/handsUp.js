@@ -38,6 +38,7 @@ const authenticateUser = (req, res, next) => {
     
     // 1. If no session ID, user is not logged in.
     if (!sessionId) {
+        console.log("handsup.js no session id found");
         req.user = null;
         return next();
     }
@@ -46,6 +47,7 @@ const authenticateUser = (req, res, next) => {
     const sessionData = activeSessions.get(sessionId);
     
     if (sessionData && sessionData.expires > Date.now()) {
+        console.log("i entered session in handsup.js");
         // Session is valid and not expired. Attach user data to req.user
         req.user = { 
             id: sessionData.userId, 
@@ -54,6 +56,7 @@ const authenticateUser = (req, res, next) => {
         };
         console.log(`[handsUp.js] Session valid for user: ${sessionData.username}`);
     } else {
+        console.log("i enetered else condition in handsup.js");
         // Session expired or invalid. Clear the cookie.
         res.clearCookie('sessionId', {
             httpOnly: true,
