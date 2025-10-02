@@ -425,7 +425,7 @@ export const loginUser = async (req, res) => {
         });
         console.log("sessionId", sessionId);
         res.cookie('sessionId', sessionId, {
-            httpOnly: true,
+            httpOnly: false,
             secure: process.env.NODE_ENV === 'production', 
             sameSite: 'none', 
             maxAge: 1000 * 60 * 60 * 24, // 24 hours

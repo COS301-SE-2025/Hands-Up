@@ -608,20 +608,98 @@ export const confirmPasswordReset = async (email, token, newPassword, confirmNew
     return handleApiResponse(response);
 };
 
+function getSessionIdFromDocumentCookie() {
+    const cookieString = document.cookie;
+    const name = 'sessionId=';
+    const decodedCookie = decodeURIComponent(cookieString);
+    const ca = decodedCookie.split(';');
+
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') {
+            c = c.substring(1);
+        }
+        if (c.startsWith(name)) {
+            const sessionId = c.substring(name.length, c.length);
+            return sessionId;
+        }
+    }
+    return null;
+}
+
+/**
+ * Helper function to handle common API response parsing and error throwing.
+ */
+const handleApiResponse = async (response) => {
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+        throw new Error(`Server returned non-JSON response (${response.status})`);
+    }
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        const error = new Error(data.error || `Request failed with status ${response.status}`);
+        error.status = response.status;
+        error.details = data;
+        // --- Existing Custom Error Handling ---
+        if (data.attemptsLeft !== undefined) { error.attemptsLeft = data.attemptsLeft; error.showAttemptsLeft = true; }
+        // etc... (include your full error logic here)
+        // --- End Custom Error Handling ---
+        throw error;
+    }
+
+    return data;
+};
+
 export const getUserData = async () => {
     console.log("entered get user data ");
+    
+    // 1. MANUALLY READ THE SESSION ID FROM BROWSER STORAGE
+    const sessionId = getSessionIdFromDocumentCookie();
+
+    if (!sessionId) {
+        console.warn('[FRONTEND] Cannot fetch user data: No session ID found in browser cookie storage.');
+        throw new Error('User not logged in (no session cookie).');
+    }
+    
+    // 2. CONSTRUCT THE HEADERS, INCLUDING THE MANUAL COOKIE HEADER
+    const headers = {
+        'Content-Type': 'application/json',
+        // CRITICAL: Manually set the Cookie header using the retrieved ID
+        'Cookie': `sessionId=${sessionId}` 
+    };
+
     try {
         const response = await fetch(`${API_BASE_URL_USER}/me`, {
             method: 'GET',
-            credentials: 'include', 
+            headers: headers,
+            // 3. CRITICAL: REMOVE 'credentials: "include"' 
+            // The browser will block manual 'Cookie' headers if this flag is present.
         });
+        
         console.log("response: ",response);
-       return handleApiResponse(response);
+        return handleApiResponse(response);
     } catch (error) {
        console.error('Error fetching logged-in user details (network/unexpected):', error);
         throw error; 
     }
 };
+
+// export const getUserData = async () => {
+//     console.log("entered get user data ");
+//     try {
+//         const response = await fetch(`${API_BASE_URL_USER}/me`, {
+//             method: 'GET',
+//             credentials: 'include', 
+//         });
+//         console.log("response: ",response);
+//        return handleApiResponse(response);
+//     } catch (error) {
+//        console.error('Error fetching logged-in user details (network/unexpected):', error);
+//         throw error; 
+//     }
+// };
 
 export const uniqueUsername = async (username) => {
     try {
