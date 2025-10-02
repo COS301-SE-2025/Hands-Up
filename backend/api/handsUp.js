@@ -9,8 +9,9 @@ import path from 'path';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 
-// NOTE: You must export and import your activeSessions map 
-// from where it is defined, e.g., in a separate file like './sessions.js'
+// --- FIXED IMPORT ---
+// Import the centralized activeSessions map from the new sessions.js file.
+// NOTE: Make sure the path './sessions.js' is correct relative to handsUp.js
 import { activeSessions } from './sessions.js'; 
 
 dotenv.config();
@@ -32,7 +33,6 @@ app.use(cookieParser());
 // --- 3. CUSTOM AUTHENTICATION MIDDLEWARE ---
 // This function runs on every request to check the session cookie.
 const authenticateUser = (req, res, next) => {
-    console.log("mac os testing")
     const sessionId = req.cookies.sessionId;
     
     // 1. If no session ID, user is not logged in.
@@ -41,7 +41,7 @@ const authenticateUser = (req, res, next) => {
         return next();
     }
 
-    // 2. Look up the session in the activeSessions map
+    // 2. Look up the session in the activeSessions map (imported from sessions.js)
     const sessionData = activeSessions.get(sessionId);
     
     if (sessionData && sessionData.expires > Date.now()) {
@@ -93,7 +93,6 @@ app.get('/api/user', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     
     if (req.user) { 
-        // This only works now because the middleware ran and populated req.user!
         res.json({ user: req.user });
     } else {
         res.status(401).json({ error: 'Not authenticated' });
