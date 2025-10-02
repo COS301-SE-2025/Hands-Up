@@ -438,6 +438,7 @@ export const loginUser = async (req, res) => {
         console.log("executed query");
         res.status(200).json({
             success: true,
+            sessionId: sessionId,
             user: {
                 id: user.userID,
                 email: user.email,
