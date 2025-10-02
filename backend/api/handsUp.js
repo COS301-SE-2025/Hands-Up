@@ -33,6 +33,7 @@ app.use(cookieParser());
 // --- 3. CUSTOM AUTHENTICATION MIDDLEWARE ---
 // This function runs on every request to check the session cookie.
 const authenticateUser = (req, res, next) => {
+    console.log("i entered the handsup.js");
     const sessionId = req.cookies.sessionId;
     
     // 1. If no session ID, user is not logged in.
@@ -51,7 +52,7 @@ const authenticateUser = (req, res, next) => {
             email: sessionData.email, 
             username: sessionData.username 
         };
-        console.log(`[BACKEND - AUTH] Session valid for user: ${sessionData.username}`);
+        console.log(`[handsUp.js] Session valid for user: ${sessionData.username}`);
     } else {
         // Session expired or invalid. Clear the cookie.
         res.clearCookie('sessionId', {
@@ -61,7 +62,7 @@ const authenticateUser = (req, res, next) => {
             path: '/',
         });
         req.user = null;
-        console.log('[BACKEND - AUTH] Session expired or invalid, cookie cleared.');
+        console.log('[handsUp.js] Session expired or invalid, cookie cleared.');
     }
 
     next();
