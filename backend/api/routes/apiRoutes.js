@@ -78,7 +78,7 @@ router.post('/auth/reset-password', resetPassword);
 router.post('/auth/confirm-reset-password', confirmPasswordReset);
 
 // User Profile and Management Routes
-router.get("/user/me", authenticateUser, getUserData);
+router.post("/user/me", authenticateUser, getUserData);
 router.put('/user/:id/details', authenticateUser, updateUserDetails);
 router.put('/user/:id/password', authenticateUser, updateUserPassword);
 

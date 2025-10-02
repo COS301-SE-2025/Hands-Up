@@ -652,30 +652,34 @@ const handleApiResponse = async (response) => {
     return data;
 };
 
+// Assuming getSessionIdFromDocumentCookie() utility is available and loginUser sets httpOnly: false
+// Also assuming API_BASE_URL_USER is defined
+
 export const getUserData = async () => {
-    console.log("entered get user data ");
+    console.log("entered get user data (POST method) ");
     
-    // 1. MANUALLY READ THE SESSION ID FROM BROWSER STORAGE
+    // 1. Manually read the Session ID from the client-accessible cookie
     const sessionId = getSessionIdFromDocumentCookie();
 
     if (!sessionId) {
-        console.warn('[FRONTEND] Cannot fetch user data: No session ID found in browser cookie storage.');
-        throw new Error('User not logged in (no session cookie).');
+        console.warn('[FRONTEND] Cannot fetch user data: No session ID found.');
+        throw new Error('User not logged in.');
     }
     
-    // 2. CONSTRUCT THE HEADERS, INCLUDING THE MANUAL COOKIE HEADER
-    const headers = {
-        'Content-Type': 'application/json',
-        // CRITICAL: Manually set the Cookie header using the retrieved ID
-        'Cookie': `sessionId=${sessionId}` 
+    // 2. The session ID must be passed in the request body for POST
+    const requestBody = {
+        sessionId: sessionId 
     };
 
+    // 3. CRITICAL: Switch to POST method
     try {
         const response = await fetch(`${API_BASE_URL_USER}/me`, {
-            method: 'GET',
-            headers: headers,
-            // 3. CRITICAL: REMOVE 'credentials: "include"' 
-            // The browser will block manual 'Cookie' headers if this flag is present.
+            method: 'POST', // <-- CHANGED FROM GET TO POST
+            headers: {
+                'Content-Type': 'application/json',
+                // We do NOT send the Cookie header or the Authorization header
+            },
+            body: JSON.stringify(requestBody), // <-- Sending the ID in the body
         });
         
         console.log("response: ",response);
@@ -685,6 +689,7 @@ export const getUserData = async () => {
         throw error; 
     }
 };
+
 
 // export const getUserData = async () => {
 //     console.log("entered get user data ");
