@@ -541,12 +541,13 @@ export const getUserData = async () => {
     // ⭐️ CRITICAL ITP BYPASS STEP: Attach the custom header if the token is available
     if (sessionId) {
         headers['X-Session-ID'] = sessionId;
-        console.log('ITP Bypass: Sending X-Session-ID header.');
+        console.log('ITP Bypass: Sending X-Session-ID header.',sessionId);
     }
 
     try {
         const response = await fetch(`${API_BASE_URL_USER}/me`, {
             method: 'GET',
+            headers: headers,
             credentials: 'include', 
         });
         console.log("response: ",response);
