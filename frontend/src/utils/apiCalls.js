@@ -364,18 +364,36 @@ export const updateLearningProgress = async (username, progressData) => {
     }
 };
 
+const SESSION_STORAGE_KEY = 'x-session-id';
 let clientSessionId = null; 
 
 // A wrapper to safely retrieve the session ID, defaulting to the stored token
-const getSessionId = () => clientSessionId; 
+const getSessionId = () => {
+    if (clientSessionId) {
+        return clientSessionId;
+    }
+    
+    // Check sessionStorage to rehydrate state after a page refresh (ITP fix)
+    const storedId = sessionStorage.getItem(SESSION_STORAGE_KEY);
+    if (storedId) {
+        // Rehydrate the in-memory variable for subsequent calls
+        clientSessionId = storedId;
+        console.log('[ITP FIX] Session ID rehydrated from sessionStorage.');
+        return storedId;
+    }
+    return null;
+};
 
 // Function to set the session ID after a successful login
 const setSessionId = (sessionId) => {
     clientSessionId = sessionId;
-    // Optional: You might want to store this in sessionStorage if you need 
-    // it to persist across a browser refresh (sessionStorage is cleared 
-    // when the tab is closed, which is better than localStorage for a session token).
-    // sessionStorage.setItem('x-session-id', sessionId);
+    if (sessionId) {
+        sessionStorage.setItem(SESSION_STORAGE_KEY, sessionId);
+        console.log('[ITP FIX] Session ID stored in sessionStorage.');
+    } else {
+        sessionStorage.removeItem(SESSION_STORAGE_KEY);
+        console.log('[ITP FIX] Session ID cleared from sessionStorage.');
+    }
 };
 
 export const login = async (credentials) => {
@@ -478,15 +496,41 @@ export const signup = async ({ name, surname, username, email, password }) => {
     }
 };
 
+// export const logout = async () => {
+//     try {
+//         const response = await fetch(`${API_BASE_URL_AUTH}/logout`, {
+//             method: 'POST',
+//             credentials: 'include',
+//         });
+//         return handleApiResponse(response);
+//     } catch (error) {
+//         console.error('API Logout error:', error);
+//         throw error;
+//     }
+// };
 export const logout = async () => {
     try {
+        // Use the same logic as getUserData, but for the logout endpoint
+        const sessionId = getSessionId();
+        let headers = { 'Content-Type': 'application/json' };
+        if (sessionId) {
+            headers['x-session-id'] = sessionId;
+        }
+
         const response = await fetch(`${API_BASE_URL_AUTH}/logout`, {
             method: 'POST',
+            headers: headers,
             credentials: 'include',
         });
+        
+        // Always clear the client-side session ID, regardless of server response success
+        setSessionId(null); 
+
         return handleApiResponse(response);
     } catch (error) {
         console.error('API Logout error:', error);
+        // Clear locally even if network fails
+        setSessionId(null); 
         throw error;
     }
 };
