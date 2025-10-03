@@ -199,24 +199,24 @@ const API_BASE_URL_LEARNING = 'https://hands-up.onrender.com/handsUPApi/learning
 const API_BASE_URL = 'https://hands-up.onrender.com/handsUPApi';
 const TRANSLATE_API_ROUTE = 'https://tmkdt-newhandsupmodel.hf.space/handsUPApi';
 
-// export const handleApiResponse = async (response) => {
-//     const data = await response.json();
-//     if (!response.ok) {
-//         const error = new Error(data.error || 'An unknown error occurred');
-//         if (data.attemptsLeft !== undefined) {
-//             error.attemptsLeft = data.attemptsLeft;
-//         }
-//         if (data.locked !== undefined) {
-//             error.locked = data.locked;
-//         }
-//         if (data.timeLeft !== undefined) {
-//             error.timeLeft = data.timeLeft;
-//         }
+export const handleApiResponse = async (response) => {
+    const data = await response.json();
+    if (!response.ok) {
+        const error = new Error(data.error || 'An unknown error occurred');
+        if (data.attemptsLeft !== undefined) {
+            error.attemptsLeft = data.attemptsLeft;
+        }
+        if (data.locked !== undefined) {
+            error.locked = data.locked;
+        }
+        if (data.timeLeft !== undefined) {
+            error.timeLeft = data.timeLeft;
+        }
 
-//         throw error;
-//     }
-//     return data;
-// };
+        throw error;
+    }
+    return data;
+};
 
 
 export const translateSequence = async (blobs) => {
@@ -364,48 +364,26 @@ export const updateLearningProgress = async (username, progressData) => {
     }
 };
 
-function isSessionCookieSet() {
-    return document.cookie.includes('sessionId=');
-}
-
-function setSessionCookieFallback(sessionId) {
-    console.log("setting th cookie")
-    // 1. Calculate expiration date (24 hours from now)
-    const expirationDate = new Date(Date.now() + (1000 * 60 * 60 * 24)).toUTCString();
-    
-    // 2. Build the cookie string with all required attributes for cross-site
-    // NOTE: This must match the backend's cookie attributes exactly for the
-    // browser to accept it as a valid session identifier.
-    // NOTE: We cannot include HttpOnly here, but the cookie itself will still
-    // be sent back to the server in the Cookie header.
-    const cookieString = `sessionId=${sessionId}; expires=${expirationDate}; Path=/; Secure; SameSite=None`;
-    
-    document.cookie = cookieString;
-    console.log("[FRONTEND - FALLBACK] JavaScript cookie set for Safari compatibility.");
-}
-
 export const login = async (credentials) => {
     try {
         console.log('[FRONTEND] Sending login request with credentials:', credentials);
-        console.log("checkpoint 1");
         const response = await fetch(`${API_BASE_URL_AUTH}/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(credentials),
-            credentials: 'include', // CRITICAL for sending/receiving cross-site cookies
+            credentials: 'include',
         });
         
         const data = await response.json();
-        console.log("checkpoint 2");
+        
         if (!response.ok) {
             const error = new Error(data.error || 'Login failed');
             
             error.type = 'LOGIN_ERROR';
             error.persistent = true; 
             
-            // --- Existing Custom Error Handling ---
             if (data.attemptsLeft !== undefined) {
                 error.attemptsLeft = data.attemptsLeft;
                 error.showAttemptsLeft = true;
@@ -427,23 +405,9 @@ export const login = async (credentials) => {
                        data.error?.toLowerCase().includes('email')) {
                 error.field = 'username';
             }
-            // --- End Custom Error Handling ---
-
+            
             throw error;
         }
-        console.log("checkpoint 3");
-        // --- HYBRID COOKIE FALLBACK LOGIC ---
-        
-        // 1. Check if the secure HTTP cookie was successfully stored by the server.
-        // 2. If it was blocked (likely Safari) AND the server returned the sessionId in the JSON.
-        console.log("boolean for the q ",!isSessionCookieSet() && data.sessionId);
-        if (data.sessionId) {
-            console.log("[FRONTEND] Race Fix: Forcing immediate write of new sessionId.");
-            setSessionCookieFallback(data.sessionId);
-        }
-        
-        // --- END HYBRID COOKIE FALLBACK LOGIC ---
-        console.log("checkpoint 4");
         console.log("data:",data);
         return data;
     } catch (error) {
@@ -461,68 +425,6 @@ export const login = async (credentials) => {
         throw networkError;
     }
 };
-
-// export const login = async (credentials) => {
-//     try {
-//         console.log('[FRONTEND] Sending login request with credentials:', credentials);
-//         const response = await fetch(`${API_BASE_URL_AUTH}/login`, {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//             },
-//             body: JSON.stringify(credentials),
-//             credentials: 'include',
-//         });
-        
-//         const data = await response.json();
-        
-//         if (!response.ok) {
-//             const error = new Error(data.error || 'Login failed');
-            
-//             error.type = 'LOGIN_ERROR';
-//             error.persistent = true; 
-            
-//             if (data.attemptsLeft !== undefined) {
-//                 error.attemptsLeft = data.attemptsLeft;
-//                 error.showAttemptsLeft = true;
-//             }
-            
-//             if (data.locked !== undefined) {
-//                 error.locked = data.locked;
-//                 error.severity = 'high';
-//             }
-            
-//             if (data.timeLeft !== undefined) {
-//                 error.timeLeft = data.timeLeft;
-//                 error.showTimeLeft = true;
-//             }
-            
-//             if (data.error?.toLowerCase().includes('password')) {
-//                 error.field = 'password';
-//             } else if (data.error?.toLowerCase().includes('username') || 
-//                        data.error?.toLowerCase().includes('email')) {
-//                 error.field = 'username';
-//             }
-            
-//             throw error;
-//         }
-//         console.log("data:",data);
-//         return data;
-//     } catch (error) {
-//         console.error('Login error:', error);
-        
-//         if (error.type === 'LOGIN_ERROR') {
-//             throw error;
-//         }
-        
-//         const networkError = new Error(error.message || 'Network error occurred');
-//         networkError.type = 'NETWORK_ERROR';
-//         networkError.persistent = true;
-//         networkError.severity = 'medium';
-        
-//         throw networkError;
-//     }
-// };
 
 export const signup = async ({ name, surname, username, email, password }) => {
     try {
@@ -608,103 +510,20 @@ export const confirmPasswordReset = async (email, token, newPassword, confirmNew
     return handleApiResponse(response);
 };
 
-function getSessionIdFromDocumentCookie() {
-    const cookieString = document.cookie;
-    const name = 'sessionId=';
-    const decodedCookie = decodeURIComponent(cookieString);
-    const ca = decodedCookie.split(';');
-
-    for (let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) === ' ') {
-            c = c.substring(1);
-        }
-        if (c.startsWith(name)) {
-            const sessionId = c.substring(name.length, c.length);
-            return sessionId;
-        }
-    }
-    return null;
-}
-
-/**
- * Helper function to handle common API response parsing and error throwing.
- */
-const handleApiResponse = async (response) => {
-    const contentType = response.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-        throw new Error(`Server returned non-JSON response (${response.status})`);
-    }
-
-    const data = await response.json();
-
-    if (!response.ok) {
-        const error = new Error(data.error || `Request failed with status ${response.status}`);
-        error.status = response.status;
-        error.details = data;
-        // --- Existing Custom Error Handling ---
-        if (data.attemptsLeft !== undefined) { error.attemptsLeft = data.attemptsLeft; error.showAttemptsLeft = true; }
-        // etc... (include your full error logic here)
-        // --- End Custom Error Handling ---
-        throw error;
-    }
-
-    return data;
-};
-
-// Assuming getSessionIdFromDocumentCookie() utility is available and loginUser sets httpOnly: false
-// Also assuming API_BASE_URL_USER is defined
-
 export const getUserData = async () => {
-    console.log("entered get user data (POST method) ");
-    
-    // 1. Manually read the Session ID from the client-accessible cookie
-    const sessionId = getSessionIdFromDocumentCookie();
-
-    if (!sessionId) {
-        console.warn('[FRONTEND] Cannot fetch user data: No session ID found.');
-        throw new Error('User not logged in.');
-    }
-    
-    // 2. The session ID must be passed in the request body for POST
-    const requestBody = {
-        sessionId: sessionId 
-    };
-    console.log("sending sessionId",requestBody);
-    // 3. CRITICAL: Switch to POST method
+    console.log("entered get user data ");
     try {
         const response = await fetch(`${API_BASE_URL_USER}/me`, {
-            method: 'POST', // <-- CHANGED FROM GET TO POST
-            headers: {
-                'Content-Type': 'application/json',
-                // We do NOT send the Cookie header or the Authorization header
-            },
-            body: JSON.stringify(requestBody), // <-- Sending the ID in the body
+            method: 'GET',
+            credentials: 'include', 
         });
-        
         console.log("response: ",response);
-        return handleApiResponse(response);
+       return handleApiResponse(response);
     } catch (error) {
        console.error('Error fetching logged-in user details (network/unexpected):', error);
         throw error; 
     }
 };
-
-
-// export const getUserData = async () => {
-//     console.log("entered get user data ");
-//     try {
-//         const response = await fetch(`${API_BASE_URL_USER}/me`, {
-//             method: 'GET',
-//             credentials: 'include', 
-//         });
-//         console.log("response: ",response);
-//        return handleApiResponse(response);
-//     } catch (error) {
-//        console.error('Error fetching logged-in user details (network/unexpected):', error);
-//         throw error; 
-//     }
-// };
 
 export const uniqueUsername = async (username) => {
     try {
