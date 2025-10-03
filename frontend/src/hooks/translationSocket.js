@@ -11,7 +11,7 @@ export function useTranslationSocket(dexterity = 'right') {
     const [result, setResult] = useState('');
     const [confidence, setConfidence] = useState('Awaiting capture to detect confidence...');
     const [translating, setTranslating] = useState(false);
-    const socketBaseURL = "https://tmkdt-newhandsupmodel.hf.space/handsUPApi"
+    const socketBaseURL = "wss://tmkdt-newhandsupmodel.hf.space/handsUPApi"
 
     const stopRecording = useCallback(() => {
         if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
