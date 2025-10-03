@@ -542,7 +542,7 @@ export const authenticateUser = async (req, res, next) => {
     console.log('----------------------------------------------------');
     // --- End Debugging Log ---
     console.log('Raw Cookie Header:', req.headers.cookie);
-    const sessionId = req.cookies.sessionId;
+    const sessionId = req.cookies.sessionId || req.body.sessionId;
     console.log("sessionID in authUser", sessionId);
 
     // If the browser failed to send the cookie, we cannot authenticate
