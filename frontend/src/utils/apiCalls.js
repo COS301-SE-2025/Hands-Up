@@ -364,6 +364,20 @@ export const updateLearningProgress = async (username, progressData) => {
     }
 };
 
+let clientSessionId = null; 
+
+// A wrapper to safely retrieve the session ID, defaulting to the stored token
+const getSessionId = () => clientSessionId; 
+
+// Function to set the session ID after a successful login
+const setSessionId = (sessionId) => {
+    clientSessionId = sessionId;
+    // Optional: You might want to store this in sessionStorage if you need 
+    // it to persist across a browser refresh (sessionStorage is cleared 
+    // when the tab is closed, which is better than localStorage for a session token).
+    // sessionStorage.setItem('x-session-id', sessionId);
+};
+
 export const login = async (credentials) => {
     try {
         console.log('[FRONTEND] Sending login request with credentials:', credentials);
@@ -408,6 +422,12 @@ export const login = async (credentials) => {
             
             throw error;
         }
+
+        if (data.sessionId) {
+            setSessionId(data.sessionId);
+            console.log('ITP Bypass: Session ID captured from server response.');
+        }
+
         console.log("data:",data);
         return data;
     } catch (error) {
@@ -512,6 +532,18 @@ export const confirmPasswordReset = async (email, token, newPassword, confirmNew
 
 export const getUserData = async () => {
     console.log("entered get user data ");
+    // 1. Get the stored session ID for the custom header fallback
+    const sessionId = getSessionId();
+    let headers = {
+        'Content-Type': 'application/json',
+    };
+
+    // ⭐️ CRITICAL ITP BYPASS STEP: Attach the custom header if the token is available
+    if (sessionId) {
+        headers['X-Session-ID'] = sessionId;
+        console.log('ITP Bypass: Sending X-Session-ID header.');
+    }
+
     try {
         const response = await fetch(`${API_BASE_URL_USER}/me`, {
             method: 'GET',

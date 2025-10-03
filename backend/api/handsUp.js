@@ -15,7 +15,11 @@ dotenv.config();
 const app = express();
 app.use(cors({
     origin: ['https://handsup.onrender.com'],
-    credentials: true,           
+    credentials: true, 
+    allowedHeaders: ['Content-Type', 'X-Session-ID'], 
+  
+    // 4. Also include OPTIONS to handle the preflight request
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']           
 }));
 
 app.use(bodyParser.json({ limit: '100mb' }));

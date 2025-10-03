@@ -434,6 +434,7 @@ export const loginUser = async (req, res) => {
         console.log("executed query");
         res.status(200).json({
             success: true,
+            sessionId: sessionId, 
             user: {
                 id: user.userID,
                 email: user.email,
@@ -471,6 +472,10 @@ export const logoutUser = async (req, res) => {
 export const authenticateUser = async (req, res, next) => {
     console.log('Raw Cookie Header:', req.headers.cookie);
     const sessionId = req.cookies.sessionId;
+    if (!sessionId) {
+        sessionId = req.headers['x-session-id']; // Headers are typically lowercase
+        console.log("FALLBACK: Using X-Session-ID header.");
+    }
     console.log("sessionID in authUser", sessionId);
 
     try {
