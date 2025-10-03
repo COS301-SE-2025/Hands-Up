@@ -670,7 +670,7 @@ export const getUserData = async () => {
     const requestBody = {
         sessionId: sessionId 
     };
-
+    console.log("sending sessionId",requestBody);
     // 3. CRITICAL: Switch to POST method
     try {
         const response = await fetch(`${API_BASE_URL_USER}/me`, {
