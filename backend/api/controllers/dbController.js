@@ -471,7 +471,7 @@ export const logoutUser = async (req, res) => {
 
 export const authenticateUser = async (req, res, next) => {
     console.log('Raw Cookie Header:', req.headers.cookie);
-    const sessionId = req.cookies.sessionId;
+    let sessionId = req.cookies.sessionId;
     if (!sessionId) {
         sessionId = req.headers['x-session-id']; // Headers are typically lowercase
         console.log("FALLBACK: Using X-Session-ID header.");
