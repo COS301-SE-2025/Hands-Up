@@ -437,8 +437,8 @@ export const login = async (credentials) => {
         // 1. Check if the secure HTTP cookie was successfully stored by the server.
         // 2. If it was blocked (likely Safari) AND the server returned the sessionId in the JSON.
         console.log("boolean for the q ",!isSessionCookieSet() && data.sessionId);
-        if (!isSessionCookieSet() && data.sessionId) {
-            console.warn("[FRONTEND] HTTP cookie was blocked/missing. Using JSON fallback to set cookie.");
+        if (data.sessionId) {
+            console.log("[FRONTEND] Race Fix: Forcing immediate write of new sessionId.");
             setSessionCookieFallback(data.sessionId);
         }
         
