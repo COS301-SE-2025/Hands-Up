@@ -472,20 +472,18 @@ export function NurseryRhymesPage() {
           }
 
           .angie-overlay {
-    position: absolute;
-    overflow: visible;
-    bottom: 10px;
-    right: 20px;
-    width: 200px;
-    height: 40vh;
-    background: rgba(255, 255, 255, 1);
-    border-radius: 15px;
-    border: 3px solid #FFD700;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-    z-index: 10;
-}
-
-          
+            position: absolute;
+            overflow: visible;
+            bottom: 10px;
+            right: 20px;
+            width: 200px;
+            height: 40vh;
+            background: rgba(255, 255, 255, 1);
+            border-radius: 15px;
+            border: 3px solid #FFD700;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+          }
 
           .loading-container {
             display: flex;
