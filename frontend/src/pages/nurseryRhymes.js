@@ -179,8 +179,17 @@ export function NurseryRhymesPage() {
                 
               },
               onStateChange: (event) => {
-                if (event.data === window.YT.PlayerState.ENDED) {
+                const YT = window.YT;
+                if (event.data === YT.PlayerState.ENDED) {
                   setIsPlaying(false);
+                } 
+                else if (event.data === YT.PlayerState.PLAYING) {
+                  if (!isPlaying) {
+                    startPlayback();
+                  }
+                } 
+                else if (event.data === YT.PlayerState.PAUSED) {
+                  pausePlayback();
                 }
               }
             }
