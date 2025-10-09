@@ -16,9 +16,10 @@ export function Landing(){
   const goToLogin = () => navigate('/login');
   const goToSignup = () => navigate('/signup');
   const goToTranslator = () => navigate('/translator');
-
+// eslint-disable-next-line no-unused-vars
   const [error, setError] = useState('');
 
+  // eslint-disable-next-line no-unused-vars
   const handleClick = () => {
     setError('Coming soon!');
     setTimeout(() => {
@@ -172,14 +173,54 @@ export function Landing(){
         <h2 className="help-heading" data-aos="zoom-in">Need a Hand?</h2> 
         
         <div className="help-container">
-          <div className="download-info" data-aos="fade-up">
-            <h3>How to Download</h3>
-            <p>Download info coming soon...</p>
-            <img src={devices} alt="Devices" className="device-image"/>
-            {/* <a href="https://play.google.com" target="_blank" rel="noopener noreferrer" className="download-button">Download Now</a> */}
-            <button className="download-button" onClick={handleClick}>Download Now</button>
-            {error && <p className="error-message">{error}</p>}
-          </div>
+<div className="download-info" data-aos="fade-up">
+  <h3>Get the Hands UP App</h3>
+  <p className="download-subtitle">Get instant access! Install the Hands UP app directly to your device:</p>
+  
+  <img src={devices} alt="Devices" className="device-image"/>
+  
+  <div className="installation-cards">
+    <div className="install-card desktop-card">
+      <div className="card-header">
+        <h4>Desktop Installation</h4>
+      </div>
+      <div className="install-steps">
+        <div className="step-item">
+          <span className="step-number">1</span>
+          <p>Tap the three dots menu <strong>(⋮)</strong> at the top right</p>
+        </div>
+        <div className="step-item">
+          <span className="step-number">2</span>
+          <p>Select <strong>'Cast, Save and Share'</strong></p>
+        </div>
+        <div className="step-item">
+          <span className="step-number">3</span>
+          <p>Click <strong>'Install App'</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <div className="install-card mobile-card">
+      <div className="card-header">
+        <h4>Mobile Installation</h4>
+      </div>
+      <div className="install-steps">
+        <div className="step-item">
+          <span className="step-number">1</span>
+          <p>Tap the menu icon <strong>(⋮)</strong> in your browser</p>
+        </div>
+        <div className="step-item">
+          <span className="step-number">2</span>
+          <p>Select <strong>'Add to Home Screen'</strong></p>
+        </div>
+        <div className="step-item">
+          <span className="step-number">3</span>
+          <p>Tap <strong>'Install'</strong> to confirm</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
           <div className="tutorial-video" data-aos="fade-up">
             <h3>Watch the Tutorial</h3>
