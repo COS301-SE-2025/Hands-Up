@@ -19,60 +19,7 @@ export function Landing(){
   // Add these state variables inside your Landing component
   const [deferredPrompt, setDeferredPrompt] = useState(null);
 
-
-
-  // Inside your useEffect hook
-  useEffect(() => {
-    // PWA install prompt handler
-    const handleBeforeInstallPrompt = (e) => {
-      e.preventDefault(); 
-      setDeferredPrompt(e); 
-      setShowInstallBtn(true);
-    };
-
-    // Add a listener for the 'appinstalled' event to update state
-    const handleAppInstalled = () => {
-      setIsPWAInstalled(true);
-      setShowInstallBtn(false);
-    };
-
-    // Check if the app is already in standalone mode on page load
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setIsPWAInstalled(true);
-    }
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    window.addEventListener('appinstalled', handleAppInstalled);
-
-    // Initialize AOS and other logic
-    AOS.init({
-      duration: 1000,
-      once: false,
-    });
-
-    // Cleanup function
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-      window.removeEventListener('appinstalled', handleAppInstalled);
-    };
-  }, []);
-
-  // Function to handle the install click
-  const handleInstallClick = () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      // Prompt is used, reset state
-      setDeferredPrompt(null);
-      setShowInstallBtn(false);
-    }
-  };
-
-  // Function to handle the open app click
-  const handleOpenAppClick = () => {
-    // Redirects the user to the app's home page
-    navigate('/');
-  };
-
+  
   return (
     <div className="landing-container">
 
