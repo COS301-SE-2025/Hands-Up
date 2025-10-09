@@ -18,18 +18,8 @@ export function Landing(){
   const goToTranslator = () => navigate('/translator');
   // Add these state variables inside your Landing component
   const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [showInstallBtn, setShowInstallBtn] = useState(false);
-  const [isPWAInstalled, setIsPWAInstalled] = useState(false);
-// eslint-disable-next-line no-unused-vars
-  const [error, setError] = useState('');
 
-  // eslint-disable-next-line no-unused-vars
-  const handleClick = () => {
-    setError('Coming soon!');
-    setTimeout(() => {
-      setError('');
-    }, 3000); 
-  };
+
 
   // Inside your useEffect hook
   useEffect(() => {
