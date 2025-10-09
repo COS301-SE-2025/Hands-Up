@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { Play, Pause, RotateCcw, Star, ArrowLeft, Video } from 'lucide-react';
 import { AngieSings } from '../components/angieSings';
 import PropTypes from 'prop-types';
+import { MdOutlineScreenRotation } from "react-icons/md";
 
 const NURSERY_RHYMES = [
   {
@@ -93,6 +94,24 @@ export function NurseryRhymesPage() {
   const [replayKey, setReplayKey] = useState(0);
   const [videoPlayer, setVideoPlayer] = useState(null);
   const intervalRef = useRef(null);
+  const [showRotateNotice, setShowRotateNotice] = useState(false);
+
+  useEffect(() => {
+    const checkOrientation = () => {
+      const isMobile = window.innerWidth <= 768;
+      const isPortrait = window.innerHeight > window.innerWidth;
+      setShowRotateNotice(isMobile && isPortrait);
+    };
+
+    checkOrientation();
+    window.addEventListener("resize", checkOrientation);
+    window.addEventListener("orientationchange", checkOrientation);
+
+    return () => {
+      window.removeEventListener("resize", checkOrientation);
+      window.removeEventListener("orientationchange", checkOrientation);
+    };
+  }, []);
 
   const startPlayback = useCallback(async () => {
     if (!selectedRhyme || isPlaying) return;
@@ -179,8 +198,17 @@ export function NurseryRhymesPage() {
                 
               },
               onStateChange: (event) => {
-                if (event.data === window.YT.PlayerState.ENDED) {
+                const YT = window.YT;
+                if (event.data === YT.PlayerState.ENDED) {
                   setIsPlaying(false);
+                } 
+                else if (event.data === YT.PlayerState.PLAYING) {
+                  if (!isPlaying) {
+                    startPlayback();
+                  }
+                } 
+                else if (event.data === YT.PlayerState.PAUSED) {
+                  pausePlayback();
                 }
               }
             }
@@ -269,15 +297,17 @@ export function NurseryRhymesPage() {
   if (selectedRhyme) {
     return (
       <div className="nursery-detail-page">
+
+        {showRotateNotice && (
+          <div className="rotate-notice">
+            <MdOutlineScreenRotation className="rotate-icon" />
+            <p className="rotate-text">Rotate your screen</p>
+          </div>
+        )}
+
         <div className="detail-container">
           <div className="detail-header">
-            <button 
-              className="back-btn"
-              onClick={() => setSelectedRhyme(null)}
-            >
-              <ArrowLeft size={20} />
-              Back to Rhymes
-            </button>
+          
             
             <div className="rhyme-info" style={{ background: selectedRhyme.bgGradient }}>
               <div className="rhyme-emoji">{selectedRhyme.emoji}</div>
@@ -313,6 +343,14 @@ export function NurseryRhymesPage() {
               </div>
 
               <div className="controls">
+                <button 
+              className="control-btn back"
+              onClick={() => setSelectedRhyme(null)}
+            >
+              <ArrowLeft size={20} />
+              Back to Rhymes
+            </button>
+
                 <button
                   onClick={isPlaying ? pausePlayback : startPlayback}
                   className={`control-btn ${isPlaying ? 'pause' : 'play'}`}
@@ -336,6 +374,51 @@ export function NurseryRhymesPage() {
         </div>
 
         <style jsx>{`
+          .rotate-notice {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.85);
+            color: black;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            animation: fadeIn 0.3s ease-in-out;
+          }
+
+          .rotate-icon {
+            font-size: 4rem;
+            color: black;
+            animation: rotate-prompt 2s infinite ease-in-out;
+          }
+
+          .rotate-text {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            opacity: 0.9;
+            font-weight: 500;
+          }
+
+          @keyframes rotate-prompt {
+            0%, 100% {
+              transform: rotate(0deg);
+            }
+            50% {
+              transform: rotate(90deg);
+            }
+          }
+
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+
           .nursery-detail-page {
             min-height: 100vh;
             position: relative;
@@ -389,26 +472,9 @@ export function NurseryRhymesPage() {
             margin-bottom: 40px;
           }
 
-          .back-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 15px 25px;
-            background: linear-gradient(135deg, #2da335, #7ED957);
-            border: none;
-            border-radius: 50px;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 100;
-            color: white;
-          }
+         
 
-          .back-btn:hover {
+          .control-btn.back:hover {
             transform: translateY(-3px) scale(1.05);
             box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
           }
@@ -472,20 +538,18 @@ export function NurseryRhymesPage() {
           }
 
           .angie-overlay {
-    position: absolute;
-    overflow: visible;
-    bottom: 10px;
-    right: 20px;
-    width: 200px;
-    height: 40vh;
-    background: rgba(255, 255, 255, 1);
-    border-radius: 15px;
-    border: 3px solid #FFD700;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-    z-index: 10;
-}
-
-          
+            position: absolute;
+            overflow: visible;
+            bottom: 10px;
+            right: 20px;
+            width: 200px;
+            height: 40vh;
+            background: rgba(255, 255, 255, 1);
+            border-radius: 15px;
+            border: 3px solid #FFD700;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+          }
 
           .loading-container {
             display: flex;
@@ -594,7 +658,10 @@ export function NurseryRhymesPage() {
             color: white;
           }
 
-
+           .control-btn.back {
+           background: linear-gradient(135deg, #FFC542,  #fdef2dff); 
+           color: white;
+           }
           .control-btn:hover:not(:disabled) {
             transform: translateY(-3px) scale(1.05);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);

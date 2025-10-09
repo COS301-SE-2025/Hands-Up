@@ -34,20 +34,6 @@ body::before {
     z-index: 0;
 }
 
-body::after {
-    content: '';
-    position: fixed;
-    top: 10%;
-    right: 10%;
-    width: 200px;
-    height: 200px;
-    background: linear-gradient(45deg, transparent 40%, rgba(255, 228, 77, 0.1) 50%, transparent 60%);
-    border-radius: 50%;
-    animation: rotate 15s linear infinite;
-    pointer-events: none;
-    z-index: 0;
-}
-
 @keyframes gradientShift {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }

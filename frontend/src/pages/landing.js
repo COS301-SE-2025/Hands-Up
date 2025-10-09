@@ -20,9 +20,10 @@ export function Landing(){
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstallBtn, setShowInstallBtn] = useState(false);
   const [isPWAInstalled, setIsPWAInstalled] = useState(false);
-
+// eslint-disable-next-line no-unused-vars
   const [error, setError] = useState('');
 
+  // eslint-disable-next-line no-unused-vars
   const handleClick = () => {
     setError('Coming soon!');
     setTimeout(() => {
@@ -221,17 +222,54 @@ export function Landing(){
         <h2 className="help-heading" data-aos="zoom-in">Need a Hand?</h2> 
         
         <div className="help-container">
-         <div className="download-info" data-aos="fade-up">
-          <h3>Get the Hands UP App</h3>
-              <p>Get instant access! You can install the Hands UP app directly to your device:</p>
-              <div className="steps-container">
-                <p><strong>Step 1:</strong> Tap the three dots menu (⋮) at the top right of your browser</p>
-                <p><strong>Step 2.1:</strong> For pc, select 'cast,save and share' then click 'Install App'</p>
-                <p><strong>Step 2.2:</strong>For mobile device, select 'Add to Home Screen' from the options.Then confirm by tapping 'Install'.</p>
-                </div>
-              <img src={devices} alt="Your future favorite app living happily on these devices" className="device-image"/>
-              {error && <p className="error-message">"Oops! Even apps have bad hair days. Try again?"</p>}
-            </div>
+<div className="download-info" data-aos="fade-up">
+  <h3>Get the Hands UP App</h3>
+  <p className="download-subtitle">Get instant access! Install the Hands UP app directly to your device:</p>
+  
+  <img src={devices} alt="Devices" className="device-image"/>
+  
+  <div className="installation-cards">
+    <div className="install-card desktop-card">
+      <div className="card-header">
+        <h4>Desktop Installation</h4>
+      </div>
+      <div className="install-steps">
+        <div className="step-item">
+          <span className="step-number">1</span>
+          <p>Tap the three dots menu <strong>(⋮)</strong> at the top right</p>
+        </div>
+        <div className="step-item">
+          <span className="step-number">2</span>
+          <p>Select <strong>&apos;Cast, Save and Share&apos;</strong></p>
+        </div>
+        <div className="step-item">
+          <span className="step-number">3</span>
+          <p>Click <strong>&apos;Install App&apos;</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <div className="install-card mobile-card">
+      <div className="card-header">
+        <h4>Mobile Installation</h4>
+      </div>
+      <div className="install-steps">
+        <div className="step-item">
+          <span className="step-number">1</span>
+          <p>Tap the menu icon <strong>(⋮)</strong> in your browser</p>
+        </div>
+        <div className="step-item">
+          <span className="step-number">2</span>
+          <p>Select <strong>&apos;Add to Home Screen&apos;</strong></p>
+        </div>
+        <div className="step-item">
+          <span className="step-number">3</span>
+          <p>Tap <strong>&apos;Install&apos;</strong> to confirm</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
           <div className="tutorial-video" data-aos="fade-up">
             <h3>Watch the Tutorial</h3>
