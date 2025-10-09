@@ -191,11 +191,11 @@ export function Landing(){
         </div>
         <div className="step-item">
           <span className="step-number">2</span>
-          <p>Select <strong>'Cast, Save and Share'</strong></p>
+          <p>Select <strong>&apos;Cast, Save and Share&apos;</strong></p>
         </div>
         <div className="step-item">
           <span className="step-number">3</span>
-          <p>Click <strong>'Install App'</strong></p>
+          <p>Click <strong>&apos;Install App&apos;</strong></p>
         </div>
       </div>
     </div>
@@ -211,11 +211,11 @@ export function Landing(){
         </div>
         <div className="step-item">
           <span className="step-number">2</span>
-          <p>Select <strong>'Add to Home Screen'</strong></p>
+          <p>Select <strong>&apos;Add to Home Screen&apos;</strong></p>
         </div>
         <div className="step-item">
           <span className="step-number">3</span>
-          <p>Tap <strong>'Install'</strong> to confirm</p>
+          <p>Tap <strong>&apos;Install&apos;</strong> to confirm</p>
         </div>
       </div>
     </div>
