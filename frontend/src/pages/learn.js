@@ -194,7 +194,13 @@ export function Learn() {
     const hasShownWelcomeThisSessionRef = useRef(false);
     const hasShownDashboardThisSessionRef = useRef(false);
     const shownCategoryHelpRef = useRef(new Set());
+    const currentCategoryRef = useRef(null);
+    const hasProcessedLocationStateRef = useRef(false);
     const initializationCompleteRef = useRef(false);
+    
+useEffect(() => {
+    currentCategoryRef.current = currentCategory;
+}, [currentCategory]);
 
     const normalizedStats = useMemo(() => {
         if (!stats) return null;
@@ -456,36 +462,43 @@ useEffect(() => {
     const progressPercent = Math.min(100, Math.round(lessonProgress));
 
     useEffect(() => {
-        if (location.state?.selectedCategory) {
-            const category = categories.find(cat => cat.id === location.state.selectedCategory);
-            if (category) {
-                setCurrentCategory(category);
-                setSelectedSection('category');
-            }
+   if (location.state?.selectedCategory && 
+        !hasProcessedLocationStateRef.current && 
+        !currentCategoryRef.current) {
+        
+        const category = categories.find(cat => cat.id === location.state.selectedCategory);
+        if (category) {
+            setCurrentCategory(category);
+            setSelectedSection('category');
+            hasProcessedLocationStateRef.current = true;
         }
-    }, [location.state, categories]);
+    }
+}, [location.state, categories]);
    
-    const goBack = () => {
-        setCurrentCategory(null);
-        setSelectedSection('dashboard');
-        
-        const shouldShowDashboard = normalizedStats && 
-                                   normalizedStats.placementTestCompleted && 
-                                   !normalizedStats.hasSeenCategoryHelp?.dashboard && 
-                                   !hasShownDashboardThisSessionRef.current &&
-                                   !isNewUser;
-        
-        if (shouldShowDashboard) {
-            hasShownDashboardThisSessionRef.current = true;
-            setTimeout(() => {
-                setShowHelpMessage({ 
-                    message: CATEGORY_HELP_MESSAGES.dashboard, 
-                    position: 'center', 
-                    helpKey: 'dashboard' 
-                });
-            }, 300);
-        }
-    };
+const goBack = useCallback(() => {
+    setCurrentCategory(null);
+    currentCategoryRef.current = null;
+    setSelectedSection('dashboard');
+    hasProcessedLocationStateRef.current = false;
+    navigate('/learn', { replace: true, state: {} });
+    
+    const shouldShowDashboard = normalizedStats && 
+                               normalizedStats.placementTestCompleted && 
+                               !normalizedStats.hasSeenCategoryHelp?.dashboard && 
+                               !hasShownDashboardThisSessionRef.current &&
+                               !isNewUser;
+    
+    if (shouldShowDashboard) {
+        hasShownDashboardThisSessionRef.current = true;
+        setTimeout(() => {
+            setShowHelpMessage({ 
+                message: CATEGORY_HELP_MESSAGES.dashboard, 
+                position: 'center', 
+                helpKey: 'dashboard' 
+            });
+        }, 300);
+    }
+}, [normalizedStats, isNewUser, navigate]);
 
     const navigateToSign = (sign, categoryId) => {
         navigate(`/sign/${sign}?category=${categoryId}`, {
@@ -519,19 +532,21 @@ useEffect(() => {
         }
     };
 
-    const handleCloseHelp = () => {
-        if (showHelpMessage.helpKey) {
-            markHelpSeen(showHelpMessage.helpKey);
-            
-            if (showHelpMessage.helpKey === 'welcome' && isNewUser && !normalizedStats?.placementTestCompleted) {
-                setTimeout(() => {
-                    setShowPlacementTest(true);
-                }, 300);
-            }
+const handleCloseHelp = useCallback(() => {
+    const helpKey = showHelpMessage?.helpKey;
+    
+    setShowHelpMessage(false);
+    
+    if (helpKey) {
+        markHelpSeen(helpKey);
+        
+        if (helpKey === 'welcome' && isNewUser && !normalizedStats?.placementTestCompleted) {
+            setTimeout(() => {
+                setShowPlacementTest(true);
+            }, 300);
         }
-        setShowHelpMessage(false);
-    };
-
+    }
+}, [showHelpMessage, isNewUser, normalizedStats, markHelpSeen]);
     const getLockedCategoryMessage = (categoryId) => {
         const currentIndex = CATEGORY_PROGRESSION.indexOf(categoryId);
         if (currentIndex <= 0) return "This category should be available. Please try again.";
@@ -541,33 +556,40 @@ useEffect(() => {
         
         return `Complete the quiz in '${previousCategoryName}' to unlock this category!`;
     };
-
-    const handleCategoryClick = (category) => {
-        if (category.unlocked) {
-            setCurrentCategory(category);
-            setShowHelpMessage(false);
-            
-            const hasSeenFromBackend = normalizedStats?.hasSeenCategoryHelp?.[category.id] === true;
-            const hasShownThisSession = shownCategoryHelpRef.current.has(category.id);
-            
-            if (!hasSeenFromBackend && !hasShownThisSession) {
-                shownCategoryHelpRef.current.add(category.id);
-                setTimeout(() => {
+/* eslint-disable react-hooks/exhaustive-deps */
+const handleCategoryClick = useCallback((category) => {
+    if (category.unlocked) {
+        setShowHelpMessage(false);
+        
+        hasProcessedLocationStateRef.current = true;
+        
+        setCurrentCategory(category);
+        currentCategoryRef.current = category;
+        
+        const hasSeenFromBackend = normalizedStats?.hasSeenCategoryHelp?.[category.id] === true;
+        const hasShownThisSession = shownCategoryHelpRef.current.has(category.id);
+        
+        if (!hasSeenFromBackend && !hasShownThisSession) {
+            shownCategoryHelpRef.current.add(category.id);
+            setTimeout(() => {
+                if (currentCategoryRef.current?.id === category.id) {
                     setShowHelpMessage({ 
                         message: CATEGORY_HELP_MESSAGES[category.id], 
                         position: 'center', 
-                        helpKey: category.id 
+                        helpKey: category.id
                     });
-                }, 300);
-            }
-        } else {
-            setShowHelpMessage({ 
-                message: getLockedCategoryMessage(category.id),
-                position: 'center',
-                helpKey: `locked_${category.id}`
-            });
+                }
+            }, 300);
         }
-    };
+    } else {
+        setShowHelpMessage({ 
+            message: getLockedCategoryMessage(category.id),
+            position: 'center',
+            helpKey: `locked_${category.id}`
+        });
+    }
+}, [normalizedStats]);
+/* eslint-disable react-hooks/exhaustive-deps */
 
     const retakePlacementTest = async () => {
        
