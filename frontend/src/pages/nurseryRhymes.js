@@ -271,13 +271,7 @@ export function NurseryRhymesPage() {
       <div className="nursery-detail-page">
         <div className="detail-container">
           <div className="detail-header">
-            <button 
-              className="back-btn"
-              onClick={() => setSelectedRhyme(null)}
-            >
-              <ArrowLeft size={20} />
-              Back to Rhymes
-            </button>
+          
             
             <div className="rhyme-info" style={{ background: selectedRhyme.bgGradient }}>
               <div className="rhyme-emoji">{selectedRhyme.emoji}</div>
@@ -313,6 +307,14 @@ export function NurseryRhymesPage() {
               </div>
 
               <div className="controls">
+                <button 
+              className="control-btn back"
+              onClick={() => setSelectedRhyme(null)}
+            >
+              <ArrowLeft size={20} />
+              Back to Rhymes
+            </button>
+
                 <button
                   onClick={isPlaying ? pausePlayback : startPlayback}
                   className={`control-btn ${isPlaying ? 'pause' : 'play'}`}
@@ -389,26 +391,9 @@ export function NurseryRhymesPage() {
             margin-bottom: 40px;
           }
 
-          .back-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 15px 25px;
-            background: linear-gradient(135deg, #2da335, #7ED957);
-            border: none;
-            border-radius: 50px;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 100;
-            color: white;
-          }
+         
 
-          .back-btn:hover {
+          .control-btn.back:hover {
             transform: translateY(-3px) scale(1.05);
             box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
           }
@@ -594,7 +579,10 @@ export function NurseryRhymesPage() {
             color: white;
           }
 
-
+           .control-btn.back {
+           background: linear-gradient(135deg, #FFC542,  #fdef2dff); 
+           color: white;
+           }
           .control-btn:hover:not(:disabled) {
             transform: translateY(-3px) scale(1.05);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
