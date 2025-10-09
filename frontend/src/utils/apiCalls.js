@@ -535,19 +535,34 @@ export const logout = async () => {
     }
 };
 
-export const resetPassword = async (credentials) => {
+export const resetPassword = async (email) => {
     
     
     try {
-        const response = await fetch(`${API_BASE_URL_AUTH}/login`, {
+        const response = await fetch(`${API_BASE_URL_AUTH}/reset-password`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(credentials),
             credentials: 'include',
+            body: JSON.stringify({ email }),
         });
-        return handleApiResponse(response);
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            const error = new Error(data.error || 'Password reset failed');
+            error.type = 'PASSWORD_RESET_ERROR';
+            error.persistent = true;
+            
+            if (data.error?.toLowerCase().includes('email')) {
+                error.field = 'email';
+            }
+            
+            throw error;
+        }
+        
+        return data;
     } catch (error) {
         console.error("Error in resetPassword:", error);
         
