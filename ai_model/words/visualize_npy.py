@@ -4,13 +4,12 @@ import mediapipe as mp
 import os
 import time
 
-# --- Configuration (should match your recording script) ---
 OUTPUT_RECORDINGS_DIR = 'my_recorded_signs'
 EXPECTED_COORDS_PER_FRAME = 1662
 NUM_POSE_COORDS_SINGLE = 33 * 4
 NUM_HAND_COORDS_SINGLE = 21 * 3
 NUM_FACE_COORDS_SINGLE = 468 * 3
-FRAME_DELAY_MS = 40  # Approximately 25 FPS (1000ms / 25)
+FRAME_DELAY_MS = 40  
 
 # --- Helper function to reconstruct landmarks ---
 def reconstruct_landmarks(flat_landmarks):
