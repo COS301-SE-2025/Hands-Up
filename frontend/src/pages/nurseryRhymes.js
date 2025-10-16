@@ -489,7 +489,7 @@ export function NurseryRhymesPage() {
             color: white;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-            margin: 80px auto 0;
+            margin-top: 10px;
             border: 3px solid rgba(255, 255, 255, 0.3);
           }
 
