@@ -725,21 +725,14 @@ const handleCategoryClick = useCallback((category) => {
                                     <LevelTile
                                         key={'quiz'}
                                         level={'Quiz'}
-                                        unlocked={signsLearned >= 5} 
+                                        unlocked={true} 
                                         onClick={() => {
-                                            if (signsLearned >= 5) {
                                                 navigate(getQuizRoute(currentCategory.id));
-                                            } else {
-                                                setShowHelpMessage({ 
-                                                    message: `You need to learn at least 5 signs in the Alphabet category to unlock this quiz. Keep practicing!`,
-                                                    position: 'center',
-                                                    helpKey: 'alphabet_quiz_locked'
-                                                });
-                                            }
+                                            
                                         }}
                                         style={{
-                                            backgroundColor: signsLearned >= 5 ? '#ffc107' : '#ccc',
-                                            color: signsLearned >= 5 ? '#fff' : '#666',
+                                            backgroundColor:  '#ffc107',
+                                            color: '#fff',
                                             fontWeight: 'bold',
                                             fontSize: '12px sm:14px'
                                         }}
