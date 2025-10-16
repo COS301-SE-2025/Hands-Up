@@ -91,14 +91,14 @@ Thus, the system focuses on three core functionalities:
 
 | Resource                          | View PDF                                | Description                             | 
 |-----------------------------------|-----------------------------------------|-----------------------------------------|
-| [Software Requirements Specification](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_4) | [Software Requirements Specification](https://github.com/COS301-SE-2025/Hands-Up/blob/main/docs/Hands%20UP%20SRS.pdf) | Outlines the system's functional and non-functional requirements |
-| [Coding Standards](https://github.com/COS301-SE-2025/Hands-Up/wiki/Coding_Standards_3) | [Coding Standards](https://github.com/COS301-SE-2025/Hands-Up/blob/main/docs/Hands%20UP%20Coding%20Standards.pdf) | Coding rules and quality guidelines |
-| Testing Policy | [Testing Document](https://github.com/COS301-SE-2025/Hands-Up/blob/main/docs/Hands%20UP%20Testing%20Policy.pdf) | Guide to testing tools, system tests and reports|
+| [Software Requirements Specification](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_4) | [Software Requirements Specification](https://github.com/COS301-SE-2025/Hands-Up/blob/main/documentation/Hands%20UP%20SRS.pdf) | Outlines the system's functional and non-functional requirements |
+| [Coding Standards](https://github.com/COS301-SE-2025/Hands-Up/wiki/Coding_Standards_3) | [Coding Standards](https://github.com/COS301-SE-2025/Hands-Up/blob/main/documentation/Hands%20UP%20Coding%20Standards.pdf) | Coding rules and quality guidelines |
+| Testing Policy | [Testing Document](https://github.com/COS301-SE-2025/Hands-Up/blob/main/documentation/Hands%20UP%20Testing%20Policy.pdf) | Guide to testing tools, system tests and reports|
 | [Deployment](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_4#deployment-model) | [Deployment](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_4) | Describes the deployment process and diagrams interactions |
 | [Project Management](https://github.com/orgs/COS301-SE-2025/projects/281) | - | Scrum board for tracking tasks and progress |
-| User Manual | [User Manual](https://github.com/COS301-SE-2025/Hands-Up/blob/main/docs/Hands%20UP%20User%20Manual.pdf) | Guide for using the system |
-| Technical Installation Manual | [Technical Installation Manual](https://github.com/COS301-SE-2025/Hands-Up/blob/main/docs/Hands%20UP%20Technical%20Installation%20Manual.pdf) | Steps to install dependencies and set up the system |
-| [Service Contracts](https://github.com/COS301-SE-2025/Hands-Up/wiki/Service_Contracts_4) | [Service Contracts](https://github.com/COS301-SE-2025/Hands-Up/blob/main/docs/Hands%20UP%20Service%20Contracts.pdf) | Defined inputs, outputs and behaviors of services |
+| User Manual | [User Manual](https://github.com/COS301-SE-2025/Hands-Up/blob/main/documentation/Hands%20UP%20User%20Manual.pdf) | Guide for using the system |
+| Technical Installation Manual | [Technical Installation Manual](https://github.com/COS301-SE-2025/Hands-Up/blob/main/documentation/Hands%20UP%20Technical%20Installation%20Manual.pdf) | Steps to install dependencies and set up the system |
+| [Service Contracts](https://github.com/COS301-SE-2025/Hands-Up/wiki/Service_Contracts_4) | [Service Contracts](https://github.com/COS301-SE-2025/Hands-Up/blob/main/documentation/Hands%20UP%20Service%20Contracts.pdf) | Defined inputs, outputs and behaviors of services |
 | [Contributions](https://github.com/COS301-SE-2025/Hands-Up/wiki/Contributions) | - | Outlines each member's individual responsibilities |
 | [References](https://github.com/COS301-SE-2025/Hands-Up/wiki/References) | - | Citations of resources used in the project |
 
