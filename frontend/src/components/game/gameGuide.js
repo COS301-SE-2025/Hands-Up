@@ -5,6 +5,7 @@ import { Canvas } from "@react-three/fiber";
 import { RunnerPosProvider } from "../../contexts/game/runnerPosition";
 import { VehicleSpawner } from "./spawnCars";
 import { CoinSpawner } from "./letterCoins";
+import { CameraInput } from './cameraInput';
 import CameraPOV from './cameraPOV';
 import LifeLostSign from './removeLife';
 import Runner from "./runner";
@@ -16,6 +17,10 @@ export default function GameGuide() {
     const [step, setStep] = useState(0); 
     const [letterIndex, setLetterIndex] = useState(0);
     const [lifeLost, setLifeLost] = useState(false);
+    const [showCamera, setShowCamera] = useState(false);
+    const [progress, setProgress] = useState(0);
+    const [receivedLetter, setReceivedLetter] = useState(false);
+    const [letterReceived, setLetterReceived] = useState('');
     const currentWord = "ASL";
 
     const steps = [
@@ -24,6 +29,7 @@ export default function GameGuide() {
         "MOVE LEFT",
         "MOVE RIGHT",
         "Now try collecting letters while avoiding cars.",
+        "Now sign the correct letter.",
         "Well Done!"
     ];
 
@@ -33,6 +39,7 @@ export default function GameGuide() {
         "Press ← (Left Arrow), A or Swipe Left",
         "Press → (Right Arrow), D or Swipe Right",
         "If you hit a car or collect an incorrect letter, you will lose a life.", 
+        "If sign an incorrect letter, you will lose a life.", 
         "Now you're ready to play Sign Surfers."
     ]
 
@@ -83,12 +90,38 @@ export default function GameGuide() {
         window.addEventListener("touchstart", handleTouchStart);
         window.addEventListener("touchend", handleTouchEnd);
 
+        // camera input 
+        let intervalTimer, timeoutTimer;
+        if (letterIndex === 2) {
+            setStep(5); 
+            setShowCamera(true);
+            setProgress(0);
+
+            const duration = 20000; 
+            let elapsed = 0;
+            intervalTimer = setInterval(() => {
+                elapsed += 100;
+                setProgress(Math.min((elapsed / duration) * 100, 100));
+            }, 100);
+
+            timeoutTimer = setTimeout(() => {
+                setShowCamera(false);
+                clearInterval(intervalTimer);
+            }, duration);
+        }
+
+        if (step === 6) {
+            setShowCamera(false); 
+        }
+
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
             window.removeEventListener("touchstart", handleTouchStart);
             window.removeEventListener("touchend", handleTouchEnd);
+            clearInterval(intervalTimer);
+            clearTimeout(timeoutTimer);
         };
-    }, [step]);
+    }, [step, letterIndex]);
 
     return (
         <div style={{ position: "relative", height: "100vh",
@@ -140,7 +173,7 @@ export default function GameGuide() {
             </div>
         )}
 
-        {step === 4 && (
+        {(step === 4 || step === 5) && (
             <div style={{
                 position: 'absolute',
                 top: '12vh',
@@ -164,6 +197,44 @@ export default function GameGuide() {
             </div>
         )}
 
+        {showCamera && (
+            <CameraInput
+                progress={progress}
+                show={showCamera}
+                onSkip={() => setShowCamera(false)}
+                onLetterDetected={(letter) => {
+                const targetLetter = 'L';
+                setLetterReceived(letter ? `DETECTED ${letter}` : 'NO LETTER DETECTED');
+                setReceivedLetter(true);
+
+                if (letter === targetLetter) {
+                    setTimeout(() => {
+                    setShowCamera(false);
+                    setStep(6); 
+                    }, 1000);
+                } else {
+                    setLifeLost(true); 
+                    setTimeout(() => setLifeLost(false), 2500);
+                }
+
+                setTimeout(() => setReceivedLetter(false), 2000);
+                }}
+            />
+        )}
+        {receivedLetter && (
+            <div style={{ 
+                position: 'absolute',
+                top: '25vh',
+                width: '100%',
+                textAlign: 'center',
+                fontSize: '2vw',
+                color: 'red',
+                zIndex: 100
+            }}>
+                {letterReceived}
+            </div>
+        )}
+
         <div style={{ position: 'absolute', top: '1%', right: '1.5%', display: 'flex', flexDirection: 'column', zIndex: 100 }}>
             <svg width="80" height="80" viewBox="0 0 120 104" style={{ cursor: 'pointer', pointerEvents: 'auto' }} onClick={() => { navigate('/game'); }} >
                 <polygon points="60,0 115,30 115,74 60,104 5,74 5,30" fill="red" transform="translate(60 52) scale(0.85) translate(-60 -52)" stroke='white' strokeWidth={12} />
@@ -183,11 +254,11 @@ export default function GameGuide() {
                     <Road />
                     <Runner gameStarted={true} />
 
-                    {step >= 4 && (
+                    {step >= 4 && step < 6 && !showCamera && (
                         <>
                             <VehicleSpawner onCollision={() => {setLifeLost(true); setTimeout(() => setLifeLost(false), 2500);}} speed={10} />
                             <CoinSpawner onWrongLetter={() => {setLifeLost(true); setTimeout(() => setLifeLost(false), 2500);}} currentWord={"ASL"} letterIndex={letterIndex} setLetterIndex={setLetterIndex}
-                                        pickNewWord={() => {setStep(5); setTimeout(() => navigate('/game'), 2500);}}/>
+                                        pickNewWord={() => {setStep(6); setTimeout(() => navigate('/game'), 2500);}}/>
                         </>
                     )}
             </Suspense>

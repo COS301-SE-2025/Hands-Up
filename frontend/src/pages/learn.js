@@ -617,7 +617,7 @@ const handleCategoryClick = useCallback((category) => {
         });
     }
 }, [normalizedStats]);
-/* eslint-disable react-hooks/exhaustive-deps */
+ 
 
     const retakePlacementTest = async () => {
        
