@@ -5,12 +5,13 @@ import { CategoryTile } from '../components/learnCategoryTile';
 import { LevelTile } from '../components/learnLevelTile';
 import '../styles/learn.css';
 import { useLearningStats } from '../contexts/learningStatsContext';
-import { AngieSigns } from '../components/angieSigns';
-import { Canvas } from '@react-three/fiber';
+// import { AngieSigns } from '../components/angieSigns';
+// import { Canvas } from '@react-three/fiber';
 import PropTypes from 'prop-types';
 import PlacementTest from '../components/placementTest';
+import angieNotice from '../images/angie_notice.png';
 
-const landmarks = {};
+// const landmarks = {};
 
 const CATEGORY_PROGRESSION = [
     'alphabets',     
@@ -30,7 +31,7 @@ const CATEGORY_PROGRESSION = [
 ];
 
 const HelpMessage = ({ message, onClose, position }) => {
-    const [webglError, setWebglError] = useState(false);
+    // const [webglError, setWebglError] = useState(false);
 
     if (!message) return null;
 
@@ -52,28 +53,57 @@ const HelpMessage = ({ message, onClose, position }) => {
            positionClasses = 'top-3 right-4';
     }
 
-    const handleCanvasError = (error) => {
-        console.warn('WebGL Canvas error:', error);
-        setWebglError(true);
-    };
+    // const handleCanvasError = (error) => {
+    //     console.warn('WebGL Canvas error:', error);
+    //     setWebglError(true);
+    // };
 
-    const checkWebGLSupport = () => {
-        try {
-            const canvas = document.createElement('canvas');
-            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-            return !!gl;
-        } catch {
-            return false;
-        }
-    };
+    // const checkWebGLSupport = () => {
+    //     try {
+    //         const canvas = document.createElement('canvas');
+    //         const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    //         return !!gl;
+    //     } catch {
+    //         return false;
+    //     }
+    // };
 
-    const hasWebGL = checkWebGLSupport();
+    // const hasWebGL = checkWebGLSupport();
 
     return (
        <div className="help-message-backdrop fixed inset-0 bg-black bg-opacity-50 z-[9998] animate-fadeIn">
             <div className={`help-message-overlay fixed z-[9999] p-4 sm:p-6 rounded-2xl shadow-2xl flex flex-col items-center justify-center bg-gradient-to-br from-white to-gray-50 border border-gray-200 ${positionClasses} animate-fadeInScale max-w-[90vw] sm:max-w-md`}>
-                <div className="w-full max-w-[150px] sm:max-w-[200px] h-[150px] sm:h-[200px] rounded-xl bg-white shadow-md mb-4 flex items-center justify-center">
-                    {hasWebGL && !webglError ? (
+                <div className="w-full max-w-[150px] sm:max-w-[200px] h-[150px] sm:h-[200px] rounded-xl bg-white shadow-md mb-4 flex items-center justify-center"
+                style={{
+                    display: 'flex',           
+                    justifyContent: 'center',  
+                    alignItems: 'center',      
+                    width: '100%',             
+                    height: '100%',            
+                }}>
+                    <div style={{
+                        width: '80%',          
+                        maxWidth: '200px',     
+                        aspectRatio: '1 / 1',  
+                        borderRadius: '1rem',
+                        // backgroundColor: 'white',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        overflow: 'hidden'
+                    }}>
+                            <img
+                                src={angieNotice}
+                                alt="Angie Model"
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'contain',
+                                }}
+                                loading="lazy"
+                            />
+                    </div>
+                    {/* {hasWebGL && !webglError ? (
                         <Canvas 
                             camera={{ position: [0, 0.2, 3], fov: 30 }}
                             onError={handleCanvasError}
@@ -83,9 +113,7 @@ const HelpMessage = ({ message, onClose, position }) => {
                                 failIfMajorPerformanceCaveat: false 
                             }}
                         >
-                            {/* eslint-disable react/no-unknown-property */}
                             <ambientLight intensity={5} />
-                            {/* eslint-disable react/no-unknown-property */}
                             <group position={[0, -1.1, 0]}>
                                 <AngieSigns landmarks={landmarks} />
                             </group>
@@ -100,7 +128,7 @@ const HelpMessage = ({ message, onClose, position }) => {
                                 </div>
                             </div>
                         </div>
-                    )}
+                    )} */}
                 </div>
 
                 <p className="text-gray-800 text-base sm:text-lg text-center font-medium mb-4 sm:mb-6 leading-relaxed max-w-md px-2">
@@ -589,7 +617,7 @@ const handleCategoryClick = useCallback((category) => {
         });
     }
 }, [normalizedStats]);
-/* eslint-disable react-hooks/exhaustive-deps */
+ 
 
     const retakePlacementTest = async () => {
        
