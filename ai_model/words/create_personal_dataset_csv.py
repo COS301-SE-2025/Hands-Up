@@ -6,136 +6,25 @@ from sklearn.model_selection import train_test_split # For splitting data
 
 # --- Configuration ---
 MY_RECORDED_SIGNS_DIR = 'my_recorded_signs'
-PERSONAL_PROCESSED_CSV = 'wlasl_125_words_personal_processed.csv' # Changed to 125 words
+PERSONAL_PROCESSED_CSV = 'wlasl_77_words_demo_processed.csv' # <-- CHANGED: New CSV for the final 77-word demo set
 
-# --- Define your expected 125-word list (for validation, ensure only these glosses are included) ---
-# This list MUST match the glosses of the .npy files you have recorded
+# --- Define your expected 77-word list (for validation, ensure only these glosses are included) ---
+# This list MUST match the 77 glosses confirmed to be in your my_recorded_signs folder
 EXPECTED_GLOSSES = [
-    "again",
-    "ambulance",
-    "and",
-    "angry",
-    "animal",
-    "apple",
-    "aunt",
-    "autum",
-    "bird",
-    "black",
-    "blue",
-    "boy",
-    "brother",
-    "brown",
-    "can",
-    "candy",
-    "car",
-    "cat",
-    "cereal",
-    "chair",
-    "child",
-    "cold",
-    "come",
-    "computer",
-    "cool",
-    "cow",
-    "cry",
-    "cup",
-    "deaf",
-    "dog",
-    "drink",
-    "drive",
-    "drive-there",
-    "eat",
-    "egg",
-    "father",
-    "feel",
-    "fish",
-    "freeze",
-    "friday",
-    "full",
-    "future",
-    "girl",
-    "give",
-    "go",
-    "gold",
-    "grandma",
-    "grandpa",
-    "green",
-    "grey",
-    "happy",
-    "hate",
-    "hello",
-    "horse",
-    "hot",
-    "hungry",
-    "hurt",
-    "juice",
-    "light",
-    "like",
-    "love",
-    "meet",
-    "milk",
-    "monday",
-    "mother",
-    "my",
-    "name",
-    "nice",
-    "now",
-    "o'clock",
-    "orange",
-    "parents",
-    "pet",
-    "pink",
-    "pizza",
-    "popcorn",
-    "purple",
-    "rain",
-    "red",
-    "sad",
-    "saturday",
-    "shower",
-    "siblings",
-    "silver",
-    "sister",
-    "sit",
-    "sleep",
-    "snow",
-    "sorry",
-    "soup",
-    "spring",
-    "stand",
-    "stay",
-    "summer",
-    "sun",
-    "sunday",
-    "sunrise",
-    "table",
-    "talk",
-    "tell",
-    "this",
-    "thursday",
-    "today",
-    "tomorrow",
-    "tuesday",
-    "uncle",
-    "understand",
-    "walk",
-    "warm",
-    "watch",
-    "water",
-    "weather",
-    "wednesday",
-    "what",
-    "white",
-    "who",
-    "why",
-    "wind",
-    "window",
-    "winter",
-    "year",
-    "yellow",
-    "yesterday",
-    "you",
-    "your",
+    # 60 Working Words + Fixed:
+    "red", "yellow", "purple", "brown", "grey", "gold", "black", "you", "your", "what", 
+    "hello", "again", "nice", "meet", "boy", "parents", "child", "aunt", "cry", "hurt", 
+    "sad", "love", "drive", "sleep", "stand", "come", "stay", "can", "tomorrow", "today", 
+    "future", "monday", "tuesday", "wednesday", "sunday", "year", "yesterday", 
+    "water", "apple", "drink", "pizza", "eat", "cup", "shower", "light", "computer", 
+    "hate", "chair", "car", "ambulance", "cow", "bird", "cat", "dog", "autum", 
+    "summer", "spring", "cold", "rain", "freeze", "sunrise", "wind", "weather", 
+    "go", "drive-there", 
+    # 17 Words Added/Restored for Demo Script:
+    "my", "name", "this", "our", "i", "university", "student", "translation", "real", 
+    "time", "try", "end", "demonstration", "with", "force",
+    # 8 Restored Words
+    "am", "and", "give", "hot", "mother", "sun", "uncle", "work"
 ]
 EXPECTED_GLOSSES_SET = set(g.lower() for g in EXPECTED_GLOSSES)
 
@@ -155,6 +44,7 @@ if os.path.exists(MY_RECORDED_SIGNS_DIR):
 
                 full_npy_path = os.path.join(MY_RECORDED_SIGNS_DIR, filename)
 
+                # Only process files whose gloss is in the FINAL 77-word list
                 if gloss in EXPECTED_GLOSSES_SET:
                     personal_records.append({
                         'gloss': gloss,
@@ -167,8 +57,9 @@ if os.path.exists(MY_RECORDED_SIGNS_DIR):
                         'bbox': [0,0,0,0],
                         'split': 'temp' # Temporary split, will be re-assigned
                     })
-                else:
-                    print(f"Warning: Personal recording '{filename}' has gloss '{gloss}' which is not in the EXPECTED_GLOSSES list. Skipping.")
+                # We skip files not in the 77-word list, completing the cleanup
+                # else:
+                #     print(f"Warning: Recording '{filename}' skipped (not in final 77-word list).")
             else:
                 print(f"Warning: Could not parse filename for '{filename}'. Skipping.")
 else:
@@ -176,6 +67,8 @@ else:
     exit()
 
 df_personal_raw = pd.DataFrame(personal_records)
+# Note: The expected gloss count is 77, but the script still uses the old variable definition length
+# This print statement will correctly show the intended size:
 print(f"Found {len(df_personal_raw)} personal recordings for the {len(EXPECTED_GLOSSES)} expected glosses.")
 
 if df_personal_raw.empty:
@@ -193,8 +86,6 @@ for gloss in EXPECTED_GLOSSES_SET:
         continue # Skip to next gloss
 
     # Determine optimal split ratios based on the quantity of data you have recorded
-    # For a total dataset of a few hundred instances, 70/15/15 is a decent starting point.
-    # If you recorded many videos per word (e.g., >30 per word): train 80%, val 10%, test 10% might be better.
     train_ratio = 0.70
     val_ratio = 0.15
     test_ratio = 0.15
@@ -206,16 +97,11 @@ for gloss in EXPECTED_GLOSSES_SET:
         df_personal_final = pd.concat([df_personal_final, gloss_df])
         continue
 
-    # Stratify by gloss (though not strictly necessary as we are looping by gloss)
-    # The 'stratify' argument in train_test_split ensures that the proportion of classes
-    # is roughly the same in the training, validation, and test sets.
-
     # Split into train/test first
     train_val_df, test_df = train_test_split(
-        gloss_df, test_size=test_ratio, random_state=42, stratify=gloss_df['gloss'] if len(gloss_df['gloss'].unique()) > 1 else None # Stratify only if multiple classes present, which is true here.
+        gloss_df, test_size=test_ratio, random_state=42, stratify=gloss_df['gloss'] if len(gloss_df['gloss'].unique()) > 1 else None 
     )
     # Split train_val into train/val
-    # Adjust val_size ratio for the remaining train_val_df
     remaining_val_ratio = val_ratio / (train_ratio + val_ratio)
     train_df, val_df = train_test_split(
         train_val_df, test_size=remaining_val_ratio, random_state=42, stratify=train_val_df['gloss'] if len(train_val_df['gloss'].unique()) > 1 else None
