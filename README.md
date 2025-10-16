@@ -55,13 +55,7 @@ Thus, the system focuses on three core functionalities:
 2. Interactive sign language learning curriculum
 3. Progress tracking for users
 
-<h3>Watch The Demo</h3>
-<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%;">
-  <iframe src="https://drive.google.com/file/d/1GlH0fi46Tru-OchkWjSYwU1vCfuLYwlx/preview" 
-          style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
-          allow="autoplay" frameborder="0">
-  </iframe>
-</div>
+### [Watch The Demo](https://drive.google.com/file/d/1GlH0fi46Tru-OchkWjSYwU1vCfuLYwlx/view?usp=drive_link)
 
 <!-- <div align="Center">
 <h2 id="demo-videos--system-requirement-specifications">Demo Videos & System Requirement Specifications</h2>
