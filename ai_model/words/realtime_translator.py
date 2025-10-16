@@ -6,7 +6,6 @@ import os
 from tensorflow.keras.models import load_model
 import time
 
-# --- Configuration (must match training parameters) ---
 MODEL_PATH = 'saved_models/best_sign_classifier_model_125_words_seq90.keras'
 PROCESSED_DATA_CSV = 'wlasl_125_words_personal_final_processed_data_augmented_seq90.csv'
 
@@ -18,24 +17,22 @@ NUM_POSE_COORDS_SINGLE = 33 * 4
 NUM_HAND_COORDS_SINGLE = 21 * 3
 NUM_FACE_COORDS_SINGLE = 468 * 3
 
-# --- Real-time Translation Specific Parameters ---
 RECORDING_DURATION_SECONDS = 3.6
 CONFIDENCE_THRESHOLD = 0.50 # Minimum confidence for a prediction to be displayed
 
-# --- Automatic Detection & String Building Parameters ---
+
 MOTION_THRESHOLD = 0.05 # How much landmark movement is needed to trigger a recording
 COOLDOWN_DURATION = 2.0 # Seconds to wait after a prediction before looking for a new sign
 TIME_BETWEEN_WORDS = 1.0 # Minimum time between adding new, distinct words to the sentence
 SENTENCE_CLEAR_DURATION = 8.0 # Time of inactivity before the sentence is cleared
 
-# States for the application
+# States
 STATE_IDLE = "IDLE (Signing will auto-record)"
 STATE_RECORDING = "RECORDING..."
 STATE_PREDICTING = "PREDICTING..."
-STATE_RESULT = "" # No longer needed as a state string
+STATE_RESULT = "" 
 STATE_COOLDOWN = "COOLDOWN..."
 
-# --- Utility Functions (Copied/Adapted from data_preprocessor.py) ---
 def normalize_landmarks(landmarks_sequence):
     """
     Normalizes a sequence of landmarks (frames, coords) to be translation and scale invariant.
@@ -129,7 +126,7 @@ def calculate_motion(current_lms, previous_lms):
     
     return pose_lms_change + hands_lms_change
 
-# --- Main Real-time Translator Logic ---
+
 if __name__ == "__main__":
     if not os.path.exists(MODEL_PATH):
         print(f"Error: Model not found at {MODEL_PATH}. Please ensure your training completed and saved the model.")
@@ -188,12 +185,10 @@ if __name__ == "__main__":
         if not ret:
             print("Failed to grab frame.")
             break
-        
-        # --- CAMERA FLIP ADJUSTMENT ---
+
         # This line will flip the image horizontally.
         # This creates an un-mirrored view, as if someone is facing you.
         # frame = cv2.flip(frame, 1)
-        # --- END CAMERA FLIP ADJUSTMENT ---
 
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         image.flags.writeable = False
@@ -201,7 +196,7 @@ if __name__ == "__main__":
         image.flags.writeable = True
         frame = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-        # Draw landmarks (unchanged)
+        # Draw landmarks 
         mp.solutions.drawing_utils.draw_landmarks(frame, results.pose_landmarks, mp.solutions.holistic.POSE_CONNECTIONS)
         mp.solutions.drawing_utils.draw_landmarks(frame, results.left_hand_landmarks, mp.solutions.holistic.HAND_CONNECTIONS)
         mp.solutions.drawing_utils.draw_landmarks(frame, results.right_hand_landmarks, mp.solutions.holistic.HAND_CONNECTIONS)
@@ -292,7 +287,6 @@ if __name__ == "__main__":
             last_word_added = ""
             display_status_text = "Sentence cleared."
 
-        # --- END NEW LOGIC ---
 
         # Text on screen (UPDATED to show sentence and status)
         sentence_text = " ".join(current_sentence).upper()

@@ -3,7 +3,6 @@ import json
 import pandas as pd
 import cv2 
 
-# --- CONFIGURATION FOR TARGET WORD LIST ---
 # This is your CUMULATIVE 20-word subset (lowercase recommended for WLASL compatibility)
 TARGET_GLOSS_LIST = [
     # Your original 10 words:
@@ -19,7 +18,6 @@ ALPHABET_GLOSSES = [
     "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"
 ]
 GLOSSES_TO_EXCLUDE_SET = set(g.lower() for g in ALPHABET_GLOSSES) # Convert to lowercase set for comparison
-# --- END CONFIGURATION ---
 
 def parse_wlasl_dataset(base_data_path):
     videos_dir = os.path.join(base_data_path, 'videos')
