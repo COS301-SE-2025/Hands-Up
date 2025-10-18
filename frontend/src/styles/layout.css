@@ -286,7 +286,7 @@ body {
 }
 
 
-@media (max-width: 540px) {
+@media (max-width: 805px) {
   .header {
     padding: 0.5rem 1rem;
     height: auto;
@@ -309,7 +309,7 @@ body {
   }
 
   .nav-link {
-    font-size: 0.7rem;
+    font-size: 1rem;
     padding: 0.2rem 0.4rem;
     white-space: nowrap;
   }
@@ -344,7 +344,7 @@ body {
   }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 518px) {
   .header {
     padding: 0.3rem 0.8rem;
   }

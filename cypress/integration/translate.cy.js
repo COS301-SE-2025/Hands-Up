@@ -34,7 +34,7 @@ describe('Overall Application Tests', () => {
       cy.visit('http://localhost:3000/translator');
 
       // Test page structure and initial elements
-      cy.contains('h2', 'Sign Language Recognizer').should('be.visible');
+      cy.contains('h2', 'Sign Language Recognizer (ASL)').should('be.visible');
       cy.get('.recognizer-status-key').should('be.visible');
       // cy.get('.recognizer-banner p').should('contain', 'Swipe your hand in the camera to switch models');
       cy.get('.recognizer-camera-container').should('be.visible');
@@ -134,7 +134,7 @@ describe('Overall Application Tests', () => {
 
     it('should display all required UI elements', () => {
       // Header and title
-      cy.get('.recognizer-title').should('contain', 'Sign Language Recognizer');
+      cy.get('.recognizer-title').should('contain', 'Sign Language Recognizer (ASL)');
       cy.get('.recognizer-title-icon').should('have.class', 'fas');
 
       // Banner
@@ -279,7 +279,7 @@ describe('Overall Application Tests', () => {
 
     it('should display translator page after real authentication', () => {
       // Test core elements that should be visible
-      cy.get('.recognizer-title').should('contain', 'Sign Language Recognizer');
+      cy.get('.recognizer-title').should('contain', 'Sign Language Recognizer (ASL)');
       cy.get('.recognizer-status-key-column').should('be.visible');
       cy.get('video.recognizer-video').should('be.visible');
       // cy.get('.recognizer-live-indicator').should('be.visible');

@@ -83,7 +83,7 @@ export const LearningStatsProvider = ({ children }) => {
                 
                 if (contentType && contentType.includes('application/json')) {
                     const userData = await response.json();
-                    console.log('User data received:', userData);
+                    // console.log('User data received:', userData);
                     return userData.user?.username;
                 } else {
                     const textResponse = await response.text();

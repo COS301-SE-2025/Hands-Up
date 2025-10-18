@@ -317,58 +317,60 @@ export function SignLearn() {
         setHasTrackedStats(false);
     }, [letter]);
 
-    useEffect(() => {
-        async function loadData() {
-            if (!letter) return;
+useEffect(() => {
+    async function loadData() {
+        if (!letter) return;
 
-            setLoading(true);
-            try {
-                let data;
-                if (isPhrase && currentPhrase) {
-                    setCurrentWordIndex(0);
-                    const currentWord = currentPhrase.words[currentWordIndex];
-                   // console.log('Loading animation for word:', currentWord);
-                    data = await getLandmarks(currentWord);
-                } else {
-                    //console.log('Loading animation for letter:', letter);
-                    data = await getLandmarks(letter);
-                }
-                
-                if (!data || data.length === 0) {
-                    console.warn('No landmarks found for:', isPhrase ? currentPhrase.words[currentWordIndex] : letter);
-                }
-                
-                setLandmarks(data);
-
-               if (!hasTrackedStats) {
-                    if (isPhrase && currentPhrase) {
-                        const learnedPhrases = stats?.learnedPhrases || [];
-                        if (!learnedPhrases.includes(letter)) {
-                            updateStats({
-                                lessonsCompleted: (stats?.lessonsCompleted || 0) + 1,
-                                learnedPhrases: [...learnedPhrases, letter]
-                            });
-                            setHasTrackedStats(true);
-                        }
-                    } else {
-                        const learnedSigns = stats?.learnedSigns || []; 
-                        if (!learnedSigns.includes(letter.toLowerCase())) {
-                            updateStats({
-                                signsLearned: (stats?.signsLearned || 0) + 1, 
-                                learnedSigns: [...learnedSigns, letter.toLowerCase()]
-                            });
-                            setHasTrackedStats(true);
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error('Failed to load landmarks:', error);
-            } finally {
-                setLoading(false);
+        setLoading(true);
+        try {
+            let data;
+            if (isPhrase && currentPhrase) {
+                setCurrentWordIndex(0);
+                const currentWord = currentPhrase.words[currentWordIndex];
+                data = await getLandmarks(currentWord);
+            } else {
+                data = await getLandmarks(letter);
             }
+            
+            if (!data || data.length === 0) {
+                console.warn('No landmarks found for:', isPhrase ? currentPhrase.words[currentWordIndex] : letter);
+            }
+            
+            setLandmarks(data);
+        } catch (error) {
+            console.error('Failed to load landmarks:', error);
+        } finally {
+            setLoading(false);
         }
-        loadData();
-    }, [letter, currentWordIndex, isPhrase, currentPhrase, updateStats, stats, hasTrackedStats]); 
+    }
+    loadData();
+}, [letter, currentWordIndex, isPhrase, currentPhrase]);
+
+/* eslint-disable react-hooks/exhaustive-deps */
+useEffect(() => {
+    if (!letter || hasTrackedStats) return;
+
+    if (isPhrase && currentPhrase) {
+        const learnedPhrases = stats?.learnedPhrases || [];
+        if (!learnedPhrases.includes(letter)) {
+            updateStats({
+                lessonsCompleted: (stats?.lessonsCompleted || 0) + 1,
+                learnedPhrases: [...learnedPhrases, letter]
+            });
+            setHasTrackedStats(true);
+        }
+    } else {
+        const learnedSigns = stats?.learnedSigns || []; 
+        if (!learnedSigns.includes(letter.toLowerCase())) {
+            updateStats({
+                signsLearned: (stats?.signsLearned || 0) + 1, 
+                learnedSigns: [...learnedSigns, letter.toLowerCase()]
+            });
+            setHasTrackedStats(true);
+        }
+    }
+}, [letter, isPhrase]);
+ 
 
     if (loading) {
         return (

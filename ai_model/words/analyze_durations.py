@@ -1,11 +1,9 @@
-# analyze_durations.py
 import pandas as pd
 import os
 import cv2 
 
-# IMPORTANT: This path must point to the CSV created in the previous step (wlasl_20_words_processed.csv)
-PROCESSED_DATA_CSV = 'wlasl_20_words_processed.csv' # <-- CHANGED
-# Path to your main WLASL videos directory (e.g., if videos are in ./videos/)
+PROCESSED_DATA_CSV = 'wlasl_20_words_processed.csv'
+
 WLASL_VIDEOS_DIR = './videos' 
 
 

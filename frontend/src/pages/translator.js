@@ -77,7 +77,7 @@ export function Translator() {
                 <div className="recognizer-columns">
                     <div className="recognizer-left-column">
                         <h2 className="recognizer-title">
-                            <i className="fas fa-camera-retro recognizer-title-icon"></i> Sign Language Recognizer
+                            <i className="fas fa-camera-retro recognizer-title-icon"></i> Sign Language Recognizer (ASL)
                         </h2>
                         <div className="recognizer-controls">
                             <button onClick={() => setResult("")} className="recognizer-control-button recognizer-capture-button" id="button1">

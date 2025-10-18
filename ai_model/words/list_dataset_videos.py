@@ -1,13 +1,12 @@
 import pandas as pd
 import os
 
-# --- Configuration ---
+
 PROCESSED_DATA_CSV = 'wlasl_20_words_processed.csv' 
 
-# Base directory where your script is running from
+
 BASE_DIR = os.getcwd() 
 
-# --- NEW: Display Limit per Sign ---
 MAX_VIDEOS_PER_SIGN_TO_DISPLAY = 5 
 
 
@@ -27,7 +26,6 @@ try:
     videos_displayed_per_sign = {} # To track how many videos we've shown for each sign
     total_found_on_disk = 0
 
-    # Sort DataFrame by gloss to group signs together in output
     df_videos_sorted = df_videos.sort_values(by='gloss').reset_index(drop=True)
 
     for index, row in df_videos_sorted.iterrows(): # Iterate through the sorted DataFrame
@@ -45,11 +43,9 @@ try:
             total_found_on_disk += 1
         else:
             print(f"  [NOT FOUND ON DISK] Sign: {gloss.upper():<10} | Path: {full_video_path}")
-            # We still count this towards the limit for the gloss, even if not found
             videos_displayed_per_sign[gloss] = videos_displayed_per_sign.get(gloss, 0) + 1 
             
     print(f"\nTotal video files found on disk and displayed: {total_found_on_disk}")
-    # Note: The total_found_on_disk here reflects only those *displayed*, not all available if limits applied.
     print(f"Total available instances in CSV: {len(df_videos)}")
 
 

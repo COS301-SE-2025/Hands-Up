@@ -129,17 +129,6 @@ export function CameraInput({ progress = 0, show = true, onSkip, onLetterDetecte
           />
         </svg>
       </div>
-      {processing && ( 
-        <div style={{
-          color: 'red',
-          fontSize: '1.2rem',
-          fontWeight: 'bold',
-          textAlign: 'center',
-          minHeight: '1.5rem'
-        }}>
-          PROCESSING...
-        </div>
-      )}
 
       <button 
         onClick={onSkip}
@@ -156,6 +145,18 @@ export function CameraInput({ progress = 0, show = true, onSkip, onLetterDetecte
       >
         Skip
       </button>
+
+      {processing && ( 
+        <div style={{
+          color: 'red',
+          fontSize: '1.2rem',
+          fontWeight: 'bold',
+          textAlign: 'center',
+          minHeight: '1.5rem'
+        }}>
+          PROCESSING...
+        </div>
+      )}
     </div>
   );
 }

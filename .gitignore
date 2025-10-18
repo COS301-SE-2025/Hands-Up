@@ -69,3 +69,4 @@ ai_model/words/extracted_landmarks
 ai_model/words/processed_sequences
 ai_model/words/my_recorded_signs
 
+ai_model/words/oldRecordings
