@@ -55,7 +55,7 @@ Thus, the system focuses on three core functionalities:
 2. Interactive sign language learning curriculum
 3. Progress tracking for users
 
-### [Watch The Demo](https://drive.google.com/file/d/1GlH0fi46Tru-OchkWjSYwU1vCfuLYwlx/view?usp=drive_link)
+### [Watch The Demo](https://drive.google.com/file/d/1W964FbnUZwtXPxfHCcFHWOjX_iofi9bY/view)
 
 <!-- <div align="Center">
 <h2 id="demo-videos--system-requirement-specifications">Demo Videos & System Requirement Specifications</h2>
@@ -93,7 +93,7 @@ Thus, the system focuses on three core functionalities:
 |-----------------------------------|-----------------------------------------|-----------------------------------------|
 | [Software Requirements Specification](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_4) | [Software Requirements Specification](https://github.com/COS301-SE-2025/Hands-Up/blob/main/documentation/Hands%20UP%20SRS.pdf) | Outlines the system's functional and non-functional requirements |
 | [Coding Standards](https://github.com/COS301-SE-2025/Hands-Up/wiki/Coding_Standards_3) | [Coding Standards](https://github.com/COS301-SE-2025/Hands-Up/blob/main/documentation/Hands%20UP%20Coding%20Standards.pdf) | Coding rules and quality guidelines |
-| Testing Policy | [Testing Document](https://github.com/COS301-SE-2025/Hands-Up/blob/main/documentation/Hands%20UP%20Testing%20Policy.pdf) | Guide to testing tools, system tests and reports|
+| Testing Policy | [Testing Policy](https://github.com/COS301-SE-2025/Hands-Up/blob/main/documentation/Hands%20UP%20Testing%20Policy.pdf) | Guide to testing tools, system tests and reports|
 | [Deployment](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_4#deployment-model) | [Deployment](https://github.com/COS301-SE-2025/Hands-Up/wiki/SRS_4) | Describes the deployment process and diagrams interactions |
 | [Project Management](https://github.com/orgs/COS301-SE-2025/projects/281) | - | Scrum board for tracking tasks and progress |
 | User Manual | [User Manual](https://github.com/COS301-SE-2025/Hands-Up/blob/main/documentation/Hands%20UP%20User%20Manual.pdf) | Guide for using the system |
@@ -102,7 +102,8 @@ Thus, the system focuses on three core functionalities:
 | [Contributions](https://github.com/COS301-SE-2025/Hands-Up/wiki/Contributions) | - | Outlines each member's individual responsibilities |
 | [References](https://github.com/COS301-SE-2025/Hands-Up/wiki/References) | - | Citations of resources used in the project |
 
-</div>
+<div align="Center">
+<a href="https://github.com/COS301-SE-2025/Hands-Up/wiki" target="_blank" rel="noopener noreferrer">Previous Versions of Project Documentation</a>
 
 <!-- <h2 align="center" id="badges">Badges </h2>
 <div align="Center"> -->
@@ -151,8 +152,6 @@ Thus, the system focuses on three core functionalities:
       I’m a detail-oriented developer with expertise in API design and system integration, as well as experience in Azure development. I have specialized in building RESTful APIs using OpenAPI specifications and have hands-on experience with Node.js and Docker, enabling seamless, adaptable deployments across diverse environments. Throughout this project, I have also gained experience with Python and its machine learning libraries, such as scikit-learn and TensorFlow.
       <br><br>
       Over the past few years, I’ve developed valuable skills in group dynamics and leadership, further strengthened by my participation in the GirlCode Hackathon and vacation work with BBD. These opportunities helped me refine my collaborative skills, apply my technical knowledge in real-world scenarios, and contribute meaningfully in team-driven environments.
-      <br><br>
-      Outside of tech, I’m an adrenaline junkie who loves piercings (currently 11 and counting)  and lives by the philosophy: reset and restart — a mindset that emphasizes that it’s okay to start over, no matter how many times you need to, even during those long debugging sessions.
       <br><br>
       <a href="https://github.com/k-aff" style="text-decoration: none; margin-right: 10px; display: inline-block; vertical-align: middle;">
         <img src="https://skillicons.dev/icons?i=github"/>
@@ -223,9 +222,11 @@ Thus, the system focuses on three core functionalities:
     <td style="vertical-align: top; width: 70%; border: 0; padding: 15px;">
       <h2><b style="font-size: 18px;">Driya Govender</b></h2>
       <h3><b style="font-size: 16px;">Business Analyst, Game Design Engineer</b></h3><br>
-      As a Computer Science student, I enjoy exploring how technology can create smart, efficient solutions. I am especially drawn to data science and the Internet of Things (IoT). 
+      Exploring how technology can create smart and efficient solutions is something I am passionate about. I am especially drawn to data science and the ways data-driven insights can shape impactful systems. 
       <br><br>
-      While most of my experience lies in front-end development, I have also gained experience in backend development through previous projects involving RESTful APIs, managing relational databases and implementing secure authentication systems. In addition to my technical skills, I am highly organized, manage my time effectively, and thrive in dynamic environments due to my adaptability and critical analysis skills.
+      While most of my experience lies in front-end development, I have also gained experience in backend development through previous projects involving RESTful APIs, managing relational databases and implementing authentication systems. Throughout this project, I have developed skills in game development and working with 3D models by editing, optimizing, and integrating them to enhance the app.
+      <br><br>
+      In addition to my technical skills, I am highly organized, manage my time effectively, and thrive in dynamic environments due to my adaptability and critical analysis skills.
       <br><br>
       <a href="https://github.com/u23535793" style="text-decoration: none; margin-right: 10px; display: inline-block; vertical-align: middle;">
         <img src="https://skillicons.dev/icons?i=github"/>
