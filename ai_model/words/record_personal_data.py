@@ -4,11 +4,10 @@ import numpy as np
 import os
 import time
 
-# --- Configuration ---
 # Directory to save recorded raw landmark data
 OUTPUT_RECORDINGS_DIR = 'my_recorded_signs'
 
-# MediaPipe parameters (should match what you used for data extraction)
+# MediaPipe parameters 
 MP_MODEL_COMPLEXITY = 1
 MP_DETECTION_CONFIDENCE = 0.5
 MP_TRACKING_CONFIDENCE = 0.5
@@ -16,7 +15,7 @@ MP_TRACKING_CONFIDENCE = 0.5
 # Recording parameters
 DEFAULT_RECORDING_DURATION_SECONDS = 3.6 # Match SEQUENCE_LENGTH / FPS (90 frames / 25 FPS)
 
-# Expected number of coordinates per frame (from previous steps)
+# Expected number of coordinates per frame 
 EXPECTED_COORDS_PER_FRAME = 1662
 
 # Define the expected number of coordinates for each type of landmark
