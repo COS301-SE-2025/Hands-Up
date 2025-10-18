@@ -137,6 +137,7 @@ export function useTranslationSocket(dexterity = 'right') {
     }, [dexterity]);
 
     const convertGloss = async (gloss) => {
+        setWsStatus('translating');
 
         if (gloss.trim()) {
             const hasAlphabets = /[a-zA-Z]/.test(gloss);
@@ -173,6 +174,8 @@ export function useTranslationSocket(dexterity = 'right') {
                 setTranslating(false);
             }
         }
+
+        setWsStatus('result');
     }
 
     return {
