@@ -145,12 +145,15 @@ export function useTranslationSocket(dexterity = 'right') {
 
             if (!hasAlphabets || wordCount < 2) {
                 const currentResult = gloss;
-
-                setResult("English Translation Not Available");
+                setResult("English Translation Not Available"); 
 
                 setTimeout(() => {
-                    setResult(currentResult);
+                    setResult(currentResult); 
                 }, 2000); 
+                
+                setTranslating(false); 
+                setWsStatus('error');   
+                return; 
             }
 
             try {
@@ -160,16 +163,11 @@ export function useTranslationSocket(dexterity = 'right') {
                 if (translation.translation && translation.translation !== "?") {
                     setResult(translation.translation);
                 } else {
-                    const currentResult = gloss;
-
-                    setResult("English Translation Not Available");
-
-                    setTimeout(() => {
-                        setResult(currentResult);
-                    }, 2000); 
+                    setResult("English Translation Not Available"); 
                 }
             } catch (err) {
                 console.error("Error producing sentence:", err);
+                setResult("Translation failed. Please try again.");
             } finally {
                 setTranslating(false);
             }
