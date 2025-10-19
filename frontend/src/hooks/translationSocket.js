@@ -137,33 +137,36 @@ export function useTranslationSocket(dexterity = 'right') {
     }, [dexterity]);
 
     const convertGloss = async (gloss) => {
-        setWsStatus('translating');
-
         if (gloss.trim()) {
             const hasAlphabets = /[a-zA-Z]/.test(gloss);
             const wordCount = gloss.trim().split(/\s+/).length;
+            const currentResult = gloss;
 
             if (!hasAlphabets || wordCount < 2) {
-                const currentResult = gloss;
-                setResult("English Translation Not Available"); 
-
+                
+                setResult("Translation Not Available"); 
+                
                 setTimeout(() => {
                     setResult(currentResult); 
                 }, 2000); 
-                
-                setTranslating(false); 
-                setWsStatus('error');   
+
                 return; 
             }
 
             try {
                 setTranslating(true);
+                setWsStatus('translating');
+
                 const translation = await produceSentence(gloss);
 
-                if (translation.translation && translation.translation !== "?") {
+                if (translation.translation && translation.translation !== "?" && translation.translation !== "English translation is not available.") {
                     setResult(translation.translation);
                 } else {
-                    setResult("English Translation Not Available"); 
+                    setResult("Translation Not Available"); 
+
+                    setTimeout(() => {
+                        setResult(currentResult); 
+                    }, 2000); 
                 }
             } catch (err) {
                 console.error("Error producing sentence:", err);
