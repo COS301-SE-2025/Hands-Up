@@ -5,12 +5,13 @@ import { CategoryTile } from '../components/learnCategoryTile';
 import { LevelTile } from '../components/learnLevelTile';
 import '../styles/learn.css';
 import { useLearningStats } from '../contexts/learningStatsContext';
-import { AngieSigns } from '../components/angieSigns';
-import { Canvas } from '@react-three/fiber';
+// import { AngieSigns } from '../components/angieSigns';
+// import { Canvas } from '@react-three/fiber';
 import PropTypes from 'prop-types';
 import PlacementTest from '../components/placementTest';
+import angieNotice from '../images/angie_notice.png';
 
-const landmarks = {};
+// const landmarks = {};
 
 const CATEGORY_PROGRESSION = [
     'alphabets',     
@@ -30,7 +31,7 @@ const CATEGORY_PROGRESSION = [
 ];
 
 const HelpMessage = ({ message, onClose, position }) => {
-    const [webglError, setWebglError] = useState(false);
+    // const [webglError, setWebglError] = useState(false);
 
     if (!message) return null;
 
@@ -52,28 +53,57 @@ const HelpMessage = ({ message, onClose, position }) => {
            positionClasses = 'top-3 right-4';
     }
 
-    const handleCanvasError = (error) => {
-        console.warn('WebGL Canvas error:', error);
-        setWebglError(true);
-    };
+    // const handleCanvasError = (error) => {
+    //     console.warn('WebGL Canvas error:', error);
+    //     setWebglError(true);
+    // };
 
-    const checkWebGLSupport = () => {
-        try {
-            const canvas = document.createElement('canvas');
-            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-            return !!gl;
-        } catch {
-            return false;
-        }
-    };
+    // const checkWebGLSupport = () => {
+    //     try {
+    //         const canvas = document.createElement('canvas');
+    //         const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    //         return !!gl;
+    //     } catch {
+    //         return false;
+    //     }
+    // };
 
-    const hasWebGL = checkWebGLSupport();
+    // const hasWebGL = checkWebGLSupport();
 
     return (
        <div className="help-message-backdrop fixed inset-0 bg-black bg-opacity-50 z-[9998] animate-fadeIn">
             <div className={`help-message-overlay fixed z-[9999] p-4 sm:p-6 rounded-2xl shadow-2xl flex flex-col items-center justify-center bg-gradient-to-br from-white to-gray-50 border border-gray-200 ${positionClasses} animate-fadeInScale max-w-[90vw] sm:max-w-md`}>
-                <div className="w-full max-w-[150px] sm:max-w-[200px] h-[150px] sm:h-[200px] rounded-xl bg-white shadow-md mb-4 flex items-center justify-center">
-                    {hasWebGL && !webglError ? (
+                <div className="w-full max-w-[150px] sm:max-w-[200px] h-[150px] sm:h-[200px] rounded-xl bg-white shadow-md mb-4 flex items-center justify-center"
+                style={{
+                    display: 'flex',           
+                    justifyContent: 'center',  
+                    alignItems: 'center',      
+                    width: '100%',             
+                    height: '100%',            
+                }}>
+                    <div style={{
+                        width: '80%',          
+                        maxWidth: '200px',     
+                        aspectRatio: '1 / 1',  
+                        borderRadius: '1rem',
+                        // backgroundColor: 'white',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        overflow: 'hidden'
+                    }}>
+                            <img
+                                src={angieNotice}
+                                alt="Angie Model"
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'contain',
+                                }}
+                                loading="lazy"
+                            />
+                    </div>
+                    {/* {hasWebGL && !webglError ? (
                         <Canvas 
                             camera={{ position: [0, 0.2, 3], fov: 30 }}
                             onError={handleCanvasError}
@@ -83,9 +113,7 @@ const HelpMessage = ({ message, onClose, position }) => {
                                 failIfMajorPerformanceCaveat: false 
                             }}
                         >
-                            {/* eslint-disable react/no-unknown-property */}
                             <ambientLight intensity={5} />
-                            {/* eslint-disable react/no-unknown-property */}
                             <group position={[0, -1.1, 0]}>
                                 <AngieSigns landmarks={landmarks} />
                             </group>
@@ -100,7 +128,7 @@ const HelpMessage = ({ message, onClose, position }) => {
                                 </div>
                             </div>
                         </div>
-                    )}
+                    )} */}
                 </div>
 
                 <p className="text-gray-800 text-base sm:text-lg text-center font-medium mb-4 sm:mb-6 leading-relaxed max-w-md px-2">
@@ -194,7 +222,13 @@ export function Learn() {
     const hasShownWelcomeThisSessionRef = useRef(false);
     const hasShownDashboardThisSessionRef = useRef(false);
     const shownCategoryHelpRef = useRef(new Set());
+    const currentCategoryRef = useRef(null);
+    const hasProcessedLocationStateRef = useRef(false);
     const initializationCompleteRef = useRef(false);
+    
+useEffect(() => {
+    currentCategoryRef.current = currentCategory;
+}, [currentCategory]);
 
     const normalizedStats = useMemo(() => {
         if (!stats) return null;
@@ -456,36 +490,43 @@ useEffect(() => {
     const progressPercent = Math.min(100, Math.round(lessonProgress));
 
     useEffect(() => {
-        if (location.state?.selectedCategory) {
-            const category = categories.find(cat => cat.id === location.state.selectedCategory);
-            if (category) {
-                setCurrentCategory(category);
-                setSelectedSection('category');
-            }
+   if (location.state?.selectedCategory && 
+        !hasProcessedLocationStateRef.current && 
+        !currentCategoryRef.current) {
+        
+        const category = categories.find(cat => cat.id === location.state.selectedCategory);
+        if (category) {
+            setCurrentCategory(category);
+            setSelectedSection('category');
+            hasProcessedLocationStateRef.current = true;
         }
-    }, [location.state, categories]);
+    }
+}, [location.state, categories]);
    
-    const goBack = () => {
-        setCurrentCategory(null);
-        setSelectedSection('dashboard');
-        
-        const shouldShowDashboard = normalizedStats && 
-                                   normalizedStats.placementTestCompleted && 
-                                   !normalizedStats.hasSeenCategoryHelp?.dashboard && 
-                                   !hasShownDashboardThisSessionRef.current &&
-                                   !isNewUser;
-        
-        if (shouldShowDashboard) {
-            hasShownDashboardThisSessionRef.current = true;
-            setTimeout(() => {
-                setShowHelpMessage({ 
-                    message: CATEGORY_HELP_MESSAGES.dashboard, 
-                    position: 'center', 
-                    helpKey: 'dashboard' 
-                });
-            }, 300);
-        }
-    };
+const goBack = useCallback(() => {
+    setCurrentCategory(null);
+    currentCategoryRef.current = null;
+    setSelectedSection('dashboard');
+    hasProcessedLocationStateRef.current = false;
+    navigate('/learn', { replace: true, state: {} });
+    
+    const shouldShowDashboard = normalizedStats && 
+                               normalizedStats.placementTestCompleted && 
+                               !normalizedStats.hasSeenCategoryHelp?.dashboard && 
+                               !hasShownDashboardThisSessionRef.current &&
+                               !isNewUser;
+    
+    if (shouldShowDashboard) {
+        hasShownDashboardThisSessionRef.current = true;
+        setTimeout(() => {
+            setShowHelpMessage({ 
+                message: CATEGORY_HELP_MESSAGES.dashboard, 
+                position: 'center', 
+                helpKey: 'dashboard' 
+            });
+        }, 300);
+    }
+}, [normalizedStats, isNewUser, navigate]);
 
     const navigateToSign = (sign, categoryId) => {
         navigate(`/sign/${sign}?category=${categoryId}`, {
@@ -519,19 +560,21 @@ useEffect(() => {
         }
     };
 
-    const handleCloseHelp = () => {
-        if (showHelpMessage.helpKey) {
-            markHelpSeen(showHelpMessage.helpKey);
-            
-            if (showHelpMessage.helpKey === 'welcome' && isNewUser && !normalizedStats?.placementTestCompleted) {
-                setTimeout(() => {
-                    setShowPlacementTest(true);
-                }, 300);
-            }
+const handleCloseHelp = useCallback(() => {
+    const helpKey = showHelpMessage?.helpKey;
+    
+    setShowHelpMessage(false);
+    
+    if (helpKey) {
+        markHelpSeen(helpKey);
+        
+        if (helpKey === 'welcome' && isNewUser && !normalizedStats?.placementTestCompleted) {
+            setTimeout(() => {
+                setShowPlacementTest(true);
+            }, 300);
         }
-        setShowHelpMessage(false);
-    };
-
+    }
+}, [showHelpMessage, isNewUser, normalizedStats, markHelpSeen]);
     const getLockedCategoryMessage = (categoryId) => {
         const currentIndex = CATEGORY_PROGRESSION.indexOf(categoryId);
         if (currentIndex <= 0) return "This category should be available. Please try again.";
@@ -541,33 +584,40 @@ useEffect(() => {
         
         return `Complete the quiz in '${previousCategoryName}' to unlock this category!`;
     };
-
-    const handleCategoryClick = (category) => {
-        if (category.unlocked) {
-            setCurrentCategory(category);
-            setShowHelpMessage(false);
-            
-            const hasSeenFromBackend = normalizedStats?.hasSeenCategoryHelp?.[category.id] === true;
-            const hasShownThisSession = shownCategoryHelpRef.current.has(category.id);
-            
-            if (!hasSeenFromBackend && !hasShownThisSession) {
-                shownCategoryHelpRef.current.add(category.id);
-                setTimeout(() => {
+/* eslint-disable react-hooks/exhaustive-deps */
+const handleCategoryClick = useCallback((category) => {
+    if (category.unlocked) {
+        setShowHelpMessage(false);
+        
+        hasProcessedLocationStateRef.current = true;
+        
+        setCurrentCategory(category);
+        currentCategoryRef.current = category;
+        
+        const hasSeenFromBackend = normalizedStats?.hasSeenCategoryHelp?.[category.id] === true;
+        const hasShownThisSession = shownCategoryHelpRef.current.has(category.id);
+        
+        if (!hasSeenFromBackend && !hasShownThisSession) {
+            shownCategoryHelpRef.current.add(category.id);
+            setTimeout(() => {
+                if (currentCategoryRef.current?.id === category.id) {
                     setShowHelpMessage({ 
                         message: CATEGORY_HELP_MESSAGES[category.id], 
                         position: 'center', 
-                        helpKey: category.id 
+                        helpKey: category.id
                     });
-                }, 300);
-            }
-        } else {
-            setShowHelpMessage({ 
-                message: getLockedCategoryMessage(category.id),
-                position: 'center',
-                helpKey: `locked_${category.id}`
-            });
+                }
+            }, 300);
         }
-    };
+    } else {
+        setShowHelpMessage({ 
+            message: getLockedCategoryMessage(category.id),
+            position: 'center',
+            helpKey: `locked_${category.id}`
+        });
+    }
+}, [normalizedStats]);
+ 
 
     const retakePlacementTest = async () => {
        
@@ -675,21 +725,14 @@ useEffect(() => {
                                     <LevelTile
                                         key={'quiz'}
                                         level={'Quiz'}
-                                        unlocked={signsLearned >= 5} 
+                                        unlocked={true} 
                                         onClick={() => {
-                                            if (signsLearned >= 5) {
                                                 navigate(getQuizRoute(currentCategory.id));
-                                            } else {
-                                                setShowHelpMessage({ 
-                                                    message: `You need to learn at least 5 signs in the Alphabet category to unlock this quiz. Keep practicing!`,
-                                                    position: 'center',
-                                                    helpKey: 'alphabet_quiz_locked'
-                                                });
-                                            }
+                                            
                                         }}
                                         style={{
-                                            backgroundColor: signsLearned >= 5 ? '#ffc107' : '#ccc',
-                                            color: signsLearned >= 5 ? '#fff' : '#666',
+                                            backgroundColor:  '#ffc107',
+                                            color: '#fff',
                                             fontWeight: 'bold',
                                             fontSize: '12px sm:14px'
                                         }}

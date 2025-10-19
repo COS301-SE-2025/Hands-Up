@@ -1,106 +1,164 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { useTranslator } from '../../hooks/translateResults';
-import { processLetters } from '../../utils/apiCalls';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { useTranslationSocket } from '../../hooks/translationSocket';
 
 export function CameraInput({ progress = 0, show = true, onSkip, onLetterDetected }) {
-  const { videoRef, canvasRef2 } = useTranslator();
-  const [frameBlobs, setFrameBlobs] = useState([]);
-  const [processing, setProcessing] = useState(false);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const lastDetectedLetterRef = useRef(null);
+
+  const {
+    wsRef,
+    startRecording,
+    stopRecording,
+    sendFrame,
+    wsStatus,
+    isProcessing,
+    setResult
+  } = useTranslationSocket('right');
+
+  const [detectedLetter, setDetectedLetter] = useState(null);
 
   const captureFrame = useCallback(() => {
     const video = videoRef.current;
-    const canvas = canvasRef2.current;
-    if (!video || !canvas) return;
+    const canvas = canvasRef.current;
+    if (!video || !canvas || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN)
+      return;
 
     const ctx = canvas.getContext('2d');
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
+
     ctx.save();
     ctx.translate(canvas.width, 0);
     ctx.scale(-1, 1);
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     ctx.restore();
 
-    canvas.toBlob(blob => {
-      if (blob) setFrameBlobs(prev => [...prev, blob]);
-    }, 'image/jpeg', 0.8);
-  }, [videoRef, canvasRef2]);
+    sendFrame(video);
+  }, [sendFrame, wsRef]);
 
   useEffect(() => {
-    if (!show || processing) return;
+    if (!show) return;
+    const enableCamera = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+        });
+        if (videoRef.current) videoRef.current.srcObject = stream;
+      } catch (err) {
+        console.error('Camera access denied:', err);
+      }
+    };
+    enableCamera();
+
+    const currentVideo = videoRef.current
+
+    return () => {
+      if (currentVideo?.srcObject) {
+        currentVideo.srcObject.getTracks().forEach(t => t.stop());
+      }
+    };
+  }, [show]);
+
+  useEffect(() => {
+    if (!show) {
+      stopRecording();
+      return;
+    }
+
+    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+      startRecording('alpha', 10);
+    }
 
     const interval = setInterval(() => {
       captureFrame();
-    }, 100); // 10 fps
+    }, 120); 
 
-    return () => clearInterval(interval);
-  }, [show, processing, captureFrame]);
+    return () => {
+      clearInterval(interval);
+      stopRecording();
+    };
+  }, [show, startRecording, stopRecording, captureFrame, wsRef]);
 
   useEffect(() => {
-    const sendFrames = async () => {
-      const requiredFrames = 20;
-      if (frameBlobs.length < requiredFrames || processing) return; 
+    const ws = wsRef.current;
+    if (!ws) return;
 
-      setProcessing(true);
-      try {
-        const formData = new FormData();
-        frameBlobs.forEach((blob, idx) => {
-          formData.append('frames', blob, `frame_${idx}.jpg`);
-        });
+    ws.onmessage = async (event) => {
+      const data = JSON.parse(event.data);
+      const letter = data?.letter?.toUpperCase?.() ?? '';
 
-        const result = await processLetters(formData); 
-        console.log("API response:", result);
+      if (/^[A-Z]$/.test(letter)) {
+        if (letter !== detectedLetter && letter !== lastDetectedLetterRef.current) {
+          // console.log('New letter detected:', letter);
 
-        if (result?.letter) {
-          onLetterDetected?.(result.letter.toUpperCase());
+          setDetectedLetter(letter);
+          lastDetectedLetterRef.current = letter;
+          onLetterDetected?.(letter);
+          stopRecording();
+
+          setTimeout(() => {
+            setResult(null);
+            setDetectedLetter(null);
+            startRecording('alpha', 10);
+          }, 1500);
+        } else {
+          // console.log(`Ignored duplicate letter: ${letter}`);
         }
-      } 
-      catch (err) {
-        console.error("Error sending frames:", err);
-      } 
-      finally {
-        setFrameBlobs([]); 
-        setProcessing(false);
       }
     };
 
-    sendFrames();
-  }, [frameBlobs, processing, onLetterDetected]);
+    ws.onclose = () => {
+      // console.log('WebSocket closed from CameraInput');
+    };
 
+    return () => {
+      ws.onmessage = null;
+      ws.onclose = null;
+    };
+  }, [
+    wsRef,  
+    onLetterDetected,
+    detectedLetter,
+    stopRecording,
+    startRecording,
+    setResult,
+  ]);
   if (!show) return null;
 
   return (
-    <div style={{
-      position: 'absolute',
-      top: '30%',              
-      left: '50%',
-      transform: 'translateX(-50%)', 
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      zIndex: 50,
-      gap: '1rem'
-    }}>
-      <div style={{
-        width: '25vw',
-        maxWidth: '300px',
-        aspectRatio: '1 / 1',
-        borderRadius: '50%',
-        overflow: 'hidden',
-        position: 'relative',
-        background: 'white',
-      }}>
-        <video 
-          ref={videoRef} 
-          autoPlay 
-          playsInline 
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+    <div
+      style={{
+        position: 'absolute',
+        top: '30%',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        zIndex: 50,
+        gap: '1rem',
+      }}
+    >
+      <div
+        style={{
+          width: '25vw',
+          maxWidth: '300px',
+          aspectRatio: '1 / 1',
+          borderRadius: '50%',
+          overflow: 'hidden',
+          position: 'relative',
+          background: 'white',
+        }}
+      >
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
-        <canvas 
-          ref={canvasRef2} 
-          hidden
-        />
+        <canvas ref={canvasRef} hidden />
         <svg
           viewBox="0 0 100 100"
           style={{
@@ -109,7 +167,7 @@ export function CameraInput({ progress = 0, show = true, onSkip, onLetterDetecte
             left: 0,
             width: '100%',
             height: '100%',
-            zIndex: 1
+            zIndex: 1,
           }}
         >
           <circle
@@ -124,25 +182,17 @@ export function CameraInput({ progress = 0, show = true, onSkip, onLetterDetecte
             style={{
               transition: 'stroke-dashoffset 0.1s linear',
               transform: 'rotate(-90deg)',
-              transformOrigin: '50% 50%'
+              transformOrigin: '50% 50%',
             }}
           />
         </svg>
       </div>
-      {processing && ( 
-        <div style={{
-          color: 'red',
-          fontSize: '1.2rem',
-          fontWeight: 'bold',
-          textAlign: 'center',
-          minHeight: '1.5rem'
-        }}>
-          PROCESSING...
-        </div>
-      )}
 
-      <button 
-        onClick={onSkip}
+      <button
+        onClick={() => {
+          stopRecording();
+          onSkip?.();
+        }}
         style={{
           padding: '0.5rem 1rem',
           background: 'red',
@@ -151,11 +201,31 @@ export function CameraInput({ progress = 0, show = true, onSkip, onLetterDetecte
           borderRadius: '8px',
           fontWeight: 'bold',
           cursor: 'pointer',
-          zIndex: 51
+          zIndex: 51,
         }}
       >
         Skip
       </button>
+
+      {isProcessing && (
+        <div
+          style={{
+            color: 'red',
+            fontSize: '1rem',
+            fontWeight: 'bold',
+            textAlign: 'center',
+            minHeight: '1.5rem',
+          }}
+        >
+          PROCESSING...
+        </div>
+      )}
+
+      {wsStatus === 'collecting' && !isProcessing && (
+        <div style={{ color: 'green', fontWeight: 'bold', fontSize: '1rem' }}>
+          COLLECTING FRAMES...
+        </div>
+      )}
     </div>
   );
 }

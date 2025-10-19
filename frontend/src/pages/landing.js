@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import { FaAmericanSignLanguageInterpreting, FaComments, FaGlobeAfrica, FaChartLine, FaGamepad } from "react-icons/fa";
+import { FaAmericanSignLanguageInterpreting, FaGlobeAfrica, FaChartLine, FaGamepad, FaMusic } from "react-icons/fa";
 import { FaPersonChalkboard } from "react-icons/fa6";
 import '../styles/landing.css';
 import video1 from "../media/landing_video1.mp4";
@@ -16,9 +16,10 @@ export function Landing(){
   const goToLogin = () => navigate('/login');
   const goToSignup = () => navigate('/signup');
   const goToTranslator = () => navigate('/translator');
-
+  // eslint-disable-next-line no-unused-vars
   const [error, setError] = useState('');
 
+  // eslint-disable-next-line no-unused-vars
   const handleClick = () => {
     setError('Coming soon!');
     setTimeout(() => {
@@ -81,7 +82,7 @@ export function Landing(){
                 <br></br><br></br>
                 Whether you&apos;re just starting to learn or a novice signer, Hands UP uses AI to translate sign language instantly through your device&apos;s camera — turning signs into text and speech with ease, right when you need it.
                 <br></br><br></br>
-                But it is more than just a translator. It&apos;s a fun, interactive learning space where you can practice, improve your signing skills and get real-time feedback to build your confidence as you go.</p>
+                But it is more than just a translator. It&apos;s a complete learning space for all ages, with interactive lessons, a fun game, and nursery rhymes in sign language designed to make learning engaging and enjoyable.</p>
           </div>
         </div>
       </div>
@@ -118,18 +119,6 @@ export function Landing(){
           <div className="landing-feature-card" data-aos="fade-up">
             <div className="card-inner">
               <div className="card-front one-front">
-                <FaComments className="landing-feature-icon" />
-                <p>Instant Feedback</p>
-              </div>
-              <div className="card-back">
-                <p>AI-driven feedback on your signs for better accuracy and faster improvement.</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="landing-feature-card" data-aos="fade-up">
-            <div className="card-inner">
-              <div className="card-front two-front">
                 <FaChartLine className="landing-feature-icon" />
                 <p>Progress Tracking</p>
               </div>
@@ -141,12 +130,24 @@ export function Landing(){
 
           <div className="landing-feature-card" data-aos="fade-up">
             <div className="card-inner">
-              <div className="card-front one-front">
+              <div className="card-front two-front">
                 <FaGamepad className="landing-feature-icon" />
-                <p>Fun Challenges</p>
+                <p>Sign Surfers</p>
               </div>
               <div className="card-back">
-                <p>Play a fun sign-collecting game where you grab the right signs to build words as you go!</p>
+                <p>Play a fun sign-collecting game where you grab the right signs to build words as you go.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="landing-feature-card" data-aos="fade-up">
+            <div className="card-inner">
+              <div className="card-front one-front">
+                <FaMusic className="landing-feature-icon" />
+                <p>Sing & Sign</p>
+              </div>
+              <div className="card-back">
+                <p>Follow along with Angie as you learn popular nursery rhymes in sign language.</p>
               </div>
             </div>
           </div>
@@ -173,12 +174,52 @@ export function Landing(){
         
         <div className="help-container">
           <div className="download-info" data-aos="fade-up">
-            <h3>How to Download</h3>
-            <p>Download info coming soon...</p>
+            <h3>Get the Hands UP App</h3>
+            <p className="download-subtitle">Get instant access! Install the Hands UP app directly to your device:</p>
+            
             <img src={devices} alt="Devices" className="device-image"/>
-            {/* <a href="https://play.google.com" target="_blank" rel="noopener noreferrer" className="download-button">Download Now</a> */}
-            <button className="download-button" onClick={handleClick}>Download Now</button>
-            {error && <p className="error-message">{error}</p>}
+            
+            <div className="installation-cards">
+              <div className="install-card desktop-card">
+                <div className="card-header">
+                  <h4>Desktop Installation</h4>
+                </div>
+                <div className="install-steps">
+                  <div className="step-item">
+                    <span className="step-number">1</span>
+                    <p>Tap the three dots menu <strong>(⋮)</strong> at the top right</p>
+                  </div>
+                  <div className="step-item">
+                    <span className="step-number">2</span>
+                    <p>Select <strong>&apos;Cast, Save and Share&apos;</strong></p>
+                  </div>
+                  <div className="step-item">
+                    <span className="step-number">3</span>
+                    <p>Click <strong>&apos;Install App&apos;</strong></p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="install-card mobile-card">
+                <div className="card-header">
+                  <h4>Mobile Installation</h4>
+                </div>
+                <div className="install-steps">
+                  <div className="step-item">
+                    <span className="step-number">1</span>
+                    <p>Tap the menu icon <strong>(⋮)</strong> in your browser</p>
+                  </div>
+                  <div className="step-item">
+                    <span className="step-number">2</span>
+                    <p>Select <strong>&apos;Add to Home Screen&apos;</strong></p>
+                  </div>
+                  <div className="step-item">
+                    <span className="step-number">3</span>
+                    <p>Tap <strong>&apos;Install&apos;</strong> to confirm</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="tutorial-video" data-aos="fade-up">
