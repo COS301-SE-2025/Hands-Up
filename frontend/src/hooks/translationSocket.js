@@ -137,42 +137,46 @@ export function useTranslationSocket(dexterity = 'right') {
     }, [dexterity]);
 
     const convertGloss = async (gloss) => {
-
         if (gloss.trim()) {
             const hasAlphabets = /[a-zA-Z]/.test(gloss);
             const wordCount = gloss.trim().split(/\s+/).length;
+            const currentResult = gloss;
 
             if (!hasAlphabets || wordCount < 2) {
-                const currentResult = gloss;
-
-                setResult("English Translation Not Available");
-
+                
+                setResult("Translation Not Available"); 
+                
                 setTimeout(() => {
-                    setResult(currentResult);
+                    setResult(currentResult); 
                 }, 2000); 
+
+                return; 
             }
 
             try {
                 setTranslating(true);
+                setWsStatus('translating');
+
                 const translation = await produceSentence(gloss);
 
-                if (translation.translation && translation.translation !== "?") {
+                if (translation.translation && translation.translation !== "?" && translation.translation !== "English translation is not available.") {
                     setResult(translation.translation);
                 } else {
-                    const currentResult = gloss;
-
-                    setResult("English Translation Not Available");
+                    setResult("Translation Not Available"); 
 
                     setTimeout(() => {
-                        setResult(currentResult);
+                        setResult(currentResult); 
                     }, 2000); 
                 }
             } catch (err) {
                 console.error("Error producing sentence:", err);
+                setResult("Translation failed. Please try again.");
             } finally {
                 setTranslating(false);
             }
         }
+
+        setWsStatus('result');
     }
 
     return {

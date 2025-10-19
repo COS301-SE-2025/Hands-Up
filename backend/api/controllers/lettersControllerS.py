@@ -151,14 +151,19 @@ async def detectFromImageBytes(sequenceBytesList, websocket: WebSocket = None, i
             return {'letter': '', 'confidenceLetter': 0.0, 'number': '', 'confidenceNumber': 0.0}
 
     elif numFrames >= 10 and isDynamic:
+        label1, confidence1, _, _ = processSingleFrame(sequenceBytesList[0]) 
         label2, confidence2 = processSequence(sequenceBytesList[:10])
         if label2 is None:
             return {'letter': '', 'confidenceLetter': 0.0, 'number': '', 'confidenceNumber': 0.0}
         _, _, label3, confidence3 = processSingleFrame(sequenceBytesList[-1])
         if confidence2 >= 0.6:
-            return {'letter': label2, 'confidenceLetter': confidence2,
+            if label1 == 'I':
+                if label2 == 'J':
+                    return {'letter': label2, 'confidenceLetter': confidence2,
+                            'number': label3, 'confidenceNumber': confidence3}
+                else:
+                    return {'letter': label1, 'confidenceLetter': confidence1,
+                            'number': label3, 'confidenceNumber': confidence3}
+            return {'letter': label1, 'confidenceLetter': confidence1,
                     'number': label3, 'confidenceNumber': confidence3}
         return {'letter': '', 'confidenceLetter': 0.0, 'number': label3, 'confidenceNumber': confidence3}
-
-    else:
-        return {'letter': '', 'confidenceLetter': 0.0, 'number': '', 'confidenceNumber': 0.0}
