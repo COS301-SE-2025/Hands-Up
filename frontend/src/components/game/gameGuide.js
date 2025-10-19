@@ -97,7 +97,7 @@ export default function GameGuide() {
             setShowCamera(true);
             setProgress(0);
 
-            const duration = 20000; 
+            const duration = 30000; 
             let elapsed = 0;
             intervalTimer = setInterval(() => {
                 elapsed += 100;
@@ -208,10 +208,10 @@ export default function GameGuide() {
                 setReceivedLetter(true);
 
                 if (letter === targetLetter) {
-                    setTimeout(() => {
+                    setLetterIndex(idx => {let nextIndex = idx + 1; return nextIndex;});
                     setShowCamera(false);
                     setStep(6); 
-                    }, 1000);
+                    setTimeout(() => navigate('/game'), 2500);
                 } else {
                     setLifeLost(true); 
                     setTimeout(() => setLifeLost(false), 2500);
@@ -224,10 +224,10 @@ export default function GameGuide() {
         {receivedLetter && (
             <div style={{ 
                 position: 'absolute',
-                top: '25vh',
+                top: '35vh',
                 width: '100%',
                 textAlign: 'center',
-                fontSize: '2vw',
+                fontSize: '1vw',
                 color: 'red',
                 zIndex: 100
             }}>
