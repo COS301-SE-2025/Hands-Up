@@ -16,12 +16,12 @@ import GameOverScreen from '../components/game/gameOver';
 import PauseScreen from '../components/game/gamePaused';
 import StopScreen from '../components/game/gameStopped';
 
-const wordList = ["ALBERTON", "BALLITO", "BENONI", "BLOEMFONTEIN", "BOKSBURG", 
-  "CAPE TOWN", "DURBAN", "EAST LONDON", "FOURWAYS", "GEORGE", "GQEBERHA", "HOWZIT", 
-  "IZIKO", "JOHANNESBURG", "KIMBERLEY", "KNYSNA", "LEKKER", "MAHIKENG", "MAKHANDA", 
+const wordList = ["ALBERTON", "BALLITO", "BENONI", "BLOEMFONTEIN", "BOKSBURG", "BRAAI",
+  "CAPE TOWN", "DUMELA", "DURBAN", "EAST LONDON", "FOURWAYS", "GEORGE", "GQEBERHA", "HOWZIT", 
+  "IZIKO", "JOHANNESBURG", "KIMBERLEY", "KNYSNA","KOTA", "LEKKER", "MAHIKENG", "MAKHANDA", 
   "MBOMBELA", "MOSSEL BAY", "NEWCASTLE", "PIETERMARITZBURG", "POLOKWANE", "PRETORIA", 
   "RICHARDS BAY", "ROBOT", "RUSTENBURG", "SOSHANGUVE", "SOWETO", "STELLENBOSCH", 
-  "THEMBISA", "UPINGTON", "VEREENIGING", "ZULU LAND"];
+  "THEMBISA", "UPINGTON", "VEREENIGING", "ZULU LAND",];
 
 export function Game() {
     const [loading, setLoading] = useState(true);
